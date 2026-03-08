@@ -6,6 +6,9 @@ export const passwordSchema = z.string()
   .refine((val) => /[A-Z]/.test(val), {
     message: "A senha deve conter pelo menos uma letra maiúscula.",
   })
+  .refine((val) => /[a-z]/.test(val), {
+    message: "A senha deve conter pelo menos uma letra minúscula.",
+  })
   .refine((val) => /[0-9]/.test(val), {
     message: "A senha deve conter pelo menos um número.",
   })
@@ -28,4 +31,4 @@ export const signUpSchema = z.object({
   message: "As senhas não coincidem.",
   path: ["confirmPassword"],
 });
-export type SignUpSchema = z.infer<typeof signUpSchema>;
+export type SignUpValue = z.infer<typeof signUpSchema>;

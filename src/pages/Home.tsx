@@ -10,7 +10,7 @@ export default function Home() {
       </Link>
       
       <Link to="/signup">
-        <button className="mb-10 bg-blue-500">Sign Up</button>
+        <button className="mb-10 bg-blue-500">Cadastro</button>
       </Link>
     </div>
   );
