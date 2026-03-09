@@ -6,7 +6,7 @@ export default function Home() {
       <h1>Home</h1>
       {/* O Link envolve o botão e atua como uma âncora */}
       <Link to="/signin">
-        <button className="mb-10 bg-blue-500">Sign In</button>
+        <button className="mb-10 bg-blue-500">Entrar</button>
       </Link>
       
       <Link to="/signup">
