@@ -25,7 +25,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { use, useState } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
 
@@ -38,6 +38,7 @@ export default function SignUp() {
     const [submitting, setSubmitting] = useState(false)
 
     async function onSubmit(data: SignUpValue) {
+        setSubmitting(true)
         try {
             const { error } = await supabase.auth.signUp({
                 email: data.email,
@@ -48,12 +49,12 @@ export default function SignUp() {
 
             toast.success("Cadastro feito com sucesso")
             setSubmitting(false)
-            return <Navigate to="/" replace />
+            useNavigate('/')
 
         } catch (error) {
             toast.error(`Erro no cadastro: ${error instanceof Error ? error.message : String(error)}`);
-            setSubmitting(false)
         }
+        setSubmitting(false)
     }
 
     return (
@@ -184,7 +185,7 @@ export default function SignUp() {
                 </CardContent>
                 <CardFooter>
                     <Field orientation="horizontal" className="justify-center">
-                        <Button className=" w-full " type="submit" form="form-rhf-demo" disabled={submitting} onClick={() => { setSubmitting(true) }}>
+                        <Button className=" w-full " type="submit" form="form-rhf-demo" disabled={submitting}>
                             Submit
                         </Button>
                     </Field>
