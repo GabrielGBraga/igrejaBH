@@ -22,12 +22,14 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { use, useState } from "react";
+import { useState } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+
+    const navigate = useNavigate()
 
     const signForm = useForm<SignUpValue>({
         resolver: zodResolver(signUpSchema),
@@ -49,7 +51,7 @@ export default function SignUp() {
 
             toast.success("Cadastro feito com sucesso")
             setSubmitting(false)
-            useNavigate('/')
+            navigate('/')
 
         } catch (error) {
             toast.error(`Erro no cadastro: ${error instanceof Error ? error.message : String(error)}`);
