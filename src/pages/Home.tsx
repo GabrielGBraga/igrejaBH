@@ -1,6 +1,6 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { NewsTimeline } from "@/components/home/NewsTimeline";
-import { ChurchMap } from "@/components/home/ChurchMap";
+// import { ChurchMap } from "@/components/home/ChurchMap";
 
 export default function Home() {
   return (
