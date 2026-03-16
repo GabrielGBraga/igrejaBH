@@ -22,7 +22,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { EyeIcon, EyeOffIcon, UploadIcon, UserIcon, SearchIcon, Loader2 } from "lucide-react";
+import { EyeIcon, EyeOffIcon, UploadIcon, UserIcon, SearchIcon, Loader2, ArrowLeftIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
@@ -193,6 +193,12 @@ export default function SignUp() {
 
             <Card className="w-full max-w-2xl border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
                 <CardHeader className="space-y-1 text-center">
+                    <div className="flex items-center justify-between">
+                        <Button variant="ghost" onClick={() => navigate('/')}>
+                            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                            Voltar
+                        </Button>
+                    </div>
                     <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
                     <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
                 </CardHeader>

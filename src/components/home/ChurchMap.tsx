@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { NavigationIcon, MapPinIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,9 @@ const dayMap: Record<number, string> = {
 export function ChurchMap() {
   const [homeGroups, setHomeGroups] = useState<HomeGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showMap, setShowMap] = useState(false);
+  // Holds the Leaflet Map instance so we can call map.remove() on cleanup,
+  // which properly clears _leaflet_id and prevents Strict Mode double-init.
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     async function fetchHomeGroups() {
@@ -67,12 +69,15 @@ export function ChurchMap() {
     }
 
     fetchHomeGroups();
-  }, []);
 
-  useEffect(() => {
-    // Delay slightly to ensure DOM is ready and prevent strict mode double-init
-    const timer = setTimeout(() => setShowMap(true), 100);
-    return () => clearTimeout(timer);
+    // On unmount (including React Strict Mode's simulated unmount), properly
+    // remove the Leaflet instance so the container is clean for the next mount.
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
   }, []);
 
   const centerPosition: [number, number] = [-19.9226463, -43.935]; // Belo Horizonte center
@@ -94,9 +99,9 @@ export function ChurchMap() {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-4 pt-0">
         <div className="w-full flex-1 min-h-[400px] rounded-xl overflow-hidden border border-border/50 shadow-inner relative group isolate bg-secondary/10">
-          {!loading && showMap && (
+          {!loading && (
             <MapContainer
-              key="church-map"
+              ref={mapRef}
               center={centerPosition}
               zoom={13}
               scrollWheelZoom={false}
