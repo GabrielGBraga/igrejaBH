@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { HomeIcon, ArrowLeftIcon, SearchXIcon } from "lucide-react";
+import { HomeIcon, SearchXIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
