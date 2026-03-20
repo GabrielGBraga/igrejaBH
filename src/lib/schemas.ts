@@ -57,8 +57,8 @@ export type SignInValue = z.infer<typeof signInSchema>;
 export const signUpSchema = z.object({
   fullName: z.string().min(3, { message: "Nome completo deve ter pelo menos 3 caracteres." }),
   email: z.string().email({ message: "Email inválido" }),
-  phone: z.string().refine((val) => /^\d{2} \(\d{2}\) 9\d{4}-\d{4}$/.test(val), {
-    message: "Telefone deve seguir o padrão: 55 (31) 9XXXX-XXXX",
+  phone: z.string().refine((val) => /^\+55 \(\d{2}\) 9\d{4}-\d{4}$/.test(val), {
+    message: "Telefone deve seguir o padrão: +55 (31) 9XXXX-XXXX",
   }),
   cpf: z.string().refine(validateCPF, {
     message: "CPF inválido",

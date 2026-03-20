@@ -22,7 +22,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { EyeIcon, EyeOffIcon, UploadIcon, UserIcon, SearchIcon, Loader2, ArrowLeftIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, UploadIcon, UserIcon, SearchIcon, Loader2, ArrowLeftIcon, XIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
@@ -30,12 +30,24 @@ import { useNavigate, Link } from "react-router-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formatPhone = (value: string) => {
-    const v = value.replace(/\D/g, "").slice(0, 13);
+    // Remove tudo o que não é dígito, exceto o '+' inicial se já existir
+    const v = value.replace(/[^\d+]/g, "").slice(0, 14);
+    
+    // Se o usuário apagar tudo
     if (v.length === 0) return "";
-    if (v.length <= 2) return v;
-    if (v.length <= 4) return `${v.slice(0, 2)} (${v.slice(2)}`;
-    if (v.length <= 9) return `${v.slice(0, 2)} (${v.slice(2, 4)}) ${v.slice(4)}`;
-    return `${v.slice(0, 2)} (${v.slice(2, 4)}) ${v.slice(4, 9)}-${v.slice(9, 13)}`;
+    
+    // Garante que comece com +55 se houver números
+    let digits = v.replace(/\D/g, "");
+    if (digits.length > 0 && !v.startsWith("+")) {
+       // Se o usuário não digitou 55 mas digitou algo, adicionamos o 55 se houver mais de 2 dígitos ou se o contexto pedir
+       // Mas o mais simples é só garantir o prefixo se ele começar a digitar.
+    }
+
+    const clean = digits.slice(0, 13);
+    if (clean.length <= 2) return `+${clean}`;
+    if (clean.length <= 4) return `+${clean.slice(0, 2)} (${clean.slice(2)}`;
+    if (clean.length <= 9) return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4)}`;
+    return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4, 9)}-${clean.slice(9, 13)}`;
 };
 
 export default function SignUp() {
@@ -80,6 +92,13 @@ export default function SignUp() {
         }
     }
 
+    const clearAvatar = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
     // Busca CEP automaticamente
     const zipCode = signForm.watch("addressZipCode");
     useEffect(() => {
@@ -113,20 +132,40 @@ export default function SignUp() {
 
     async function onSubmit(data: SignUpValue) {
         setSubmitting(true)
-        try {
+        
+        const signupOperation = async () => {
+            // 1. Auth SignUp Primeiro
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: data.email,
+                password: data.password,
+                options: {
+                    data: {
+                        full_name: data.fullName,
+                    }
+                }
+            })
+            
+            if (authError) throw authError
+            if (!authData.user) throw new Error("Erro ao criar usuário");
+
             let avatarUrl = ""
 
-            // 1. Upload Avatar
+            // 2. Upload Avatar (Agora com usuário criado)
             if (avatarFile) {
                 const fileExt = avatarFile.name.split('.').pop()
-                const fileName = `${Math.random()}.${fileExt}`
-                const filePath = `avatars/${fileName}`
+                // Usando o ID do usuário para o nome do arquivo
+                const filePath = `${authData.user.id}/${Math.random()}.${fileExt}`
 
                 const { error: uploadError } = await supabase.storage
                     .from('avatars')
                     .upload(filePath, avatarFile)
 
-                if (uploadError) throw uploadError
+                if (uploadError) {
+                    console.error("Erro no upload do avatar:", uploadError);
+                    // Se falhar o upload, podemos continuar ou avisar, 
+                    // mas aqui vamos lançar erro para o toast mostrar
+                    throw uploadError;
+                }
 
                 const { data: { publicUrl } } = supabase.storage
                     .from('avatars')
@@ -135,52 +174,52 @@ export default function SignUp() {
                 avatarUrl = publicUrl
             }
 
-            // 2. Auth SignUp
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: data.email,
-                password: data.password,
-                options: {
-                    data: {
-                        full_name: data.fullName,
-                        avatar_url: avatarUrl,
-                    }
-                }
-            })
-            
-            if (authError) throw authError
-
             // 3. Update Profile
-            if (authData.user) {
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .update({
-                        phone: data.phone,
-                        cpf: data.cpf,
-                        birth_date: data.birthDate,
-                        baptism_date: data.baptismDate || null,
-                        gender: data.gender,
-                        marital_status: data.maritalStatus,
-                        address_zip_code: data.addressZipCode,
-                        address_street: data.addressStreet,
-                        address_number: data.addressNumber,
-                        address_neighborhood: data.addressNeighborhood,
-                        address_city: data.addressCity,
-                        address_state: data.addressState,
-                        address_complement: data.addressComplement,
-                    })
-                    .eq('user_id', authData.user.id)
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({
+                    avatar_url: avatarUrl, // Atualiza com a URL se houver
+                    phone: data.phone,
+                    cpf: data.cpf,
+                    birth_date: data.birthDate,
+                    baptism_date: data.baptismDate || null,
+                    gender: data.gender,
+                    marital_status: data.maritalStatus,
+                    address_zip_code: data.addressZipCode,
+                    address_street: data.addressStreet,
+                    address_number: data.addressNumber,
+                    address_neighborhood: data.addressNeighborhood,
+                    address_city: data.addressCity,
+                    address_state: data.addressState,
+                    address_complement: data.addressComplement,
+                })
+                .eq('user_id', authData.user.id)
 
-                if (profileError) throw profileError
-            }
+            if (profileError) throw profileError
 
-            toast.success("Cadastro realizado com sucesso!")
-            navigate('/')
-
-        } catch (error) {
-            toast.error(`Erro no cadastro: ${error instanceof Error ? error.message : String(error)}`);
-        } finally {
-            setSubmitting(false)
+            return authData
         }
+
+        toast.promise(signupOperation(), {
+            loading: "Criando sua conta...",
+            success: () => {
+                navigate('/')
+                return "Cadastro realizado com sucesso!"
+            },
+            error: (error) => {
+                console.error("Error on sign up: ", error);
+                if (error instanceof Error) {
+                    if (error.message === "User already registered") {
+                        return "Este e-mail já está cadastrado.";
+                    }
+                    return error.message;
+                }
+                return "Erro ao realizar cadastro. Tente novamente.";
+            },
+            finally: () => {
+                setSubmitting(false)
+            }
+        })
     }
 
     return (
@@ -207,17 +246,33 @@ export default function SignUp() {
                         
                         {/* Seção: Avatar */}
                         <div className="flex flex-col items-center gap-4 mb-6">
-                            <div className="relative h-24 w-24 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center overflow-hidden bg-muted group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                {avatarPreview ? (
-                                    <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
-                                ) : (
-                                    <UserIcon className="h-12 w-12 text-muted-foreground" />
-                                )}
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <UploadIcon className="h-6 w-6 text-white" />
+                            <div className="relative h-24 w-24 group">
+                                <div 
+                                    className="relative h-full w-full rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center bg-muted overflow-hidden cursor-pointer shadow-inner" 
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    {avatarPreview ? (
+                                        <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
+                                    ) : (
+                                        <UserIcon className="h-12 w-12 text-muted-foreground" />
+                                    )}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <UploadIcon className="h-6 w-6 text-white" />
+                                    </div>
                                 </div>
+                                {avatarPreview && (
+                                    <button 
+                                        type="button" 
+                                        onClick={clearAvatar}
+                                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 shadow-lg hover:scale-110 transition-transform z-20"
+                                    >
+                                        <XIcon className="h-3 w-3" />
+                                    </button>
+                                )}
                             </div>
                             <p className="text-xs text-muted-foreground">Clique na imagem para carregar sua foto</p>
+
+
                             <input 
                                 type="file" 
                                 ref={fileInputRef} 
@@ -257,16 +312,26 @@ export default function SignUp() {
                                 control={signForm.control}
                                 render={({ field: { onChange, value, ...fieldProps }, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel>Telefone* (55 31 9XXXX-XXXX)</FieldLabel>
+                                        <FieldLabel>Telefone* (+55 31 9XXXX-XXXX)</FieldLabel>
                                         <Input
                                             {...fieldProps}
                                             value={value || ""}
                                             onChange={(e) => {
+                                                const cursor = e.target.selectionStart;
                                                 const formatted = formatPhone(e.target.value);
                                                 onChange(formatted);
+                                                
+                                                // Pequeno timeout para restaurar a posição do cursor após o render do React
+                                                setTimeout(() => {
+                                                    if (e.target && cursor !== null) {
+                                                        // Se o novo valor for maior (ex: adicionou parênteses), o cursor pode precisar andar
+                                                        const diff = formatted.length - e.target.value.length;
+                                                        e.target.setSelectionRange(cursor + diff, cursor + diff);
+                                                    }
+                                                }, 0);
                                             }}
-                                            placeholder="55 (31) 99999-9999"
-                                            maxLength={19}
+                                            placeholder="+55 (31) 99999-9999"
+                                            maxLength={20}
                                         />
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>

@@ -42,24 +42,38 @@ export default function SignIn() {
 
   async function onSubmit(data: SignInValue) {
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
+    
+    toast.promise(
+      supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
-      });
-
-      if (error) throw error;
-
-      toast.success("Login realizado com sucesso!");
-      navigate("/");
-    } catch (error) {
-      console.error("Error on sign in: ", error);
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao realizar login"
-      );
-    } finally {
-      setLoading(false);
-    }
+      }).then(({ error, data: authData }) => {
+        if (error) throw error;
+        return authData;
+      }),
+      {
+        loading: "Realizando login...",
+        success: () => {
+          navigate("/");
+          return "Login realizado com sucesso!";
+        },
+        error: (error) => {
+          console.error("Error on sign in: ", error);
+          if (error instanceof Error) {
+            if (error.message === "Invalid login credentials") {
+              return "Email ou senha incorretos.";
+            } else if (error.message === "Email not confirmed") {
+              return "Por favor, confirme seu e-mail antes de acessar.";
+            }
+            return error.message;
+          }
+          return "Erro ao realizar login. Tente novamente.";
+        },
+        finally: () => {
+          setLoading(false);
+        },
+      }
+    );
   }
 
   return (

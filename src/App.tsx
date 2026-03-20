@@ -4,10 +4,12 @@ import SignUp from './pages/SignUp.tsx';
 import Home from './pages/Home.tsx';
 import NotFound from './pages/NotFound.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
     <BrowserRouter>
+      <Toaster />
       <Routes>
 
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
