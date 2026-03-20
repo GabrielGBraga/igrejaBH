@@ -5,21 +5,43 @@ import {
     UsersIcon, 
     SettingsIcon, 
     MessageCircleIcon,
-    LogOutIcon 
+    LogOutIcon,
+    PlusCircleIcon 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import supabase from "@/lib/supabase";
-
-const navItems = [
-    { name: "Início", path: "/", icon: HomeIcon },
-    { name: "Eventos", path: "/eventos", icon: CalendarIcon },
-    { name: "Grupos Caseiros", path: "/grupos", icon: UsersIcon },
-    { name: "Mensagens", path: "/mensagens", icon: MessageCircleIcon },
-    { name: "Ajustes", path: "/ajustes", icon: SettingsIcon },
-];
+import { useEffect, useState } from "react";
 
 export function Sidebar() {
     const location = useLocation();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        async function checkAdmin() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("is_dev, is_presbyter")
+                    .eq("user_id", session.user.id)
+                    .single();
+                
+                if (profile) {
+                    setIsAdmin(!!(profile.is_dev || profile.is_presbyter));
+                }
+            }
+        }
+        checkAdmin();
+    }, []);
+
+    const navItems = [
+        { name: "Início", path: "/", icon: HomeIcon },
+        { name: "Eventos", path: "/eventos", icon: CalendarIcon },
+        { name: "Grupos Caseiros", path: "/grupos-caseiros", icon: UsersIcon },
+        ...(isAdmin ? [{ name: "Novo Grupo", path: "/grupos-caseiros/adicionar", icon: PlusCircleIcon }] : []),
+        { name: "Mensagens", path: "/mensagens", icon: MessageCircleIcon },
+        { name: "Ajustes", path: "/ajustes", icon: SettingsIcon },
+    ];
 
     const handleLogout = async () => {
         await supabase.auth.signOut();

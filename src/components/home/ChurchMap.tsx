@@ -23,7 +23,6 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 interface HomeGroup {
   id: string;
-  name: string;
   meeting_day: number;
   location_text: string;
   lat: number;
@@ -70,14 +69,8 @@ export function ChurchMap() {
 
     fetchHomeGroups();
 
-    // On unmount (including React Strict Mode's simulated unmount), properly
-    // remove the Leaflet instance so the container is clean for the next mount.
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
+    // Cleanup handles itself via react-leaflet
+    return () => {};
   }, []);
 
   const centerPosition: [number, number] = [-19.9226463, -43.935]; // Belo Horizonte center
@@ -134,7 +127,7 @@ export function ChurchMap() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2 font-semibold text-sm m-0 text-primary">
                         <Users className="w-4 h-4" />
-                        {group.name}
+                        Grupo Caseiro
                       </div>
                       <div className="text-xs text-muted-foreground m-0 flex flex-col gap-1">
                         <span className="font-medium text-foreground">

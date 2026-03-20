@@ -204,7 +204,7 @@ export default function SignIn() {
           <p className="text-center text-sm text-muted-foreground">
             Ainda não tem uma conta?{" "}
             <Link
-              to="/signup"
+              to="/cadastro"
               className="text-primary hover:text-primary/80 font-medium transition-colors"
             >
               Cadastre-se agora

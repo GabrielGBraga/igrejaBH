@@ -51,29 +51,35 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          lat: number | null
           leader_1_id: string | null
           leader_2_id: string | null
+          lng: number | null
           location_text: string | null
           meeting_day: number | null
-          name: string
+          start_time: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
+          lat?: number | null
           leader_1_id?: string | null
           leader_2_id?: string | null
+          lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
-          name: string
+          start_time?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          lat?: number | null
           leader_1_id?: string | null
           leader_2_id?: string | null
+          lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
-          name?: string
+          start_time?: string | null
         }
         Relationships: [
           {
@@ -120,7 +126,7 @@ export type Database = {
           id?: string
           series_name?: string | null
           title?: string
-          type: Database["public"]["Enums"]["media_type"]
+          type?: Database["public"]["Enums"]["media_type"]
           url?: string
         }
         Relationships: []
@@ -149,7 +155,7 @@ export type Database = {
         Update: {
           author_id?: string | null
           category?: Database["public"]["Enums"]["post_category"]
-          content: string
+          content?: string
           created_at?: string | null
           event_date?: string | null
           id?: string
@@ -169,6 +175,7 @@ export type Database = {
       profiles: {
         Row: {
           address_city: string | null
+          address_complement: string | null
           address_neighborhood: string | null
           address_number: string | null
           address_state: string | null
@@ -187,7 +194,6 @@ export type Database = {
           id: string
           is_deacon: boolean | null
           is_dev: boolean | null
-          is_leader: boolean | null
           is_presbyter: boolean | null
           marital_status: string | null
           phone: string | null
@@ -195,6 +201,7 @@ export type Database = {
         }
         Insert: {
           address_city?: string | null
+          address_complement?: string | null
           address_neighborhood?: string | null
           address_number?: string | null
           address_state?: string | null
@@ -213,7 +220,6 @@ export type Database = {
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
-          is_leader?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
           phone?: string | null
@@ -221,6 +227,7 @@ export type Database = {
         }
         Update: {
           address_city?: string | null
+          address_complement?: string | null
           address_neighborhood?: string | null
           address_number?: string | null
           address_state?: string | null
@@ -239,7 +246,6 @@ export type Database = {
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
-          is_leader?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
           phone?: string | null

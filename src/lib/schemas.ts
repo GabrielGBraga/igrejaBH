@@ -82,3 +82,13 @@ export const signUpSchema = z.object({
   path: ["confirmPassword"],
 });
 export type SignUpValue = z.infer<typeof signUpSchema>;
+export const homeGroupSchema = z.object({
+  meetingDay: z.number().min(0).max(6),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, { message: "Horário inválido (HH:MM)" }),
+  locationText: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres." }),
+  leader1Id: z.string().uuid({ message: "Selecione um líder" }),
+  leader2Id: z.string().uuid().optional().nullable(),
+  lat: z.number().optional().nullable(),
+  lng: z.number().optional().nullable(),
+});
+export type HomeGroupValue = z.infer<typeof homeGroupSchema>;

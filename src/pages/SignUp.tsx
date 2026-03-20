@@ -603,7 +603,7 @@ export default function SignUp() {
                     <p className="text-center text-sm text-muted-foreground mt-2">
                         Já tem uma conta?{" "}
                         <Link
-                            to="/signin"
+                            to="/entrar"
                             className="text-primary hover:text-primary/80 font-medium transition-colors"
                         >
                             Faça login
