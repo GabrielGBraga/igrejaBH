@@ -28,6 +28,14 @@ import supabase from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogDescription 
+} from "@/components/ui/dialog";
+import { ImageCropper } from "@/components/ImageCropper";
 
 const formatPhone = (value: string) => {
     // Remove tudo o que não é dígito, exceto o '+' inicial se já existir
@@ -83,14 +91,22 @@ export default function SignUp() {
     const [searchingCep, setSearchingCep] = useState(false)
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+    const [isCropping, setIsCropping] = useState(false)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0]
-            setAvatarFile(file)
             setAvatarPreview(URL.createObjectURL(file))
+            setIsCropping(true)
         }
     }
+
+    const handleCropComplete = (croppedBlob: Blob) => {
+        const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" });
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(croppedBlob));
+        setIsCropping(false);
+    };
 
     const clearAvatar = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -611,6 +627,26 @@ export default function SignUp() {
                     </p>
                 </CardFooter>
             </Card>
+
+            <Dialog open={isCropping} onOpenChange={setIsCropping}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Ajustar Foto</DialogTitle>
+                        <DialogDescription>
+                            Arraste e aproxime para escolher o melhor enquadramento para seu perfil.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {avatarPreview && (
+                        <div className="py-4">
+                            <ImageCropper 
+                                image={avatarPreview} 
+                                onCropComplete={handleCropComplete}
+                                onCancel={() => setIsCropping(false)}
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
