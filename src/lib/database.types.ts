@@ -137,8 +137,10 @@ export type Database = {
           category: Database["public"]["Enums"]["post_category"]
           content: string
           created_at: string | null
-          event_date: string | null
+          event_end_date: string | null
+          event_start_date: string | null
           id: string
+          image_urls: string[] | null
           is_published: boolean | null
           title: string
         }
@@ -147,8 +149,10 @@ export type Database = {
           category?: Database["public"]["Enums"]["post_category"]
           content: string
           created_at?: string | null
-          event_date?: string | null
+          event_end_date?: string | null
+          event_start_date?: string | null
           id?: string
+          image_urls?: string[] | null
           is_published?: boolean | null
           title: string
         }
@@ -157,8 +161,10 @@ export type Database = {
           category?: Database["public"]["Enums"]["post_category"]
           content?: string
           created_at?: string | null
-          event_date?: string | null
+          event_end_date?: string | null
+          event_start_date?: string | null
           id?: string
+          image_urls?: string[] | null
           is_published?: boolean | null
           title?: string
         }
@@ -352,7 +358,7 @@ export type Database = {
     }
     Enums: {
       media_type: "video" | "pdf"
-      post_category: "noticia" | "oracao" | "diaconato" | "obra"
+      post_category: "noticia" | "oracao" | "aviso" | "evento"
       retreat_form_model: "geral" | "socioeconomico" | "logistica"
     }
     CompositeTypes: {
@@ -482,7 +488,7 @@ export const Constants = {
   public: {
     Enums: {
       media_type: ["video", "pdf"],
-      post_category: ["noticia", "oracao", "diaconato", "obra"],
+      post_category: ["noticia", "oracao", "aviso", "evento"],
       retreat_form_model: ["geral", "socioeconomico", "logistica"],
     },
   },
