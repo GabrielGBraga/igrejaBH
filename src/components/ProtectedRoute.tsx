@@ -5,14 +5,15 @@ import { Loader2 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"] & { is_leader?: boolean };
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
   requireAdmin?: boolean;
+  requireManagement?: boolean;
 }
 
-export function ProtectedRoute({ children, requireAdmin }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, requireAdmin, requireManagement }: ProtectedRouteProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,16 @@ export function ProtectedRoute({ children, requireAdmin }: ProtectedRouteProps) 
             .select("*")
             .eq("user_id", session.user.id)
             .single();
-          if (active) setProfile(profileData);
+          
+          if (profileData && active) {
+            // Check if user is a leader of any home group
+            const { count } = await supabase
+              .from("home_groups")
+              .select("*", { count: 'exact', head: true })
+              .or(`leader_1_id.eq.${profileData.id},leader_2_id.eq.${profileData.id}`);
+            
+            setProfile({ ...profileData, is_leader: (count || 0) > 0 });
+          }
         }
       } catch (err) {
         console.error("ProtectedRoute error:", err);
@@ -45,7 +55,13 @@ export function ProtectedRoute({ children, requireAdmin }: ProtectedRouteProps) 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (active) {
         setUser(session?.user || null);
-        setLoading(false);
+        if (!session?.user) {
+            setProfile(null);
+            setLoading(false);
+        } else {
+            // Se o usuário mudou, precisamos revalidar
+            check();
+        }
       }
     });
 
@@ -67,10 +83,19 @@ export function ProtectedRoute({ children, requireAdmin }: ProtectedRouteProps) 
     return <Navigate to="/entrar" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && profile) {
-    const isAllowed = profile.is_dev || profile.is_presbyter;
-    if (!isAllowed) {
-      return <Navigate to="/" replace />;
+  if (profile) {
+    if (requireAdmin) {
+      const isAllowed = profile.is_dev || profile.is_presbyter;
+      if (!isAllowed) {
+        return <Navigate to="/" replace />;
+      }
+    }
+
+    if (requireManagement) {
+      const isAllowed = profile.is_dev || profile.is_presbyter || profile.is_deacon || profile.is_leader;
+      if (!isAllowed) {
+        return <Navigate to="/" replace />;
+      }
     }
   }
 
