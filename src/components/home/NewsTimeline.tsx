@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import supabase from "@/lib/supabase";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 
 type Post = {
     id: string;
     title: string;
     content: string;
-    event_date: string | null;
-    category: string;
+    event_start_date: string | null;
+    event_end_date: string | null;
+    category: "noticia" | "oracao" | "aviso" | "evento";
+    image_urls?: string[] | null;
 };
 
 const visualStyles = [
@@ -22,6 +27,7 @@ const visualStyles = [
 export function NewsTimeline() {
     const [news, setNews] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [canPost, setCanPost] = useState(false);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -29,7 +35,7 @@ export function NewsTimeline() {
                 .from('posts')
                 .select('*')
                 .eq('is_published', true)
-                .order('event_date', { ascending: true })
+                .order('event_start_date', { ascending: true })
                 .limit(10);
             
             if (!error && data) {
@@ -38,27 +44,63 @@ export function NewsTimeline() {
             setLoading(false);
         };
 
+        const checkPermissions = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("can_post")
+                    .eq("user_id", session.user.id)
+                    .single();
+                
+                if (profile) {
+                    setCanPost(!!profile.can_post);
+                }
+            }
+        };
+
         fetchPosts();
+        checkPermissions();
     }, []);
 
-    const formatEventDate = (dateString: string | null) => {
-        if (!dateString) return "Data a definir";
+    const formatEventDate = (startDate: string | null, endDate: string | null) => {
+        if (!startDate) return "Data a definir";
         try {
-            const date = parseISO(dateString);
-            const formatted = format(date, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR });
-            return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+            const start = parseISO(startDate);
+            const startStr = format(start, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR });
+            
+            if (!endDate) return startStr;
+            
+            const end = parseISO(endDate);
+            
+            if (format(start, "dd/MM") === format(end, "dd/MM")) {
+                const startTime = format(start, "HH:mm");
+                const endTime = format(end, "HH:mm");
+                return `${format(start, "EEEE, dd/MM", { locale: ptBR })} | ${startTime} - ${endTime}`;
+            }
+            return `${format(start, "dd/MM")} a ${format(end, "dd/MM")}`;
         } catch (e) {
-            return dateString;
+            return startDate;
         }
     };
 
     return (
         <Card className="h-full border-border bg-card/40 backdrop-blur-md shadow-xl flex flex-col">
             <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-2">
-                    <BellIcon className="w-5 h-5 text-primary" />
-                    Mural de Avisos
-                </CardTitle>
+                <div className="flex items-center justify-between gap-4">
+                    <CardTitle className="text-xl font-bold flex items-center gap-2">
+                        <BellIcon className="w-5 h-5 text-primary" />
+                        Mural de Avisos
+                    </CardTitle>
+                    {canPost && (
+                        <Button asChild size="sm" variant="outline" className="h-8 gap-1 border-primary/20 hover:border-primary/50 hover:bg-primary/5">
+                            <Link to="/noticias/nova">
+                                <PlusIcon className="w-4 h-4" />
+                                <span className="hidden sm:inline">Novo Aviso</span>
+                            </Link>
+                        </Button>
+                    )}
+                </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto pr-2">
                 <div className="relative border-l-2 border-primary/20 ml-3 space-y-8 pb-4">
@@ -86,10 +128,31 @@ export function NewsTimeline() {
                                             <Icon className={`w-4 h-4 ${style.color}`} />
                                             <h3 className="font-semibold text-foreground text-sm lg:text-base">{item.title}</h3>
                                         </div>
-                                        <time className="text-xs font-medium text-primary block mb-2">{formatEventDate(item.event_date)}</time>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                        <time className="text-xs font-medium text-primary block mb-2">
+                                            {formatEventDate(item.event_start_date, item.event_end_date)}
+                                        </time>
+                                        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                                             {item.content}
                                         </p>
+
+                                        {item.image_urls && item.image_urls.length > 0 && (
+                                            <div className={`grid gap-2 mb-2 ${item.image_urls.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                                {item.image_urls.map((url, idx) => (
+                                                    <div 
+                                                        key={idx} 
+                                                        className={`relative rounded-md overflow-hidden bg-muted/20 border border-border/30 ${
+                                                            item.image_urls && item.image_urls.length === 3 && idx === 0 ? 'col-span-2' : ''
+                                                        }`}
+                                                    >
+                                                        <img 
+                                                            src={url} 
+                                                            alt={`Post image ${idx + 1}`} 
+                                                            className="w-full h-full object-cover max-h-48"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
