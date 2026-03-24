@@ -92,3 +92,13 @@ export const homeGroupSchema = z.object({
   lng: z.number().optional().nullable(),
 });
 export type HomeGroupValue = z.infer<typeof homeGroupSchema>;
+export const postSchema = z.object({
+  title: z.string().min(3, { message: "Título deve ter pelo menos 3 caracteres." }),
+  content: z.string().min(10, { message: "Conteúdo deve ter pelo menos 10 caracteres." }),
+  category: z.enum(["noticia", "oracao", "aviso", "evento"] as const),
+  eventStartDate: z.string().nullable().optional(),
+  eventEndDate: z.string().nullable().optional(),
+  isPublished: z.boolean(),
+  imageUrls: z.array(z.string()),
+});
+export type PostValue = z.infer<typeof postSchema>;
