@@ -42,7 +42,11 @@ export default function Materials() {
                     .select("is_presbyter, is_deacon, is_dev")
                     .eq("user_id", session.user.id)
                     .single();
-                setProfile(data);
+                setProfile(data ? {
+                    is_presbyter: !!data.is_presbyter,
+                    is_deacon: !!data.is_deacon,
+                    is_dev: !!data.is_dev,
+                } : null);
             }
             setLoading(false);
         }
