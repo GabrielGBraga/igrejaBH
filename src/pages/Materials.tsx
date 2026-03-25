@@ -245,7 +245,7 @@ export default function Materials() {
                 open={!!selectedVideo} 
                 onOpenChange={(open) => !open && setSelectedVideo(null)}
             >
-                <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-border/20 shadow-2xl">
+                <DialogContent className="sm:max-w-6xl w-[95vw] p-0 overflow-hidden bg-black/90 border-border/20 shadow-2xl">
                     <DialogHeader className="sr-only">
                         <DialogTitle>{selectedVideo?.title}</DialogTitle>
                     </DialogHeader>
