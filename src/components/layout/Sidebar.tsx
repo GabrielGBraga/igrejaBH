@@ -118,6 +118,7 @@ export function Sidebar() {
                                     src="/logo_igreja.png" 
                                     alt="Logo Igreja em BH" 
                                     className="w-full h-full object-contain p-1"
+                                LarkLogo className="w-full h-full object-contain p-1"
                                 />
                             </div>
                         </TooltipTrigger>
