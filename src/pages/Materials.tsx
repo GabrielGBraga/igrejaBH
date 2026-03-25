@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import supabase from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { fetchLatestVideos, type YouTubeVideo } from "@/lib/youtube";
 import {
     Card,
     CardContent,
@@ -33,6 +35,11 @@ export default function Materials() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
+    // YouTube states
+    const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+    const [loadingVideos, setLoadingVideos] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
+
     useEffect(() => {
         async function fetchProfile() {
             const { data: { session } } = await supabase.auth.getSession();
@@ -52,6 +59,18 @@ export default function Materials() {
         }
         fetchProfile();
     }, []);
+
+    useEffect(() => {
+        async function loadVideos() {
+            if (activeTab === "videos" && videos.length === 0) {
+                setLoadingVideos(true);
+                const fetchedVideos = await fetchLatestVideos();
+                setVideos(fetchedVideos);
+                setLoadingVideos(false);
+            }
+        }
+        loadVideos();
+    }, [activeTab]);
 
     const canAddMaterial = profile?.is_presbyter || profile?.is_deacon || profile?.is_dev;
 
@@ -122,25 +141,51 @@ export default function Materials() {
                 {/* Content Sections */}
                 <div className="grid gap-6 min-h-[400px]">
                     {activeTab === "videos" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-500">
-                            {/* Placeholder para Vídeos */}
-                            {[1, 2, 3].map((i) => (
-                                <Card key={i} className="overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 group">
-                                    <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden">
-                                        <YoutubeIcon className="h-12 w-12 text-muted-foreground/30 group-hover:scale-110 transition-transform" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                                    </div>
-                                    <CardHeader>
-                                        <CardTitle className="text-lg text-foreground">Exemplo de Vídeo {i}</CardTitle>
-                                        <CardDescription>Série: Exposição Bíblica</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            Em breve teremos os vídeos do nosso canal do YouTube listados aqui.
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                        <div className="animate-in slide-in-from-bottom-4 duration-500">
+                            {loadingVideos ? (
+                                <div className="flex justify-center items-center py-12">
+                                    <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+                                </div>
+                            ) : videos.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {videos.map((video) => (
+                                        <Card 
+                                            key={video.id} 
+                                            className="overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col"
+                                            onClick={() => setSelectedVideo(video)}
+                                        >
+                                            <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden shrink-0">
+                                                <img 
+                                                    src={video.thumbnailUrl} 
+                                                    alt={video.title} 
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                                />
+                                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                    <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-lg">
+                                                        <YoutubeIcon className="h-6 w-6 text-primary-foreground ml-1" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <CardHeader className="flex-1">
+                                                <CardTitle className="text-base text-foreground line-clamp-2" title={video.title}>
+                                                    {video.title}
+                                                </CardTitle>
+                                                <CardDescription className="text-xs">
+                                                    {new Date(video.publishedAt).toLocaleDateString('pt-BR')}
+                                                </CardDescription>
+                                            </CardHeader>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12 bg-muted/10 border border-border/50 rounded-xl">
+                                    <YoutubeIcon className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+                                    <h3 className="text-lg font-medium text-foreground">Nenhum vídeo disponível</h3>
+                                    <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
+                                        Configure a API e o ID do canal no painel de ambiente para carregar os vídeos automaticamente.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -195,6 +240,31 @@ export default function Materials() {
                     )}
                 </div>
             </div>
+
+            <Dialog 
+                open={!!selectedVideo} 
+                onOpenChange={(open) => !open && setSelectedVideo(null)}
+            >
+                <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-border/20 shadow-2xl">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{selectedVideo?.title}</DialogTitle>
+                    </DialogHeader>
+                    {selectedVideo && (
+                        <div className="aspect-video w-full bg-black flex items-center justify-center rounded-xl overflow-hidden">
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`} 
+                                title={selectedVideo.title} 
+                                frameBorder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                                className="w-full h-full"
+                            ></iframe>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
