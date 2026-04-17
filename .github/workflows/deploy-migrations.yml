@@ -17,9 +17,8 @@ jobs:
         with:
           version: latest
 
-      - name: Link and Deploy Migrations
+      - name: Deploy Migrations
         run: |
-          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PRD }} --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
-          supabase db push --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
+          supabase db push --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PRD }} --db-password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
