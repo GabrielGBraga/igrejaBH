@@ -5,7 +5,6 @@ import {
     MailIcon, 
     LogOutIcon, 
     ShieldIcon,
-    ArrowLeftIcon,
     MapPinIcon,
     PhoneIcon,
     CalendarIcon,
@@ -87,7 +86,6 @@ export default function Profile() {
                 return;
             }
 
-            // Fetch profile with joins for home_group and discipler
             const { data, error } = await supabase
                 .from("profiles")
                 .select(`
@@ -100,7 +98,6 @@ export default function Profile() {
 
             if (error) throw error;
             if (data) {
-                // Fetch spouse/partner from fellowships
                 const { data: fellowshipData } = await supabase
                     .from("fellowships")
                     .select(`
@@ -194,8 +191,6 @@ export default function Profile() {
 
     const handleCropComplete = (croppedBlob: Blob) => {
         if (!avatarPreview) return;
-        
-        // extrair extensão do arquivo original ou usar jpg
         const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" });
         setAvatarFile(file);
         setAvatarPreview(URL.createObjectURL(croppedBlob));
@@ -214,19 +209,16 @@ export default function Profile() {
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
             const filePath = `${fileName}`;
 
-            // Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(filePath, avatarFile);
 
             if (uploadError) throw uploadError;
 
-            // Get Public URL
             const { data: { publicUrl } } = supabase.storage
                 .from('avatars')
                 .getPublicUrl(filePath);
 
-            // Update profile
             const { error: updateError } = await supabase
                 .from("profiles")
                 .update({ avatar_url: publicUrl })
@@ -254,67 +246,21 @@ export default function Profile() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background p-4 md:p-8 pb-12">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    <div className="flex items-center gap-4">
-                        <Skeleton className="size-10 rounded-full" />
-                        <Skeleton className="h-9 w-48" />
+            <div className="space-y-8 animate-in fade-in duration-500">
+                <Skeleton className="h-10 w-48" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1 space-y-4">
+                        <Skeleton className="h-[400px] w-full rounded-2xl" />
                     </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-1 space-y-4">
-                            <Card className="border-border bg-card/50">
-                                <CardHeader className="flex flex-col items-center gap-4 pt-12">
-                                    <Skeleton className="size-28 rounded-full" />
-                                    <div className="flex flex-col items-center gap-2">
-                                        <Skeleton className="h-6 w-32" />
-                                        <Skeleton className="h-5 w-24 rounded-full" />
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <Skeleton className="h-10 w-full" />
-                                    <div className="flex justify-center">
-                                        <Skeleton className="h-3 w-40" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        <div className="lg:col-span-2">
-                            <Card className="border-border bg-card/50">
-                                <CardContent className="p-6 md:p-8 space-y-10">
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="space-y-4">
-                                            <div className="flex items-center gap-2">
-                                                <Skeleton className="size-5" />
-                                                <Skeleton className="h-6 w-36" />
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 p-4 rounded-xl border border-border/50">
-                                                {[1, 2, 3, 4].map((j) => (
-                                                    <div key={j} className="space-y-2">
-                                                        <Skeleton className="h-3 w-20" />
-                                                        <Skeleton className="h-4 w-full max-w-[150px]" />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        </div>
+                    <div className="lg:col-span-2 space-y-4">
+                        <Skeleton className="h-[600px] w-full rounded-2xl" />
                     </div>
                 </div>
             </div>
         );
     }
 
-    if (!profile) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                <p className="text-destructive font-semibold">Erro ao carregar perfil.</p>
-            </div>
-        );
-    }
+    if (!profile) return null;
 
     const getRole = () => {
         const roles = [];
@@ -326,13 +272,7 @@ export default function Profile() {
     };
 
     const getInitials = (name: string) => {
-        return name
-            .split(" ")
-            .filter(Boolean)
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .substring(0, 2);
+        return name.split(" ").filter(Boolean).map((n) => n[0]).join("").toUpperCase().substring(0, 2);
     };
 
     const formatDate = (dateString?: string) => {
@@ -344,17 +284,7 @@ export default function Profile() {
         }
     };
 
-    const InfoSection = ({ 
-        title, 
-        icon: Icon, 
-        children, 
-        onEdit 
-    }: { 
-        title: string, 
-        icon: any, 
-        children: React.ReactNode,
-        onEdit?: () => void
-    }) => (
+    const InfoSection = ({ title, icon: Icon, children, onEdit }: { title: string, icon: any, children: React.ReactNode, onEdit?: () => void }) => (
         <div className="space-y-4">
             <div className="flex items-center justify-between text-primary">
                 <div className="flex items-center gap-2">
@@ -362,18 +292,13 @@ export default function Profile() {
                     <h2 className="text-lg font-bold tracking-tight">{title}</h2>
                 </div>
                 {onEdit && (
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 gap-2 text-xs font-semibold hover:bg-primary/10"
-                        onClick={onEdit}
-                    >
+                    <Button variant="ghost" size="sm" className="h-8 gap-2 text-xs font-semibold hover:bg-primary/10 rounded-full" onClick={onEdit}>
                         <PencilIcon className="size-3" />
                         Editar
                     </Button>
                 )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-muted/30 p-4 rounded-xl border border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-muted/20 p-5 rounded-2xl border border-border/50">
                 {children}
             </div>
         </div>
@@ -381,7 +306,7 @@ export default function Profile() {
 
     const InfoItem = ({ label, value, icon: ItemIcon }: { label: string, value: string | undefined | null, icon?: any }) => (
         <div className="space-y-1 min-w-0">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
             <div className="flex items-center gap-2">
                 {ItemIcon && <ItemIcon className="size-3.5 text-muted-foreground shrink-0" />}
                 <p className="text-sm font-medium truncate text-foreground">
@@ -392,177 +317,129 @@ export default function Profile() {
     );
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8 pb-12">
-            <div className="max-w-4xl mx-auto space-y-8">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => navigate("/")}
-                            className="rounded-full hover:bg-primary/10 transition-colors"
-                        >
-                            <ArrowLeftIcon className="size-5" />
-                        </Button>
-                        <h1 className="text-3xl font-bold tracking-tight">Meu Perfil</h1>
-                    </div>
-                </div>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="border-b border-border pb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Meu Perfil</h1>
+                <p className="text-muted-foreground mt-1">Gerencie suas informações pessoais e de vínculo com a igreja.</p>
+            </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Sidebar Perfil - Cabeçalho */}
-                    <Card className="lg:col-span-1 border-border bg-card/50 backdrop-blur-sm h-fit">
-                        <CardHeader className="pb-8 pt-12 relative overflow-hidden rounded-t-xl">
-                            <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-br from-primary/20 to-primary/5" />
-                            <div className="relative flex flex-col items-center gap-4">
-                                <div className="relative group">
-                                    <Avatar className="size-28 border-4 border-background shadow-2xl transition-transform hover:scale-105 duration-300">
-                                        <AvatarImage src={profile.avatar_url} />
-                                        <AvatarFallback className="text-4xl bg-primary text-primary-foreground font-bold">
-                                            {getInitials(profile.full_name)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div 
-                                        className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer"
-                                        onClick={() => {
-                                            setAvatarPreview(null);
-                                            setAvatarFile(null);
-                                            setIsEditingAvatar(true);
-                                        }}
-                                    >
-                                        <CameraIcon className="size-8" />
-                                    </div>
-                                </div>
-                                <div className="text-center space-y-1 px-4">
-                                    <CardTitle className="text-xl font-bold leading-tight">{profile.full_name}</CardTitle>
-                                    <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-2">
-                                        <ShieldIcon className="size-3" />
-                                        {getRole()}
-                                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <Card className="lg:col-span-1 border-border bg-card/30 backdrop-blur-sm h-fit rounded-3xl overflow-hidden shadow-sm">
+                    <CardHeader className="pb-8 pt-12 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-32 bg-linear-to-br from-primary/20 to-primary/5" />
+                        <div className="relative flex flex-col items-center gap-4">
+                            <div className="relative group">
+                                <Avatar className="size-32 border-4 border-background shadow-2xl transition-transform hover:scale-105 duration-500">
+                                    <AvatarImage src={profile.avatar_url} />
+                                    <AvatarFallback className="text-4xl bg-primary text-primary-foreground font-bold">
+                                        {getInitials(profile.full_name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div 
+                                    className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-all rounded-full cursor-pointer backdrop-blur-[2px]"
+                                    onClick={() => {
+                                        setAvatarPreview(null);
+                                        setAvatarFile(null);
+                                        setIsEditingAvatar(true);
+                                    }}
+                                >
+                                    <CameraIcon className="size-8" />
                                 </div>
                             </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-4">
-                            <Button 
-                                variant="destructive" 
-                                className="w-full gap-2 font-semibold"
-                                onClick={handleLogout}
-                            >
-                                <LogOutIcon className="size-4" />
-                                Sair da Conta
-                            </Button>
-                            <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest font-medium">
-                                ID: {profile.id}
-                            </p>
+                            <div className="text-center space-y-2 px-4">
+                                <CardTitle className="text-2xl font-bold leading-tight">{profile.full_name}</CardTitle>
+                                <div className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold inline-flex items-center gap-2 border border-primary/20">
+                                    <ShieldIcon className="size-3" />
+                                    {getRole()}
+                                </div>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-4 px-6 pb-8">
+                        <Button 
+                            variant="destructive" 
+                            className="w-full gap-2 font-bold shadow-lg shadow-destructive/10 rounded-xl py-6"
+                            onClick={handleLogout}
+                        >
+                            <LogOutIcon className="size-4" />
+                            Sair da Conta
+                        </Button>
+                        <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest font-bold opacity-50">
+                            ID: {profile.id}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <div className="lg:col-span-2 space-y-8">
+                    <Card className="border-border bg-card/30 backdrop-blur-sm rounded-3xl shadow-sm overflow-hidden">
+                        <CardContent className="p-6 md:p-10 space-y-12">
+                            <InfoSection title="Informações Pessoais" icon={UserIcon}>
+                                <InfoItem label="Nome Completo" value={profile.full_name} />
+                                <InfoItem label="CPF" value={profile.cpf} icon={FingerprintIcon} />
+                                <InfoItem label="Nascimento" value={formatDate(profile.birth_date)} icon={CalendarIcon} />
+                                <InfoItem label="Gênero" value={profile.gender} />
+                                <InfoItem label="Estado Civil" value={profile.marital_status} icon={HeartIcon} />
+                                <InfoItem label="Companheiro(a)" value={profile.spouse_name} icon={HeartIcon} />
+                            </InfoSection>
+
+                            <InfoSection title="Contato" icon={PhoneIcon} onEdit={() => { setEditForm({ phone: profile.phone }); setIsEditingContact(true); }}>
+                                <InfoItem label="E-mail" value={profile.email} icon={MailIcon} />
+                                <InfoItem label="Telefone" value={profile.phone} icon={PhoneIcon} />
+                            </InfoSection>
+
+                            <InfoSection title="Endereço" icon={MapPinIcon} onEdit={() => { setEditForm({ address_street: profile.address_street, address_number: profile.address_number, address_complement: profile.address_complement, address_neighborhood: profile.address_neighborhood, address_city: profile.address_city, address_state: profile.address_state, address_zip_code: profile.address_zip_code }); setIsEditingAddress(true); }}>
+                                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <InfoItem label="Rua" value={profile.address_street} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InfoItem label="Número" value={profile.address_number} />
+                                        <InfoItem label="Complemento" value={profile.address_complement} />
+                                    </div>
+                                    <InfoItem label="Bairro" value={profile.address_neighborhood} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InfoItem label="Cidade" value={profile.address_city} />
+                                        <InfoItem label="Estado" value={profile.address_state} />
+                                    </div>
+                                    <InfoItem label="CEP" value={profile.address_zip_code} />
+                                </div>
+                            </InfoSection>
+
+                            <InfoSection title="Vida Eclesiástica" icon={UsersIcon}>
+                                <InfoItem label="Batismo" value={formatDate(profile.baptism_date)} icon={CalendarIcon} />
+                                <InfoItem label="Grupo Caseiro" value={profile.home_group_name} icon={UsersIcon} />
+                                <InfoItem label="Discipulador" value={profile.discipler_name} icon={UserIcon} />
+                            </InfoSection>
                         </CardContent>
+                        <CardFooter className="bg-primary/5 p-8 flex items-center gap-4 border-t border-border/50">
+                            <div className="bg-primary/20 p-3 rounded-2xl">
+                                <ShieldIcon className="size-6 text-primary" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-sm font-bold text-foreground">Privacidade e Proteção de Dados</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Suas informações são tratadas com segurança absoluta e de acordo com as políticas da Igreja em BH.
+                                </p>
+                            </div>
+                        </CardFooter>
                     </Card>
-
-                    {/* Conteúdo Principal */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <Card className="border-border bg-card/50 backdrop-blur-sm">
-                            <CardContent className="p-6 md:p-8 space-y-10">
-                                
-                                {/* Seção: Dados Pessoais */}
-                                <InfoSection title="Informações Pessoais" icon={UserIcon}>
-                                    <InfoItem label="Nome Completo" value={profile.full_name} />
-                                    <InfoItem label="CPF" value={profile.cpf} icon={FingerprintIcon} />
-                                    <InfoItem label="Data de Nascimento" value={formatDate(profile.birth_date)} icon={CalendarIcon} />
-                                    <InfoItem label="Gênero" value={profile.gender} />
-                                    <InfoItem label="Estado Civil" value={profile.marital_status} icon={HeartIcon} />
-                                </InfoSection>
-
-                                {/* Seção: Contato */}
-                                <InfoSection 
-                                    title="Contato" 
-                                    icon={PhoneIcon}
-                                    onEdit={() => {
-                                        setEditForm({ phone: profile.phone });
-                                        setIsEditingContact(true);
-                                    }}
-                                >
-                                    <InfoItem label="E-mail" value={profile.email} icon={MailIcon} />
-                                    <InfoItem label="Telefone" value={profile.phone} icon={PhoneIcon} />
-                                </InfoSection>
-
-                                {/* Seção: Endereço */}
-                                <InfoSection 
-                                    title="Endereço" 
-                                    icon={MapPinIcon}
-                                    onEdit={() => {
-                                        setEditForm({
-                                            address_street: profile.address_street,
-                                            address_number: profile.address_number,
-                                            address_complement: profile.address_complement,
-                                            address_neighborhood: profile.address_neighborhood,
-                                            address_city: profile.address_city,
-                                            address_state: profile.address_state,
-                                            address_zip_code: profile.address_zip_code,
-                                        });
-                                        setIsEditingAddress(true);
-                                    }}
-                                >
-                                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <InfoItem label="Rua" value={profile.address_street} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <InfoItem label="Número" value={profile.address_number} />
-                                            <InfoItem label="Complemento" value={profile.address_complement} />
-                                        </div>
-                                        <InfoItem label="Bairro" value={profile.address_neighborhood} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <InfoItem label="Cidade" value={profile.address_city} />
-                                            <InfoItem label="Estado" value={profile.address_state} />
-                                        </div>
-                                        <InfoItem label="CEP" value={profile.address_zip_code} />
-                                    </div>
-                                </InfoSection>
-
-                                {/* Seção: Dados de Vínculo */}
-                                <InfoSection title="Dados de Vínculo" icon={UsersIcon}>
-                                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <InfoItem label="Companheiro(a)" value={profile.spouse_name} icon={HeartIcon} />
-                                        <InfoItem label="Data de Batismo" value={formatDate(profile.baptism_date)} icon={CalendarIcon} />
-                                        <InfoItem label="Grupo Caseiro" value={profile.home_group_name} icon={UsersIcon} />
-                                        <InfoItem label="Discipulador" value={profile.discipler_name} icon={UserIcon} />
-                                    </div>
-                                </InfoSection>
-
-                            </CardContent>
-                            <CardFooter className="bg-muted/30 p-6 flex items-center gap-4 border-t border-border">
-                                <div className="bg-primary/10 p-2 rounded-lg">
-                                    <ShieldIcon className="size-5 text-primary" />
-                                </div>
-                                <div className="space-y-0.5">
-                                    <p className="text-sm font-bold text-foreground">Privacidade Garantida</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Suas informações são tratadas de acordo com a LGPD e a política de dados da Igreja em BH.
-                                    </p>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                    </div>
                 </div>
             </div>
 
-            {/* Dialog Editar Contato */}
+            {/* Dialogs ... (mesmo conteúdo dos dialogs anteriores) */}
             <Dialog open={isEditingContact} onOpenChange={setIsEditingContact}>
-                <DialogContent>
+                <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
                     <DialogHeader>
                         <DialogTitle>Editar Contato</DialogTitle>
                         <DialogDescription>Atualize seu número de telefone abaixo.</DialogDescription>
                     </DialogHeader>
-                    <FieldGroup>
+                    <FieldGroup className="pt-2">
                         <Field>
                             <FieldLabel htmlFor="phone">Telefone</FieldLabel>
-                            <Input 
-                                id="phone" 
-                                value={editForm.phone || ""} 
-                                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                                placeholder="(31) 99999-9999"
-                            />
+                            <Input id="phone" value={editForm.phone || ""} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="(31) 99999-9999" className="rounded-xl border-border/50" />
                         </Field>
                     </FieldGroup>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditingContact(false)}>Cancelar</Button>
-                        <Button onClick={() => handleSaveProfile({ phone: editForm.phone })} disabled={saving}>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setIsEditingContact(false)} className="rounded-xl border-border/50">Cancelar</Button>
+                        <Button onClick={() => handleSaveProfile({ phone: editForm.phone })} disabled={saving} className="rounded-xl shadow-lg shadow-primary/20">
                             {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
                             Salvar Alterações
                         </Button>
@@ -570,98 +447,60 @@ export default function Profile() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog Editar Endereço */}
             <Dialog open={isEditingAddress} onOpenChange={setIsEditingAddress}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-md rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
                     <DialogHeader>
                         <DialogTitle>Editar Endereço</DialogTitle>
                         <DialogDescription>Atualize seu endereço completo.</DialogDescription>
                     </DialogHeader>
-                    <div className="max-h-[60vh] overflow-y-auto px-1">
+                    <div className="max-h-[60vh] overflow-y-auto px-1 no-scrollbar">
                         <FieldGroup className="gap-6 pt-2">
                             <Field>
                                 <FieldLabel htmlFor="street">Rua</FieldLabel>
-                                <Input 
-                                    id="street" 
-                                    value={editForm.address_street || ""} 
-                                    onChange={(e) => setEditForm({ ...editForm, address_street: e.target.value })}
-                                />
+                                <Input id="street" value={editForm.address_street || ""} onChange={(e) => setEditForm({ ...editForm, address_street: e.target.value })} className="rounded-xl border-border/50" />
                             </Field>
                             <div className="grid grid-cols-2 gap-4">
                                 <Field>
                                     <FieldLabel htmlFor="number">Número</FieldLabel>
-                                    <Input 
-                                        id="number" 
-                                        value={editForm.address_number || ""} 
-                                        onChange={(e) => setEditForm({ ...editForm, address_number: e.target.value })}
-                                    />
+                                    <Input id="number" value={editForm.address_number || ""} onChange={(e) => setEditForm({ ...editForm, address_number: e.target.value })} className="rounded-xl border-border/50" />
                                 </Field>
                                 <Field>
                                     <FieldLabel htmlFor="complement">Complemento</FieldLabel>
-                                    <Input 
-                                        id="complement" 
-                                        value={editForm.address_complement || ""} 
-                                        onChange={(e) => setEditForm({ ...editForm, address_complement: e.target.value })}
-                                    />
+                                    <Input id="complement" value={editForm.address_complement || ""} onChange={(e) => setEditForm({ ...editForm, address_complement: e.target.value })} className="rounded-xl border-border/50" />
                                 </Field>
                             </div>
                             <Field>
                                 <FieldLabel htmlFor="neighborhood">Bairro</FieldLabel>
-                                <Input 
-                                    id="neighborhood" 
-                                    value={editForm.address_neighborhood || ""} 
-                                    onChange={(e) => setEditForm({ ...editForm, address_neighborhood: e.target.value })}
-                                />
+                                <Input id="neighborhood" value={editForm.address_neighborhood || ""} onChange={(e) => setEditForm({ ...editForm, address_neighborhood: e.target.value })} className="rounded-xl border-border/50" />
                             </Field>
                             <div className="grid grid-cols-2 gap-4">
                                 <Field>
                                     <FieldLabel htmlFor="city">Cidade</FieldLabel>
-                                    <Input 
-                                        id="city" 
-                                        value={editForm.address_city || ""} 
-                                        onChange={(e) => setEditForm({ ...editForm, address_city: e.target.value })}
-                                    />
+                                    <Input id="city" value={editForm.address_city || ""} onChange={(e) => setEditForm({ ...editForm, address_city: e.target.value })} className="rounded-xl border-border/50" />
                                 </Field>
                                 <Field>
                                     <FieldLabel htmlFor="state">Estado</FieldLabel>
-                                    <Input 
-                                        id="state" 
-                                        value={editForm.address_state || ""} 
-                                        onChange={(e) => setEditForm({ ...editForm, address_state: e.target.value })}
-                                        maxLength={2}
-                                    />
+                                    <Input id="state" value={editForm.address_state || ""} onChange={(e) => setEditForm({ ...editForm, address_state: e.target.value })} maxLength={2} className="rounded-xl border-border/50" />
                                 </Field>
                             </div>
                             <Field>
                                 <FieldLabel htmlFor="zip">CEP</FieldLabel>
-                                <Input 
-                                    id="zip" 
-                                    value={editForm.address_zip_code || ""} 
-                                    onChange={(e) => setEditForm({ ...editForm, address_zip_code: e.target.value })}
-                                />
+                                <Input id="zip" value={editForm.address_zip_code || ""} onChange={(e) => setEditForm({ ...editForm, address_zip_code: e.target.value })} className="rounded-xl border-border/50" />
                             </Field>
                         </FieldGroup>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditingAddress(false)}>Cancelar</Button>
-                        <Button onClick={() => handleSaveProfile({
-                            address_street: editForm.address_street,
-                            address_number: editForm.address_number,
-                            address_complement: editForm.address_complement,
-                            address_neighborhood: editForm.address_neighborhood,
-                            address_city: editForm.address_city,
-                            address_state: editForm.address_state,
-                            address_zip_code: editForm.address_zip_code,
-                        })} disabled={saving}>
+                    <DialogFooter className="gap-2 sm:gap-0 mt-6">
+                        <Button variant="outline" onClick={() => setIsEditingAddress(false)} className="rounded-xl border-border/50">Cancelar</Button>
+                        <Button onClick={() => handleSaveProfile({ address_street: editForm.address_street, address_number: editForm.address_number, address_complement: editForm.address_complement, address_neighborhood: editForm.address_neighborhood, address_city: editForm.address_city, address_state: editForm.address_state, address_zip_code: editForm.address_zip_code })} disabled={saving} className="rounded-xl shadow-lg shadow-primary/20">
                             {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
                             Salvar Alterações
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {/* Dialog Editar Foto de Perfil */}
+
             <Dialog open={isEditingAvatar} onOpenChange={setIsEditingAvatar}>
-                <DialogContent className={isCropping ? "sm:max-w-[425px]" : ""}>
+                <DialogContent className={cn("rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl", isCropping ? "sm:max-w-[425px]" : "")}>
                     <DialogHeader>
                         <DialogTitle>{isCropping ? "Ajustar Foto" : "Foto de Perfil"}</DialogTitle>
                         <DialogDescription>
@@ -681,50 +520,27 @@ export default function Profile() {
                         </div>
                     ) : (
                         <>
-                            <div className="flex flex-col items-center gap-6 py-4">
-                                <Avatar className="size-48 border-4 border-muted shadow-lg">
+                            <div className="flex flex-col items-center gap-6 py-6">
+                                <Avatar className="size-56 border-4 border-muted shadow-2xl transition-transform duration-500">
                                     <AvatarImage src={avatarPreview || profile.avatar_url} />
-                                    <AvatarFallback className="text-6xl bg-primary text-primary-foreground font-bold">
+                                    <AvatarFallback className="text-7xl bg-primary text-primary-foreground font-bold">
                                         {getInitials(profile.full_name)}
                                     </AvatarFallback>
                                 </Avatar>
                                 
                                 <div className="flex flex-col w-full gap-2">
-                                    <Button 
-                                        variant="outline" 
-                                        className="w-full gap-2"
-                                        asChild
-                                    >
+                                    <Button variant="outline" className="w-full gap-2 rounded-xl border-border/50 py-6" asChild>
                                         <label htmlFor="avatar-file-input" className="cursor-pointer">
                                             <CameraIcon className="size-4" />
-                                            {avatarFile ? "Escolher outra" : "Trocar Foto"}
+                                            {avatarFile ? "Escolher outra" : "Trocar Foto de Perfil"}
                                         </label>
                                     </Button>
-                                    <input 
-                                        id="avatar-file-input" 
-                                        type="file" 
-                                        accept="image/*" 
-                                        className="hidden" 
-                                        onChange={handleAvatarSelect}
-                                    />
+                                    <input id="avatar-file-input" type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
                                 </div>
                             </div>
-                            <DialogFooter>
-                                <Button 
-                                    variant="outline" 
-                                    onClick={() => {
-                                        setIsEditingAvatar(false);
-                                        setAvatarPreview(null);
-                                        setAvatarFile(null);
-                                        setIsCropping(false);
-                                    }}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button 
-                                    onClick={handleAvatarUpload} 
-                                    disabled={!avatarFile || saving}
-                                >
+                            <DialogFooter className="gap-2 sm:gap-0">
+                                <Button variant="outline" onClick={() => { setIsEditingAvatar(false); setAvatarPreview(null); setAvatarFile(null); setIsCropping(false); }} className="rounded-xl border-border/50">Cancelar</Button>
+                                <Button onClick={handleAvatarUpload} disabled={!avatarFile || saving} className="rounded-xl shadow-lg shadow-primary/20">
                                     {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
                                     Salvar Nova Foto
                                 </Button>
