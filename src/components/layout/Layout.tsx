@@ -1,6 +1,6 @@
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface LayoutProps {
   children: ReactNode;

@@ -14,7 +14,7 @@ import NotFound from './pages/NotFound.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import { Toaster } from "@/components/ui/sonner";
 import { Layout } from './components/layout/Layout.tsx';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 // Helper component to wrap protected routes with Layout
 const AuthenticatedLayout = ({ children, requireAdmin, requireManagement }: { 

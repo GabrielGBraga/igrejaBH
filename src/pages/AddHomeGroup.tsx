@@ -22,7 +22,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { SearchIcon, Loader2, MapPinIcon, ClockIcon } from "lucide-react";
+import { Loader2, MapPinIcon, ClockIcon } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";

@@ -23,7 +23,6 @@ import { useState, useRef } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 export default function CreatePost() {
   const navigate = useNavigate();
