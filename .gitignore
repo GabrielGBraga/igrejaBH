@@ -25,10 +25,11 @@ dist-ssr
 
 .env
 
-# Local .github files
-.github/
 .vercel
 .env*.local
+
+# Supabase temporary files
+preview.sql
 
 .gemini/
 gha-creds-*.json
