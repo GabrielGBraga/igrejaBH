@@ -24,17 +24,15 @@ jobs:
       - name: Generate DB Diff
         id: db_diff
         run: |
-          # 1. Vincular ao projeto de Produção (Alvo)
-          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PRD }} --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
+          # 1. Gerar o diff comparando o banco de Desenvolvimento (Fonte) contra as migrações locais (que espelham PRD)
+          # A CLI compara a URL fornecida contra o estado definido nos arquivos em supabase/migrations/
+          supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" > preview.sql
           
-          # 2. Gerar o diff comparando a Produção vinculada contra o banco de Desenvolvimento (Fonte)
-          supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" --linked > preview.sql
-          
-          # 3. Ler o conteúdo para o Step de Comentário
+          # 2. Ler o conteúdo para o Step de Comentário
           DIFF_CONTENT=$(cat preview.sql)
           
-          # Se o diff estiver vazio, define uma mensagem padrão
-          if [ -z "$DIFF_CONTENT" ]; then
+          # Se o diff estiver vazio ou contiver apenas comentários padrão, define como sem mudanças
+          if [ -z "$DIFF_CONTENT" ] || ! grep -v "^--" preview.sql | grep -q "[a-zA-Z0-9]"; then
             echo "sql_output=-- Nenhum mudança de esquema detectada." >> $GITHUB_OUTPUT
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           else
@@ -66,7 +64,7 @@ jobs:
             const sql = `${{ steps.db_diff.outputs.sql_output }}`;
             const body = `### 🔍 Supabase Database Preview
             
-            Auditamos o esquema do banco de dados de **Desenvolvimento** contra a **Produção**. Abaixo está o SQL que será necessário para aplicar estas mudanças:
+            Auditamos o esquema do banco de dados de **Desenvolvimento** contra o estado atual do repositório (Produção). Abaixo está o SQL que será necessário para aplicar estas mudanças:
 
             \`\`\`sql
             ${sql}
