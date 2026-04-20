@@ -237,6 +237,21 @@ export default function Profile() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session?.user) return;
 
+            // 1. Delete old avatar if exists
+            if (profile?.avatar_url) {
+                try {
+                    // Extract path from URL: .../storage/v1/object/public/avatars/PATH
+                    const urlParts = profile.avatar_url.split('/avatars/');
+                    if (urlParts.length > 1) {
+                        const oldPath = urlParts[1];
+                        await supabase.storage.from('avatars').remove([oldPath]);
+                    }
+                } catch (deleteError) {
+                    // Log error but don't block upload if deletion fails
+                    console.error("Erro ao deletar avatar antigo:", deleteError);
+                }
+            }
+
             const fileExt = avatarFile.name.split('.').pop();
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
             const filePath = `${fileName}`;
