@@ -78,8 +78,7 @@ export default function CreatePost() {
         
         if (profileError || !profile) throw new Error("Perfil não encontrado");
 
-        const uploadedUrls: string[] = [];
-        for (const img of selectedImages) {
+        const uploadPromises = selectedImages.map(async (img) => {
           const fileExt = img.file.name.split('.').pop();
           const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
           const filePath = `${session.user.id}/${fileName}`;
@@ -94,8 +93,10 @@ export default function CreatePost() {
             .from('post-images')
             .getPublicUrl(filePath);
           
-          uploadedUrls.push(publicUrl);
-        }
+          return publicUrl;
+        });
+
+        const uploadedUrls = await Promise.all(uploadPromises);
 
         const { error: insertError } = await supabase
             .from("posts")
