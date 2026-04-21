@@ -36,7 +36,7 @@ jobs:
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           else
             # 3. Criar versão limpa (sem GRANT/REVOKE) para o comentário do PR
-            grep -vE "^grant |^GRANT |^revoke |^REVOKE " preview.sql > clean_preview.sql
+            sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql > clean_preview.sql
             
             # Prepara a saída para o GitHub Actions (multiline)
             echo "sql_output<<EOF" >> $GITHUB_OUTPUT
