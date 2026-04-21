@@ -13,7 +13,8 @@ import {
     FingerprintIcon,
     PencilIcon,
     CameraIcon,
-    Loader2Icon
+    Loader2Icon,
+    SearchIcon
 } from "lucide-react";
 import supabase from "@/lib/supabase";
 import { ImageCropper } from "@/components/ImageCropper";
@@ -31,6 +32,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { 
+    Combobox, 
+    ComboboxContent, 
+    ComboboxEmpty, 
+    ComboboxInput, 
+    ComboboxItem, 
+    ComboboxList 
+} from "@/components/ui/combobox";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -59,9 +68,19 @@ interface UserProfile {
     baptism_date?: string;
     home_group_id?: string;
     discipler_id?: string;
+    spouse_id?: string;
+    father_id?: string;
+    mother_id?: string;
     home_group_name?: string;
     discipler_name?: string;
     spouse_name?: string;
+    father_name?: string;
+    mother_name?: string;
+}
+
+interface MemberOption {
+    id: string;
+    full_name: string;
 }
 
 export default function Profile() {
@@ -71,10 +90,15 @@ export default function Profile() {
     const [saving, setSaving] = useState(false);
     const [isEditingContact, setIsEditingContact] = useState(false);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
+    const [isEditingFamily, setIsEditingFamily] = useState(false);
     const [isEditingAvatar, setIsEditingAvatar] = useState(false);
     const [isCropping, setIsCropping] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+    // Member selection states
+    const [allMembers, setAllMembers] = useState<MemberOption[]>([]);
+    const [loadingMembers, setLoadingMembers] = useState(false);
 
     // Form states
     const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
@@ -92,32 +116,16 @@ export default function Profile() {
                 .select(`
                     *,
                     home_groups:home_group_id (location_text),
-                    discipler:discipler_id (full_name)
+                    discipler:discipler_id (full_name),
+                    spouse:spouse_id (full_name),
+                    father:father_id (full_name),
+                    mother:mother_id (full_name)
                 `)
                 .eq("user_id", session.user.id)
                 .single();
 
             if (error) throw error;
             if (data) {
-                const { data: fellowshipData } = await supabase
-                    .from("fellowships")
-                    .select(`
-                        member_a_id,
-                        member_b_id,
-                        member_a:member_a_id (full_name, id),
-                        member_b:member_b_id (full_name, id)
-                    `)
-                    .or(`member_a_id.eq.${data.id},member_b_id.eq.${data.id}`)
-                    .maybeSingle();
-
-                let spouseName = undefined;
-                if (fellowshipData) {
-                    const spouse = fellowshipData.member_a_id === data.id 
-                        ? (fellowshipData.member_b as any)?.full_name 
-                        : (fellowshipData.member_a as any)?.full_name;
-                    spouseName = spouse || undefined;
-                }
-
                 setProfile({
                     id: data.id,
                     full_name: data.full_name,
@@ -141,9 +149,14 @@ export default function Profile() {
                     baptism_date: data.baptism_date || undefined,
                     home_group_id: data.home_group_id || undefined,
                     discipler_id: data.discipler_id || undefined,
+                    spouse_id: data.spouse_id || undefined,
+                    father_id: data.father_id || undefined,
+                    mother_id: data.mother_id || undefined,
                     home_group_name: (data.home_groups as any)?.location_text,
                     discipler_name: (data.discipler as any)?.full_name,
-                    spouse_name: spouseName
+                    spouse_name: (data.spouse as any)?.full_name,
+                    father_name: (data.father as any)?.full_name,
+                    mother_name: (data.mother as any)?.full_name
                 });
             }
         } catch (error) {
@@ -152,6 +165,23 @@ export default function Profile() {
             setLoading(false);
         }
     }, [navigate]);
+
+    const fetchAllMembers = useCallback(async () => {
+        if (allMembers.length > 0) return;
+        setLoadingMembers(true);
+        try {
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("id, full_name")
+                .order("full_name");
+            if (error) throw error;
+            setAllMembers(data || []);
+        } catch (error) {
+            console.error("Erro ao carregar membros:", error);
+        } finally {
+            setLoadingMembers(false);
+        }
+    }, [allMembers.length]);
 
     useEffect(() => {
         fetchProfile();
@@ -174,6 +204,7 @@ export default function Profile() {
             await fetchProfile();
             setIsEditingContact(false);
             setIsEditingAddress(false);
+            setIsEditingFamily(false);
         } catch (error) {
             console.error("Erro ao salvar perfil:", error);
             toast.error("Erro ao salvar as alterações.");
@@ -205,6 +236,21 @@ export default function Profile() {
             setSaving(true);
             const { data: { session } } = await supabase.auth.getSession();
             if (!session?.user) return;
+
+            // 1. Delete old avatar if exists
+            if (profile?.avatar_url) {
+                try {
+                    // Extract path from URL: .../storage/v1/object/public/avatars/PATH
+                    const urlParts = profile.avatar_url.split('/avatars/');
+                    if (urlParts.length > 1) {
+                        const oldPath = urlParts[1];
+                        await supabase.storage.from('avatars').remove([oldPath]);
+                    }
+                } catch (deleteError) {
+                    // Log error but don't block upload if deletion fails
+                    console.error("Erro ao deletar avatar antigo:", deleteError);
+                }
+            }
 
             const fileExt = avatarFile.name.split('.').pop();
             const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
@@ -380,7 +426,22 @@ export default function Profile() {
                                 <InfoItem label="Nascimento" value={formatDate(profile.birth_date)} icon={CalendarIcon} />
                                 <InfoItem label="Gênero" value={profile.gender} />
                                 <InfoItem label="Estado Civil" value={profile.marital_status} icon={HeartIcon} />
-                                <InfoItem label="Companheiro(a)" value={profile.spouse_name} icon={HeartIcon} />
+                            </InfoSection>
+
+                            <InfoSection title="Vínculos Familiares" icon={HeartIcon} onEdit={() => { 
+                                setEditForm({ 
+                                    spouse_id: profile.spouse_id, 
+                                    father_id: profile.father_id, 
+                                    mother_id: profile.mother_id 
+                                }); 
+                                fetchAllMembers();
+                                setIsEditingFamily(true); 
+                            }}>
+                                <InfoItem label="Cônjuge" value={profile.spouse_name} icon={HeartIcon} />
+                                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <InfoItem label="Pai" value={profile.father_name} icon={UserIcon} />
+                                    <InfoItem label="Mãe" value={profile.mother_name} icon={UserIcon} />
+                                </div>
                             </InfoSection>
 
                             <InfoSection title="Contato" icon={PhoneIcon} onEdit={() => { setEditForm({ phone: profile.phone }); setIsEditingContact(true); }}>
@@ -425,7 +486,7 @@ export default function Profile() {
                 </div>
             </div>
 
-            {/* Dialogs ... (mesmo conteúdo dos dialogs anteriores) */}
+            {/* Dialogs */}
             <Dialog open={isEditingContact} onOpenChange={setIsEditingContact}>
                 <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
                     <DialogHeader>
@@ -443,6 +504,103 @@ export default function Profile() {
                         <Button onClick={() => handleSaveProfile({ phone: editForm.phone })} disabled={saving} className="rounded-xl shadow-lg shadow-primary/20">
                             {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
                             Salvar Alterações
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditingFamily} onOpenChange={setIsEditingFamily}>
+                <DialogContent className="sm:max-w-md rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
+                    <DialogHeader>
+                        <DialogTitle>Vínculos Familiares</DialogTitle>
+                        <DialogDescription>Selecione os membros da sua família cadastrados na igreja.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                        <Field>
+                            <FieldLabel>Cônjuge</FieldLabel>
+                            <Combobox 
+                                value={allMembers.find(m => m.id === editForm.spouse_id)?.full_name || ""} 
+                                onValueChange={(name) => {
+                                    const member = allMembers.find(m => m.full_name === name);
+                                    setEditForm({ ...editForm, spouse_id: member?.id || undefined });
+                                }}
+                            >
+                                <ComboboxInput placeholder={loadingMembers ? "Carregando..." : "Buscar cônjuge..."} className="rounded-xl">
+                                    <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                                </ComboboxInput>
+                                <ComboboxContent>
+                                    <ComboboxList>
+                                        <ComboboxItem value="">Nenhum (Remover)</ComboboxItem>
+                                        {allMembers.filter(m => m.id !== profile.id).map((member) => (
+                                            <ComboboxItem key={member.id} value={member.full_name}>
+                                                {member.full_name}
+                                            </ComboboxItem>
+                                        ))}
+                                    </ComboboxList>
+                                    <ComboboxEmpty>Nenhum membro encontrado.</ComboboxEmpty>
+                                </ComboboxContent>
+                            </Combobox>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>Pai</FieldLabel>
+                            <Combobox 
+                                value={allMembers.find(m => m.id === editForm.father_id)?.full_name || ""} 
+                                onValueChange={(name) => {
+                                    const member = allMembers.find(m => m.full_name === name);
+                                    setEditForm({ ...editForm, father_id: member?.id || undefined });
+                                }}
+                            >
+                                <ComboboxInput placeholder="Buscar pai..." className="rounded-xl" />
+                                <ComboboxContent>
+                                    <ComboboxList>
+                                        <ComboboxItem value="">Nenhum (Remover)</ComboboxItem>
+                                        {allMembers.filter(m => m.id !== profile.id).map((member) => (
+                                            <ComboboxItem key={member.id} value={member.full_name}>
+                                                {member.full_name}
+                                            </ComboboxItem>
+                                        ))}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>Mãe</FieldLabel>
+                            <Combobox 
+                                value={allMembers.find(m => m.id === editForm.mother_id)?.full_name || ""} 
+                                onValueChange={(name) => {
+                                    const member = allMembers.find(m => m.full_name === name);
+                                    setEditForm({ ...editForm, mother_id: member?.id || undefined });
+                                }}
+                            >
+                                <ComboboxInput placeholder="Buscar mãe..." className="rounded-xl" />
+                                <ComboboxContent>
+                                    <ComboboxList>
+                                        <ComboboxItem value="">Nenhum (Remover)</ComboboxItem>
+                                        {allMembers.filter(m => m.id !== profile.id).map((member) => (
+                                            <ComboboxItem key={member.id} value={member.full_name}>
+                                                {member.full_name}
+                                            </ComboboxItem>
+                                        ))}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
+                        </Field>
+                    </div>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setIsEditingFamily(false)} className="rounded-xl border-border/50">Cancelar</Button>
+                        <Button 
+                            onClick={() => handleSaveProfile({ 
+                                spouse_id: editForm.spouse_id || null as any, 
+                                father_id: editForm.father_id || null as any, 
+                                mother_id: editForm.mother_id || null as any 
+                            })} 
+                            disabled={saving} 
+                            className="rounded-xl shadow-lg shadow-primary/20"
+                        >
+                            {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                            Salvar Vínculos
                         </Button>
                     </DialogFooter>
                 </DialogContent>

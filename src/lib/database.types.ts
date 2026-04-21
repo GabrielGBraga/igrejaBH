@@ -204,6 +204,9 @@ export type Database = {
           marital_status: string | null
           phone: string | null
           user_id: string | null
+          spouse_id: string | null
+          father_id: string | null
+          mother_id: string | null
         }
         Insert: {
           address_city?: string | null
@@ -230,6 +233,9 @@ export type Database = {
           marital_status?: string | null
           phone?: string | null
           user_id?: string | null
+          spouse_id?: string | null
+          father_id?: string | null
+          mother_id?: string | null
         }
         Update: {
           address_city?: string | null
@@ -256,11 +262,35 @@ export type Database = {
           marital_status?: string | null
           phone?: string | null
           user_id?: string | null
+          spouse_id?: string | null
+          father_id?: string | null
+          mother_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "profiles_discipler_id_fkey"
             columns: ["discipler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_spouse_id_fkey"
+            columns: ["spouse_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_father_id_fkey"
+            columns: ["father_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_mother_id_fkey"
+            columns: ["mother_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

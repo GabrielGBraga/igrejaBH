@@ -32,7 +32,7 @@ export default function MemberManagement() {
             try {
                 const { data: profilesData, error: profilesError } = await supabase
                     .from('profiles')
-                    .select('*, home_groups(location_text)')
+                    .select('*, home_groups!profiles_home_group_id_fkey(location_text)')
                     .order('full_name');
                 
                 if (profilesError) throw profilesError;

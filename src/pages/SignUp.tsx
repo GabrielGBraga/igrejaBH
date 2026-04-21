@@ -170,7 +170,7 @@ export default function SignUp() {
             if (avatarFile) {
                 const fileExt = avatarFile.name.split('.').pop()
                 // Usando o ID do usuário para o nome do arquivo
-                const filePath = `${authData.user.id}/${Math.random()}.${fileExt}`
+                const filePath = `${authData.user.id}-${Date.now()}.${fileExt}`
 
                 const { error: uploadError } = await supabase.storage
                     .from('avatars')
