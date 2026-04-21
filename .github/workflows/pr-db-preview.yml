@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-      contents: write # Necessário para o auto-commit/push
+      contents: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necessário para push posterior
-          ref: ${{ github.head_ref }} # Checkout na branch de origem do PR
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
@@ -27,19 +27,20 @@ jobs:
       - name: Generate DB Diff
         id: db_diff
         run: |
-          # 1. Gerar o diff comparando o banco de Desenvolvimento (Fonte) contra as migrações locais
+          # 1. Gerar o diff completo
           supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" > preview.sql
           
-          # 2. Ler o conteúdo para o Step de Comentário
-          DIFF_CONTENT=$(cat preview.sql)
-          
-          # Se o diff estiver vazio ou contiver apenas comentários padrão, define como sem mudanças
-          if [ -z "$DIFF_CONTENT" ] || ! grep -v "^--" preview.sql | grep -q "[a-zA-Z0-9]"; then
+          # 2. Verificar se há conteúdo relevante (ignora comentários)
+          if ! grep -v "^--" preview.sql | grep -q "[a-zA-Z0-9]"; then
             echo "sql_output=-- Nenhum mudança de esquema detectada." >> $GITHUB_OUTPUT
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           else
+            # 3. Criar versão limpa (sem GRANT/REVOKE) para o comentário do PR
+            grep -vE "^grant |^GRANT |^revoke |^REVOKE " preview.sql > clean_preview.sql
+            
+            # Prepara a saída para o GitHub Actions (multiline)
             echo "sql_output<<EOF" >> $GITHUB_OUTPUT
-            echo "$DIFF_CONTENT" >> $GITHUB_OUTPUT
+            cat clean_preview.sql >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
             echo "changes_detected=true" >> $GITHUB_OUTPUT
           fi
@@ -48,22 +49,19 @@ jobs:
 
       - name: 🛡️ Security Guard (Destructive Changes Check)
         if: steps.db_diff.outputs.changes_detected == 'true'
-        env:
-          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: |
-          HAS_FORCE_LABEL=$(echo "$PR_LABELS" | grep -i "force-db-drop" || true)
+          FORCE_DROP="${{ contains(github.event.pull_request.labels.*.name, 'force-db-drop') }}"
           
           if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql; then
-            if [ -n "$HAS_FORCE_LABEL" ]; then
-              echo "⚠️ [WARNING] Label force-db-drop detectada. Permitindo alteração destrutiva."
+            if [ "$FORCE_DROP" = "true" ]; then
+              echo "⚠️ [SECURITY WARNING] Label 'force-db-drop' detectada. Permitindo alteração destrutiva."
             else
-              echo "❌ ERRO CRÍTICO DE SEGURANÇA: Alterações destrutivas (DROP) detectadas!"
-              echo "O merge foi bloqueado para proteger a integridade dos dados em Produção."
-              echo "Se esta alteração for intencional, adicione a label 'force-db-drop' ao PR."
+              echo "❌ ERRO DE SEGURANÇA: Comandos DROP detectados!"
+              echo "O merge foi bloqueado. Se o DROP for intencional, adicione a label 'force-db-drop' ao PR."
               exit 1
             fi
           fi
-          echo "✅ Nenhuma alteração destrutiva detectada ou bypass ativado."
+          echo "✅ Nenhuma alteração destrutiva encontrada ou bypass ativo."
 
       - name: 💬 Post SQL Preview to PR
         uses: actions/github-script@v7
@@ -73,13 +71,13 @@ jobs:
             const sql = `${{ steps.db_diff.outputs.sql_output }}`;
             const body = `### 🔍 Supabase Database Preview
             
-            Auditamos o esquema do banco de dados de **Desenvolvimento** contra o repositório. Abaixo está o SQL gerado:
+            Auditamos o esquema do banco de dados de **Desenvolvimento** contra o repositório. Abaixo está o SQL gerado (filtramos as declarações de GRANT/REVOKE para facilitar a leitura):
 
             \`\`\`sql
             ${sql}
             \`\`\`
             
-            > 🤖 **Automation Note:** Se houver mudanças, uma nova migration será gerada automaticamente nesta branch.`;
+            > 🤖 **DevOps Note:** Se aprovado, uma nova migration será gerada automaticamente nesta branch.`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -91,15 +89,13 @@ jobs:
       - name: 🚀 Auto-Commit Migration
         if: steps.db_diff.outputs.changes_detected == 'true'
         run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          MIGRATION_NAME="supabase/migrations/${TIMESTAMP}_auto_schema.sql"
+          # Usar o arquivo COMPLETO (preview.sql) para a migration real
+          MIGRATION_FILE="supabase/migrations/$(date +%Y%m%d%H%M%S)_auto_migration.sql"
+          mv preview.sql "$MIGRATION_FILE"
           
-          mv preview.sql "$MIGRATION_NAME"
-          
-          # Configurar Git para o commit
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add "$MIGRATION_NAME"
+          git add "$MIGRATION_FILE"
           git commit -m "chore(db): auto-generate migration from DEV"
           git push origin HEAD:${{ github.head_ref }}
