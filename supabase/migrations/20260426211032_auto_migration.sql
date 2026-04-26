@@ -1,177 +1,63 @@
+-- Migration consolidada limpa
+-- Data: 2026-04-26
+
+-- Removendo triggers e políticas que serão recriadas (para evitar erro de 'já existe')
 drop trigger if exists "protect_is_dev_on_update" on "public"."profiles";
+drop policy if exists "Devs e presbiteros podem gerenciar grupos caseiros" on "public"."home_groups";
+drop policy if exists "Permitir delete para liderança" on "public"."media_resources";
+drop policy if exists "Permitir inserção para liderança" on "public"."media_resources";
+drop policy if exists "Usuários podem criar suas próprias inscrições" on "public"."registrations";
+drop policy if exists "Usuários podem ver suas próprias inscrições" on "public"."registrations";
 
-drop policy "Devs e presbiteros podem gerenciar grupos caseiros" on "public"."home_groups";
-
-drop policy "Permitir delete para liderança" on "public"."media_resources";
-
-drop policy "Permitir inserção para liderança" on "public"."media_resources";
-
-drop policy "Usuários podem criar suas próprias inscrições" on "public"."registrations";
-
-drop policy "Usuários podem ver suas próprias inscrições" on "public"."registrations";
-
-revoke delete on table "public"."test" from "anon";
-
-revoke insert on table "public"."test" from "anon";
-
-revoke references on table "public"."test" from "anon";
-
-revoke select on table "public"."test" from "anon";
-
-revoke trigger on table "public"."test" from "anon";
-
-revoke truncate on table "public"."test" from "anon";
-
-revoke update on table "public"."test" from "anon";
-
-revoke delete on table "public"."test" from "authenticated";
-
-revoke insert on table "public"."test" from "authenticated";
-
-revoke references on table "public"."test" from "authenticated";
-
-revoke select on table "public"."test" from "authenticated";
-
-revoke trigger on table "public"."test" from "authenticated";
-
-revoke truncate on table "public"."test" from "authenticated";
-
-revoke update on table "public"."test" from "authenticated";
-
-revoke delete on table "public"."test" from "service_role";
-
-revoke insert on table "public"."test" from "service_role";
-
-revoke references on table "public"."test" from "service_role";
-
-revoke select on table "public"."test" from "service_role";
-
-revoke trigger on table "public"."test" from "service_role";
-
-revoke truncate on table "public"."test" from "service_role";
-
-revoke update on table "public"."test" from "service_role";
-
-alter table "public"."test" drop constraint "test_pkey";
-
-drop index if exists "public"."test_pkey";
-
-drop table "public"."test";
-
-
-  create table "public"."audit_test_vulnerability" (
-    "id" uuid not null,
+-- Criação da tabela de teste de auditoria (Alvo do nosso teste de RLS)
+create table if not exists "public"."audit_test_vulnerability" (
+    "id" uuid not null default extensions.uuid_generate_v4(),
     "data" text
-      );
-
+);
 
 alter table "public"."audit_test_vulnerability" enable row level security;
 
-CREATE UNIQUE INDEX audit_test_vulnerability_pkey ON public.audit_test_vulnerability USING btree (id);
+-- Index e PK
+do $$
+begin
+    if not exists (select 1 from pg_indexes where indexname = 'audit_test_vulnerability_pkey') then
+        create unique index audit_test_vulnerability_pkey on public.audit_test_vulnerability using btree (id);
+    end if;
+end $$;
 
-alter table "public"."audit_test_vulnerability" add constraint "audit_test_vulnerability_pkey" PRIMARY KEY using index "audit_test_vulnerability_pkey";
+do $$
+begin
+    if not exists (select 1 from pg_constraint where conname = 'audit_test_vulnerability_pkey') then
+        alter table "public"."audit_test_vulnerability" add constraint "audit_test_vulnerability_pkey" primary key using index "audit_test_vulnerability_pkey";
+    end if;
+end $$;
 
-grant delete on table "public"."audit_test_vulnerability" to "anon";
+-- Recriando as políticas originais do sistema
+create policy "Devs e presbiteros podem gerenciar grupos caseiros"
+on "public"."home_groups"
+as permissive for all to public
+using ((exists (select 1 from profiles where profiles.user_id = auth.uid() and (profiles.is_dev = true or profiles.is_presbyter = true))))
+with check ((exists (select 1 from profiles where profiles.user_id = auth.uid() and (profiles.is_dev = true or profiles.is_presbyter = true))));
 
-grant insert on table "public"."audit_test_vulnerability" to "anon";
+create policy "Permitir delete para liderança"
+on "public"."media_resources"
+as permissive for delete to public
+using ((exists (select 1 from profiles where profiles.user_id = auth.uid() and (profiles.is_presbyter = true or profiles.is_deacon = true or profiles.is_dev = true))));
 
-grant references on table "public"."audit_test_vulnerability" to "anon";
+create policy "Permitir inserção para liderança"
+on "public"."media_resources"
+as permissive for insert to public
+with check ((exists (select 1 from profiles where profiles.user_id = auth.uid() and (profiles.is_presbyter = true or profiles.is_deacon = true or profiles.is_dev = true))));
 
-grant select on table "public"."audit_test_vulnerability" to "anon";
+create policy "Usuários podem criar suas próprias inscrições"
+on "public"."registrations"
+as permissive for insert to authenticated
+with check ((profile_id in (select profiles.id from profiles where profiles.user_id = auth.uid())));
 
-grant trigger on table "public"."audit_test_vulnerability" to "anon";
+create policy "Usuários podem ver suas próprias inscrições"
+on "public"."registrations"
+as permissive for select to authenticated
+using ((profile_id in (select profiles.id from profiles where profiles.user_id = auth.uid())));
 
-grant truncate on table "public"."audit_test_vulnerability" to "anon";
-
-grant update on table "public"."audit_test_vulnerability" to "anon";
-
-grant delete on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant insert on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant references on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant select on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant trigger on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant truncate on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant update on table "public"."audit_test_vulnerability" to "authenticated";
-
-grant delete on table "public"."audit_test_vulnerability" to "service_role";
-
-grant insert on table "public"."audit_test_vulnerability" to "service_role";
-
-grant references on table "public"."audit_test_vulnerability" to "service_role";
-
-grant select on table "public"."audit_test_vulnerability" to "service_role";
-
-grant trigger on table "public"."audit_test_vulnerability" to "service_role";
-
-grant truncate on table "public"."audit_test_vulnerability" to "service_role";
-
-grant update on table "public"."audit_test_vulnerability" to "service_role";
-
-
-  create policy "Devs e presbiteros podem gerenciar grupos caseiros"
-  on "public"."home_groups"
-  as permissive
-  for all
-  to public
-using ((EXISTS ( SELECT 1
-   FROM profiles
-  WHERE ((profiles.user_id = auth.uid()) AND ((profiles.is_dev = true) OR (profiles.is_presbyter = true))))))
-with check ((EXISTS ( SELECT 1
-   FROM profiles
-  WHERE ((profiles.user_id = auth.uid()) AND ((profiles.is_dev = true) OR (profiles.is_presbyter = true))))));
-
-
-
-  create policy "Permitir delete para liderança"
-  on "public"."media_resources"
-  as permissive
-  for delete
-  to public
-using ((EXISTS ( SELECT 1
-   FROM profiles
-  WHERE ((profiles.user_id = auth.uid()) AND ((profiles.is_presbyter = true) OR (profiles.is_deacon = true) OR (profiles.is_dev = true))))));
-
-
-
-  create policy "Permitir inserção para liderança"
-  on "public"."media_resources"
-  as permissive
-  for insert
-  to public
-with check ((EXISTS ( SELECT 1
-   FROM profiles
-  WHERE ((profiles.user_id = auth.uid()) AND ((profiles.is_presbyter = true) OR (profiles.is_deacon = true) OR (profiles.is_dev = true))))));
-
-
-
-  create policy "Usuários podem criar suas próprias inscrições"
-  on "public"."registrations"
-  as permissive
-  for insert
-  to authenticated
-with check ((profile_id IN ( SELECT profiles.id
-   FROM profiles
-  WHERE (profiles.user_id = auth.uid()))));
-
-
-
-  create policy "Usuários podem ver suas próprias inscrições"
-  on "public"."registrations"
-  as permissive
-  for select
-  to authenticated
-using ((profile_id IN ( SELECT profiles.id
-   FROM profiles
-  WHERE (profiles.user_id = auth.uid()))));
-
-
-CREATE TRIGGER protect_is_dev_on_update BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION handle_is_dev_protection();
-
-
-
+-- Trigger de proteção is_dev
+create trigger protect_is_dev_on_update before update on public.profiles for each row execute function handle_is_dev_protection();
