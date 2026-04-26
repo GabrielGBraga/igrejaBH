@@ -7,7 +7,9 @@ EXIT_CODE=0
 echo "🔍 Auditando RLS em $SQL_FILE..."
 
 # Captura tabelas criadas (com ou sem aspas, ignorando case)
-TABLES=$(grep -Ei "CREATE TABLE[[:space:]]+(public\.)?\"?([a-zA-Z0-9_]+)\"?" "$SQL_FILE" | sed -E 's/.*TABLE[[:space:]]+(public\.)?"?([^"[:space:](]+)"?.*/\2/I')
+# Regex aprimorada para capturar o nome após public. e ignorar o próprio prefixo
+TABLES=$(grep -Ei "CREATE TABLE[[:space:]]+(public\.)?\"?([a-zA-Z0-9_]+)\"?" "$SQL_FILE" | sed -E 's/.*TABLE[[:space:]]+(public\.)?\"?([^"[:space:](]+)\"?.*/\2/I')
+
 
 for table in $TABLES; do
     # Verifica se existe ENABLE ROW LEVEL SECURITY para esta tabela
