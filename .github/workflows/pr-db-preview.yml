@@ -65,32 +65,69 @@ jobs:
 
       - name: 🛡️ Security Audit (RLS & Destructive Changes)
         if: steps.db_diff.outputs.changes_detected == 'true'
+        id: audit
         run: |
           chmod +x scripts/audit_rls.sh
-          ./scripts/audit_rls.sh preview.sql
+          AUDIT_OUTPUT=$(./scripts/audit_rls.sh preview.sql 2>&1)
+          AUDIT_EXIT_CODE=$?
+          
+          # Salva o output para o comentário, escapando caracteres especiais
+          echo "audit_log<<EOF" >> $GITHUB_OUTPUT
+          echo "$AUDIT_OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           
           FORCE_DROP="${{ contains(github.event.pull_request.labels.*.name, 'force-db-drop') }}"
-          if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql && [ "$FORCE_DROP" != "true" ]; then
-            echo "❌ ERRO DE SEGURANÇA: Comandos DROP detectados!"
-            echo "Adicione a label 'force-db-drop' se for intencional."
-            exit 1
+          DROP_DETECTED="false"
+          if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql; then
+            DROP_DETECTED="true"
+            if [ "$FORCE_DROP" != "true" ]; then
+              echo "audit_error=❌ ERRO DE SEGURANÇA: Comandos DROP detectados sem label 'force-db-drop'." >> $GITHUB_OUTPUT
+              echo "audit_status=failed" >> $GITHUB_OUTPUT
+            else
+              echo "audit_status=passed" >> $GITHUB_OUTPUT
+            fi
+          elif [ $AUDIT_EXIT_CODE -ne 0 ]; then
+            echo "audit_error=❌ ERRO DE RLS: Tabelas detectadas sem Row Level Security." >> $GITHUB_OUTPUT
+            echo "audit_status=failed" >> $GITHUB_OUTPUT
+          else
+            echo "audit_status=passed" >> $GITHUB_OUTPUT
           fi
+        continue-on-error: true
 
-      - name: 💬 Post SQL Preview to PR
+      - name: 💬 Post SQL Preview and Audit to PR
+        if: steps.db_diff.outputs.changes_detected == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const sql = `${{ steps.db_diff.outputs.sql_output }}`;
+            const auditLog = `${{ steps.audit.outputs.audit_log }}`;
+            const auditStatus = `${{ steps.audit.outputs.audit_status }}`;
+            const auditError = `${{ steps.audit.outputs.audit_error }}`;
+            
+            let auditEmoji = auditStatus === 'passed' ? '✅' : '❌';
+            
             const body = `### 🔍 Supabase Database Preview
             
-            Auditamos o esquema do banco de dados de **Desenvolvimento** contra o repositório. Abaixo está o SQL gerado (filtramos as declarações de GRANT/REVOKE para facilitar a leitura):
-
+            #### 🛠️ Alterações Detectadas:
             \`\`\`sql
             ${sql}
             \`\`\`
             
-            > 🤖 **DevOps Note:** Se aprovado, uma nova migration será gerada automaticamente nesta branch.`;
+            #### 🛡️ Auditoria de Segurança:
+            ${auditEmoji} **Status: ${auditStatus.toUpperCase()}**
+            
+            ${auditError ? `> **Erro:** ${auditError}\n` : ''}
+            
+            <details>
+            <summary>Clique para ver o Log da Auditoria</summary>
+            
+            \`\`\`text
+            ${auditLog}
+            \`\`\`
+            </details>
+            
+            ${auditStatus === 'passed' ? '> 🚀 **Ação:** Uma nova migration será gerada automaticamente.' : '> ⚠️ **Ação Necessária:** Corrija os erros acima para prosseguir.'}`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -99,8 +136,14 @@ jobs:
               body: body
             })
 
+      - name: 🛑 Fail if Audit Failed
+        if: steps.audit.outputs.audit_status == 'failed'
+        run: |
+          echo "A auditoria de segurança falhou. Verifique o comentário no PR."
+          exit 1
+
       - name: 🚀 Auto-Commit Migration
-        if: steps.db_diff.outputs.changes_detected == 'true'
+        if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'passed'
         run: |
           # Usar o arquivo COMPLETO (preview.sql) para a migration real
           MIGRATION_FILE="supabase/migrations/$(date +%Y%m%d%H%M%S)_auto_migration.sql"
