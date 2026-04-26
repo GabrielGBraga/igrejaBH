@@ -9,6 +9,22 @@ drop policy if exists "Permitir inserção para liderança" on "public"."media_r
 drop policy if exists "Usuários podem criar suas próprias inscrições" on "public"."registrations";
 drop policy if exists "Usuários podem ver suas próprias inscrições" on "public"."registrations";
 
+-- Criação ou Atualização da Função de Proteção (Dependência do Trigger)
+CREATE OR REPLACE FUNCTION public.handle_is_dev_protection()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (OLD.is_dev IS DISTINCT FROM NEW.is_dev) THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE user_id = auth.uid() AND is_dev = true
+        ) THEN
+            NEW.is_dev := OLD.is_dev;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Criação da tabela de teste de auditoria (Alvo do nosso teste de RLS)
 create table if not exists "public"."audit_test_vulnerability" (
     "id" uuid not null default extensions.uuid_generate_v4(),
