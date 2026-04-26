@@ -97,13 +97,18 @@ jobs:
       - name: 💬 Post SQL Preview and Audit to PR
         if: steps.db_diff.outputs.changes_detected == 'true'
         uses: actions/github-script@v7
+        env:
+          SQL_PREVIEW: ${{ steps.db_diff.outputs.sql_output }}
+          AUDIT_LOG: ${{ steps.audit.outputs.audit_log }}
+          AUDIT_STATUS: ${{ steps.audit.outputs.audit_status }}
+          AUDIT_ERROR: ${{ steps.audit.outputs.audit_error }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const sql = `${{ steps.db_diff.outputs.sql_output }}`;
-            const auditLog = `${{ steps.audit.outputs.audit_log }}`;
-            const auditStatus = `${{ steps.audit.outputs.audit_status }}`;
-            const auditError = `${{ steps.audit.outputs.audit_error }}`;
+            const sql = process.env.SQL_PREVIEW;
+            const auditLog = process.env.AUDIT_LOG;
+            const auditStatus = process.env.AUDIT_STATUS;
+            const auditError = process.env.AUDIT_ERROR;
             
             let auditEmoji = auditStatus === 'passed' ? '✅' : '❌';
             
