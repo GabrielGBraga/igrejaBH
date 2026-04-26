@@ -27,18 +27,34 @@ jobs:
       - name: Generate DB Diff
         id: db_diff
         run: |
+          # Limpeza estratégica: remove migrations auto-geradas anteriores nesta branch
+          # para que o 'db diff' compare o estado atual de DEV contra a base estável do repositório.
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          EXISTING_AUTO_MIGRATIONS=$(ls supabase/migrations/*_auto_migration.sql 2>/dev/null || true)
+          if [ ! -z "$EXISTING_AUTO_MIGRATIONS" ]; then
+            echo "🗑️ Removendo migrations auto-geradas anteriores para consolidação..."
+            rm $EXISTING_AUTO_MIGRATIONS
+            git add supabase/migrations/
+            # Se não houver nada para commitar após o rm (caso raro), o || true evita erro
+            git commit -m "chore(db): clean previous auto-migrations for squash" || true
+          fi
+
           # 1. Gerar o diff completo
           supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" > preview.sql
           
-          # 2. Verificar se há conteúdo relevante (ignora comentários)
-          if ! grep -v "^--" preview.sql | grep -q "[a-zA-Z0-9]"; then
+          # 2. Verificar se há conteúdo relevante (ignora comentários e linhas vazias)
+          if ! grep -vE "^(--|[[:space:]]*$)" preview.sql | grep -q "[a-zA-Z0-9]"; then
             echo "sql_output=-- Nenhum mudança de esquema detectada." >> $GITHUB_OUTPUT
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           else
             # 3. Criar versão limpa (sem GRANT/REVOKE) para o comentário do PR
-            sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql > clean_preview.sql
+            # Remove ruídos comuns de ambiente de dev
+            sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql | \
+            sed -E '/^--/d' | \
+            sed -E '/^[[:space:]]*$/d' > clean_preview.sql
             
-            # Prepara a saída para o GitHub Actions (multiline)
             echo "sql_output<<EOF" >> $GITHUB_OUTPUT
             cat clean_preview.sql >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
@@ -47,21 +63,18 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: 🛡️ Security Guard (Destructive Changes Check)
+      - name: 🛡️ Security Audit (RLS & Destructive Changes)
         if: steps.db_diff.outputs.changes_detected == 'true'
         run: |
-          FORCE_DROP="${{ contains(github.event.pull_request.labels.*.name, 'force-db-drop') }}"
+          chmod +x scripts/audit_rls.sh
+          ./scripts/audit_rls.sh preview.sql
           
-          if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql; then
-            if [ "$FORCE_DROP" = "true" ]; then
-              echo "⚠️ [SECURITY WARNING] Label 'force-db-drop' detectada. Permitindo alteração destrutiva."
-            else
-              echo "❌ ERRO DE SEGURANÇA: Comandos DROP detectados!"
-              echo "O merge foi bloqueado. Se o DROP for intencional, adicione a label 'force-db-drop' ao PR."
-              exit 1
-            fi
+          FORCE_DROP="${{ contains(github.event.pull_request.labels.*.name, 'force-db-drop') }}"
+          if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql && [ "$FORCE_DROP" != "true" ]; then
+            echo "❌ ERRO DE SEGURANÇA: Comandos DROP detectados!"
+            echo "Adicione a label 'force-db-drop' se for intencional."
+            exit 1
           fi
-          echo "✅ Nenhuma alteração destrutiva encontrada ou bypass ativo."
 
       - name: 💬 Post SQL Preview to PR
         uses: actions/github-script@v7
