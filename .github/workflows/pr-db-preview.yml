@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   db-preview:
@@ -27,57 +28,118 @@ jobs:
       - name: Generate DB Diff
         id: db_diff
         run: |
-          # 1. Gerar o diff completo
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Remove migrations anteriores do mesmo PR para evitar duplicidade
+          rm -f supabase/migrations/*_auto_migration.sql
+          git add supabase/migrations/ || true
+          git commit -m "chore(db): clean previous auto-migrations" || true
+
+          # Gera o diff contra o banco de DEV
           supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" > preview.sql
           
-          # 2. Verificar se há conteúdo relevante (ignora comentários)
-          if ! grep -v "^--" preview.sql | grep -q "[a-zA-Z0-9]"; then
-            echo "sql_output=-- Nenhum mudança de esquema detectada." >> $GITHUB_OUTPUT
+          if ! grep -vE "^(--|[[:space:]]*$)" preview.sql | grep -q "[a-zA-Z0-9]"; then
             echo "changes_detected=false" >> $GITHUB_OUTPUT
           else
-            # 3. Criar versão limpa (sem GRANT/REVOKE) para o comentário do PR
-            sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql > clean_preview.sql
+            # Limpa o SQL para o comentário
+            sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql | \
+            sed -E '/^--/d' | \
+            sed -E '/^[[:space:]]*$/d' > clean_preview.sql
             
-            # Prepara a saída para o GitHub Actions (multiline)
-            echo "sql_output<<EOF" >> $GITHUB_OUTPUT
-            cat clean_preview.sql >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
             echo "changes_detected=true" >> $GITHUB_OUTPUT
           fi
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
-      - name: 🛡️ Security Guard (Destructive Changes Check)
+      - name: 🛡️ Security Audit
         if: steps.db_diff.outputs.changes_detected == 'true'
+        id: audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FORCE_DROP="${{ contains(github.event.pull_request.labels.*.name, 'force-db-drop') }}"
+          chmod +x scripts/audit_rls.sh
           
+          # Auditoria de RLS
+          ./scripts/audit_rls.sh preview.sql > audit_log.txt 2>&1 || true
+          RLS_FAILED=$?
+          
+          # Auditoria de DROP (Verificação dinâmica de label via GH CLI)
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          FORCE_DROP=$(echo "$LABELS" | grep -w "force-db-drop" || echo "false")
+          
+          DROP_DETECTED="false"
           if grep -Ei "DROP TABLE|DROP COLUMN" preview.sql; then
-            if [ "$FORCE_DROP" = "true" ]; then
-              echo "⚠️ [SECURITY WARNING] Label 'force-db-drop' detectada. Permitindo alteração destrutiva."
-            else
-              echo "❌ ERRO DE SEGURANÇA: Comandos DROP detectados!"
-              echo "O merge foi bloqueado. Se o DROP for intencional, adicione a label 'force-db-drop' ao PR."
-              exit 1
-            fi
+            DROP_DETECTED="true"
           fi
-          echo "✅ Nenhuma alteração destrutiva encontrada ou bypass ativo."
 
-      - name: 💬 Post SQL Preview to PR
+          # Determina o Status Final
+          STATUS="passed"
+          ERROR_MSG=""
+          
+          if [ "$RLS_FAILED" -ne 0 ]; then
+            STATUS="failed"
+            ERROR_MSG="❌ ERRO DE RLS: Tabelas detectadas sem Row Level Security."
+          fi
+          
+          if [ "$DROP_DETECTED" = "true" ] && [ "$FORCE_DROP" = "false" ]; then
+            STATUS="failed"
+            ERROR_MSG="${ERROR_MSG}\n❌ ERRO DE SEGURANÇA: Comandos DROP detectados sem label 'force-db-drop'."
+          fi
+
+          # Exporta para o comentário
+          echo "audit_status=$STATUS" >> $GITHUB_OUTPUT
+          {
+            echo "audit_log<<EOF"
+            cat audit_log.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+          {
+            echo "audit_error<<EOF"
+            echo -e "$ERROR_MSG"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: 💬 Post Result to PR
+        if: steps.db_diff.outputs.changes_detected == 'true'
         uses: actions/github-script@v7
+        env:
+          SQL_PREVIEW: ${{ steps.db_diff.outputs.changes_detected == 'true' && 'clean_preview.sql' || '' }}
+          AUDIT_LOG: ${{ steps.audit.outputs.audit_log }}
+          AUDIT_STATUS: ${{ steps.audit.outputs.audit_status }}
+          AUDIT_ERROR: ${{ steps.audit.outputs.audit_error }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const sql = `${{ steps.db_diff.outputs.sql_output }}`;
+            const fs = require('fs');
+            const sql = fs.existsSync('clean_preview.sql') ? fs.readFileSync('clean_preview.sql', 'utf8') : '-- Nenhuma mudança';
+            const auditLog = process.env.AUDIT_LOG;
+            const auditStatus = process.env.AUDIT_STATUS;
+            const auditError = process.env.AUDIT_ERROR;
+            
+            let auditEmoji = auditStatus === 'passed' ? '✅' : '❌';
+            
             const body = `### 🔍 Supabase Database Preview
             
-            Auditamos o esquema do banco de dados de **Desenvolvimento** contra o repositório. Abaixo está o SQL gerado (filtramos as declarações de GRANT/REVOKE para facilitar a leitura):
-
+            #### 🛠️ Alterações Detectadas:
             \`\`\`sql
             ${sql}
             \`\`\`
             
-            > 🤖 **DevOps Note:** Se aprovado, uma nova migration será gerada automaticamente nesta branch.`;
+            #### 🛡️ Auditoria de Segurança:
+            ${auditEmoji} **Status: ${auditStatus.toUpperCase()}**
+            
+            ${auditError ? `\n> **Atenção:**\n${auditError}\n` : ''}
+            
+            <details>
+            <summary>Clique para ver o Log da Auditoria</summary>
+            
+            \`\`\`text
+            ${auditLog}
+            \`\`\`
+            </details>
+            
+            ${auditStatus === 'passed' ? '> 🚀 **Ação:** Uma nova migration será gerada automaticamente.' : '> ⚠️ **Ação Necessária:** Corrija os problemas acima para que a migration seja gerada.'}`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -87,15 +149,16 @@ jobs:
             })
 
       - name: 🚀 Auto-Commit Migration
-        if: steps.db_diff.outputs.changes_detected == 'true'
+        if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'passed'
         run: |
-          # Usar o arquivo COMPLETO (preview.sql) para a migration real
           MIGRATION_FILE="supabase/migrations/$(date +%Y%m%d%H%M%S)_auto_migration.sql"
           mv preview.sql "$MIGRATION_FILE"
-          
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
           git add "$MIGRATION_FILE"
           git commit -m "chore(db): auto-generate migration from DEV"
           git push origin HEAD:${{ github.head_ref }}
+
+      - name: 🛑 Enforce Block
+        if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'failed'
+        run: |
+          echo "Audit failed. Check PR comments for details."
+          exit 1
