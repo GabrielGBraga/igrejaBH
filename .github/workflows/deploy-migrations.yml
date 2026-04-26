@@ -20,17 +20,27 @@ jobs:
       - name: Link and Repair History
         run: |
           supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PRD }} --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
-          # Marcar migrações antigas como já aplicadas para evitar conflitos de tipos já existentes
-          supabase migration repair --status applied 20260417000000 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
-          supabase migration repair --status applied 20260420000000 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
-          supabase migration repair --status applied 20260421012456 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
-          supabase migration repair --status applied 20260421014724 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
+          
+          # 🚨 Nota Técnica: O 'migration repair' é necessário apenas se o banco de PRD 
+          # estiver fora de sincronia com as migrations iniciais do repositório.
+          # Listamos aqui as migrations que já existem fisicamente no PRD mas não no histórico do CLI.
+          
+          echo "🔄 Sincronizando histórico de migrations conhecidas..."
+          # Adicionamos a migration 20260421162429 com status 'reverted' pois ela foi removida no squash
+          MIGRATIONS_TO_REPAIR=("20260417000000" "20260420000000" "20260421012456" "20260421014724")
+          
+          for mig in "${MIGRATIONS_TO_REPAIR[@]}"; do
+            supabase migration repair --status applied "$mig" --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration $mig já sincronizada ou ignorada."
+          done
+
+          # Repara a migration que foi removida pelo squash para evitar erro de 'Remote migration versions not found'
+          supabase migration repair --status reverted 20260421162429 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration de squash já tratada."
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Deploy New Migrations
         run: |
-          # O comando push agora só enviará o que não foi marcado acima
+          echo "🚀 Enviando novas migrations para PRD..."
           supabase db push --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
