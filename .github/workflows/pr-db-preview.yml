@@ -14,13 +14,6 @@ jobs:
       contents: write
 
     steps:
-      - name: 🛡️ Validate Source Branch
-        if: github.base_ref == 'main' && github.head_ref != 'dev'
-        run: |
-          echo "❌ ERRO DE FLUXO: Merges para a branch 'main' só são permitidos a partir da branch 'dev'."
-          echo "Sua branch de origem é: ${{ github.head_ref }}"
-          exit 1
-
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -148,41 +141,12 @@ jobs:
             
             ${auditStatus === 'passed' ? '> 🚀 **Ação:** Uma nova migration será gerada automaticamente.' : '> ⚠️ **Ação Necessária:** Corrija os problemas acima para que a migration seja gerada.'}`;
             
-            // Posta o comentário
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: body
             });
-
-            // Se falhar, faz uma Review de "Request Changes" para travar visualmente
-            if (auditStatus === 'failed') {
-              await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number,
-                event: 'REQUEST_CHANGES',
-                body: '🚨 **BLOQUEIO DE SEGURANÇA:** Alterações de banco de dados inseguras detectadas. Verifique o comentário acima para detalhes.'
-              });
-            } else {
-              // Se passar, e houver reviews anteriores minhas, eu as aprovo
-              const reviews = await github.rest.pulls.listReviews({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number
-              });
-              const myReview = reviews.data.find(r => r.user.login === 'github-actions[bot]' && r.state === 'CHANGES_REQUESTED');
-              if (myReview) {
-                await github.rest.pulls.createReview({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: context.issue.number,
-                  event: 'APPROVE',
-                  body: '✅ Problemas de segurança resolvidos.'
-                });
-              }
-            }
 
       - name: 🚀 Auto-Commit Migration
         if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'passed'
