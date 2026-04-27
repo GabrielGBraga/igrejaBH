@@ -31,10 +31,17 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # Remove migrations anteriores do mesmo PR para evitar duplicidade
-          rm -f supabase/migrations/*_auto_migration.sql
-          git add supabase/migrations/ || true
-          git commit -m "chore(db): clean previous auto-migrations" || true
+          # Lógica de Squash Inteligente:
+          # Remove apenas as migrations auto-geradas que foram introduzidas NESTA branch
+          # Evita deletar migrations que já estão na 'main'
+          FILES_TO_REMOVE=$(git diff --name-only origin/main...HEAD | grep "supabase/migrations/.*_auto_migration.sql" || true)
+          
+          if [ ! -z "$FILES_TO_REMOVE" ]; then
+            echo "🗑️ Removendo migrations auto-geradas da branch para consolidação: $FILES_TO_REMOVE"
+            rm -f $FILES_TO_REMOVE
+            git add .
+            git commit -m "chore(db): clean branch auto-migrations for squash" || true
+          fi
 
           # Gera o diff contra o banco de DEV
           supabase db diff --db-url "${{ secrets.DEV_DB_URL }}" > preview.sql
