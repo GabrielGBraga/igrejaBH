@@ -104,7 +104,7 @@ jobs:
         if: steps.db_diff.outputs.changes_detected == 'true'
         uses: actions/github-script@v7
         env:
-          SQL_PREVIEW: ${{ steps.db_diff.outputs.changes_detected == 'true' && 'clean_preview.sql' || '' }}
+          SQL_PREVIEW_FILE: 'clean_preview.sql'
           AUDIT_LOG: ${{ steps.audit.outputs.audit_log }}
           AUDIT_STATUS: ${{ steps.audit.outputs.audit_status }}
           AUDIT_ERROR: ${{ steps.audit.outputs.audit_error }}
@@ -112,7 +112,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const sql = fs.existsSync('clean_preview.sql') ? fs.readFileSync('clean_preview.sql', 'utf8') : '-- Nenhuma mudança';
+            const sql = fs.existsSync(process.env.SQL_PREVIEW_FILE) ? fs.readFileSync(process.env.SQL_PREVIEW_FILE, 'utf8') : '-- Nenhuma mudança';
             const auditLog = process.env.AUDIT_LOG;
             const auditStatus = process.env.AUDIT_STATUS;
             const auditError = process.env.AUDIT_ERROR;
@@ -141,12 +141,12 @@ jobs:
             
             ${auditStatus === 'passed' ? '> 🚀 **Ação:** Uma nova migration será gerada automaticamente.' : '> ⚠️ **Ação Necessária:** Corrija os problemas acima para que a migration seja gerada.'}`;
             
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: body
-            })
+            });
 
       - name: 🚀 Auto-Commit Migration
         if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'passed'
