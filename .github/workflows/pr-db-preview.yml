@@ -158,8 +158,13 @@ jobs:
       - name: 🚀 Auto-Commit Migration
         if: steps.db_diff.outputs.changes_detected == 'true' && steps.audit.outputs.audit_status == 'passed'
         run: |
+          # Limpa o SQL final removendo Grants/Revokes ruidosos e linhas vazias
+          sed -E '/^[[:space:]]*(GRANT|REVOKE|grant|revoke)\b/d' preview.sql | \
+          sed -E '/^--/d' | \
+          sed -E '/^[[:space:]]*$/d' > final_migration.sql
+
           MIGRATION_FILE="supabase/migrations/$(date +%Y%m%d%H%M%S)_auto_migration.sql"
-          mv preview.sql "$MIGRATION_FILE"
+          mv final_migration.sql "$MIGRATION_FILE"
           git add "$MIGRATION_FILE"
           git commit -m "chore(db): auto-generate migration from DEV"
           git push origin HEAD:${{ github.head_ref }}

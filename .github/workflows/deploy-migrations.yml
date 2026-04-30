@@ -27,7 +27,7 @@ jobs:
           
           echo "🔄 Sincronizando histórico de migrations conhecidas..."
           # Adicionamos a migration 20260421162429 com status 'reverted' pois ela foi removida no squash
-          MIGRATIONS_TO_REPAIR=("20260417000000" "20260420000000" "20260421012456" "20260421014724")
+          MIGRATIONS_TO_REPAIR=("20260417000000" "20260420000000" "20260421012456")
           
           for mig in "${MIGRATIONS_TO_REPAIR[@]}"; do
             supabase migration repair --status applied "$mig" --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration $mig já sincronizada ou ignorada."
