@@ -36,6 +36,8 @@ jobs:
           # Repara as migrations que foram removidas pelo squash para evitar erro de 'Remote migration versions not found'
           supabase migration repair --status reverted 20260421162429 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration de squash já tratada."
           supabase migration repair --status reverted 20260426211032 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration de squash já tratada."
+          supabase migration repair --status reverted 20260421014724 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration de teste já removida."
+          supabase migration repair --status reverted 20260427120204 --password ${{ secrets.SUPABASE_DB_PASSWORD_PRD }} || echo "⚠️ Migration de teste já removida."
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
