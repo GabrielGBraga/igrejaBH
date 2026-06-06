@@ -11,18 +11,21 @@ import Events from './pages/Events.tsx';
 import Messages from './pages/Messages.tsx';
 import Settings from './pages/Settings.tsx';
 import NotFound from './pages/NotFound.tsx';
+import FormBuilder from './pages/FormBuilder.tsx';
+import FormResponder from './pages/FormResponder.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import { Toaster } from "@/components/ui/sonner";
 import { Layout } from './components/layout/Layout.tsx';
 import type { ReactNode } from 'react';
 
 // Helper component to wrap protected routes with Layout
-const AuthenticatedLayout = ({ children, requireAdmin, requireManagement }: { 
+const AuthenticatedLayout = ({ children, requireAdmin, requireManagement, requireCanPost }: { 
   children: ReactNode, 
   requireAdmin?: boolean, 
-  requireManagement?: boolean 
+  requireManagement?: boolean,
+  requireCanPost?: boolean
 }) => (
-  <ProtectedRoute requireAdmin={requireAdmin} requireManagement={requireManagement}>
+  <ProtectedRoute requireAdmin={requireAdmin} requireManagement={requireManagement} requireCanPost={requireCanPost}>
     <Layout>
       {children}
     </Layout>
@@ -38,6 +41,8 @@ function App() {
         <Route path="/grupos-caseiros" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
         <Route path="/grupos-caseiros/adicionar" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
         <Route path="/gestao/vinculados" element={<AuthenticatedLayout requireManagement><MemberManagement /></AuthenticatedLayout>} />
+        <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
+        <Route path="/formularios/responder/:formId" element={<AuthenticatedLayout><FormResponder /></AuthenticatedLayout>} />
         <Route path="/noticias/nova" element={<AuthenticatedLayout><CreatePost /></AuthenticatedLayout>} />
         <Route path="/materiais" element={<AuthenticatedLayout><Materials /></AuthenticatedLayout>} />
         <Route path="/perfil" element={<AuthenticatedLayout><Profile /></AuthenticatedLayout>} />

@@ -14,7 +14,7 @@ type Post = {
     content: string;
     event_start_date: string | null;
     event_end_date: string | null;
-    category: "noticia" | "oracao" | "aviso" | "evento";
+    category: "noticia" | "oracao" | "aviso" | "evento" | "diaconato" | "obra";
     image_urls?: string[] | null;
 };
 

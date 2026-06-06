@@ -63,7 +63,7 @@ export default function SignUp() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const signForm = useForm<SignUpValue>({
-        resolver: zodResolver(signUpSchema),
+        resolver: zodResolver(signUpSchema) as any,
         defaultValues: {
             fullName: "",
             email: "",
@@ -82,6 +82,13 @@ export default function SignUp() {
             addressComplement: "",
             password: "",
             confirmPassword: "",
+            occupation: "",
+            educationLevel: "Médio Completo",
+            employmentStatus: "CLT",
+            householdIncome: "1 a 3 SM",
+            dependentsCount: 0,
+            housingStatus: "Própria",
+            driversLicense: "Não possui",
         }
     })
 
@@ -208,6 +215,13 @@ export default function SignUp() {
                     address_city: data.addressCity,
                     address_state: data.addressState,
                     address_complement: data.addressComplement,
+                    occupation: data.occupation,
+                    education_level: data.educationLevel,
+                    employment_status: data.employmentStatus,
+                    household_income: data.householdIncome,
+                    dependents_count: data.dependentsCount,
+                    housing_status: data.housingStatus,
+                    drivers_license: data.driversLicense,
                 })
                 .eq('user_id', authData.user.id)
 
@@ -538,6 +552,149 @@ export default function SignUp() {
                                     )}
                                 />
                             </div>
+                        </FieldGroup>
+
+                        <FieldSeparator>Informações Socioeconômicas*</FieldSeparator>
+
+                        <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Controller
+                                name="occupation"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Profissão*</FieldLabel>
+                                        <Input {...field} placeholder="Sua Profissão" />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="dependentsCount"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Nº de Dependentes*</FieldLabel>
+                                        <Input {...field} type="number" min="0" />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="educationLevel"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Escolaridade*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Fundamental Incompleto", "Fundamental Completo", "Médio Incompleto", "Médio Completo", "Superior Incompleto", "Superior Completo", "Pós-graduação"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`edu-${opt}`} />
+                                                    <FieldLabel htmlFor={`edu-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="employmentStatus"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Vínculo Empregatício*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["CLT", "Autônomo/PJ", "Desempregado", "Aposentado", "Estudante", "Empreendedor"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`emp-${opt}`} />
+                                                    <FieldLabel htmlFor={`emp-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="householdIncome"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Renda Familiar*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM", "Prefiro não informar"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`inc-${opt}`} />
+                                                    <FieldLabel htmlFor={`inc-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="housingStatus"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Situação de Moradia*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`hou-${opt}`} />
+                                                    <FieldLabel htmlFor={`hou-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="driversLicense"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>CNH*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2"
+                                        >
+                                            {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`cnh-${opt}`} />
+                                                    <FieldLabel htmlFor={`cnh-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
                         </FieldGroup>
 
                         <FieldSeparator>Segurança</FieldSeparator>

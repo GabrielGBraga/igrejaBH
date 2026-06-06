@@ -11,9 +11,10 @@ interface ProtectedRouteProps {
   children?: React.ReactNode;
   requireAdmin?: boolean;
   requireManagement?: boolean;
+  requireCanPost?: boolean;
 }
 
-export function ProtectedRoute({ children, requireAdmin, requireManagement }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, requireAdmin, requireManagement, requireCanPost }: ProtectedRouteProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,6 +94,13 @@ export function ProtectedRoute({ children, requireAdmin, requireManagement }: Pr
 
     if (requireManagement) {
       const isAllowed = profile.is_dev || profile.is_presbyter || profile.is_deacon || profile.is_leader;
+      if (!isAllowed) {
+        return <Navigate to="/" replace />;
+      }
+    }
+
+    if (requireCanPost) {
+      const isAllowed = !!(profile.is_dev || profile.is_presbyter || profile.can_post);
       if (!isAllowed) {
         return <Navigate to="/" replace />;
       }

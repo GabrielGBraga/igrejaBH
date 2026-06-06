@@ -27,6 +27,7 @@ export function Sidebar() {
     const location = useLocation();
     const [isAdmin, setIsAdmin] = useState(false);
     const [isManagement, setIsManagement] = useState(false);
+    const [canPost, setCanPost] = useState(false);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const saved = localStorage.getItem("sidebar-collapsed");
@@ -43,7 +44,7 @@ export function Sidebar() {
             if (session?.user) {
                 const { data: profileData } = await supabase
                     .from("profiles")
-                    .select("id, full_name, avatar_url, is_dev, is_presbyter, is_deacon")
+                    .select("id, full_name, avatar_url, is_dev, is_presbyter, is_deacon, can_post")
                     .eq("user_id", session.user.id)
                     .single();
                 
@@ -54,6 +55,7 @@ export function Sidebar() {
                         avatar_url: profileData.avatar_url || undefined
                     });
                     setIsAdmin(!!(profileData.is_dev || profileData.is_presbyter));
+                    setCanPost(!!(profileData.is_dev || profileData.is_presbyter || profileData.can_post));
                     
                     const { count } = await supabase
                         .from("home_groups")
@@ -69,6 +71,8 @@ export function Sidebar() {
 
     const filteredNavItems = navItems.filter(item => {
         if (item.requireManagement && !isManagement) return false;
+        // @ts-ignore
+        if (item.requireCanPost && !canPost) return false;
         if (item.href === '/grupos-caseiros/adicionar' && !isAdmin) return false;
         return true;
     });

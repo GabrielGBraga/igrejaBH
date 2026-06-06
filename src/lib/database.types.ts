@@ -193,20 +193,27 @@ export type Database = {
           can_post: boolean | null
           cpf: string | null
           created_at: string | null
+          dependents_count: number
           discipler_id: string | null
+          drivers_license: string
+          education_level: string
+          employment_status: string
+          father_id: string | null
           full_name: string
           gender: string | null
           home_group_id: string | null
+          household_income: string
+          housing_status: string
           id: string
           is_deacon: boolean | null
           is_dev: boolean | null
           is_presbyter: boolean | null
           marital_status: string | null
-          phone: string | null
-          user_id: string | null
-          spouse_id: string | null
-          father_id: string | null
           mother_id: string | null
+          occupation: string
+          phone: string | null
+          spouse_id: string | null
+          user_id: string | null
         }
         Insert: {
           address_city?: string | null
@@ -222,20 +229,27 @@ export type Database = {
           can_post?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          dependents_count?: number
           discipler_id?: string | null
+          drivers_license: string
+          education_level: string
+          employment_status: string
+          father_id?: string | null
           full_name: string
           gender?: string | null
           home_group_id?: string | null
+          household_income: string
+          housing_status: string
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
-          phone?: string | null
-          user_id?: string | null
-          spouse_id?: string | null
-          father_id?: string | null
           mother_id?: string | null
+          occupation: string
+          phone?: string | null
+          spouse_id?: string | null
+          user_id?: string | null
         }
         Update: {
           address_city?: string | null
@@ -251,32 +265,32 @@ export type Database = {
           can_post?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          dependents_count?: number
           discipler_id?: string | null
+          drivers_license?: string
+          education_level?: string
+          employment_status?: string
+          father_id?: string | null
           full_name?: string
           gender?: string | null
           home_group_id?: string | null
+          household_income?: string
+          housing_status?: string
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
-          phone?: string | null
-          user_id?: string | null
-          spouse_id?: string | null
-          father_id?: string | null
           mother_id?: string | null
+          occupation?: string
+          phone?: string | null
+          spouse_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "profiles_discipler_id_fkey"
             columns: ["discipler_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_spouse_id_fkey"
-            columns: ["spouse_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -289,6 +303,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "profiles_home_group_id_fkey"
+            columns: ["home_group_id"]
+            isOneToOne: false
+            referencedRelation: "home_groups"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "profiles_mother_id_fkey"
             columns: ["mother_id"]
             isOneToOne: false
@@ -296,88 +317,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_home_group_id_fkey"
-            columns: ["home_group_id"]
-            isOneToOne: false
-            referencedRelation: "home_groups"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      registrations: {
-        Row: {
-          created_at: string | null
-          custom_responses: Json | null
-          guest_data: Json | null
-          id: string
-          paid: boolean | null
-          profile_id: string | null
-          retreat_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          custom_responses?: Json | null
-          guest_data?: Json | null
-          id?: string
-          paid?: boolean | null
-          profile_id?: string | null
-          retreat_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          custom_responses?: Json | null
-          guest_data?: Json | null
-          id?: string
-          paid?: boolean | null
-          profile_id?: string | null
-          retreat_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "registrations_profile_id_fkey"
-            columns: ["profile_id"]
+            foreignKeyName: "profiles_spouse_id_fkey"
+            columns: ["spouse_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "registrations_retreat_id_fkey"
-            columns: ["retreat_id"]
-            isOneToOne: false
-            referencedRelation: "retreats"
-            referencedColumns: ["id"]
-          },
+          }
         ]
-      }
-      retreats: {
-        Row: {
-          created_at: string | null
-          end_date: string | null
-          form_model: Database["public"]["Enums"]["retreat_form_model"] | null
-          id: string
-          price: number | null
-          start_date: string | null
-          title: string
-        }
-        Insert: {
-          created_at?: string | null
-          end_date?: string | null
-          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
-          id?: string
-          price?: number | null
-          start_date?: string | null
-          title: string
-        }
-        Update: {
-          created_at?: string | null
-          end_date?: string | null
-          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
-          id?: string
-          price?: number | null
-          start_date?: string | null
-          title?: string
-        }
-        Relationships: []
       }
     }
     Views: {
@@ -387,8 +333,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      media_type: "video" | "pdf"
-      post_category: "noticia" | "oracao" | "aviso" | "evento"
+      media_type: "video" | "pdf" | "markdown"
+      post_category:
+        | "noticia"
+        | "oracao"
+        | "diaconato"
+        | "obra"
+        | "aviso"
+        | "evento"
       retreat_form_model: "geral" | "socioeconomico" | "logistica"
     }
     CompositeTypes: {
@@ -410,7 +362,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -421,14 +373,14 @@ export type Tables<
     ? R
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+      DefaultSchema["Views"])
+  ? (DefaultSchema["Tables"] &
+      DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
     : never
+  : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
@@ -438,7 +390,7 @@ export type TablesInsert<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -448,12 +400,12 @@ export type TablesInsert<
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
     : never
+  : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
@@ -463,7 +415,7 @@ export type TablesUpdate<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -473,12 +425,12 @@ export type TablesUpdate<
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
     : never
+  : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
@@ -488,14 +440,14 @@ export type Enums<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never = never
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
@@ -505,21 +457,28 @@ export type CompositeTypes<
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never = never
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : never
 
 export const Constants = {
   public: {
     Enums: {
-      media_type: ["video", "pdf"],
-      post_category: ["noticia", "oracao", "aviso", "evento"],
-      retreat_form_model: ["geral", "socioeconomico", "logistica"],
-    },
-  },
+      media_type: ["video", "pdf", "markdown"],
+      post_category: [
+        "noticia",
+        "oracao",
+        "diaconato",
+        "obra",
+        "aviso",
+        "evento"
+      ],
+      retreat_form_model: ["geral", "socioeconomico", "logistica"]
+    }
+  }
 } as const
