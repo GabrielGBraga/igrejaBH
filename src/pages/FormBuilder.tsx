@@ -7,6 +7,7 @@ import {
   Edit, 
   Copy, 
   Eye, 
+  EyeOff, 
   X, 
   Save, 
   CheckCircle, 
@@ -192,6 +193,7 @@ export default function FormBuilder() {
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [builderTab, setBuilderTab] = useState<'edit' | 'preview' | 'json'>('edit');
   const [newOptionTexts, setNewOptionTexts] = useState<Record<string, string>>({});
+  const [showPreview, setShowPreview] = useState(true);
 
   // Notion-style Click Outside to collapse active editor card
   useEffect(() => {
@@ -937,6 +939,14 @@ export default function FormBuilder() {
             <div className="flex items-center gap-3 shrink-0">
               <Button
                 variant="outline"
+                className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all hidden lg:flex"
+                onClick={() => setShowPreview(!showPreview)}
+              >
+                {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                {showPreview ? "Ocultar Preview" : "Mostrar Preview"}
+              </Button>
+              <Button
+                variant="outline"
                 className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all"
                 onClick={(e) => handleExportJSON(selectedForm, e)}
               >
@@ -979,7 +989,7 @@ export default function FormBuilder() {
             </div>
 
             {/* COLUMN 1: FIELD EDITOR PANEL (Show on desktop or when active tab is 'edit') */}
-            <div className={`col-span-1 lg:col-span-7 space-y-6 ${builderTab === 'edit' ? 'block' : 'hidden lg:block'}`}>
+            <div className={`col-span-1 ${showPreview ? 'lg:col-span-7' : 'lg:col-span-12'} space-y-6 ${builderTab === 'edit' ? 'block' : 'hidden lg:block'}`}>
               
               {/* Header Text Block */}
               <div className="bg-card/20 dark:bg-zinc-900/10 p-5 rounded-xl border border-border/40">
@@ -1050,7 +1060,7 @@ export default function FormBuilder() {
               </div>
             </div>
                         {/* COLUMN 2: INTERACTIVE LIVE PREVIEW PANEL (Show on desktop or when active tab is 'preview') */}
-            <div className={`col-span-1 lg:col-span-5 space-y-6 ${builderTab === 'preview' ? 'block' : 'hidden lg:block'}`}>
+            <div className={`col-span-1 lg:col-span-5 space-y-6 ${builderTab === 'preview' ? 'block' : 'hidden lg:block'} ${showPreview ? '' : 'lg:hidden'}`}>
               
               <Card className="border-border bg-card/40 backdrop-blur-xl rounded-xl shadow-lg overflow-hidden sticky top-24">
                 <CardHeader className="p-6 border-b border-border/40 flex flex-row items-center justify-between">
