@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { isFieldVisible } from "@/lib/forms";
+import type { FormField, FormTemplate, FormSubmission } from "@/lib/forms";
 import { 
   Plus, 
   Trash2, 
@@ -31,6 +33,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import supabase from "@/lib/supabase";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DndContext,
   closestCenter,
@@ -54,128 +58,39 @@ import {
   PopoverContent
 } from "@/components/ui/popover";
 
-// Type definitions for the form builder
-export interface FormField {
-  id: string;
-  type: 'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'radio' | 'date';
-  label: string;
-  placeholder: string;
-  required: boolean;
-  helpText: string;
-  options: string[]; // for select, checkbox, radio
 
-  // Conditional Display Logic
-  dependsOnFieldId?: string;
-  dependsOnValue?: string;
 
-  // Validation Rules
-  validationPreset?: 'none' | 'phone' | 'cpf' | 'cep' | 'email';
-  minNumber?: number;
-  maxNumber?: number;
-}
 
-export interface FormTemplate {
-  id: string;
-  name: string;
-  description: string;
-  fields: FormField[];
-  createdAt: string;
-}
 
-export interface FormSubmission {
-  id: string;
-  formId: string;
-  submittedAt: string;
-  data: Record<string, any>;
-}
 
-// Initial default form to display on first load
-const DEFAULT_FORMS: FormTemplate[] = [
-  {
-    id: "ficha-pg-1",
-    name: "Ficha de Visita do Grupo Caseiro",
-    description: "Formulário para registrar a presença de visitantes nos encontros dos Oikos (Grupos Caseiros) e pedidos de oração.",
-    createdAt: new Date("2026-06-01").toISOString(),
-    fields: [
-      {
-        id: "field-nome",
-        type: "text",
-        label: "Nome Completo do Visitante",
-        placeholder: "Ex: Gabriel Silva",
-        required: true,
-        helpText: "Informe o nome completo para podermos identificá-lo.",
-        options: []
-      },
-      {
-        id: "field-telefone",
-        type: "text",
-        label: "Telefone de Contato (WhatsApp)",
-        placeholder: "(31) 99999-9999",
-        required: true,
-        helpText: "Para que possamos enviar mensagens fraternas.",
-        options: []
-      },
-      {
-        id: "field-oikos",
-        type: "select",
-        label: "Qual Oikos (Grupo Caseiro) você visitou?",
-        placeholder: "Selecione o grupo caseiro",
-        required: true,
-        helpText: "Selecione a região ou grupo caseiro correspondente.",
-        options: ["Oikos Pampulha", "Oikos Centro", "Oikos Sion", "Oikos Venda Nova", "Outro"]
-      },
-      {
-        id: "field-oracao",
-        type: "textarea",
-        label: "Tem algum pedido de oração ou agradecimento?",
-        placeholder: "Compartilhe conosco o seu coração...",
-        required: false,
-        helpText: "Este pedido será compartilhado apenas com o diaconato e presbitério.",
-        options: []
-      },
-      {
-        id: "field-discipulado",
-        type: "radio",
-        label: "Deseja iniciar um processo de Discipulado?",
-        placeholder: "",
-        required: true,
-        helpText: "O discipulado é o nosso caminhar de vida comum.",
-        options: ["Sim, gostaria de ser acompanhado", "Já tenho um discipulador", "Gostaria de tirar dúvidas primeiro"]
-      },
-      {
-        id: "field-data",
-        type: "date",
-        label: "Data da Visita",
-        placeholder: "",
-        required: true,
-        helpText: "Insira a data do encontro que você participou.",
-        options: []
-      }
-    ]
-  }
-];
 
-// Helper to evaluate field visibility recursively based on current answers
-export const isFieldVisible = (field: FormField, data: Record<string, any>, fieldsList: FormField[]): boolean => {
-  if (!field.dependsOnFieldId) return true;
-  
-  const parentField = fieldsList.find(f => f.id === field.dependsOnFieldId);
-  if (!parentField) return true;
+// Unique ID generators defined outside the component for React rendering purity
+const generateFormId = () => `form-${Math.random().toString(36).substring(7)}`;
+const generateFieldId = () => `field-${Math.random().toString(36).substring(7)}`;
+const generateSubId = () => `sub-${Math.random().toString(36).substring(7)}`;
 
-  // Check parent's visibility recursively
-  if (!isFieldVisible(parentField, data, fieldsList)) return false;
+// Map Supabase public.forms Row to FormTemplate
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapDbFormToTemplate = (dbForm: any): FormTemplate => {
+  return {
+    id: dbForm.id,
+    name: dbForm.name,
+    description: dbForm.description || "",
+    fields: (dbForm.fields as FormField[]) || [],
+    createdAt: dbForm.created_at,
+    isPublic: dbForm.is_public
+  };
+};
 
-  const parentValue = data[field.dependsOnFieldId];
-  if (parentValue === undefined || parentValue === null) return false;
-
-  const targetValue = field.dependsOnValue;
-  if (!targetValue) return true; 
-
-  if (Array.isArray(parentValue)) {
-    return parentValue.includes(targetValue);
-  }
-  
-  return String(parentValue) === String(targetValue);
+// Map Supabase public.form_submissions Row to FormSubmission
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapDbSubmission = (dbSub: any): FormSubmission => {
+  return {
+    id: dbSub.id,
+    formId: dbSub.form_id,
+    submittedAt: dbSub.submitted_at,
+    data: dbSub.data as Record<string, any>
+  };
 };
 
 export default function FormBuilder() {
@@ -184,6 +99,7 @@ export default function FormBuilder() {
   // Page core states
   const [forms, setForms] = useState<FormTemplate[]>([]);
   const [submissions, setSubmissions] = useState<Record<string, FormSubmission[]>>({});
+  const [loading, setLoading] = useState(true);
   
   // Navigation and active view states
   const [currentView, setCurrentView] = useState<'list' | 'builder'>('list');
@@ -194,6 +110,54 @@ export default function FormBuilder() {
   const [builderTab, setBuilderTab] = useState<'edit' | 'preview' | 'json'>('edit');
   const [newOptionTexts, setNewOptionTexts] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(true);
+
+  // Load forms and submissions from Supabase on mount
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        // Fetch forms from database
+        const { data: dbForms, error: formsError } = await supabase
+          .from("forms")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (formsError) throw formsError;
+
+        const mappedForms = (dbForms || []).map(mapDbFormToTemplate);
+        setForms(mappedForms);
+
+        // Fetch submissions from database
+        const { data: dbSubs, error: subsError } = await supabase
+          .from("form_submissions")
+          .select("*")
+          .order("submitted_at", { ascending: false });
+
+        if (subsError) {
+          console.error("Error loading submissions from Supabase:", subsError);
+        }
+
+        const subsGrouped: Record<string, FormSubmission[]> = {};
+        if (dbSubs) {
+          dbSubs.forEach(sub => {
+            const mapped = mapDbSubmission(sub);
+            if (!subsGrouped[mapped.formId]) {
+              subsGrouped[mapped.formId] = [];
+            }
+            subsGrouped[mapped.formId].push(mapped);
+          });
+        }
+        setSubmissions(subsGrouped);
+      } catch (err) {
+        console.error("Error loading forms from Supabase:", err);
+        toast.error("Erro ao carregar formulários do banco de dados.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
 
   // Notion-style Click Outside to collapse active editor card
   useEffect(() => {
@@ -223,6 +187,7 @@ export default function FormBuilder() {
   const [viewingSubmissionsFormId, setViewingSubmissionsFormId] = useState<string | null>(null);
 
   // Live preview form submission state
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [previewFormData, setPreviewFormData] = useState<Record<string, any>>({});
   const [previewFormErrors, setPreviewFormErrors] = useState<Record<string, string>>({});
 
@@ -232,47 +197,6 @@ export default function FormBuilder() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  // Load initial data from LocalStorage or seed defaults
-  useEffect(() => {
-    const savedForms = localStorage.getItem("church-forms");
-    const savedSubmissions = localStorage.getItem("church-form-submissions");
-    
-    if (savedForms) {
-      try {
-        setForms(JSON.parse(savedForms));
-      } catch (e) {
-        console.error("Error parsing saved forms", e);
-        setForms(DEFAULT_FORMS);
-      }
-    } else {
-      setForms(DEFAULT_FORMS);
-      localStorage.setItem("church-forms", JSON.stringify(DEFAULT_FORMS));
-    }
-
-    if (savedSubmissions) {
-      try {
-        setSubmissions(JSON.parse(savedSubmissions));
-      } catch (e) {
-        console.error("Error parsing saved submissions", e);
-        setSubmissions({});
-      }
-    } else {
-      setSubmissions({});
-    }
-  }, []);
-
-  // Sync forms to local storage
-  const saveFormsToStorage = (updatedForms: FormTemplate[]) => {
-    setForms(updatedForms);
-    localStorage.setItem("church-forms", JSON.stringify(updatedForms));
-  };
-
-  // Sync submissions to local storage
-  const saveSubmissionsToStorage = (updatedSubmissions: Record<string, FormSubmission[]>) => {
-    setSubmissions(updatedSubmissions);
-    localStorage.setItem("church-form-submissions", JSON.stringify(updatedSubmissions));
-  };
 
   // Share link copy function
   const handleShareLink = (form: FormTemplate, e: React.MouseEvent) => {
@@ -285,13 +209,14 @@ export default function FormBuilder() {
   // Create a new empty form
   const handleCreateNewForm = () => {
     const newForm: FormTemplate = {
-      id: `form-${Math.random().toString(36).substring(7)}`,
+      id: generateFormId(),
       name: "Novo Formulário de Vida Comum",
       description: "Descreva a finalidade deste formulário para os irmãos e discípulos.",
       createdAt: new Date().toISOString(),
+      isPublic: false,
       fields: [
         {
-          id: `field-${Math.random().toString(36).substring(7)}`,
+          id: generateFieldId(),
           type: "text",
           label: "Nome Completo",
           placeholder: "Digite seu nome",
@@ -322,7 +247,7 @@ export default function FormBuilder() {
   };
 
   // Save the form template
-  const handleSaveForm = () => {
+  const handleSaveForm = async () => {
     if (!selectedForm) return;
 
     if (!selectedForm.name.trim()) {
@@ -355,51 +280,110 @@ export default function FormBuilder() {
       return;
     }
 
-    const index = forms.findIndex(f => f.id === selectedForm.id);
-    let updated: FormTemplate[];
+    try {
+      const savingToastId = toast.loading("Salvando formulário no banco de dados...");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { error } = await supabase
+        .from("forms")
+        .upsert({
+          id: selectedForm.id,
+          name: selectedForm.name,
+          description: selectedForm.description || null,
+          fields: selectedForm.fields as any,
+          is_public: !!selectedForm.isPublic,
+          created_by: session?.user?.id || null
+        });
 
-    if (index >= 0) {
-      // Update existing
-      updated = [...forms];
-      updated[index] = selectedForm;
-      toast.success("Formulário atualizado com sucesso!");
-    } else {
-      // Add new
-      updated = [selectedForm, ...forms];
-      toast.success("Novo formulário criado com sucesso!");
+      if (error) throw error;
+      toast.dismiss(savingToastId);
+
+      const index = forms.findIndex(f => f.id === selectedForm.id);
+      let updated: FormTemplate[];
+
+      if (index >= 0) {
+        // Update existing
+        updated = [...forms];
+        updated[index] = selectedForm;
+        toast.success("Formulário atualizado com sucesso!");
+      } else {
+        // Add new
+        updated = [selectedForm, ...forms];
+        toast.success("Novo formulário criado com sucesso!");
+      }
+
+      setForms(updated);
+      setCurrentView('list');
+      setSelectedForm(null);
+    } catch (err: any) {
+      console.error("Error saving form to Supabase:", err);
+      toast.error(`Falha ao salvar formulário: ${err.message || "Erro desconhecido"}`);
     }
-
-    saveFormsToStorage(updated);
-    setCurrentView('list');
-    setSelectedForm(null);
   };
 
   // Duplicate a form
-  const handleDuplicateForm = (form: FormTemplate, e: React.MouseEvent) => {
+  const handleDuplicateForm = async (form: FormTemplate, e: React.MouseEvent) => {
     e.stopPropagation();
     const duplicated: FormTemplate = {
       ...form,
-      id: `form-${Math.random().toString(36).substring(7)}`,
+      id: generateFormId(),
       name: `${form.name} (Cópia)`,
       createdAt: new Date().toISOString()
     };
-    const updated = [duplicated, ...forms];
-    saveFormsToStorage(updated);
-    toast.success("Formulário duplicado!");
+    
+    try {
+      const savingToastId = toast.loading("Duplicando formulário...");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { error } = await supabase
+        .from("forms")
+        .insert({
+          id: duplicated.id,
+          name: duplicated.name,
+          description: duplicated.description || null,
+          fields: duplicated.fields as any,
+          is_public: !!duplicated.isPublic,
+          created_by: session?.user?.id || null
+        });
+
+      if (error) throw error;
+      toast.dismiss(savingToastId);
+      
+      const updated = [duplicated, ...forms];
+      setForms(updated);
+      toast.success("Formulário duplicado!");
+    } catch (err: any) {
+      console.error("Error duplicating form:", err);
+      toast.error(`Falha ao duplicar formulário: ${err.message}`);
+    }
   };
 
   // Delete a form
-  const handleDeleteForm = (formId: string, e: React.MouseEvent) => {
+  const handleDeleteForm = async (formId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm("Tem certeza que deseja excluir este formulário? Isso também apagará todas as respostas salvas.")) {
-      const updatedForms = forms.filter(f => f.id !== formId);
-      saveFormsToStorage(updatedForms);
-      
-      const updatedSubmissions = { ...submissions };
-      delete updatedSubmissions[formId];
-      saveSubmissionsToStorage(updatedSubmissions);
+      try {
+        const deletingToastId = toast.loading("Excluindo formulário...");
+        const { error } = await supabase
+          .from("forms")
+          .delete()
+          .eq("id", formId);
 
-      toast.success("Formulário excluído.");
+        if (error) throw error;
+        toast.dismiss(deletingToastId);
+
+        const updatedForms = forms.filter(f => f.id !== formId);
+        setForms(updatedForms);
+        
+        const updatedSubmissions = { ...submissions };
+        delete updatedSubmissions[formId];
+        setSubmissions(updatedSubmissions);
+
+        toast.success("Formulário excluído.");
+      } catch (err: any) {
+        console.error("Error deleting form:", err);
+        toast.error(`Falha ao excluir formulário: ${err.message}`);
+      }
     }
   };
 
@@ -412,7 +396,7 @@ export default function FormBuilder() {
   };
 
   // Import form schema from clipboard JSON
-  const handleImportJSON = () => {
+  const handleImportJSON = async () => {
     const input = prompt("Cole o JSON do esquema do formulário aqui:");
     if (!input) return;
 
@@ -424,12 +408,13 @@ export default function FormBuilder() {
       }
 
       const imported: FormTemplate = {
-        id: `form-${Math.random().toString(36).substring(7)}`,
+        id: generateFormId(),
         name: parsed.name + " (Importado)",
         description: parsed.description || "",
         createdAt: new Date().toISOString(),
-        fields: parsed.fields.map((f: any) => ({
-          id: f.id || `field-${Math.random().toString(36).substring(7)}`,
+        isPublic: !!parsed.isPublic,
+        fields: parsed.fields.map((f: { id?: string; type?: FormField['type']; label?: string; placeholder?: string; required?: boolean; helpText?: string; options?: string[] }) => ({
+          id: f.id || generateFieldId(),
           type: f.type || "text",
           label: f.label || "Campo sem nome",
           placeholder: f.placeholder || "",
@@ -439,11 +424,29 @@ export default function FormBuilder() {
         }))
       };
 
+      const savingToastId = toast.loading("Importando formulário...");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { error } = await supabase
+        .from("forms")
+        .insert({
+          id: imported.id,
+          name: imported.name,
+          description: imported.description || null,
+          fields: imported.fields as any,
+          is_public: !!imported.isPublic,
+          created_by: session?.user?.id || null
+        });
+
+      if (error) throw error;
+      toast.dismiss(savingToastId);
+
       const updated = [imported, ...forms];
-      saveFormsToStorage(updated);
+      setForms(updated);
       toast.success("Formulário importado com sucesso!");
-    } catch (e) {
-      toast.error("Falha ao analisar JSON. Verifique a formatação.");
+    } catch (err: any) {
+      console.error("Error importing JSON:", err);
+      toast.error(`Falha ao importar JSON: ${err.message || "Verifique a formatação do JSON."}`);
     }
   };
 
@@ -452,7 +455,7 @@ export default function FormBuilder() {
     if (!selectedForm) return;
 
     const newField: FormField = {
-      id: `field-${Math.random().toString(36).substring(7)}`,
+      id: generateFieldId(),
       type,
       label: `Novo Campo de ${
         type === 'text' ? 'Texto' :
@@ -468,7 +471,7 @@ export default function FormBuilder() {
       options: ['select', 'checkbox', 'radio'].includes(type) ? ['Opção 1', 'Opção 2'] : []
     };
 
-    let updatedFields = [...selectedForm.fields];
+    const updatedFields = [...selectedForm.fields];
     if (typeof insertIndex === 'number') {
       updatedFields.splice(insertIndex, 0, newField);
     } else {
@@ -520,7 +523,7 @@ export default function FormBuilder() {
     const originalField = selectedForm.fields[fieldIndex];
     const duplicatedField: FormField = {
       ...originalField,
-      id: `field-${Math.random().toString(36).substring(7)}`,
+      id: generateFieldId(),
       label: originalField.label ? `${originalField.label} (Cópia)` : "Campo sem nome (Cópia)"
     };
     const fields = [...selectedForm.fields];
@@ -582,6 +585,7 @@ export default function FormBuilder() {
   };
 
   // Handle preview form value inputs
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePreviewInputChange = (fieldId: string, val: any) => {
     setPreviewFormData(prev => ({
       ...prev,
@@ -677,6 +681,7 @@ export default function FormBuilder() {
     }
 
     // Filter values for invisible fields to avoid sending trash data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filteredData: Record<string, any> = {};
     formTemplate.fields.forEach(field => {
       if (isFieldVisible(field, previewFormData, formTemplate.fields) && previewFormData[field.id] !== undefined) {
@@ -686,7 +691,7 @@ export default function FormBuilder() {
 
     // Process submission
     const newSubmission: FormSubmission = {
-      id: `sub-${Math.random().toString(36).substring(7)}`,
+      id: generateSubId(),
       formId: formTemplate.id,
       submittedAt: new Date().toISOString(),
       data: filteredData
@@ -698,8 +703,8 @@ export default function FormBuilder() {
       [formTemplate.id]: [newSubmission, ...currentFormSubs]
     };
 
-    saveSubmissionsToStorage(updatedSubmissions);
-    toast.success("Resposta enviada e registrada com sucesso!");
+    setSubmissions(updatedSubmissions);
+    toast.success("Resposta enviada e registrada com sucesso (Simulação)!");
     
     // Clear preview fields
     setPreviewFormData({});
@@ -707,12 +712,26 @@ export default function FormBuilder() {
   };
 
   // Clear all submissions for a form
-  const handleClearSubmissions = (formId: string) => {
+  const handleClearSubmissions = async (formId: string) => {
     if (confirm("Tem certeza que deseja apagar TODAS as respostas registradas para este formulário?")) {
-      const updated = { ...submissions };
-      delete updated[formId];
-      saveSubmissionsToStorage(updated);
-      toast.success("Respostas apagadas.");
+      try {
+        const clearingToastId = toast.loading("Apagando respostas do banco de dados...");
+        const { error } = await supabase
+          .from("form_submissions")
+          .delete()
+          .eq("form_id", formId);
+
+        if (error) throw error;
+        toast.dismiss(clearingToastId);
+
+        const updated = { ...submissions };
+        delete updated[formId];
+        setSubmissions(updated);
+        toast.success("Respostas apagadas.");
+      } catch (err: any) {
+        console.error("Error clearing submissions:", err);
+        toast.error(`Falha ao apagar respostas: ${err.message}`);
+      }
     }
   };
 
@@ -765,7 +784,28 @@ export default function FormBuilder() {
           </header>
 
           {/* Grid of Forms */}
-          {forms.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((n) => (
+                <Card key={n} className="border-border/50 bg-card/30 backdrop-blur-sm shadow-sm rounded-xl overflow-hidden h-[220px] flex flex-col justify-between p-6">
+                  <div className="space-y-3">
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-4 w-full mt-4" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
+                  <div className="flex justify-between items-center mt-6">
+                    <div className="flex gap-2">
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                    </div>
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : forms.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-muted/10 rounded-2xl border border-dashed border-border/50">
               <div className="w-16 h-16 rounded-full bg-muted/40 flex items-center justify-center">
                 <ClipboardList className="w-8 h-8 text-muted-foreground/40" />
@@ -815,6 +855,12 @@ export default function FormBuilder() {
                         <CheckCircle className="w-3.5 h-3.5 mr-1" />
                         {subCount} {subCount === 1 ? 'resposta' : 'respostas'}
                       </span>
+
+                      {form.isPublic && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          Público
+                        </span>
+                      )}
                     </CardContent>
 
                     <CardFooter className="p-6 pt-4 border-t border-border/40 bg-muted/20 flex items-center justify-between gap-2">
@@ -933,6 +979,18 @@ export default function FormBuilder() {
                   placeholder="Insira uma descrição explicativa curta..." 
                   className="text-sm bg-transparent border-none p-0 text-muted-foreground focus-visible:ring-0 focus-visible:border-b focus-visible:border-primary/30 rounded-none h-auto w-full"
                 />
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="form-is-public"
+                    checked={!!selectedForm.isPublic}
+                    onChange={(e) => setSelectedForm({ ...selectedForm, isPublic: e.target.checked })}
+                    className="h-4 w-4 rounded border-zinc-300 dark:border-zinc-700 text-primary focus:ring-primary/20 cursor-pointer"
+                  />
+                  <label htmlFor="form-is-public" className="text-xs text-muted-foreground select-none cursor-pointer hover:text-foreground transition-colors font-medium">
+                    Disponibilizar como Formulário Público (não exige login para responder)
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -1685,7 +1743,7 @@ function SortableFieldCard({
                             <select
                               value={field.validationPreset || "none"}
                               onChange={(e) => onUpdate({ 
-                                validationPreset: e.target.value as any
+                                validationPreset: e.target.value as FormField['validationPreset']
                               })}
                               className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                             >

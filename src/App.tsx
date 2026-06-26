@@ -42,7 +42,7 @@ function App() {
         <Route path="/grupos-caseiros/adicionar" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
         <Route path="/gestao/vinculados" element={<AuthenticatedLayout requireManagement><MemberManagement /></AuthenticatedLayout>} />
         <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
-        <Route path="/formularios/responder/:formId" element={<AuthenticatedLayout><FormResponder /></AuthenticatedLayout>} />
+        <Route path="/formularios/responder/:formId" element={<FormResponder />} />
         <Route path="/noticias/nova" element={<AuthenticatedLayout><CreatePost /></AuthenticatedLayout>} />
         <Route path="/materiais" element={<AuthenticatedLayout><Materials /></AuthenticatedLayout>} />
         <Route path="/perfil" element={<AuthenticatedLayout><Profile /></AuthenticatedLayout>} />

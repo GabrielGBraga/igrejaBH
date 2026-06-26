@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { 
   ClipboardList, 
   CheckCircle2, 
@@ -13,25 +13,32 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
-import { isFieldVisible } from "./FormBuilder";
-import type { FormTemplate, FormSubmission } from "./FormBuilder";
+import { isFieldVisible } from "@/lib/forms";
+import type { FormField, FormTemplate } from "@/lib/forms";
+import { Layout } from "@/components/layout/Layout";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import type { User } from "@supabase/supabase-js";
 
 export default function FormResponder() {
   const { formId } = useParams<{ formId: string }>();
   
   const [formTemplate, setFormTemplate] = useState<FormTemplate | null>(null);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [canPost, setCanPost] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // Check user permission on load
+  // Initialize auth and listen for changes
   useEffect(() => {
-    async function checkPermission() {
+    async function initAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          setUser(session.user);
           const { data: profileData } = await supabase
             .from("profiles")
             .select("is_dev, is_presbyter, can_post")
@@ -41,33 +48,74 @@ export default function FormResponder() {
           if (profileData) {
             setCanPost(!!(profileData.is_dev || profileData.is_presbyter || profileData.can_post));
           }
+        } else {
+          setUser(null);
         }
       } catch (err) {
         console.error("Error checking permissions", err);
+      } finally {
+        setAuthLoading(false);
       }
     }
-    checkPermission();
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+        setCanPost(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // Load the specific form template from LocalStorage
+  // Load the specific form template from Supabase
   useEffect(() => {
-    setLoading(true);
-    const savedForms = localStorage.getItem("church-forms");
-    if (savedForms && formId) {
+    async function loadTemplate() {
+      if (!formId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const parsed: FormTemplate[] = JSON.parse(savedForms);
-        const found = parsed.find(f => f.id === formId);
-        if (found) {
-          setFormTemplate(found);
+        setLoading(true);
+        const { data: dbForm, error } = await supabase
+          .from("forms")
+          .select("*")
+          .eq("id", formId)
+          .single();
+
+        if (error) throw error;
+
+        if (dbForm) {
+          setFormTemplate({
+            id: dbForm.id,
+            name: dbForm.name,
+            description: dbForm.description || "",
+            fields: (dbForm.fields as unknown as FormField[]) || [],
+            createdAt: dbForm.created_at,
+            isPublic: dbForm.is_public
+          });
+        } else {
+          setFormTemplate(null);
         }
       } catch (e) {
-        console.error("Error loading shared form template", e);
+        console.error("Error loading shared form template from Supabase:", e);
+        setFormTemplate(null);
+      } finally {
+        setLoading(false);
       }
     }
-    setLoading(false);
+
+    loadTemplate();
   }, [formId]);
 
   // Handle standard input updates
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleInputChange = (fieldId: string, val: any) => {
     setFormData(prev => ({
       ...prev,
@@ -100,12 +148,13 @@ export default function FormResponder() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTemplate) return;
+    const template = formTemplate;
     
     // Validate inputs
     const errors: Record<string, string> = {};
-    formTemplate.fields.forEach(field => {
+    template.fields.forEach(field => {
       // Only validate if field is visible
-      if (!isFieldVisible(field, formData, formTemplate.fields)) return;
+      if (!isFieldVisible(field, formData, template.fields)) return;
 
       const val = formData[field.id];
       
@@ -164,36 +213,41 @@ export default function FormResponder() {
     }
 
     // Filter values for invisible fields to avoid sending trash data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filteredData: Record<string, any> = {};
-    formTemplate.fields.forEach(field => {
-      if (isFieldVisible(field, formData, formTemplate.fields) && formData[field.id] !== undefined) {
+    template.fields.forEach(field => {
+      if (isFieldVisible(field, formData, template.fields) && formData[field.id] !== undefined) {
         filteredData[field.id] = formData[field.id];
       }
     });
 
-    // Save submission locally
-    try {
-      const savedSubmissions = localStorage.getItem("church-form-submissions") || "{}";
-      const submissionsDict: Record<string, FormSubmission[]> = JSON.parse(savedSubmissions);
-      
-      const newSubmission: FormSubmission = {
-        id: `sub-${Math.random().toString(36).substring(7)}`,
-        formId: formTemplate.id,
-        submittedAt: new Date().toISOString(),
-        data: filteredData
-      };
+    // Save submission to Supabase
+    async function submitResponse() {
+      try {
+        const submissionId = `sub-${Math.random().toString(36).substring(7)}`;
+        const submitToastId = toast.loading("Enviando sua resposta...");
 
-      const currentFormSubs = submissionsDict[formTemplate.id] || [];
-      submissionsDict[formTemplate.id] = [newSubmission, ...currentFormSubs];
+        const { error } = await supabase
+          .from("form_submissions")
+          .insert({
+            id: submissionId,
+            form_id: template.id,
+            data: filteredData,
+            user_id: user?.id || null
+          });
 
-      localStorage.setItem("church-form-submissions", JSON.stringify(submissionsDict));
-      
-      setSubmitted(true);
-      toast.success("Resposta enviada com sucesso!");
-    } catch (e) {
-      console.error("Error saving form response", e);
-      toast.error("Ocorreu um erro ao enviar suas respostas. Tente novamente.");
+        if (error) throw error;
+        toast.dismiss(submitToastId);
+
+        setSubmitted(true);
+        toast.success("Resposta enviada com sucesso!");
+      } catch (e: any) {
+        console.error("Error saving form response to Supabase:", e);
+        toast.error(`Ocorreu um erro ao enviar suas respostas: ${e.message || "Erro desconhecido"}`);
+      }
     }
+
+    submitResponse();
   };
 
   const handleReset = () => {
@@ -202,7 +256,7 @@ export default function FormResponder() {
     setSubmitted(false);
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
@@ -233,18 +287,26 @@ export default function FormResponder() {
     );
   }
 
-  return (
+  const isFormPublic = !!formTemplate.isPublic;
+
+  if (!isFormPublic && !user) {
+    return <Navigate to="/entrar" state={{ from: `/formularios/responder/${formId}` }} replace />;
+  }
+
+  const formContent = (
     <div className="max-w-2xl mx-auto py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* HEADER NAVIGATION */}
-      <div className="mb-8">
-        <Button asChild variant="ghost" className="text-muted-foreground hover:text-foreground cursor-pointer -ml-4">
-          <Link to={canPost ? "/gestao/formularios" : "/"} className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            {canPost ? "Voltar para Formulários" : "Voltar para o Início"}
-          </Link>
-        </Button>
-      </div>
+      {user && (
+        <div className="mb-8">
+          <Button asChild variant="ghost" className="text-muted-foreground hover:text-foreground cursor-pointer -ml-4">
+            <Link to={canPost ? "/gestao/formularios" : "/"} className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              {canPost ? "Voltar para Formulários" : "Voltar para o Início"}
+            </Link>
+          </Button>
+        </div>
+      )}
 
       {/* SUCCESS STATE CARD */}
       {submitted ? (
@@ -264,9 +326,11 @@ export default function FormResponder() {
             <Button onClick={handleReset} variant="outline" className="w-full h-11 rounded-md cursor-pointer text-sm font-semibold">
               Enviar outra resposta
             </Button>
-            <Button asChild className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-md cursor-pointer text-sm">
-              <Link to={canPost ? "/gestao/formularios" : "/"}>Concluir</Link>
-            </Button>
+            {user && (
+              <Button asChild className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-md cursor-pointer text-sm">
+                <Link to={canPost ? "/gestao/formularios" : "/"}>Concluir</Link>
+              </Button>
+            )}
           </div>
         </div>
       ) : (
@@ -281,7 +345,7 @@ export default function FormResponder() {
               <div className="space-y-0.5">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">{formTemplate.name}</h1>
                 <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/80">
-                  Formulário de Vida Comum
+                  Formulário {isFormPublic ? "Público" : "de Vida Comum"}
                 </p>
               </div>
             </div>
@@ -448,7 +512,29 @@ export default function FormResponder() {
           </form>
         </div>
       )}
+    </div>
+  );
 
+  if (user) {
+    return <Layout>{formContent}</Layout>;
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
+      <header className="border-b border-border/40 bg-card/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 select-none">
+            <span className="font-bold text-foreground tracking-tight">O Corpo</span>
+            <span className="text-[10px] bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-0.5 rounded-full font-bold uppercase">
+              BH
+            </span>
+          </div>
+          <ThemeToggle />
+        </div>
+      </header>
+      <main className="py-4">
+        {formContent}
+      </main>
     </div>
   );
 }
