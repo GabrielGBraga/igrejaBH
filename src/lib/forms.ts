@@ -20,8 +20,13 @@ export interface FormField {
   minLength?: number;
   maxLength?: number;
 
-  // CEP Auto fill targets
-  cepAutoFillType?: 'street' | 'neighborhood' | 'city' | 'state';
+  // CEP Auto fill mappings (stored on the CEP field itself)
+  cepMapping?: {
+    streetFieldId?: string;
+    neighborhoodFieldId?: string;
+    cityFieldId?: string;
+    stateFieldId?: string;
+  };
 }
 
 export interface FormTemplate {
@@ -171,7 +176,7 @@ export async function fetchAddressFromCep(cep: string) {
     const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.erro) return null;
+    if (data.erro) return { error: true };
     return data; // returns { logradouro, bairro, localidade, uf, ... }
   } catch (err) {
     console.error("Error calling ViaCEP API:", err);

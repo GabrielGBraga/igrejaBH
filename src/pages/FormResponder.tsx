@@ -148,22 +148,40 @@ export default function FormResponder() {
           toast.dismiss(toastId);
 
           if (address) {
+            if (address.error) {
+              toast.error("CEP não encontrado.");
+              setFormErrors(prev => ({
+                ...prev,
+                [fieldId]: "CEP não encontrado."
+              }));
+              return;
+            }
+
             toast.success(`CEP encontrado: ${address.logradouro || ""}, ${address.bairro || ""} - ${address.localidade}/${address.uf}`);
             
+            const hasExplicitMapping = !!(
+              targetField.cepMapping?.streetFieldId ||
+              targetField.cepMapping?.neighborhoodFieldId ||
+              targetField.cepMapping?.cityFieldId ||
+              targetField.cepMapping?.stateFieldId
+            );
+
             setFormData(prev => {
               const nextFormData = { ...prev };
               formTemplate.fields.forEach(f => {
                 if (f.id === fieldId) return;
                 if (f.type !== 'text' && f.type !== 'textarea') return;
 
-                if (f.cepAutoFillType === 'street') {
-                  nextFormData[f.id] = address.logradouro || "";
-                } else if (f.cepAutoFillType === 'neighborhood') {
-                  nextFormData[f.id] = address.bairro || "";
-                } else if (f.cepAutoFillType === 'city') {
-                  nextFormData[f.id] = address.localidade || "";
-                } else if (f.cepAutoFillType === 'state') {
-                  nextFormData[f.id] = address.uf || "";
+                if (hasExplicitMapping) {
+                  if (targetField.cepMapping?.streetFieldId === f.id) {
+                    nextFormData[f.id] = address.logradouro || "";
+                  } else if (targetField.cepMapping?.neighborhoodFieldId === f.id) {
+                    nextFormData[f.id] = address.bairro || "";
+                  } else if (targetField.cepMapping?.cityFieldId === f.id) {
+                    nextFormData[f.id] = address.localidade || "";
+                  } else if (targetField.cepMapping?.stateFieldId === f.id) {
+                    nextFormData[f.id] = address.uf || "";
+                  }
                 } else {
                   const label = (f.label || "").toLowerCase();
                   if (label.includes("rua") || label.includes("logradouro") || label.includes("endereço") || label.includes("endereco")) {
@@ -180,7 +198,7 @@ export default function FormResponder() {
               return nextFormData;
             });
           } else {
-            toast.error("CEP não encontrado.");
+            toast.error("Não foi possível validar o CEP (serviço indisponível).");
           }
         } catch (err) {
           console.error("CEP lookup failed in responder", err);
@@ -255,6 +273,8 @@ export default function FormResponder() {
               const cepRegex = /^\d{5}-?\d{3}$/;
               if (!cepRegex.test(strVal)) {
                 errors[field.id] = "CEP inválido. Formato esperado: 30123-456";
+              } else if (formErrors[field.id] === "CEP não encontrado.") {
+                errors[field.id] = "CEP não encontrado.";
               }
             } else if (field.validationPreset === 'email') {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
