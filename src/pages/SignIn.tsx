@@ -117,7 +117,7 @@ export default function SignIn() {
                       </InputGroupAddon>
                       <InputGroupInput
                         {...field}
-                        className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-primary/20"
+                        className="text-foreground placeholder:text-muted-foreground"
                         placeholder="seu@email.com"
                         type="email"
                         autoComplete="email"
@@ -151,7 +151,7 @@ export default function SignIn() {
                     <InputGroup>
                       <InputGroupInput
                         {...field}
-                        className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:ring-primary/20"
+                        className="text-foreground placeholder:text-muted-foreground"
                         type={showPassword ? "text" : "password"}
                         placeholder="********"
                         autoComplete="current-password"
