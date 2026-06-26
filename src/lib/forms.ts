@@ -27,6 +27,9 @@ export interface FormField {
     cityFieldId?: string;
     stateFieldId?: string;
   };
+
+  // Layout Options
+  halfWidth?: boolean;
 }
 
 export interface FormTemplate {

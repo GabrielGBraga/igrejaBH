@@ -1240,7 +1240,7 @@ export default function FormBuilder() {
                         Adicione campos no editor à esquerda para visualizá-los aqui.
                       </div>
                     ) : (
-                      <div className="space-y-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                         {(() => {
                           const visibleFields = selectedForm.fields.filter(field => 
                             isFieldVisible(field, previewFormData, selectedForm.fields)
@@ -1251,7 +1251,7 @@ export default function FormBuilder() {
                             const errorMsg = previewFormErrors[field.id];
 
                             return (
-                              <div key={field.id} className="space-y-3">
+                              <div key={field.id} className={`${field.halfWidth ? 'col-span-1' : 'col-span-1 md:col-span-2'} space-y-3`}>
                                 <label className="text-sm md:text-base font-semibold text-foreground flex items-start gap-3">
                                   <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/5 text-primary border border-primary/10 text-[10px] font-bold mt-0.5">
                                     {idx + 1}
@@ -1748,6 +1748,17 @@ function SortableFieldCard({
                   />
                   <span>Obrigatório</span>
                 </label>
+
+                {/* Half Width Toggle */}
+                <label className="flex items-center gap-2 cursor-pointer font-medium ml-4">
+                  <input
+                    type="checkbox"
+                    checked={!!field.halfWidth}
+                    onChange={(e) => onUpdate({ halfWidth: e.target.checked })}
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
+                  />
+                  <span>Lado a Lado (50%)</span>
+                </label>
               </div>
 
               <div className="flex items-center gap-2">
@@ -2064,6 +2075,11 @@ function SortableFieldCard({
               <div className="pt-0.5 flex-1">
                 <span>{field.label || "Campo sem nome"}</span>
                 {field.required && <span className="text-destructive font-bold text-xs ml-1">*</span>}
+                {field.halfWidth && (
+                  <span className="inline-flex items-center ml-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    50%
+                  </span>
+                )}
               </div>
             </label>
 

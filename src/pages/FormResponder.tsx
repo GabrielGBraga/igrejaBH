@@ -450,12 +450,14 @@ export default function FormResponder() {
                 isFieldVisible(field, formData, formTemplate.fields)
               );
 
-              return visibleFields.map((field, idx) => {
-                const hasError = !!formErrors[field.id];
-                const errorMsg = formErrors[field.id];
-                
-                return (
-                  <div key={field.id} className="space-y-3">
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-10">
+                  {visibleFields.map((field, idx) => {
+                    const hasError = !!formErrors[field.id];
+                    const errorMsg = formErrors[field.id];
+                    
+                    return (
+                      <div key={field.id} className={`${field.halfWidth ? 'col-span-1' : 'col-span-1 md:col-span-2'} space-y-3`}>
                     <label className="text-base md:text-lg font-semibold text-foreground flex items-start gap-3">
                       <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/5 text-primary border border-primary/10 text-xs font-bold mt-0.5 md:mt-1">
                         {idx + 1}
@@ -584,9 +586,11 @@ export default function FormResponder() {
                     {hasError && (
                       <p className="text-xs font-semibold text-destructive animate-in fade-in duration-200 pl-10">{errorMsg}</p>
                     )}
-                  </div>
-                );
-              });
+                      </div>
+                    );
+                  })}
+                </div>
+              );
             })()}
 
             <div className="pt-6 border-t border-border/40">
