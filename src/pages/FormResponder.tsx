@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
-import { isFieldVisible } from "@/lib/forms";
+import { isFieldVisible, formatValue, isValidCPF, fetchAddressFromCep } from "@/lib/forms";
 import type { FormField, FormTemplate } from "@/lib/forms";
 import { Layout } from "@/components/layout/Layout";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -116,11 +116,19 @@ export default function FormResponder() {
 
   // Handle standard input updates
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleInputChange = (fieldId: string, val: any) => {
+  const handleInputChange = async (fieldId: string, val: any) => {
+    if (!formTemplate) return;
+    const targetField = formTemplate.fields.find(f => f.id === fieldId);
+    let formattedVal = val;
+    if (targetField && targetField.type === 'text') {
+      formattedVal = formatValue(val, targetField.validationPreset);
+    }
+
     setFormData(prev => ({
       ...prev,
-      [fieldId]: val
+      [fieldId]: formattedVal
     }));
+
     // Remove error highlights once answered
     if (formErrors[fieldId]) {
       setFormErrors(prev => {
@@ -128,6 +136,56 @@ export default function FormResponder() {
         delete copy[fieldId];
         return copy;
       });
+    }
+
+    // Trigger CEP Lookup
+    if (targetField && targetField.type === 'text' && targetField.validationPreset === 'cep') {
+      const cleanCep = formattedVal.replace(/\D/g, "");
+      if (cleanCep.length === 8) {
+        try {
+          const toastId = toast.loading("Buscando CEP...");
+          const address = await fetchAddressFromCep(cleanCep);
+          toast.dismiss(toastId);
+
+          if (address) {
+            toast.success(`CEP encontrado: ${address.logradouro || ""}, ${address.bairro || ""} - ${address.localidade}/${address.uf}`);
+            
+            setFormData(prev => {
+              const nextFormData = { ...prev };
+              formTemplate.fields.forEach(f => {
+                if (f.id === fieldId) return;
+                if (f.type !== 'text' && f.type !== 'textarea') return;
+
+                if (f.cepAutoFillType === 'street') {
+                  nextFormData[f.id] = address.logradouro || "";
+                } else if (f.cepAutoFillType === 'neighborhood') {
+                  nextFormData[f.id] = address.bairro || "";
+                } else if (f.cepAutoFillType === 'city') {
+                  nextFormData[f.id] = address.localidade || "";
+                } else if (f.cepAutoFillType === 'state') {
+                  nextFormData[f.id] = address.uf || "";
+                } else {
+                  const label = (f.label || "").toLowerCase();
+                  if (label.includes("rua") || label.includes("logradouro") || label.includes("endereço") || label.includes("endereco")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.logradouro || "";
+                  } else if (label.includes("bairro")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.bairro || "";
+                  } else if (label.includes("cidade") || label.includes("município") || label.includes("municipio")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.localidade || "";
+                  } else if (label.includes("estado") || label.includes("uf")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.uf || "";
+                  }
+                }
+              });
+              return nextFormData;
+            });
+          } else {
+            toast.error("CEP não encontrado.");
+          }
+        } catch (err) {
+          console.error("CEP lookup failed in responder", err);
+        }
+      }
     }
   };
 
@@ -171,27 +229,38 @@ export default function FormResponder() {
 
       // 2. Custom Validation Presets & Bounds Checks
       if (val !== undefined && val !== null && (typeof val !== 'string' || val.trim() !== '')) {
-        if (['text', 'textarea'].includes(field.type) && field.validationPreset && field.validationPreset !== 'none') {
-          const strVal = String(val).trim();
-          if (field.validationPreset === 'phone') {
-            const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-            if (!phoneRegex.test(strVal)) {
-              errors[field.id] = "Telefone inválido. Formato esperado: (XX) 99999-9999";
-            }
-          } else if (field.validationPreset === 'cpf') {
-            const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-            if (!cpfRegex.test(strVal)) {
-              errors[field.id] = "CPF inválido. Formato esperado: 123.456.789-00";
-            }
-          } else if (field.validationPreset === 'cep') {
-            const cepRegex = /^\d{5}-?\d{3}$/;
-            if (!cepRegex.test(strVal)) {
-              errors[field.id] = "CEP inválido. Formato esperado: 30123-456";
-            }
-          } else if (field.validationPreset === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(strVal)) {
-              errors[field.id] = "E-mail inválido. Formato esperado: exemplo@email.com";
+        const strVal = String(val).trim();
+
+        if (['text', 'textarea'].includes(field.type)) {
+          // Character range check
+          if (field.minLength !== undefined && strVal.length < field.minLength) {
+            errors[field.id] = `O texto deve ter no mínimo ${field.minLength} caracteres.`;
+          }
+          if (field.maxLength !== undefined && strVal.length > field.maxLength) {
+            errors[field.id] = `O texto deve ter no máximo ${field.maxLength} caracteres.`;
+          }
+
+          // Preset validation
+          if (field.validationPreset && field.validationPreset !== 'none') {
+            if (field.validationPreset === 'phone') {
+              const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+              if (!phoneRegex.test(strVal)) {
+                errors[field.id] = "Telefone inválido. Formato esperado: (XX) 99999-9999";
+              }
+            } else if (field.validationPreset === 'cpf') {
+              if (!isValidCPF(strVal)) {
+                errors[field.id] = "CPF inválido. Insira um número de CPF válido.";
+              }
+            } else if (field.validationPreset === 'cep') {
+              const cepRegex = /^\d{5}-?\d{3}$/;
+              if (!cepRegex.test(strVal)) {
+                errors[field.id] = "CEP inválido. Formato esperado: 30123-456";
+              }
+            } else if (field.validationPreset === 'email') {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(strVal)) {
+                errors[field.id] = "E-mail inválido. Formato esperado: exemplo@email.com";
+              }
             }
           }
         } else if (field.type === 'number') {

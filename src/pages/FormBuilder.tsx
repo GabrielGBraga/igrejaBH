@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isFieldVisible } from "@/lib/forms";
+import { isFieldVisible, formatValue, isValidCPF, fetchAddressFromCep } from "@/lib/forms";
 import type { FormField, FormTemplate, FormSubmission } from "@/lib/forms";
 import { 
   Plus, 
@@ -586,11 +586,19 @@ export default function FormBuilder() {
 
   // Handle preview form value inputs
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handlePreviewInputChange = (fieldId: string, val: any) => {
+  const handlePreviewInputChange = async (fieldId: string, val: any) => {
+    if (!selectedForm) return;
+    const targetField = selectedForm.fields.find(f => f.id === fieldId);
+    let formattedVal = val;
+    if (targetField && targetField.type === 'text') {
+      formattedVal = formatValue(val, targetField.validationPreset);
+    }
+
     setPreviewFormData(prev => ({
       ...prev,
-      [fieldId]: val
+      [fieldId]: formattedVal
     }));
+    
     // Clear error once answered
     if (previewFormErrors[fieldId]) {
       setPreviewFormErrors(prev => {
@@ -598,6 +606,56 @@ export default function FormBuilder() {
         delete copy[fieldId];
         return copy;
       });
+    }
+
+    // Trigger CEP Lookup in preview mode
+    if (targetField && targetField.type === 'text' && targetField.validationPreset === 'cep') {
+      const cleanCep = formattedVal.replace(/\D/g, "");
+      if (cleanCep.length === 8) {
+        try {
+          const toastId = toast.loading("Buscando CEP (Simulação)...");
+          const address = await fetchAddressFromCep(cleanCep);
+          toast.dismiss(toastId);
+
+          if (address) {
+            toast.success(`CEP encontrado: ${address.logradouro || ""}, ${address.bairro || ""} - ${address.localidade}/${address.uf}`);
+            
+            setPreviewFormData(prev => {
+              const nextFormData = { ...prev };
+              selectedForm.fields.forEach(f => {
+                if (f.id === fieldId) return;
+                if (f.type !== 'text' && f.type !== 'textarea') return;
+
+                if (f.cepAutoFillType === 'street') {
+                  nextFormData[f.id] = address.logradouro || "";
+                } else if (f.cepAutoFillType === 'neighborhood') {
+                  nextFormData[f.id] = address.bairro || "";
+                } else if (f.cepAutoFillType === 'city') {
+                  nextFormData[f.id] = address.localidade || "";
+                } else if (f.cepAutoFillType === 'state') {
+                  nextFormData[f.id] = address.uf || "";
+                } else {
+                  const label = (f.label || "").toLowerCase();
+                  if (label.includes("rua") || label.includes("logradouro") || label.includes("endereço") || label.includes("endereco")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.logradouro || "";
+                  } else if (label.includes("bairro")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.bairro || "";
+                  } else if (label.includes("cidade") || label.includes("município") || label.includes("municipio")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.localidade || "";
+                  } else if (label.includes("estado") || label.includes("uf")) {
+                    if (!nextFormData[f.id]) nextFormData[f.id] = address.uf || "";
+                  }
+                }
+              });
+              return nextFormData;
+            });
+          } else {
+            toast.error("CEP não encontrado.");
+          }
+        } catch (err) {
+          console.error("CEP lookup failed in preview", err);
+        }
+      }
     }
   };
 
@@ -639,27 +697,38 @@ export default function FormBuilder() {
 
       // 2. Custom Validation Presets & Bounds Checks
       if (val !== undefined && val !== null && (typeof val !== 'string' || val.trim() !== '')) {
-        if (['text', 'textarea'].includes(field.type) && field.validationPreset && field.validationPreset !== 'none') {
-          const strVal = String(val).trim();
-          if (field.validationPreset === 'phone') {
-            const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-            if (!phoneRegex.test(strVal)) {
-              errors[field.id] = "Telefone inválido. Formato esperado: (XX) 99999-9999";
-            }
-          } else if (field.validationPreset === 'cpf') {
-            const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-            if (!cpfRegex.test(strVal)) {
-              errors[field.id] = "CPF inválido. Formato esperado: 123.456.789-00";
-            }
-          } else if (field.validationPreset === 'cep') {
-            const cepRegex = /^\d{5}-?\d{3}$/;
-            if (!cepRegex.test(strVal)) {
-              errors[field.id] = "CEP inválido. Formato esperado: 30123-456";
-            }
-          } else if (field.validationPreset === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(strVal)) {
-              errors[field.id] = "E-mail inválido. Formato esperado: exemplo@email.com";
+        const strVal = String(val).trim();
+
+        if (['text', 'textarea'].includes(field.type)) {
+          // Character range check
+          if (field.minLength !== undefined && strVal.length < field.minLength) {
+            errors[field.id] = `O texto deve ter no mínimo ${field.minLength} caracteres.`;
+          }
+          if (field.maxLength !== undefined && strVal.length > field.maxLength) {
+            errors[field.id] = `O texto deve ter no máximo ${field.maxLength} caracteres.`;
+          }
+
+          // Preset validation
+          if (field.validationPreset && field.validationPreset !== 'none') {
+            if (field.validationPreset === 'phone') {
+              const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+              if (!phoneRegex.test(strVal)) {
+                errors[field.id] = "Telefone inválido. Formato esperado: (XX) 99999-9999";
+              }
+            } else if (field.validationPreset === 'cpf') {
+              if (!isValidCPF(strVal)) {
+                errors[field.id] = "CPF inválido. Insira um número de CPF válido.";
+              }
+            } else if (field.validationPreset === 'cep') {
+              const cepRegex = /^\d{5}-?\d{3}$/;
+              if (!cepRegex.test(strVal)) {
+                errors[field.id] = "CEP inválido. Formato esperado: 30123-456";
+              }
+            } else if (field.validationPreset === 'email') {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(strVal)) {
+                errors[field.id] = "E-mail inválido. Formato esperado: exemplo@email.com";
+              }
             }
           }
         } else if (field.type === 'number') {
@@ -1738,22 +1807,70 @@ function SortableFieldCard({
                         <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Regras de Validação</label>
                         
                         {['text', 'textarea'].includes(field.type) && (
-                          <div className="space-y-1">
-                            <label className="text-[10px] text-muted-foreground block">Formato Requerido (Preset):</label>
-                            <select
-                              value={field.validationPreset || "none"}
-                              onChange={(e) => onUpdate({ 
-                                validationPreset: e.target.value as FormField['validationPreset']
-                              })}
-                              className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                            >
-                              <option value="none">Nenhum (Qualquer texto)</option>
-                              <option value="phone">Telefone (Brasil)</option>
-                              <option value="cpf">CPF (Cadastro de Pessoa Física)</option>
-                              <option value="cep">CEP (Localidade/Código Postal)</option>
-                              <option value="email">Endereço de E-mail</option>
-                            </select>
-                          </div>
+                          <>
+                            <div className="space-y-1">
+                              <label className="text-[10px] text-muted-foreground block">Formato Requerido (Preset):</label>
+                              <select
+                                value={field.validationPreset || "none"}
+                                onChange={(e) => onUpdate({ 
+                                  validationPreset: e.target.value as FormField['validationPreset']
+                                })}
+                                className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                              >
+                                <option value="none">Nenhum (Qualquer texto)</option>
+                                <option value="phone">Telefone (Brasil)</option>
+                                <option value="cpf">CPF (Cadastro de Pessoa Física)</option>
+                                <option value="cep">CEP (Localidade/Código Postal)</option>
+                                <option value="email">Endereço de E-mail</option>
+                              </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <div>
+                                <label className="text-[10px] text-muted-foreground block">Qtd. Mínima Caracteres:</label>
+                                <Input
+                                  type="number"
+                                  value={field.minLength ?? ""}
+                                  onChange={(e) => onUpdate({ 
+                                    minLength: e.target.value !== "" ? Number(e.target.value) : undefined 
+                                  })}
+                                  placeholder="Nenhuma"
+                                  className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-muted-foreground block">Qtd. Máxima Caracteres:</label>
+                                <Input
+                                  type="number"
+                                  value={field.maxLength ?? ""}
+                                  onChange={(e) => onUpdate({ 
+                                    maxLength: e.target.value !== "" ? Number(e.target.value) : undefined 
+                                  })}
+                                  placeholder="Nenhuma"
+                                  className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                />
+                              </div>
+                            </div>
+
+                            {field.type === 'text' && (
+                              <div className="space-y-1 mt-1">
+                                <label className="text-[10px] text-muted-foreground block">Auto-preencher via CEP:</label>
+                                <select
+                                  value={field.cepAutoFillType || ""}
+                                  onChange={(e) => onUpdate({ 
+                                    cepAutoFillType: (e.target.value || undefined) as FormField['cepAutoFillType']
+                                  })}
+                                  className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                >
+                                  <option value="">Desabilitado (Nenhum)</option>
+                                  <option value="street">Rua / Logradouro</option>
+                                  <option value="neighborhood">Bairro</option>
+                                  <option value="city">Cidade</option>
+                                  <option value="state">Estado / UF</option>
+                                </select>
+                              </div>
+                            )}
+                          </>
                         )}
 
                         {field.type === 'number' && (
