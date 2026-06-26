@@ -210,7 +210,7 @@ export default function FormBuilder() {
   const handleCreateNewForm = () => {
     const newForm: FormTemplate = {
       id: generateFormId(),
-      name: "Novo Formulário de Vida Comum",
+      name: "Novo Formulário",
       description: "Descreva a finalidade deste formulário para os irmãos e discípulos.",
       createdAt: new Date().toISOString(),
       isPublic: false,
