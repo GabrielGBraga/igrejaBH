@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isFieldVisible, formatValue, isValidCPF, fetchAddressFromCep } from "@/lib/forms";
+import { isFieldVisible, formatValue, isValidCPF, isValidPhone, fetchAddressFromCep } from "@/lib/forms";
 import type { FormField, FormTemplate, FormSubmission } from "@/lib/forms";
 import { 
   Plus, 
@@ -729,9 +729,8 @@ export default function FormBuilder() {
           // Preset validation
           if (field.validationPreset && field.validationPreset !== 'none') {
             if (field.validationPreset === 'phone') {
-              const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-              if (!phoneRegex.test(strVal)) {
-                errors[field.id] = "Telefone inválido. Formato esperado: (XX) 99999-9999";
+              if (!isValidPhone(strVal)) {
+                errors[field.id] = "Telefone celular inválido. Digite um DDD válido e o dígito 9 antes do número.";
               }
             } else if (field.validationPreset === 'cpf') {
               if (!isValidCPF(strVal)) {
