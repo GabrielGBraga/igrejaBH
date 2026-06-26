@@ -1059,13 +1059,13 @@ export default function FormBuilder() {
                   value={selectedForm.name} 
                   onChange={(e) => setSelectedForm({ ...selectedForm, name: e.target.value })}
                   placeholder="Nome do Formulário" 
-                  className="text-2xl font-bold bg-transparent border-none p-0 focus-visible:ring-0 focus-visible:border-b focus-visible:border-primary/50 rounded-none h-auto w-full text-foreground"
+                  className="text-2xl font-bold bg-transparent border-none py-2 px-0 focus-visible:ring-0 focus-visible:border-b focus-visible:border-primary/50 rounded-none h-auto w-full text-foreground"
                 />
                 <Input 
                   value={selectedForm.description} 
                   onChange={(e) => setSelectedForm({ ...selectedForm, description: e.target.value })}
                   placeholder="Insira uma descrição explicativa curta..." 
-                  className="text-sm bg-transparent border-none p-0 text-muted-foreground focus-visible:ring-0 focus-visible:border-b focus-visible:border-primary/30 rounded-none h-auto w-full"
+                  className="text-sm bg-transparent border-none py-1.5 px-0 text-muted-foreground focus-visible:ring-0 focus-visible:border-b focus-visible:border-primary/30 rounded-none h-auto w-full"
                 />
                 <div className="flex items-center gap-2 pt-1">
                   <input
@@ -1632,7 +1632,7 @@ function SortableFieldCard({
                   value={field.label}
                   onChange={(e) => onUpdate({ label: e.target.value })}
                   placeholder="Título da Pergunta"
-                  className="text-base font-semibold bg-transparent border-none p-0 focus-visible:ring-0 h-auto w-full text-foreground placeholder:text-muted-foreground/45"
+                  className="text-sm font-semibold bg-background border border-border/80 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 h-10 px-3 rounded-md w-full text-foreground placeholder:text-muted-foreground/45"
                   autoFocus
                 />
               </div>
@@ -1644,7 +1644,7 @@ function SortableFieldCard({
                     value={field.placeholder}
                     onChange={(e) => onUpdate({ placeholder: e.target.value })}
                     placeholder="Placeholder (Dica dentro do campo...)"
-                    className="text-xs bg-transparent border-none p-0 text-muted-foreground/85 focus-visible:ring-0 h-auto w-full placeholder:text-muted-foreground/35"
+                    className="text-xs bg-background/50 border border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 h-9 px-3 rounded-md w-full placeholder:text-muted-foreground/40"
                   />
                 </div>
               )}
@@ -1655,7 +1655,7 @@ function SortableFieldCard({
                   value={field.helpText}
                   onChange={(e) => onUpdate({ helpText: e.target.value })}
                   placeholder="Texto de ajuda (Subtexto explicativo...)"
-                  className="text-[11px] bg-transparent border-none p-0 text-muted-foreground/65 focus-visible:ring-0 h-auto w-full placeholder:text-muted-foreground/35"
+                  className="text-[11px] bg-background/50 border border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 h-9 px-3 rounded-md w-full placeholder:text-muted-foreground/40"
                 />
               </div>
             </div>
@@ -1677,14 +1677,14 @@ function SortableFieldCard({
                           updatedOptions[optIdx] = e.target.value;
                           onUpdate({ options: updatedOptions });
                         }}
-                        className="h-8 text-sm bg-transparent border-b border-transparent hover:border-border/50 focus:border-primary/40 focus-visible:ring-0 px-1 py-0 rounded-none w-full"
+                        className="h-9 text-xs bg-background border border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 px-3 rounded-md w-full"
                       />
                       <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => onRemoveOption(optIdx)}
                         disabled={field.options.length <= 1}
-                        className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive rounded-md cursor-pointer shrink-0 opacity-0 group-hover/opt:opacity-100 transition-opacity"
+                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive rounded-md cursor-pointer shrink-0 opacity-0 group-hover/opt:opacity-100 transition-opacity"
                       >
                         <X className="w-3.5 h-3.5" />
                       </Button>
@@ -1705,7 +1705,7 @@ function SortableFieldCard({
                           }
                         }
                       }}
-                      className="h-8 text-sm bg-transparent border-none focus-visible:ring-0 p-0 text-muted-foreground/60 placeholder:text-muted-foreground/30"
+                      className="h-9 text-xs bg-background/20 border border-dashed border-border/60 focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/10 px-3 rounded-md text-muted-foreground/80 placeholder:text-muted-foreground/40 w-full"
                     />
                   </div>
                 </div>
@@ -1776,7 +1776,7 @@ function SortableFieldCard({
                                   dependsOnFieldId: e.target.value || undefined,
                                   dependsOnValue: undefined 
                                 })}
-                                className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                               >
                                 <option value="">-- Sem Dependência (Sempre Exibir) --</option>
                                 {fieldsList.slice(0, idx).map(prevField => (
@@ -1799,7 +1799,7 @@ function SortableFieldCard({
                                     <select
                                       value={field.dependsOnValue || ""}
                                       onChange={(e) => onUpdate({ dependsOnValue: e.target.value })}
-                                      className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                      className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                     >
                                       <option value="">-- Selecione uma opção --</option>
                                       {parentField.options.map((opt, oIdx) => (
@@ -1811,7 +1811,7 @@ function SortableFieldCard({
                                       value={field.dependsOnValue || ""}
                                       onChange={(e) => onUpdate({ dependsOnValue: e.target.value })}
                                       placeholder="Digite o valor de ativação..."
-                                      className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
+                                      className="h-10 rounded-md bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
                                     />
                                   )}
                                 </div>
@@ -1836,7 +1836,7 @@ function SortableFieldCard({
                                   minLength: e.target.value !== "" ? Number(e.target.value) : undefined 
                                 })}
                                 placeholder="Nenhuma"
-                                className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                className="h-10 rounded-md bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
                               />
                             </div>
                             <div>
@@ -1848,7 +1848,7 @@ function SortableFieldCard({
                                   maxLength: e.target.value !== "" ? Number(e.target.value) : undefined 
                                 })}
                                 placeholder="Nenhuma"
-                                className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                className="h-10 rounded-md bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
                               />
                             </div>
                           </div>
@@ -1865,7 +1865,7 @@ function SortableFieldCard({
                                   // Clear mapping if changed from cep
                                   cepMapping: e.target.value === 'cep' ? field.cepMapping || {} : undefined
                                 })}
-                                className="flex h-9 w-full rounded border border-border/60 bg-background px-3 py-1 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                               >
                                 <option value="none">Nenhum (Qualquer texto)</option>
                                 <option value="phone">Telefone (Brasil)</option>
@@ -1896,7 +1896,7 @@ function SortableFieldCard({
                                           streetFieldId: e.target.value || undefined
                                         }
                                       })}
-                                      className="flex h-8 w-full rounded border border-border/60 bg-background px-2 py-0.5 text-[11px] focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                                      className="flex h-9 w-full rounded-md border border-border/60 bg-background px-3 py-1 text-xs focus:ring-1 focus:ring-primary/20 transition-all outline-none"
                                     >
                                       <option value="">-- Não Preencher --</option>
                                       {otherTextFields.map(f => (
@@ -1915,7 +1915,7 @@ function SortableFieldCard({
                                           neighborhoodFieldId: e.target.value || undefined
                                         }
                                       })}
-                                      className="flex h-8 w-full rounded border border-border/60 bg-background px-2 py-0.5 text-[11px] focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                                      className="flex h-9 w-full rounded-md border border-border/60 bg-background px-3 py-1 text-xs focus:ring-1 focus:ring-primary/20 transition-all outline-none"
                                     >
                                       <option value="">-- Não Preencher --</option>
                                       {otherTextFields.map(f => (
@@ -1934,7 +1934,7 @@ function SortableFieldCard({
                                           cityFieldId: e.target.value || undefined
                                         }
                                       })}
-                                      className="flex h-8 w-full rounded border border-border/60 bg-background px-2 py-0.5 text-[11px] focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                                      className="flex h-9 w-full rounded-md border border-border/60 bg-background px-3 py-1 text-xs focus:ring-1 focus:ring-primary/20 transition-all outline-none"
                                     >
                                       <option value="">-- Não Preencher --</option>
                                       {otherTextFields.map(f => (
@@ -1953,7 +1953,7 @@ function SortableFieldCard({
                                           stateFieldId: e.target.value || undefined
                                         }
                                       })}
-                                      className="flex h-8 w-full rounded border border-border/60 bg-background px-2 py-0.5 text-[11px] focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+                                      className="flex h-9 w-full rounded-md border border-border/60 bg-background px-3 py-1 text-xs focus:ring-1 focus:ring-primary/20 transition-all outline-none"
                                     >
                                       <option value="">-- Não Preencher --</option>
                                       {otherTextFields.map(f => (
@@ -1978,7 +1978,7 @@ function SortableFieldCard({
                                   minNumber: e.target.value !== "" ? Number(e.target.value) : undefined 
                                 })}
                                 placeholder="Nenhum"
-                                className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                className="h-10 rounded-md bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
                               />
                             </div>
                             <div>
@@ -1990,7 +1990,7 @@ function SortableFieldCard({
                                   maxNumber: e.target.value !== "" ? Number(e.target.value) : undefined 
                                 })}
                                 placeholder="Nenhum"
-                                className="h-9 rounded bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-2"
+                                className="h-10 rounded-md bg-background focus-visible:ring-primary/20 border-border/60 text-xs px-3"
                               />
                             </div>
                           </div>
