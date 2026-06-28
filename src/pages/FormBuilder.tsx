@@ -851,11 +851,11 @@ export default function FormBuilder() {
               </p>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <Button 
                 onClick={handleImportJSON}
                 variant="outline"
-                className="h-11 rounded-md border-border/80 hover:bg-accent cursor-pointer active:scale-95 transition-all"
+                className="h-11 rounded-md border-border/80 hover:bg-accent cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Importar JSON
@@ -863,7 +863,7 @@ export default function FormBuilder() {
               
               <Button 
                 onClick={handleCreateNewForm}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-5 rounded-md cursor-pointer shadow-sm active:scale-95 transition-all"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-5 rounded-md cursor-pointer shadow-sm active:scale-95 transition-all w-full sm:w-auto"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Novo Formulário
@@ -933,7 +933,7 @@ export default function FormBuilder() {
                       </CardDescription>
                     </CardHeader>
                     
-                    <CardContent className="px-6 py-2 flex items-center gap-3">
+                    <CardContent className="px-6 py-2 flex flex-wrap items-center gap-3">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                         <Layers className="w-3.5 h-3.5 mr-1" />
                         {form.fields.length} {form.fields.length === 1 ? 'campo' : 'campos'}
@@ -951,8 +951,8 @@ export default function FormBuilder() {
                       )}
                     </CardContent>
 
-                    <CardFooter className="p-6 pt-4 border-t border-border/40 bg-muted/20 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
+                    <CardFooter className="p-6 pt-4 border-t border-border/40 bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <Button 
                           size="icon" 
                           variant="ghost" 
@@ -1082,10 +1082,10 @@ export default function FormBuilder() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
               <Button
                 variant="outline"
-                className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all hidden lg:flex"
+                className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all hidden lg:flex w-full lg:w-auto"
                 onClick={() => setShowPreview(!showPreview)}
               >
                 {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
@@ -1093,7 +1093,7 @@ export default function FormBuilder() {
               </Button>
               <Button
                 variant="outline"
-                className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all"
+                className="h-11 rounded-md text-sm border-border cursor-pointer active:scale-95 transition-all w-full sm:w-auto"
                 onClick={(e) => handleExportJSON(selectedForm, e)}
               >
                 <Copy className="w-4 h-4 mr-2" />
@@ -1101,7 +1101,7 @@ export default function FormBuilder() {
               </Button>
               <Button
                 onClick={handleSaveForm}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-6 rounded-md cursor-pointer shadow-md active:scale-95 transition-all"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11 px-6 rounded-md cursor-pointer shadow-md active:scale-95 transition-all w-full sm:w-auto"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Salvar Formulário
@@ -1116,19 +1116,19 @@ export default function FormBuilder() {
             <div className="lg:hidden col-span-1 flex border border-border rounded-xl overflow-hidden bg-card/30 p-1">
               <button
                 onClick={() => setBuilderTab('edit')}
-                className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${builderTab === 'edit' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
+                className={`flex-1 py-3 text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-widest rounded-lg transition-all ${builderTab === 'edit' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
               >
                 Editar Campos
               </button>
               <button
                 onClick={() => setBuilderTab('preview')}
-                className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${builderTab === 'preview' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
+                className={`flex-1 py-3 text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-widest rounded-lg transition-all ${builderTab === 'preview' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
               >
                 Testar Preview
               </button>
               <button
                 onClick={() => setBuilderTab('json')}
-                className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${builderTab === 'json' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
+                className={`flex-1 py-3 text-[10px] sm:text-xs font-bold uppercase tracking-normal sm:tracking-widest rounded-lg transition-all ${builderTab === 'json' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}
               >
                 Esquema JSON
               </button>
@@ -1610,13 +1610,13 @@ function SortableFieldCard({
         {isEditing ? (
           <div 
             id={`editor-card-${field.id}`}
-            className="relative border border-primary/30 ring-1 ring-primary/10 shadow-md bg-card p-5 rounded-xl space-y-4"
+            className="relative border border-primary/30 ring-1 ring-primary/10 shadow-md bg-card p-5 pl-9 lg:pl-5 rounded-xl space-y-4"
           >
             {/* Drag Handle in Edit Mode */}
             <div 
               {...attributes} 
               {...listeners} 
-              className="absolute -left-7 top-6 cursor-grab active:cursor-grabbing text-primary/40 hover:text-primary transition-colors p-1"
+              className="absolute left-3 lg:-left-7 top-6 cursor-grab active:cursor-grabbing text-primary/40 hover:text-primary transition-colors p-1"
               title="Arrastar para reordenar"
             >
               <GripVertical className="w-4 h-4" />
@@ -1714,7 +1714,7 @@ function SortableFieldCard({
 
             {/* Contextual Settings Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-border/40 text-xs text-muted-foreground">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Field Type Select */}
                 <select
                   value={field.type}
@@ -2049,13 +2049,13 @@ function SortableFieldCard({
         ) : (
           <div 
             onClick={onStartEdit}
-            className="relative group p-5 border border-transparent hover:border-border/60 hover:bg-muted/10 rounded-xl transition-all duration-200 cursor-pointer space-y-3"
+            className="relative group p-5 pl-9 lg:pl-5 border border-transparent hover:border-border/60 hover:bg-muted/10 rounded-xl transition-all duration-200 cursor-pointer space-y-3"
           >
             {/* Drag Handle in Preview Mode */}
             <div 
               {...attributes} 
               {...listeners} 
-              className="absolute -left-7 top-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-muted-foreground/35 hover:text-muted-foreground transition-colors p-1"
+              className="absolute left-3 lg:-left-7 top-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-muted-foreground/35 hover:text-muted-foreground transition-colors p-1"
               title="Arrastar para reordenar"
               onClick={(e) => e.stopPropagation()} // Prevent triggering edit mode when dragging
             >
