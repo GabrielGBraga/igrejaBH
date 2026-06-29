@@ -77,6 +77,23 @@ export const signUpSchema = z.object({
   password: passwordSchema,
   confirmPassword: z.string().min(1, { message: "Confirmação de senha é obrigatória" }),
   avatarUrl: z.string().optional(),
+  occupation: z.string().min(2, { message: "Profissão é obrigatória" }),
+  educationLevel: z.enum(["Fundamental Incompleto", "Fundamental Completo", "Médio Incompleto", "Médio Completo", "Superior Incompleto", "Superior Completo", "Pós-graduação"], { 
+    message: "Selecione seu nível de escolaridade" 
+  }),
+  employmentStatus: z.enum(["CLT", "Autônomo/PJ", "Desempregado", "Aposentado", "Estudante", "Empreendedor"], {
+    message: "Selecione seu vínculo empregatício"
+  }),
+  householdIncome: z.enum(["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM", "Prefiro não informar"], {
+    message: "Selecione uma faixa de renda"
+  }),
+  dependentsCount: z.coerce.number().min(0, { message: "Número de dependentes inválido" }),
+  housingStatus: z.enum(["Própria", "Alugada", "Cedida/Parentes", "Financiada"], {
+    message: "Selecione sua situação de moradia"
+  }),
+  driversLicense: z.enum(["Não possui", "A", "B", "AB", "C", "D", "E"], {
+    message: "Selecione sua categoria de CNH"
+  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem.",
   path: ["confirmPassword"],

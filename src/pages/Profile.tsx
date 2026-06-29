@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
     UserIcon, 
     MailIcon, 
@@ -40,6 +40,7 @@ import {
     ComboboxItem, 
     ComboboxList 
 } from "@/components/ui/combobox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -76,6 +77,13 @@ interface UserProfile {
     spouse_name?: string;
     father_name?: string;
     mother_name?: string;
+    occupation: string;
+    education_level: string;
+    employment_status: string;
+    household_income: string;
+    dependents_count: number;
+    housing_status: string;
+    drivers_license: string;
 }
 
 interface MemberOption {
@@ -85,12 +93,14 @@ interface MemberOption {
 
 export default function Profile() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isEditingContact, setIsEditingContact] = useState(false);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
     const [isEditingFamily, setIsEditingFamily] = useState(false);
+    const [isEditingSocioEconomic, setIsEditingSocioEconomic] = useState(false);
     const [isEditingAvatar, setIsEditingAvatar] = useState(false);
     const [isCropping, setIsCropping] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -156,7 +166,14 @@ export default function Profile() {
                     discipler_name: (data.discipler as any)?.full_name,
                     spouse_name: (data.spouse as any)?.full_name,
                     father_name: (data.father as any)?.full_name,
-                    mother_name: (data.mother as any)?.full_name
+                    mother_name: (data.mother as any)?.full_name,
+                    occupation: data.occupation,
+                    education_level: data.education_level,
+                    employment_status: data.employment_status,
+                    household_income: data.household_income,
+                    dependents_count: data.dependents_count,
+                    housing_status: data.housing_status,
+                    drivers_license: data.drivers_license
                 });
             }
         } catch (error) {
@@ -187,6 +204,24 @@ export default function Profile() {
         fetchProfile();
     }, [fetchProfile]);
 
+    // Automática abertura de diálogo via query param
+    useEffect(() => {
+        if (profile && searchParams.get("edit") === "socio") {
+            setEditForm({ 
+                occupation: profile.occupation,
+                education_level: profile.education_level,
+                employment_status: profile.employment_status,
+                household_income: profile.household_income,
+                dependents_count: profile.dependents_count,
+                housing_status: profile.housing_status,
+                drivers_license: profile.drivers_license
+            }); 
+            setIsEditingSocioEconomic(true);
+            // Opcional: remover o query param para não reabrir ao atualizar
+            // window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, [profile, searchParams]);
+
     const handleSaveProfile = async (updates: Partial<UserProfile>) => {
         try {
             setSaving(true);
@@ -205,6 +240,7 @@ export default function Profile() {
             setIsEditingContact(false);
             setIsEditingAddress(false);
             setIsEditingFamily(false);
+            setIsEditingSocioEconomic(false);
         } catch (error) {
             console.error("Erro ao salvar perfil:", error);
             toast.error("Erro ao salvar as alterações.");
@@ -470,6 +506,31 @@ export default function Profile() {
                                 <InfoItem label="Grupo Caseiro" value={profile.home_group_name} icon={UsersIcon} />
                                 <InfoItem label="Discipulador" value={profile.discipler_name} icon={UserIcon} />
                             </InfoSection>
+
+                            <InfoSection 
+                                title="Informações Socioeconômicas" 
+                                icon={ShieldIcon} 
+                                onEdit={() => { 
+                                    setEditForm({ 
+                                        occupation: profile.occupation,
+                                        education_level: profile.education_level,
+                                        employment_status: profile.employment_status,
+                                        household_income: profile.household_income,
+                                        dependents_count: profile.dependents_count,
+                                        housing_status: profile.housing_status,
+                                        drivers_license: profile.drivers_license
+                                    }); 
+                                    setIsEditingSocioEconomic(true); 
+                                }}
+                            >
+                                <InfoItem label="Profissão" value={profile.occupation} />
+                                <InfoItem label="Escolaridade" value={profile.education_level} />
+                                <InfoItem label="Vínculo" value={profile.employment_status} />
+                                <InfoItem label="Renda Familiar" value={profile.household_income} />
+                                <InfoItem label="Dependentes" value={profile.dependents_count.toString()} />
+                                <InfoItem label="Moradia" value={profile.housing_status} />
+                                <InfoItem label="CNH" value={profile.drivers_license} />
+                            </InfoSection>
                         </CardContent>
                         <CardFooter className="bg-primary/5 p-8 flex items-center gap-4 border-t border-border/50">
                             <div className="bg-primary/20 p-3 rounded-2xl">
@@ -706,6 +767,140 @@ export default function Profile() {
                             </DialogFooter>
                         </>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditingSocioEconomic} onOpenChange={setIsEditingSocioEconomic}>
+                <DialogContent className="sm:max-w-md rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
+                    <DialogHeader>
+                        <DialogTitle>Informações Socioeconômicas</DialogTitle>
+                        <DialogDescription>Atualize seus dados profissionais e socioeconômicos.</DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto px-4 no-scrollbar space-y-8 py-4">
+                        <Field>
+                            <FieldLabel className="text-base font-semibold text-foreground/90">Sua Profissão</FieldLabel>
+                            <Input 
+                                value={editForm.occupation || ""} 
+                                onChange={(e) => setEditForm({ ...editForm, occupation: e.target.value })} 
+                                placeholder="Ex: Engenheiro, Professor, Autônomo..."
+                                className="rounded-2xl h-12 bg-muted/30 border-border/50 focus-visible:ring-primary/20 text-base shadow-sm" 
+                            />
+                        </Field>
+
+                        <div className="space-y-4">
+                            <FieldLabel className="text-base font-semibold text-foreground/90">Qual sua escolaridade?</FieldLabel>
+                            <RadioGroup 
+                                value={editForm.education_level || ""} 
+                                onValueChange={(val) => setEditForm({ ...editForm, education_level: val })}
+                                className="grid grid-cols-1 gap-2 mt-2"
+                            >
+                                {["Fundamental", "Médio Incompleto", "Médio Completo", "Superior Incompleto", "Superior Completo", "Pós-graduação"].map((opt) => (
+                                    <div key={opt} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={opt} id={`edu-${opt}`} />
+                                        <FieldLabel htmlFor={`edu-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        </div>
+
+                        <div className="space-y-4">
+                            <FieldLabel className="text-base font-semibold text-foreground/90">Como é seu vínculo empregatício?</FieldLabel>
+                            <RadioGroup 
+                                value={editForm.employment_status || ""} 
+                                onValueChange={(val) => setEditForm({ ...editForm, employment_status: val })}
+                                className="grid grid-cols-1 gap-2 mt-2"
+                            >
+                                {["CLT", "Autônomo/PJ", "Empreendedor", "Desempregado", "Aposentado", "Estudante"].map((opt) => (
+                                    <div key={opt} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={opt} id={`emp-${opt}`} />
+                                        <FieldLabel htmlFor={`emp-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <FieldLabel className="text-base font-semibold text-foreground/90">Situação de Moradia</FieldLabel>
+                                <RadioGroup 
+                                    value={editForm.housing_status || ""} 
+                                    onValueChange={(val) => setEditForm({ ...editForm, housing_status: val })}
+                                    className="grid grid-cols-1 gap-2 mt-2"
+                                >
+                                    {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map((opt) => (
+                                        <div key={opt} className="flex items-center space-x-2">
+                                            <RadioGroupItem value={opt} id={`hou-${opt}`} />
+                                            <FieldLabel htmlFor={`hou-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <FieldLabel className="text-base font-semibold text-foreground/90">Renda Familiar</FieldLabel>
+                                <RadioGroup 
+                                    value={editForm.household_income || ""} 
+                                    onValueChange={(val) => setEditForm({ ...editForm, household_income: val })}
+                                    className="grid grid-cols-1 gap-2 mt-2"
+                                >
+                                    {["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM"].map((opt) => (
+                                        <div key={opt} className="flex items-center space-x-2">
+                                            <RadioGroupItem value={opt} id={`inc-${opt}`} />
+                                            <FieldLabel htmlFor={`inc-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <FieldLabel className="text-base font-semibold text-foreground/90">Número de Dependentes</FieldLabel>
+                                <Input 
+                                    type="number" 
+                                    min="0"
+                                    value={editForm.dependents_count || 0} 
+                                    onChange={(e) => setEditForm({ ...editForm, dependents_count: parseInt(e.target.value) || 0 })} 
+                                    className="rounded-2xl h-14 text-center text-lg font-semibold bg-muted/30 border-border/50 focus-visible:ring-primary/20 shadow-sm" 
+                                />
+                            </div>
+
+                            <div className="space-y-4">
+                                <FieldLabel className="text-base font-semibold text-foreground/90">Categoria CNH</FieldLabel>
+                                <RadioGroup 
+                                    value={editForm.drivers_license || ""} 
+                                    onValueChange={(val) => setEditForm({ ...editForm, drivers_license: val })}
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2"
+                                >
+                                    {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
+                                        <div key={opt} className="flex items-center space-x-2">
+                                            <RadioGroupItem value={opt} id={`cnh-${opt}`} />
+                                            <FieldLabel htmlFor={`cnh-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setIsEditingSocioEconomic(false)} className="rounded-xl border-border/50">Cancelar</Button>
+                        <Button 
+                            onClick={() => handleSaveProfile({ 
+                                occupation: editForm.occupation,
+                                education_level: editForm.education_level,
+                                employment_status: editForm.employment_status,
+                                household_income: editForm.household_income,
+                                dependents_count: editForm.dependents_count,
+                                housing_status: editForm.housing_status,
+                                drivers_license: editForm.drivers_license
+                            })} 
+                            disabled={saving} 
+                            className="rounded-xl shadow-lg shadow-primary/20"
+                        >
+                            {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+                            Salvar Dados
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

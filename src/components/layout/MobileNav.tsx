@@ -10,9 +10,48 @@ import {
 } from '@/components/ui/sheet';
 import { navItems } from './NavItems';
 import { cn } from '@/lib/utils';
+import supabase from '@/lib/supabase';
+import { useEffect, useState } from 'react';
 
 export function MobileNav() {
   const location = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isManagement, setIsManagement] = useState(false);
+  const [canPost, setCanPost] = useState(false);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("id, is_dev, is_presbyter, is_deacon, can_post")
+          .eq("user_id", session.user.id)
+          .single();
+        
+        if (profileData) {
+          setIsAdmin(!!(profileData.is_dev || profileData.is_presbyter));
+          setCanPost(!!(profileData.is_dev || profileData.is_presbyter || profileData.can_post));
+          
+          const { count } = await supabase
+            .from("home_groups")
+            .select("*", { count: 'exact', head: true })
+            .or(`leader_1_id.eq.${profileData.id},leader_2_id.eq.${profileData.id}`);
+          
+          setIsManagement(!!(profileData.is_dev || profileData.is_presbyter || profileData.is_deacon || (count || 0) > 0));
+        }
+      }
+    }
+    fetchUserData();
+  }, []);
+
+  const filteredNavItems = navItems.filter(item => {
+    if (item.requireManagement && !isManagement) return false;
+    // @ts-ignore
+    if (item.requireCanPost && !canPost) return false;
+    if (item.href === '/grupos-caseiros/adicionar' && !isAdmin) return false;
+    return true;
+  });
 
   return (
     <div className="flex md:hidden items-center justify-between p-4 border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
@@ -35,7 +74,7 @@ export function MobileNav() {
             </SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-1 p-4">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
               

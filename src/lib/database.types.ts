@@ -47,6 +47,68 @@ export type Database = {
           },
         ]
       }
+      form_submissions: {
+        Row: {
+          data: Json
+          form_id: string
+          id: string
+          submitted_at: string
+          user_id: string | null
+        }
+        Insert: {
+          data: Json
+          form_id: string
+          id: string
+          submitted_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          data?: Json
+          form_id?: string
+          id?: string
+          submitted_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fields: Json
+          id: string
+          is_public: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields: Json
+          id: string
+          is_public?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          id?: string
+          is_public?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
       home_groups: {
         Row: {
           created_at: string | null
@@ -97,39 +159,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      media_resources: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          series_name: string | null
-          title: string
-          type: Database["public"]["Enums"]["media_type"]
-          url: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          series_name?: string | null
-          title: string
-          type: Database["public"]["Enums"]["media_type"]
-          url: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          series_name?: string | null
-          title?: string
-          type?: Database["public"]["Enums"]["media_type"]
-          url?: string
-        }
-        Relationships: []
       }
       posts: {
         Row: {
@@ -193,20 +222,27 @@ export type Database = {
           can_post: boolean | null
           cpf: string | null
           created_at: string | null
+          dependents_count: number
           discipler_id: string | null
+          drivers_license: string
+          education_level: string
+          employment_status: string
+          father_id: string | null
           full_name: string
           gender: string | null
           home_group_id: string | null
+          household_income: string
+          housing_status: string
           id: string
           is_deacon: boolean | null
           is_dev: boolean | null
           is_presbyter: boolean | null
           marital_status: string | null
-          phone: string | null
-          user_id: string | null
-          spouse_id: string | null
-          father_id: string | null
           mother_id: string | null
+          occupation: string
+          phone: string | null
+          spouse_id: string | null
+          user_id: string | null
         }
         Insert: {
           address_city?: string | null
@@ -222,20 +258,27 @@ export type Database = {
           can_post?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          dependents_count?: number
           discipler_id?: string | null
+          drivers_license: string
+          education_level: string
+          employment_status: string
+          father_id?: string | null
           full_name: string
           gender?: string | null
           home_group_id?: string | null
+          household_income: string
+          housing_status: string
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
-          phone?: string | null
-          user_id?: string | null
-          spouse_id?: string | null
-          father_id?: string | null
           mother_id?: string | null
+          occupation: string
+          phone?: string | null
+          spouse_id?: string | null
+          user_id?: string | null
         }
         Update: {
           address_city?: string | null
@@ -251,32 +294,32 @@ export type Database = {
           can_post?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          dependents_count?: number
           discipler_id?: string | null
+          drivers_license?: string
+          education_level?: string
+          employment_status?: string
+          father_id?: string | null
           full_name?: string
           gender?: string | null
           home_group_id?: string | null
+          household_income?: string
+          housing_status?: string
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
-          phone?: string | null
-          user_id?: string | null
-          spouse_id?: string | null
-          father_id?: string | null
           mother_id?: string | null
+          occupation?: string
+          phone?: string | null
+          spouse_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "profiles_discipler_id_fkey"
             columns: ["discipler_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_spouse_id_fkey"
-            columns: ["spouse_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -289,6 +332,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "profiles_home_group_id_fkey"
+            columns: ["home_group_id"]
+            isOneToOne: false
+            referencedRelation: "home_groups"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "profiles_mother_id_fkey"
             columns: ["mother_id"]
             isOneToOne: false
@@ -296,88 +346,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_home_group_id_fkey"
-            columns: ["home_group_id"]
-            isOneToOne: false
-            referencedRelation: "home_groups"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      registrations: {
-        Row: {
-          created_at: string | null
-          custom_responses: Json | null
-          guest_data: Json | null
-          id: string
-          paid: boolean | null
-          profile_id: string | null
-          retreat_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          custom_responses?: Json | null
-          guest_data?: Json | null
-          id?: string
-          paid?: boolean | null
-          profile_id?: string | null
-          retreat_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          custom_responses?: Json | null
-          guest_data?: Json | null
-          id?: string
-          paid?: boolean | null
-          profile_id?: string | null
-          retreat_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "registrations_profile_id_fkey"
-            columns: ["profile_id"]
+            foreignKeyName: "profiles_spouse_id_fkey"
+            columns: ["spouse_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "registrations_retreat_id_fkey"
-            columns: ["retreat_id"]
-            isOneToOne: false
-            referencedRelation: "retreats"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      retreats: {
-        Row: {
-          created_at: string | null
-          end_date: string | null
-          form_model: Database["public"]["Enums"]["retreat_form_model"] | null
-          id: string
-          price: number | null
-          start_date: string | null
-          title: string
-        }
-        Insert: {
-          created_at?: string | null
-          end_date?: string | null
-          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
-          id?: string
-          price?: number | null
-          start_date?: string | null
-          title: string
-        }
-        Update: {
-          created_at?: string | null
-          end_date?: string | null
-          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
-          id?: string
-          price?: number | null
-          start_date?: string | null
-          title?: string
-        }
-        Relationships: []
       }
     }
     Views: {
@@ -387,8 +362,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      media_type: "video" | "pdf"
-      post_category: "noticia" | "oracao" | "aviso" | "evento"
+      media_type: "video" | "pdf" | "markdown"
+      post_category:
+        | "noticia"
+        | "oracao"
+        | "diaconato"
+        | "obra"
+        | "aviso"
+        | "evento"
       retreat_form_model: "geral" | "socioeconomico" | "logistica"
     }
     CompositeTypes: {
@@ -517,8 +498,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      media_type: ["video", "pdf"],
-      post_category: ["noticia", "oracao", "aviso", "evento"],
+      media_type: ["video", "pdf", "markdown"],
+      post_category: [
+        "noticia",
+        "oracao",
+        "diaconato",
+        "obra",
+        "aviso",
+        "evento",
+      ],
       retreat_form_model: ["geral", "socioeconomico", "logistica"],
     },
   },

@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/input-group"
 import { ChevronDownIcon, XIcon, CheckIcon } from "lucide-react"
 
-const Combobox = ComboboxPrimitive.Root
+function Combobox({
+  ...props
+}: React.ComponentProps<typeof ComboboxPrimitive.Root>) {
+  return <ComboboxPrimitive.Root data-slot="combobox" {...props} />
+}
 
 function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
   return <ComboboxPrimitive.Value data-slot="combobox-value" {...props} />
@@ -61,9 +65,9 @@ function ComboboxInput({
   showClear?: boolean
 }) {
   return (
-    <InputGroup className={cn("w-auto", className)}>
+    <ComboboxPrimitive.Trigger render={<InputGroup className={cn("w-full cursor-pointer", className)} />} disabled={disabled}>
       <ComboboxPrimitive.Input
-        render={<InputGroupInput disabled={disabled} />}
+        render={<InputGroupInput disabled={disabled} className="cursor-pointer" />}
         {...props}
       />
       <InputGroupAddon align="inline-end">
@@ -76,13 +80,13 @@ function ComboboxInput({
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
             disabled={disabled}
           >
-            <ComboboxTrigger />
+            <ChevronDownIcon className="size-3.5 text-muted-foreground" />
           </InputGroupButton>
         )}
         {showClear && <ComboboxClear disabled={disabled} />}
       </InputGroupAddon>
       {children}
-    </InputGroup>
+    </ComboboxPrimitive.Trigger>
   )
 }
 
@@ -101,13 +105,13 @@ function ComboboxContent({
   >) {
   return (
     <ComboboxPrimitive.Portal>
-      <ComboboxPrimitive.Positioner
+        <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
         align={align}
         alignOffset={alignOffset}
         anchor={anchor}
-        className="isolate z-50"
+        className="isolate z-100"
       >
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
