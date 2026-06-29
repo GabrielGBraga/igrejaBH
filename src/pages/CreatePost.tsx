@@ -19,6 +19,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CalendarIcon, BellIcon, ImageIcon, XIcon, PlusIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useRef } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
@@ -179,15 +186,21 @@ export default function CreatePost() {
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel>Categoria*</FieldLabel>
-                        <select
-                          {...field}
-                          className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          disabled={field.disabled}
                         >
-                          <option value="aviso">Aviso</option>
-                          <option value="evento">Evento</option>
-                          <option value="noticia">Notícia</option>
-                          <option value="oracao">Pedido de Oração</option>
-                        </select>
+                          <SelectTrigger className="w-full bg-background/50 h-11 rounded-xl text-sm px-4 border border-input focus:ring-2 focus:ring-primary/20" size="lg">
+                            <SelectValue placeholder="Selecione uma categoria" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem value="aviso">Aviso</SelectItem>
+                            <SelectItem value="evento">Evento</SelectItem>
+                            <SelectItem value="noticia">Notícia</SelectItem>
+                            <SelectItem value="oracao">Pedido de Oração</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FieldError errors={[fieldState.error]} />
                       </Field>
                     )}
