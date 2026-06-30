@@ -226,6 +226,7 @@ export type Database = {
           discipler_id: string | null
           drivers_license: string
           education_level: string
+          email: string | null
           employment_status: string
           father_id: string | null
           full_name: string
@@ -262,6 +263,7 @@ export type Database = {
           discipler_id?: string | null
           drivers_license: string
           education_level: string
+          email?: string | null
           employment_status: string
           father_id?: string | null
           full_name: string
@@ -298,6 +300,7 @@ export type Database = {
           discipler_id?: string | null
           drivers_license?: string
           education_level?: string
+          email?: string | null
           employment_status?: string
           father_id?: string | null
           full_name?: string

@@ -157,6 +157,30 @@ export default function SignUp() {
         setSubmitting(true)
         
         const signupOperation = async () => {
+            // 0. Verificar se existe um pré-cadastro batizado com este CPF
+            const { data: profile, error: queryError } = await supabase
+                .from("profiles")
+                .select("id, baptism_date, user_id")
+                .eq("cpf", data.cpf)
+                .maybeSingle();
+
+            if (queryError) {
+                console.error("Erro ao buscar pré-cadastro:", queryError);
+                throw new Error("Erro ao validar pré-cadastro no banco de dados.");
+            }
+
+            if (!profile) {
+                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu líder para realizar seu cadastro inicial.");
+            }
+
+            if (profile.user_id) {
+                throw new Error("Este CPF já está vinculado a um usuário registrado.");
+            }
+
+            if (!profile.baptism_date) {
+                throw new Error("Seu cadastro está pendente. É necessário que seu líder ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
+            }
+
             // 1. Auth SignUp Primeiro
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: data.email,
@@ -164,6 +188,7 @@ export default function SignUp() {
                 options: {
                     data: {
                         full_name: data.fullName,
+                        cpf: data.cpf,
                     }
                 }
             })
