@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Button } from './ui/button'
+import { Slider } from './ui/slider'
 import { Loader2 } from 'lucide-react'
 
 interface ImageCropperProps {
@@ -159,14 +160,13 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ image, onCropComplet
             <span>Zoom</span>
             <span>{Math.round(zoom * 100)}%</span>
           </div>
-          <input
-            type="range"
-            min="1"
-            max="3"
-            step="0.01"
-            value={zoom}
-            onChange={(e) => setZoom(parseFloat(e.target.value))}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+          <Slider
+            min={1}
+            max={3}
+            step={0.01}
+            value={[zoom]}
+            onValueChange={(values) => setZoom(values[0])}
+            className="py-2"
           />
         </div>
 

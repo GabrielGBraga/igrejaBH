@@ -38,8 +38,7 @@ function App() {
       <Toaster />
       <Routes>
         <Route path="/" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
-        <Route path="/grupos-caseiros" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
-        <Route path="/grupos-caseiros/adicionar" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
+        <Route path="/grupos-caseiros" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
         <Route path="/gestao/vinculados" element={<AuthenticatedLayout requireManagement><MemberManagement /></AuthenticatedLayout>} />
         <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
         <Route path="/formularios/responder/:formId" element={<FormResponder />} />

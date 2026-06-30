@@ -70,10 +70,11 @@ export function Sidebar() {
     }, []);
 
     const filteredNavItems = navItems.filter(item => {
+        // @ts-ignore
+        if (item.requireAdmin && !isAdmin) return false;
         if (item.requireManagement && !isManagement) return false;
         // @ts-ignore
         if (item.requireCanPost && !canPost) return false;
-        if (item.href === '/grupos-caseiros/adicionar' && !isAdmin) return false;
         return true;
     });
 

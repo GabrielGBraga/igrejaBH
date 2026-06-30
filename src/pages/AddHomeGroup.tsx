@@ -36,6 +36,13 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   MapContainer,
   TileLayer,
   Marker,
@@ -293,19 +300,24 @@ export default function AddHomeGroup() {
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>Dia da Reunião*</FieldLabel>
-                      <select
-                        {...field}
-                        className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      <Select
+                        value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                        onValueChange={(val) => field.onChange(parseInt(val))}
+                        disabled={field.disabled}
                       >
-                        <option value={1}>Segunda-feira</option>
-                        <option value={2}>Terça-feira</option>
-                        <option value={3}>Quarta-feira</option>
-                        <option value={4}>Quinta-feira</option>
-                        <option value={5}>Sexta-feira</option>
-                        <option value={6}>Sábado</option>
-                        <option value={0}>Domingo</option>
-                      </select>
+                        <SelectTrigger className="w-full bg-background/50 h-11 rounded-xl text-sm px-4 border border-input focus:ring-2 focus:ring-primary/20" size="lg">
+                          <SelectValue placeholder="Selecione o dia" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="1">Segunda-feira</SelectItem>
+                          <SelectItem value="2">Terça-feira</SelectItem>
+                          <SelectItem value="3">Quarta-feira</SelectItem>
+                          <SelectItem value="4">Quinta-feira</SelectItem>
+                          <SelectItem value="5">Sexta-feira</SelectItem>
+                          <SelectItem value="6">Sábado</SelectItem>
+                          <SelectItem value="0">Domingo</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FieldError errors={[fieldState.error]} />
                     </Field>
                   )}

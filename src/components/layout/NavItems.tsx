@@ -2,7 +2,7 @@ import { Home, Users, BookOpen, PlusSquare, Calendar, MessageSquare, Settings, U
 
 export const navItems = [
   { name: 'Início', href: '/', icon: Home },
-  { name: 'Grupos Caseiros', href: '/grupos-caseiros', icon: Users },
+  { name: 'Grupos Caseiros', href: '/grupos-caseiros', icon: Users, requireAdmin: true },
   { name: 'Materiais', href: '/materiais', icon: BookOpen },
   { name: 'Nova Notícia', href: '/noticias/nova', icon: PlusSquare },
   { name: 'Eventos', href: '/eventos', icon: Calendar },
