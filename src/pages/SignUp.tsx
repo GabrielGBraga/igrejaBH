@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { signUpSchema, type SignUpValue } from "../lib/schemas"
+import { signUpSchema, type SignUpValue, validateCPF } from "../lib/schemas"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button"
 import {
@@ -58,6 +58,22 @@ const formatPhone = (value: string) => {
     return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4, 9)}-${clean.slice(9, 13)}`;
 };
 
+const formatCPF = (value: string) => {
+    const clean = value.replace(/\D/g, "");
+    const digits = clean.slice(0, 11);
+    
+    if (digits.length <= 3) {
+        return digits;
+    }
+    if (digits.length <= 6) {
+        return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    }
+    if (digits.length <= 9) {
+        return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+};
+
 export default function SignUp() {
     const navigate = useNavigate()
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -96,6 +112,88 @@ export default function SignUp() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [searchingCep, setSearchingCep] = useState(false)
+
+    const [step, setStep] = useState<'cpf_check' | 'complete'>('cpf_check')
+    const [verificationCpf, setVerificationCpf] = useState('')
+    const [verifyingCpf, setVerifyingCpf] = useState(false)
+    const [cpfError, setCpfError] = useState<string | null>(null)
+
+    const handleVerifyCpf = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const cleanCpf = verificationCpf.replace(/\D/g, "");
+        if (cleanCpf.length !== 11) {
+            setCpfError("CPF deve conter 11 dígitos");
+            return;
+        }
+        if (!validateCPF(cleanCpf)) {
+            setCpfError("CPF inválido");
+            return;
+        }
+
+        setVerifyingCpf(true);
+        setCpfError(null);
+        try {
+            const formattedCpf = formatCPF(cleanCpf);
+            const { data, error } = await supabase.rpc('check_cpf_registration', {
+                p_cpf: formattedCpf
+            });
+
+            if (error) {
+                console.error("Erro na verificação de CPF:", error);
+                setCpfError("Erro ao verificar o CPF. Tente novamente.");
+                return;
+            }
+
+            if (!data || data.length === 0 || !data[0].exists_profile) {
+                setCpfError("CPF não encontrado. Por favor, entre em contato com seu discipulador ou com um administrador para realizar seu pré-cadastro.");
+                return;
+            }
+
+            const result = data[0];
+
+            if (result.is_linked) {
+                setCpfError("Este CPF já está vinculado a um usuário cadastrado. Se você já tem uma conta, faça login.");
+                return;
+            }
+
+            if (!result.has_baptism_date) {
+                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
+                return;
+            }
+
+            // CPF is eligible! Pre-fill the form and proceed
+            signForm.setValue("cpf", formattedCpf);
+            signForm.setValue("fullName", result.full_name || "");
+            signForm.setValue("email", result.email || "");
+            signForm.setValue("phone", result.phone || "");
+            signForm.setValue("birthDate", result.birth_date || "");
+            signForm.setValue("baptismDate", result.baptism_date || "");
+            if (result.gender) signForm.setValue("gender", result.gender as any);
+            if (result.marital_status) signForm.setValue("maritalStatus", result.marital_status as any);
+            signForm.setValue("addressZipCode", result.address_zip_code || "");
+            signForm.setValue("addressStreet", result.address_street || "");
+            signForm.setValue("addressNumber", result.address_number || "");
+            signForm.setValue("addressNeighborhood", result.address_neighborhood || "");
+            signForm.setValue("addressCity", result.address_city || "Belo Horizonte");
+            signForm.setValue("addressState", result.address_state || "MG");
+            signForm.setValue("addressComplement", result.address_complement || "");
+            signForm.setValue("occupation", result.occupation || "");
+            if (result.education_level) signForm.setValue("educationLevel", result.education_level as any);
+            if (result.employment_status) signForm.setValue("employmentStatus", result.employment_status as any);
+            if (result.household_income) signForm.setValue("householdIncome", result.household_income as any);
+            signForm.setValue("dependentsCount", result.dependents_count || 0);
+            if (result.housing_status) signForm.setValue("housingStatus", result.housing_status as any);
+            if (result.drivers_license) signForm.setValue("drivers_license", result.drivers_license as any);
+
+            setStep('complete');
+            toast.success("CPF verificado com sucesso! Por favor, complete seus dados de cadastro.");
+        } catch (err) {
+            console.error(err);
+            setCpfError("Ocorreu um erro inesperado.");
+        } finally {
+            setVerifyingCpf(false);
+        }
+    };
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
     const [isCropping, setIsCropping] = useState(false)
@@ -157,28 +255,28 @@ export default function SignUp() {
         setSubmitting(true)
         
         const signupOperation = async () => {
-            // 0. Verificar se existe um pré-cadastro batizado com este CPF
-            const { data: profile, error: queryError } = await supabase
-                .from("profiles")
-                .select("id, baptism_date, user_id")
-                .eq("cpf", data.cpf)
-                .maybeSingle();
+            // 0. Verificar se existe um pré-cadastro batizado com este CPF usando a RPC
+            const { data: checkData, error: checkError } = await supabase.rpc('check_cpf_registration', {
+                p_cpf: data.cpf
+            });
 
-            if (queryError) {
-                console.error("Erro ao buscar pré-cadastro:", queryError);
+            if (checkError) {
+                console.error("Erro ao buscar pré-cadastro:", checkError);
                 throw new Error("Erro ao validar pré-cadastro no banco de dados.");
             }
 
-            if (!profile) {
-                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu líder para realizar seu cadastro inicial.");
+            const check = checkData?.[0];
+
+            if (!check || !check.exists_profile) {
+                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu discipulador ou com um administrador para realizar seu cadastro inicial.");
             }
 
-            if (profile.user_id) {
+            if (check.is_linked) {
                 throw new Error("Este CPF já está vinculado a um usuário registrado.");
             }
 
-            if (!profile.baptism_date) {
-                throw new Error("Seu cadastro está pendente. É necessário que seu líder ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
+            if (!check.has_baptism_date) {
+                throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
             }
 
             // 1. Auth SignUp Primeiro
@@ -285,17 +383,83 @@ export default function SignUp() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px]" />
             </div>
 
-            <Card className="w-full max-w-2xl border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
-                <CardHeader className="space-y-1 text-center">
-                    <div className="flex items-center justify-between">
-                        <Button variant="ghost" onClick={() => navigate('/')}>
-                            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                            Voltar
-                        </Button>
-                    </div>
-                    <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
-                    <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
-                </CardHeader>
+            {step === 'cpf_check' ? (
+                <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-1 text-center">
+                        <div className="flex items-center justify-between">
+                            <Button variant="ghost" onClick={() => navigate('/')}>
+                                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                                Voltar
+                            </Button>
+                        </div>
+                        <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
+                        <CardDescription className="text-muted-foreground">Insira seu CPF para iniciar o cadastro</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleVerifyCpf} className="space-y-4">
+                            <div className="space-y-2">
+                                <label htmlFor="cpf-verify" className="text-sm font-medium text-foreground">
+                                    CPF*
+                                </label>
+                                <Input
+                                    id="cpf-verify"
+                                    type="text"
+                                    value={verificationCpf}
+                                    onChange={(e) => {
+                                        const formatted = formatCPF(e.target.value);
+                                        setVerificationCpf(formatted);
+                                    }}
+                                    placeholder="000.000.000-00"
+                                    maxLength={14}
+                                    className="h-10 text-lg"
+                                    required
+                                />
+                                {cpfError && (
+                                    <p className="text-sm font-medium text-destructive mt-1">
+                                        {cpfError}
+                                    </p>
+                                )}
+                            </div>
+                            <Button 
+                                type="submit" 
+                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-semibold h-12 transition-all active:scale-[0.98] mt-4"
+                                disabled={verifyingCpf}
+                            >
+                                {verifyingCpf ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Verificando...
+                                    </>
+                                ) : (
+                                    "Avançar"
+                                )}
+                            </Button>
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex flex-col space-y-4">
+                        <p className="text-center text-sm text-muted-foreground mt-2">
+                            Já tem uma conta?{" "}
+                            <Link
+                                to="/entrar"
+                                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                            >
+                                Faça login
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+            ) : (
+                <Card className="w-full max-w-2xl border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-1 text-center">
+                        <div className="flex items-center justify-between">
+                            <Button variant="ghost" onClick={() => setStep('cpf_check')}>
+                                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                                Alterar CPF
+                            </Button>
+                        </div>
+                        <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
+                        <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
+                    </CardHeader>
                 <CardContent>
                     <form id="sign-up-form" onSubmit={signForm.handleSubmit(onSubmit)} className="space-y-6">
                         
@@ -399,7 +563,7 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>CPF*</FieldLabel>
-                                        <Input {...field} placeholder="000.000.000-00" />
+                                        <Input {...field} placeholder="000.000.000-00" readOnly className="bg-muted cursor-not-allowed opacity-80" />
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -809,6 +973,7 @@ export default function SignUp() {
                     </p>
                 </CardFooter>
             </Card>
+            )}
 
             <Dialog open={isCropping} onOpenChange={setIsCropping}>
                 <DialogContent className="sm:max-w-[425px]">
