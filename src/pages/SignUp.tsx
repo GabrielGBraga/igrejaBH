@@ -145,7 +145,7 @@ export default function SignUp() {
             }
 
             if (!data || data.length === 0 || !data[0].exists_profile) {
-                setCpfError("CPF não encontrado. Por favor, entre em contato com seu discipulador ou com um administrador para realizar seu pré-cadastro.");
+                setCpfError("CPF não encontrado. Por favor, entre em contato com seu discipulador ou com um líder de grupo caseiro para realizar seu pré-cadastro.");
                 return;
             }
 
@@ -157,7 +157,7 @@ export default function SignUp() {
             }
 
             if (!result.has_baptism_date) {
-                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
+                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
                 return;
             }
 
@@ -268,7 +268,7 @@ export default function SignUp() {
             const check = checkData?.[0];
 
             if (!check || !check.exists_profile) {
-                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu discipulador ou com um administrador para realizar seu cadastro inicial.");
+                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu discipulador ou com um líder de grupo caseiro para realizar seu cadastro inicial.");
             }
 
             if (check.is_linked) {
@@ -276,7 +276,7 @@ export default function SignUp() {
             }
 
             if (!check.has_baptism_date) {
-                throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um administrador atualize seu status para batizado antes de realizar o cadastro.");
+                throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
             }
 
             // 1. Auth SignUp Primeiro
