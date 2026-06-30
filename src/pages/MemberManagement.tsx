@@ -200,6 +200,20 @@ const phantomUserSchema = z.object({
                 path: ["email"],
             });
         }
+        if (!data.homeGroupId) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Grupo caseiro é obrigatório para irmãos vinculados.",
+                path: ["homeGroupId"],
+            });
+        }
+        if (!data.disciplerId) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Discipulador é obrigatório para irmãos vinculados.",
+                path: ["disciplerId"],
+            });
+        }
     } else if (data.registrationType === "child") {
         if (!data.fatherId && !data.motherId) {
             ctx.addIssue({
@@ -946,13 +960,13 @@ export default function MemberManagement() {
                                     control={form.control}
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel>Grupo Caseiro</FieldLabel>
+                                            <FieldLabel>Grupo Caseiro{registrationType === "adult" ? "*" : ""}</FieldLabel>
                                             <select
                                                 {...field}
                                                 value={field.value || ""}
                                                 className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                             >
-                                                <option value="">Sem Grupo Caseiro</option>
+                                                <option value="">{registrationType === "adult" ? "Selecione o Grupo Caseiro..." : "Sem Grupo Caseiro"}</option>
                                                 {homeGroups.map(group => (
                                                     <option key={group.id} value={group.id}>
                                                         {getGroupLabel(group)}
@@ -973,13 +987,13 @@ export default function MemberManagement() {
                                         control={form.control}
                                         render={({ field, fieldState }) => (
                                             <Field data-invalid={fieldState.invalid}>
-                                                <FieldLabel>Discipulador</FieldLabel>
+                                                <FieldLabel>Discipulador*</FieldLabel>
                                                 <select
                                                     {...field}
                                                     value={field.value || ""}
                                                     className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                                                 >
-                                                    <option value="">Sem Discipulador</option>
+                                                    <option value="">Selecione o Discipulador...</option>
                                                     {members
                                                         .filter(m => !selectedMember || m.id !== selectedMember.id)
                                                         .map(member => (
