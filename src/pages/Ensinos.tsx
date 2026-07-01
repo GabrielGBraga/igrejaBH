@@ -20,7 +20,6 @@ import {
     EyeIcon,
     GraduationCapIcon,
     DownloadIcon,
-    XIcon,
     PencilIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -1619,7 +1618,7 @@ export default function Ensinos() {
                     return (
                         <DialogContent className={cn(
                             "bg-card border-border shadow-2xl rounded-3xl overflow-hidden p-0",
-                            resObj.type === "video" ? "sm:max-w-5xl w-[95vw]" : "sm:max-w-3xl w-[95vw]"
+                            resObj.type === "video" || resObj.type === "markdown" ? "sm:max-w-5xl w-[95vw]" : "sm:max-w-3xl w-[95vw]"
                         )}>
                             <DialogHeader className="p-6 pb-2 border-b border-border/50 flex flex-row items-start justify-between">
                                 <div className="space-y-1">
@@ -1632,14 +1631,6 @@ export default function Ensinos() {
                                         {resObj.title}
                                     </DialogTitle>
                                 </div>
-                                <Button
-                                    onClick={() => setActiveStep(null)}
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full absolute right-4 top-4 hover:bg-muted"
-                                >
-                                    <XIcon className="h-4 w-4" />
-                                </Button>
                             </DialogHeader>
 
                             <div className="p-6">
@@ -1835,7 +1826,7 @@ function MarkdownViewer({ url }: { url: string }) {
     let insideCode = false;
 
     return (
-        <div className="space-y-4 text-foreground dark:text-zinc-300 leading-relaxed font-sans max-h-[50vh] overflow-y-auto pr-3 scrollbar-thin">
+        <div className="space-y-4 text-foreground dark:text-zinc-300 leading-relaxed font-sans max-h-[65vh] overflow-y-auto pr-3 scrollbar-thin">
             {lines.map((line, idx) => {
                 const trimmed = line.trim();
 
