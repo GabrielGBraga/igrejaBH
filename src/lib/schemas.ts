@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Validação de CPF brasileiro
  */
-const validateCPF = (cpf: string) => {
+export const validateCPF = (cpf: string) => {
   const cleanCPF = cpf.replace(/\D/g, "");
 
   if (cleanCPF.length !== 11) return false;
