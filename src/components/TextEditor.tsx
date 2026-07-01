@@ -192,7 +192,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="sm:max-w-4xl bg-card border-border shadow-2xl rounded-3xl max-h-[95vh] flex flex-col p-6 overflow-hidden">
+            <DialogContent className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90vh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
                 <style>{`
                     .prose-editor h1 { font-size: 1.5rem; font-weight: 800; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
                     .prose-editor h2 { font-size: 1.25rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; }
@@ -241,7 +241,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                                         placeholder="Ex: Guia de Oração Semanal" 
                                         value={title} 
                                         onChange={(e) => setTitle(e.target.value)}
-                                        className="rounded-xl h-9 text-sm"
+                                        className="rounded-md h-10 text-sm"
                                         maxLength={100}
                                     />
                                 </Field>
@@ -254,7 +254,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                                         placeholder="Sobre o que fala este texto?" 
                                         value={description} 
                                         onChange={(e) => setDescription(e.target.value)}
-                                        className="rounded-xl h-9 text-sm"
+                                        className="rounded-md h-10 text-sm"
                                         maxLength={250}
                                     />
                                 </Field>
