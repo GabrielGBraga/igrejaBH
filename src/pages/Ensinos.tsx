@@ -19,12 +19,13 @@ import {
     CheckIcon,
     EyeIcon,
     GraduationCapIcon,
-    FileIcon,
     DownloadIcon,
-    XIcon
+    XIcon,
+    PencilIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import supabase from "@/lib/supabase";
+import { TextEditor } from "@/components/TextEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -109,6 +110,8 @@ export default function Ensinos() {
     const [isCreateStudyOpen, setIsCreateStudyOpen] = useState(false);
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
     const [activeStep, setActiveStep] = useState<StudyStep | null>(null);
+    const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
+    const [editingTextResource, setEditingTextResource] = useState<MediaResource | null>(null);
 
     // File upload state
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -117,6 +120,9 @@ export default function Ensinos() {
 
     // Selected resources for study creation
     const [selectedResourcesForStudy, setSelectedResourcesForStudy] = useState<MediaResource[]>([]);
+    const [selectedResourceVal, setSelectedResourceVal] = useState<string>("");
+    const [editingStudy, setEditingStudy] = useState<Study | null>(null);
+    const [animatingIndices, setAnimatingIndices] = useState<{ up: number; down: number } | null>(null);
 
     // React Hook Forms
     const resourceForm = useForm<ResourceFormValues>({
@@ -216,8 +222,7 @@ export default function Ensinos() {
     // Load Youtube Fallback Videos
     useEffect(() => {
         async function loadYoutubeFallback() {
-            const dbVideos = resources.filter(r => r.type === "video");
-            if (activeTab === "videos" && dbVideos.length === 0 && youtubeVideos.length === 0) {
+            if (activeTab === "videos" && youtubeVideos.length === 0) {
                 setLoadingYoutube(true);
                 const fetched = await fetchLatestVideos();
                 setYoutubeVideos(fetched);
@@ -225,7 +230,7 @@ export default function Ensinos() {
             }
         }
         loadYoutubeFallback();
-    }, [activeTab, resources]);
+    }, [activeTab, youtubeVideos.length]);
 
     const canAddMaterial = profile?.is_presbyter || profile?.is_deacon || profile?.is_dev;
 
@@ -328,7 +333,92 @@ export default function Ensinos() {
         }
     };
 
-    // Create Study Handler
+    // Save Rich Text Handler
+    const handleSaveText = async (data: { title: string; description: string; markdownContent: string }) => {
+        if (!profile) return;
+
+        try {
+            const blob = new Blob([data.markdownContent], { type: "text/markdown" });
+
+            if (editingTextResource) {
+                // Editing existing resource
+                const urlParts = editingTextResource.url.split("/ensinos/");
+                if (urlParts.length <= 1) {
+                    throw new Error("URL do recurso inválida para edição.");
+                }
+                const storagePath = urlParts[1];
+
+                // Upload overwriting existing file
+                const { error: uploadError } = await supabase.storage
+                    .from("ensinos")
+                    .upload(storagePath, blob, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // Update database metadata
+                const { error: updateError } = await supabase
+                    .from("media_resources")
+                    .update({
+                        title: data.title,
+                        description: data.description || null
+                    })
+                    .eq("id", editingTextResource.id);
+
+                if (updateError) throw updateError;
+
+                toast.success("Texto atualizado com sucesso!");
+                setEditingTextResource(null);
+            } else {
+                // Creating new resource
+                const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.md`;
+                const filePath = `${profile.id}/${fileName}`;
+
+                // Upload new file
+                const { error: uploadError } = await supabase.storage
+                    .from("ensinos")
+                    .upload(filePath, blob, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // Get public URL
+                const { data: urlData } = supabase.storage
+                    .from("ensinos")
+                    .getPublicUrl(filePath);
+
+                const publicUrl = urlData.publicUrl;
+
+                // Insert into media_resources
+                const { error: insertError } = await supabase
+                    .from("media_resources")
+                    .insert({
+                        title: data.title,
+                        description: data.description || null,
+                        type: "markdown",
+                        url: publicUrl,
+                        category: "textos"
+                    });
+
+                if (insertError) throw insertError;
+
+                toast.success("Texto criado com sucesso!");
+            }
+
+            await loadDatabaseData(profile.id);
+        } catch (err) {
+            const error = err as Error;
+            console.error("Error saving rich text:", error);
+            toast.error(error.message || "Erro ao salvar texto.");
+            throw error;
+        }
+    };
+
+    // Create or Edit Study Handler
     const handleCreateStudySubmit = async (values: StudyFormValues) => {
         if (!profile) return;
         if (selectedResourcesForStudy.length === 0) {
@@ -339,44 +429,102 @@ export default function Ensinos() {
         try {
             setLoadingData(true);
 
-            // 1. Insert study
-            const { data: newStudy, error: studyError } = await supabase
-                .from("studies")
-                .insert({
-                    title: values.title,
-                    description: values.description || null,
-                    created_by: profile.id
-                })
-                .select()
-                .single();
+            if (editingStudy) {
+                // Update study
+                const { error: studyError } = await supabase
+                    .from("studies")
+                    .update({
+                        title: values.title,
+                        description: values.description || null
+                    })
+                    .eq("id", editingStudy.id);
 
-            if (studyError) throw studyError;
+                if (studyError) throw studyError;
 
-            // 2. Insert study steps
-            const stepsData = selectedResourcesForStudy.map((res, index) => ({
-                study_id: newStudy.id,
-                media_resource_id: res.id,
-                sort_order: index + 1
-            }));
+                // Delete existing steps
+                const { error: deleteStepsError } = await supabase
+                    .from("study_steps")
+                    .delete()
+                    .eq("study_id", editingStudy.id);
 
-            const { error: stepsError } = await supabase
-                .from("study_steps")
-                .insert(stepsData);
+                if (deleteStepsError) throw deleteStepsError;
 
-            if (stepsError) throw stepsError;
+                // Insert updated steps
+                const stepsData = selectedResourcesForStudy.map((res, index) => ({
+                    study_id: editingStudy.id,
+                    media_resource_id: res.id,
+                    sort_order: index + 1
+                }));
 
-            toast.success("Estudo criado com sucesso!");
+                const { error: stepsError } = await supabase
+                    .from("study_steps")
+                    .insert(stepsData);
+
+                if (stepsError) throw stepsError;
+
+                toast.success("Estudo atualizado com sucesso!");
+            } else {
+                // Insert study
+                const { data: newStudy, error: studyError } = await supabase
+                    .from("studies")
+                    .insert({
+                        title: values.title,
+                        description: values.description || null,
+                        created_by: profile.id
+                    })
+                    .select()
+                    .single();
+
+                if (studyError) throw studyError;
+
+                // Insert study steps
+                const stepsData = selectedResourcesForStudy.map((res, index) => ({
+                    study_id: newStudy.id,
+                    media_resource_id: res.id,
+                    sort_order: index + 1
+                }));
+
+                const { error: stepsError } = await supabase
+                    .from("study_steps")
+                    .insert(stepsData);
+
+                if (stepsError) throw stepsError;
+
+                toast.success("Estudo criado com sucesso!");
+            }
+
             setIsCreateStudyOpen(false);
+            setEditingStudy(null);
             studyForm.reset();
             setSelectedResourcesForStudy([]);
             await loadDatabaseData(profile.id);
 
         } catch (err: any) {
-            console.error("Error creating study:", err);
-            toast.error(err.message || "Erro ao criar estudo.");
+            console.error("Error saving study:", err);
+            toast.error(err.message || "Erro ao salvar estudo.");
         } finally {
             setLoadingData(false);
         }
+    };
+
+    // Edit Study Helper
+    const handleEditStudy = (study: Study, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingStudy(study);
+        
+        studyForm.reset({
+            title: study.title,
+            description: study.description || ""
+        });
+        
+        // Find steps for this study and resolve their media resources
+        const currentSteps = studySteps
+            .filter(s => s.study_id === study.id)
+            .map(s => s.media_resource)
+            .filter((res): res is MediaResource => res !== null);
+        
+        setSelectedResourcesForStudy(currentSteps);
+        setIsCreateStudyOpen(true);
     };
 
     // Study deletion helper
@@ -571,6 +719,18 @@ export default function Ensinos() {
                                 <PlusIcon className="h-4 w-4" />
                                 Adicionar Recurso
                             </Button>
+                            {activeTab === "textos" && (
+                                <Button 
+                                    onClick={() => {
+                                        setEditingTextResource(null);
+                                        setIsTextEditorOpen(true);
+                                    }}
+                                    className="shrink-0 gap-2 shadow-lg shadow-amber-500/20 bg-amber-600 hover:bg-amber-700 text-white rounded-full px-5 border-0 cursor-pointer"
+                                >
+                                    <PencilIcon className="h-4 w-4" />
+                                    Escrever Texto
+                                </Button>
+                            )}
                         </>
                     )}
                 </div>
@@ -660,15 +820,26 @@ export default function Ensinos() {
                                                                     <BookOpenIcon className="h-5 w-5 text-primary" />
                                                                 </div>
                                                                 {canAddMaterial && (
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={(e) => handleDeleteStudy(study.id, e)}
-                                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                                                                        title="Excluir Estudo"
-                                                                    >
-                                                                        <Trash2Icon className="h-4 w-4" />
-                                                                    </Button>
+                                                                    <div className="flex gap-1">
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            onClick={(e) => handleEditStudy(study, e)}
+                                                                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
+                                                                            title="Editar Estudo"
+                                                                        >
+                                                                            <PencilIcon className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            onClick={(e) => handleDeleteStudy(study.id, e)}
+                                                                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                                                            title="Excluir Estudo"
+                                                                        >
+                                                                            <Trash2Icon className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </div>
                                                                 )}
                                                             </div>
                                                             <CardTitle className="text-lg text-foreground group-hover:text-primary transition-colors mt-3">
@@ -686,7 +857,7 @@ export default function Ensinos() {
                                                                 </div>
                                                                 <Progress value={percent} className="h-2" />
                                                             </div>
-                                                            <Button variant="outline" className="w-full gap-2 border-border/50 rounded-xl hover:bg-primary hover:text-primary-foreground group-hover:border-primary/50 transition-all">
+                                                            <Button variant="outline" className="w-full gap-2 border-border/50 rounded-xl hover:bg-zinc-900 hover:text-zinc-50 dark:hover:bg-zinc-100 dark:hover:text-zinc-950 group-hover:border-primary/50 transition-all">
                                                                 {percent === 100 ? "Rever Estudo" : percent > 0 ? "Continuar Estudo" : "Começar Estudo"}
                                                                 <ChevronRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                                             </Button>
@@ -710,130 +881,152 @@ export default function Ensinos() {
                             )}
 
                             {/* TAB: VÍDEOS */}
-                            {activeTab === "videos" && (
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    {tabVideos.length > 0 ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {tabVideos.map((video) => {
-                                                const ytId = getYouTubeId(video.url);
-                                                const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : "";
-                                                return (
-                                                    <Card 
-                                                        key={video.id} 
-                                                        className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col rounded-2xl relative"
-                                                        onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: video.id, sort_order: 0, created_at: "", media_resource: video })}
-                                                    >
-                                                        <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden shrink-0">
-                                                            {thumb ? (
+                            {activeTab === "videos" && (() => {
+                                const dbVideoIds = new Set(
+                                    tabVideos
+                                        .map(v => getYouTubeId(v.url))
+                                        .filter(id => id !== null)
+                                );
+                                const uniqueYoutubeVideos = youtubeVideos.filter(yt => !dbVideoIds.has(yt.id));
+
+                                return (
+                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        {/* Database Videos (Recursos do Acervo) */}
+                                        {tabVideos.length > 0 && (
+                                            <div className="space-y-4">
+                                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                                                    Vídeos do Acervo
+                                                </h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {tabVideos.map((video) => {
+                                                        const ytId = getYouTubeId(video.url);
+                                                        const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : "";
+                                                        return (
+                                                            <Card 
+                                                                key={video.id} 
+                                                                className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col rounded-2xl relative"
+                                                                onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: video.id, sort_order: 0, created_at: "", media_resource: video })}
+                                                            >
+                                                                <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden shrink-0">
+                                                                    {thumb ? (
+                                                                        <img 
+                                                                            src={thumb} 
+                                                                            alt={video.title} 
+                                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center bg-black/80">
+                                                                            <YoutubeIcon className="h-12 w-12 text-destructive" />
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                                                        <div className="w-12 h-12 rounded-full bg-primary/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-xl">
+                                                                            <PlayIcon className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-1" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <CardHeader className="flex-1 p-5">
+                                                                    <div className="flex justify-between items-start gap-4">
+                                                                        <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
+                                                                            {video.title}
+                                                                        </CardTitle>
+                                                                        {canAddMaterial && (
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={(e) => handleDeleteResource(video.id, e)}
+                                                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full shrink-0 -mt-1 -mr-2"
+                                                                                title="Excluir Recurso"
+                                                                            >
+                                                                                <Trash2Icon className="h-4 w-4" />
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                    {video.description && (
+                                                                        <CardDescription className="line-clamp-2 text-xs pt-1">
+                                                                            {video.description}
+                                                                        </CardDescription>
+                                                                    )}
+                                                                </CardHeader>
+                                                            </Card>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Youtube Channel Videos (Últimos do Canal) */}
+                                        {loadingYoutube ? (
+                                            <div className="flex justify-center items-center py-16">
+                                                <Loader2Icon className="h-10 w-10 animate-spin text-primary" />
+                                            </div>
+                                        ) : uniqueYoutubeVideos.length > 0 ? (
+                                            <div className="space-y-4">
+                                                {tabVideos.length > 0 && <hr className="border-border/40" />}
+                                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2 text-muted-foreground">
+                                                    <YoutubeIcon className="h-5 w-5 text-destructive" />
+                                                    Vídeos Recentes do Canal
+                                                </h3>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {uniqueYoutubeVideos.map((video) => (
+                                                        <Card 
+                                                            key={video.id} 
+                                                            className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col rounded-2xl"
+                                                            onClick={() => {
+                                                                const mockResource: MediaResource = {
+                                                                    id: "",
+                                                                    title: video.title,
+                                                                    description: video.description,
+                                                                    type: "video",
+                                                                    url: `https://www.youtube.com/watch?v=${video.id}`,
+                                                                    series_name: null,
+                                                                    category: "youtube",
+                                                                    created_at: video.publishedAt
+                                                                };
+                                                                setActiveStep({ id: "", study_id: "", media_resource_id: "", sort_order: 0, created_at: "", media_resource: mockResource });
+                                                            }}
+                                                        >
+                                                            <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden shrink-0">
                                                                 <img 
-                                                                    src={thumb} 
+                                                                    src={video.thumbnailUrl} 
                                                                     alt={video.title} 
                                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                                                                 />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-black/80">
-                                                                    <YoutubeIcon className="h-12 w-12 text-destructive" />
-                                                                </div>
-                                                            )}
-                                                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                                <div className="w-12 h-12 rounded-full bg-primary/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-xl">
-                                                                    <PlayIcon className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-1" />
+                                                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                                                    <div className="w-12 h-12 rounded-full bg-primary/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-xl">
+                                                                        <PlayIcon className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-1" />
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <CardHeader className="flex-1 p-5">
-                                                            <div className="flex justify-between items-start gap-4">
+                                                            <CardHeader className="flex-1 p-5">
                                                                 <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
-                                                                    {video.title}
+                                                                        {video.title}
                                                                 </CardTitle>
-                                                                {canAddMaterial && (
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={(e) => handleDeleteResource(video.id, e)}
-                                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full shrink-0 -mt-1 -mr-2"
-                                                                        title="Excluir Recurso"
-                                                                    >
-                                                                        <Trash2Icon className="h-4 w-4" />
-                                                                    </Button>
-                                                                )}
-                                                            </div>
-                                                            {video.description && (
-                                                                <CardDescription className="line-clamp-2 text-xs pt-1">
-                                                                    {video.description}
+                                                                <CardDescription className="text-xs pt-1">
+                                                                    {new Date(video.publishedAt).toLocaleDateString('pt-BR')}
                                                                 </CardDescription>
-                                                            )}
-                                                        </CardHeader>
-                                                    </Card>
-                                                );
-                                            })}
-                                        </div>
-                                    ) : loadingYoutube ? (
-                                        <div className="flex justify-center items-center py-24">
-                                            <Loader2Icon className="h-10 w-10 animate-spin text-primary" />
-                                        </div>
-                                    ) : youtubeVideos.length > 0 ? (
-                                        /* Display fallback youtube channel videos if DB has no videos */
-                                        <div className="space-y-4">
-                                            <div className="p-4 bg-muted/20 border border-border/50 rounded-2xl text-xs text-muted-foreground">
-                                                Exibindo os vídeos mais recentes do canal da igreja (Integração YouTube).
+                                                            </CardHeader>
+                                                        </Card>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                {youtubeVideos.map((video) => (
-                                                    <Card 
-                                                        key={video.id} 
-                                                        className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col rounded-2xl"
-                                                        onClick={() => {
-                                                            const mockResource: MediaResource = {
-                                                                id: "",
-                                                                title: video.title,
-                                                                description: video.description,
-                                                                type: "video",
-                                                                url: `https://www.youtube.com/watch?v=${video.id}`,
-                                                                series_name: null,
-                                                                category: "youtube",
-                                                                created_at: video.publishedAt
-                                                            };
-                                                            setActiveStep({ id: "", study_id: "", media_resource_id: "", sort_order: 0, created_at: "", media_resource: mockResource });
-                                                        }}
-                                                    >
-                                                        <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden shrink-0">
-                                                            <img 
-                                                                src={video.thumbnailUrl} 
-                                                                alt={video.title} 
-                                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                                                            />
-                                                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                                <div className="w-12 h-12 rounded-full bg-primary/95 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-xl">
-                                                                    <PlayIcon className="h-6 w-6 text-primary-foreground fill-primary-foreground ml-1" />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <CardHeader className="flex-1 p-5">
-                                                            <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
-                                                                    {video.title}
-                                                            </CardTitle>
-                                                            <CardDescription className="text-xs pt-1">
-                                                                {new Date(video.publishedAt).toLocaleDateString('pt-BR')}
-                                                            </CardDescription>
-                                                        </CardHeader>
-                                                    </Card>
-                                                ))}
+                                        ) : null}
+
+                                        {tabVideos.length === 0 && youtubeVideos.length === 0 && !loadingYoutube && (
+                                            <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl">
+                                                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <YoutubeIcon className="h-8 w-8 text-muted-foreground/30" />
+                                                </div>
+                                                <h3 className="text-lg font-medium text-foreground">Nenhum vídeo disponível</h3>
+                                                <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
+                                                    Os vídeos de estudos e pregações aparecerão aqui.
+                                                </p>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl">
-                                            <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <YoutubeIcon className="h-8 w-8 text-muted-foreground/30" />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-foreground">Nenhum vídeo cadastrado</h3>
-                                            <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
-                                                Os vídeos de estudos e pregações aparecerão aqui.
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                        )}
+                                    </div>
+                                );
+                            })()}
 
                             {/* TAB: PDFs */}
                             {activeTab === "pdfs" && (
@@ -912,15 +1105,30 @@ export default function Ensinos() {
                                                                 <BookOpenIcon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                                                             </div>
                                                             {canAddMaterial && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={(e) => handleDeleteResource(texto.id, e)}
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                                                                    title="Excluir Texto"
-                                                                >
-                                                                    <Trash2Icon className="h-4 w-4" />
-                                                                </Button>
+                                                                <div className="flex items-center gap-1">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setEditingTextResource(texto);
+                                                                            setIsTextEditorOpen(true);
+                                                                        }}
+                                                                        className="h-8 w-8 text-muted-foreground hover:text-amber-600 hover:bg-amber-500/10 rounded-full"
+                                                                        title="Editar Texto"
+                                                                    >
+                                                                        <PencilIcon className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => handleDeleteResource(texto.id, e)}
+                                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                                                        title="Excluir Texto"
+                                                                    >
+                                                                        <Trash2Icon className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
                                                             )}
                                                         </div>
                                                         <CardTitle className="text-base text-foreground group-hover:text-primary transition-colors leading-tight">
@@ -968,9 +1176,8 @@ export default function Ensinos() {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <Form {...resourceForm}>
                         <form onSubmit={resourceForm.handleSubmit(handleAddResourceSubmit)} className="space-y-4 pt-2">
-                            <FormField
+                            <Controller
                                 control={resourceForm.control}
                                 name="title"
                                 render={({ field, fieldState }) => (
@@ -982,7 +1189,7 @@ export default function Ensinos() {
                                 )}
                             />
 
-                            <FormField
+                            <Controller
                                 control={resourceForm.control}
                                 name="description"
                                 render={({ field, fieldState }) => (
@@ -994,62 +1201,60 @@ export default function Ensinos() {
                                 )}
                             />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Controller
+                                name="type"
+                                control={resourceForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Tipo de Recurso</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="rounded-xl bg-background/50 h-10 border border-input">
+                                                <SelectValue placeholder="Selecione o tipo" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="video">Vídeo (YouTube)</SelectItem>
+                                                <SelectItem value="pdf">Arquivo PDF</SelectItem>
+                                                <SelectItem value="markdown">Arquivo Markdown (.md)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            {resourceType === "video" ? (
                                 <Controller
-                                    name="type"
                                     control={resourceForm.control}
+                                    name="url"
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel>Tipo de Recurso</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="rounded-xl bg-background/50 h-10 border border-input">
-                                                    <SelectValue placeholder="Selecione o tipo" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="video">Vídeo (YouTube)</SelectItem>
-                                                    <SelectItem value="pdf">Arquivo PDF</SelectItem>
-                                                    <SelectItem value="markdown">Arquivo Markdown (.md)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <FieldLabel htmlFor="res-url">URL do YouTube*</FieldLabel>
+                                            <Input id="res-url" placeholder="https://www.youtube.com/watch?v=..." className="rounded-xl" {...field} />
                                             <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
-
-                                {resourceType === "video" ? (
-                                    <FormField
-                                        control={resourceForm.control}
-                                        name="url"
-                                        render={({ field, fieldState }) => (
-                                            <Field data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor="res-url">URL do YouTube*</FieldLabel>
-                                                <Input id="res-url" placeholder="https://www.youtube.com/watch?v=..." className="rounded-xl" {...field} />
-                                                <FieldError errors={[fieldState.error]} />
-                                            </Field>
-                                        )}
+                            ) : (
+                                <Field>
+                                    <FieldLabel htmlFor="res-file">Selecionar Arquivo*</FieldLabel>
+                                    <Input 
+                                        id="res-file" 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        onChange={(e) => {
+                                            const files = e.target.files;
+                                            if (files && files.length > 0) {
+                                                setSelectedFile(files[0]);
+                                            }
+                                        }}
+                                        accept={resourceType === "pdf" ? ".pdf" : ".md,.markdown"}
+                                        className="rounded-xl file:bg-primary file:text-primary-foreground file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-2 file:text-xs file:font-semibold file:cursor-pointer cursor-pointer" 
                                     />
-                                ) : (
-                                    <Field>
-                                        <FieldLabel htmlFor="res-file">Selecionar Arquivo*</FieldLabel>
-                                        <Input 
-                                            id="res-file" 
-                                            type="file" 
-                                            ref={fileInputRef}
-                                            onChange={(e) => {
-                                                const files = e.target.files;
-                                                if (files && files.length > 0) {
-                                                    setSelectedFile(files[0]);
-                                                }
-                                            }}
-                                            accept={resourceType === "pdf" ? ".pdf" : ".md,.markdown"}
-                                            className="rounded-xl file:bg-primary file:text-primary-foreground file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-2 file:text-xs file:font-semibold file:cursor-pointer cursor-pointer" 
-                                        />
-                                        <FieldDescription>
-                                            {resourceType === "pdf" ? "Somente arquivos PDF" : "Arquivos Markdown (.md)"}
-                                        </FieldDescription>
-                                    </Field>
-                                )}
-                            </div>
+                                    <FieldDescription>
+                                        {resourceType === "pdf" ? "Somente arquivos PDF" : "Arquivos Markdown (.md)"}
+                                    </FieldDescription>
+                                </Field>
+                            )}
 
                             <DialogFooter className="pt-4">
                                 <Button 
@@ -1080,23 +1285,31 @@ export default function Ensinos() {
                                 </Button>
                             </DialogFooter>
                         </form>
-                    </Form>
                 </DialogContent>
             </Dialog>
 
             {/* DIALOG: CRIAR ESTUDO (CURSO) */}
-            <Dialog open={isCreateStudyOpen} onOpenChange={setIsCreateStudyOpen}>
+            <Dialog open={isCreateStudyOpen} onOpenChange={(open) => {
+                setIsCreateStudyOpen(open);
+                if (!open) {
+                    setEditingStudy(null);
+                    studyForm.reset({ title: "", description: "" });
+                    setSelectedResourcesForStudy([]);
+                }
+            }}>
                 <DialogContent className="sm:max-w-2xl bg-card border-border shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Criar Novo Estudo</DialogTitle>
+                        <DialogTitle>{editingStudy ? "Editar Estudo" : "Criar Novo Estudo"}</DialogTitle>
                         <DialogDescription>
-                            Monte um curso unindo recursos de mídia de forma ordenada para criar uma trilha de aprendizagem.
+                            {editingStudy 
+                                ? "Modifique o título, descrição ou a ordem dos recursos deste estudo."
+                                : "Monte um estudo unindo recursos de mídia de forma ordenada para criar uma trilha de aprendizagem."
+                            }
                         </DialogDescription>
                     </DialogHeader>
 
-                    <Form {...studyForm}>
                         <form onSubmit={studyForm.handleSubmit(handleCreateStudySubmit)} className="space-y-4 pt-2">
-                            <FormField
+                            <Controller
                                 control={studyForm.control}
                                 name="title"
                                 render={({ field, fieldState }) => (
@@ -1108,7 +1321,7 @@ export default function Ensinos() {
                                 )}
                             />
 
-                            <FormField
+                            <Controller
                                 control={studyForm.control}
                                 name="description"
                                 render={({ field, fieldState }) => (
@@ -1129,92 +1342,117 @@ export default function Ensinos() {
                                 </div>
 
                                 {/* Resource Selector */}
-                                <div className="flex gap-2">
-                                    <div className="flex-1">
-                                        <Select onValueChange={(val) => {
+                                <div className="flex items-center">
+                                    <Select 
+                                        value={selectedResourceVal}
+                                        onValueChange={(val) => {
+                                            if (!val) return;
                                             const res = resources.find(r => r.id === val);
                                             if (res && !selectedResourcesForStudy.some(item => item.id === res.id)) {
                                                 setSelectedResourcesForStudy([...selectedResourcesForStudy, res]);
                                             }
-                                        }}>
-                                            <SelectTrigger className="rounded-xl bg-background border border-input h-10">
-                                                <SelectValue placeholder="Selecione um recurso para adicionar à trilha" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {resources.map(r => (
-                                                    <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
-                                                        {r.type === 'video' ? '🎥' : r.type === 'pdf' ? '📄' : '📝'} {r.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                            setSelectedResourceVal("");
+                                        }}
+                                    >
+                                        <SelectTrigger className="rounded-xl border border-dashed border-primary/40 bg-transparent text-primary hover:bg-primary/5 px-4 h-10 w-fit flex items-center gap-2 font-medium cursor-pointer shadow-sm">
+                                            <PlusIcon className="h-4 w-4" />
+                                            <SelectValue placeholder="Adicionar Recurso à Trilha" />
+                                        </SelectTrigger>
+                                        <SelectContent position="popper">
+                                            {resources.map(r => (
+                                                <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
+                                                    {r.type === 'video' ? '🎥' : r.type === 'pdf' ? '📄' : '📝'} {r.title}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 {/* Steps List with Up/Down/Delete */}
                                 {selectedResourcesForStudy.length > 0 ? (
-                                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                                        {selectedResourcesForStudy.map((res, index) => (
-                                            <div key={res.id} className="flex items-center justify-between p-2.5 bg-card border border-border/50 rounded-xl text-sm hover:border-primary/20 transition-all">
-                                                <div className="flex items-center gap-2 font-medium">
-                                                    <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground font-semibold">
-                                                        {index + 1}
-                                                    </span>
-                                                    <span className="text-xs mr-1 text-muted-foreground">
-                                                        {res.type === 'video' ? 'Vídeo' : res.type === 'pdf' ? 'PDF' : 'Texto'}
-                                                    </span>
-                                                    <span className="truncate max-w-[280px]" title={res.title}>{res.title}</span>
+                                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 py-1">
+                                        {selectedResourcesForStudy.map((res, index) => {
+                                            const isMovingUp = animatingIndices?.up === index;
+                                            const isMovingDown = animatingIndices?.down === index;
+
+                                            return (
+                                                <div 
+                                                    key={res.id} 
+                                                    className={cn(
+                                                        "flex items-center justify-between p-2.5 bg-card border border-border/50 rounded-xl text-sm hover:border-primary/20 relative",
+                                                        isMovingUp && "transition-transform duration-300 -translate-y-[50px] z-10 bg-muted/60 border-primary/40 shadow-md",
+                                                        isMovingDown && "transition-transform duration-300 translate-y-[50px] z-10 bg-muted/60 border-primary/40 shadow-md"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-2 font-medium">
+                                                        <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground font-semibold">
+                                                            {index + 1}
+                                                        </span>
+                                                        <span className="text-xs mr-1 text-muted-foreground">
+                                                            {res.type === 'video' ? 'Vídeo' : res.type === 'pdf' ? 'PDF' : 'Texto'}
+                                                        </span>
+                                                        <span className="truncate max-w-[280px]" title={res.title}>{res.title}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            disabled={index === 0 || animatingIndices !== null}
+                                                            onClick={() => {
+                                                                setAnimatingIndices({ up: index, down: index - 1 });
+                                                                setTimeout(() => {
+                                                                    const newArr = [...selectedResourcesForStudy];
+                                                                    const temp = newArr[index];
+                                                                    newArr[index] = newArr[index - 1];
+                                                                    newArr[index - 1] = temp;
+                                                                    setSelectedResourcesForStudy(newArr);
+                                                                    setAnimatingIndices(null);
+                                                                }, 300);
+                                                            }}
+                                                            className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-md disabled:opacity-30"
+                                                            title="Mover para cima"
+                                                        >
+                                                            <ArrowUpIcon className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            disabled={index === selectedResourcesForStudy.length - 1 || animatingIndices !== null}
+                                                            onClick={() => {
+                                                                setAnimatingIndices({ up: index + 1, down: index });
+                                                                setTimeout(() => {
+                                                                    const newArr = [...selectedResourcesForStudy];
+                                                                    const temp = newArr[index];
+                                                                    newArr[index] = newArr[index + 1];
+                                                                    newArr[index + 1] = temp;
+                                                                    setSelectedResourcesForStudy(newArr);
+                                                                    setAnimatingIndices(null);
+                                                                }, 300);
+                                                            }}
+                                                            className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-md disabled:opacity-30"
+                                                            title="Mover para baixo"
+                                                        >
+                                                            <ArrowDownIcon className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            disabled={animatingIndices !== null}
+                                                            onClick={() => {
+                                                                setSelectedResourcesForStudy(selectedResourcesForStudy.filter(item => item.id !== res.id));
+                                                            }}
+                                                            className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md"
+                                                            title="Remover"
+                                                        >
+                                                            <Trash2Icon className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 shrink-0">
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        disabled={index === 0}
-                                                        onClick={() => {
-                                                            const newArr = [...selectedResourcesForStudy];
-                                                            const temp = newArr[index];
-                                                            newArr[index] = newArr[index - 1];
-                                                            newArr[index - 1] = temp;
-                                                            setSelectedResourcesForStudy(newArr);
-                                                        }}
-                                                        className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-md disabled:opacity-30"
-                                                        title="Mover para cima"
-                                                    >
-                                                        <ArrowUpIcon className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        disabled={index === selectedResourcesForStudy.length - 1}
-                                                        onClick={() => {
-                                                            const newArr = [...selectedResourcesForStudy];
-                                                            const temp = newArr[index];
-                                                            newArr[index] = newArr[index + 1];
-                                                            newArr[index + 1] = temp;
-                                                            setSelectedResourcesForStudy(newArr);
-                                                        }}
-                                                        className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-md disabled:opacity-30"
-                                                        title="Mover para baixo"
-                                                    >
-                                                        <ArrowDownIcon className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => {
-                                                            setSelectedResourcesForStudy(selectedResourcesForStudy.filter(item => item.id !== res.id));
-                                                        }}
-                                                        className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md"
-                                                        title="Remover"
-                                                    >
-                                                        <Trash2Icon className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="text-center py-6 border border-dashed border-border/50 rounded-xl text-xs text-muted-foreground">
@@ -1240,11 +1478,10 @@ export default function Ensinos() {
                                     disabled={selectedResourcesForStudy.length === 0}
                                     className="rounded-full px-6 shadow-md"
                                 >
-                                    Criar Estudo
+                                    {editingStudy ? "Salvar Estudo" : "Criar Estudo"}
                                 </Button>
                             </DialogFooter>
                         </form>
-                    </Form>
                 </DialogContent>
             </Dialog>
 
@@ -1254,11 +1491,29 @@ export default function Ensinos() {
                     const { total, completed, percent, steps } = getStudyProgressData(selectedStudy.id);
                     return (
                         <DialogContent className="sm:max-w-2xl bg-card border-border shadow-2xl rounded-3xl max-h-[85vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold">{selectedStudy.title}</DialogTitle>
-                                <DialogDescription className="mt-1">
-                                    {selectedStudy.description || "Sem descrição disponível."}
-                                </DialogDescription>
+                            <DialogHeader className="relative pr-10">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1 min-w-0 pr-4">
+                                        <DialogTitle className="text-xl font-bold truncate" title={selectedStudy.title}>{selectedStudy.title}</DialogTitle>
+                                        <DialogDescription className="mt-1">
+                                            {selectedStudy.description || "Sem descrição disponível."}
+                                        </DialogDescription>
+                                    </div>
+                                    {canAddMaterial && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                handleEditStudy(selectedStudy, e);
+                                                setSelectedStudy(null);
+                                            }}
+                                            className="rounded-xl gap-2 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary h-9"
+                                        >
+                                            <PencilIcon className="h-3.5 w-3.5" />
+                                            <span>Editar</span>
+                                        </Button>
+                                    )}
+                                </div>
                             </DialogHeader>
 
                             <div className="space-y-6 pt-2">
@@ -1467,14 +1722,30 @@ export default function Ensinos() {
 
                                 {/* Completion control for studies */}
                                 <div className="flex justify-between items-center pt-2">
-                                    <Button 
-                                        type="button" 
-                                        variant="ghost" 
-                                        onClick={() => setActiveStep(null)}
-                                        className="rounded-full px-5"
-                                    >
-                                        Voltar
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button 
+                                            type="button" 
+                                            variant="ghost" 
+                                            onClick={() => setActiveStep(null)}
+                                            className="rounded-full px-5"
+                                        >
+                                            Voltar
+                                        </Button>
+                                        {canAddMaterial && resObj.type === "markdown" && (
+                                            <Button
+                                                onClick={() => {
+                                                    setActiveStep(null);
+                                                    setEditingTextResource(resObj);
+                                                    setIsTextEditorOpen(true);
+                                                }}
+                                                variant="outline"
+                                                className="rounded-full px-4 gap-2 text-amber-600 border-amber-600/20 hover:bg-amber-500/10 h-9 text-xs"
+                                            >
+                                                <PencilIcon className="h-3.5 w-3.5" />
+                                                Editar Texto
+                                            </Button>
+                                        )}
+                                    </div>
 
                                     {isStudyStep ? (
                                         <Button
@@ -1510,6 +1781,22 @@ export default function Ensinos() {
                     );
                 })()}
             </Dialog>
+
+            {/* TEXT EDITOR MODAL */}
+            <TextEditor
+                isOpen={isTextEditorOpen}
+                onClose={() => {
+                    setIsTextEditorOpen(false);
+                    setEditingTextResource(null);
+                }}
+                onSave={handleSaveText}
+                initialData={editingTextResource ? {
+                    id: editingTextResource.id,
+                    title: editingTextResource.title,
+                    description: editingTextResource.description || "",
+                    url: editingTextResource.url
+                } : null}
+            />
         </div>
     );
 }
@@ -1566,6 +1853,37 @@ function MarkdownViewer({ url }: { url: string }) {
                     );
                 }
 
+                // Check for HTML aligned tags
+                const centerMatch = trimmed.match(/^<p align="center">(.*)<\/p>$/i);
+                const justifyMatch = trimmed.match(/^<p align="justify">(.*)<\/p>$/i);
+                const headingAlignMatch = trimmed.match(/^<h([1-4]) align="(center|justify)">(.*)<\/h\d>$/i);
+
+                if (centerMatch) {
+                    return (
+                        <p key={idx} className="text-center text-muted-foreground dark:text-zinc-400 text-sm leading-relaxed">
+                            {parseInlineMarkdown(centerMatch[1])}
+                        </p>
+                    );
+                }
+                if (justifyMatch) {
+                    return (
+                        <p key={idx} className="text-justify text-muted-foreground dark:text-zinc-400 text-sm leading-relaxed">
+                            {parseInlineMarkdown(justifyMatch[1])}
+                        </p>
+                    );
+                }
+                if (headingAlignMatch) {
+                    const level = headingAlignMatch[1];
+                    const align = headingAlignMatch[2];
+                    const content = headingAlignMatch[3];
+                    const alignClass = align === "center" ? "text-center" : "text-justify";
+                    
+                    if (level === "1") return <h1 key={idx} className={`text-xl font-extrabold text-foreground border-b border-border pb-1.5 mt-6 mb-3 ${alignClass}`}>{parseInlineMarkdown(content)}</h1>;
+                    if (level === "2") return <h2 key={idx} className={`text-lg font-bold text-foreground mt-5 mb-2 ${alignClass}`}>{parseInlineMarkdown(content)}</h2>;
+                    if (level === "3") return <h3 key={idx} className={`text-base font-semibold text-foreground mt-4 mb-1 ${alignClass}`}>{parseInlineMarkdown(content)}</h3>;
+                    if (level === "4") return <h4 key={idx} className={`text-sm font-semibold text-muted-foreground mt-3 mb-1 ${alignClass}`}>{parseInlineMarkdown(content)}</h4>;
+                }
+
                 // Headings
                 if (trimmed.startsWith('# ')) {
                     return <h1 key={idx} className="text-xl font-extrabold text-foreground border-b border-border pb-1.5 mt-6 mb-3">{parseInlineMarkdown(trimmed.slice(2))}</h1>;
@@ -1577,7 +1895,7 @@ function MarkdownViewer({ url }: { url: string }) {
                     return <h3 key={idx} className="text-base font-semibold text-foreground mt-4 mb-1">{parseInlineMarkdown(trimmed.slice(4))}</h3>;
                 }
                 if (trimmed.startsWith('#### ')) {
-                    return <h4 key={idx} className="text-sm font-semibold text-foreground mt-3 mb-1">{parseInlineMarkdown(trimmed.slice(5))}</h4>;
+                    return <h4 key={idx} className="text-sm font-semibold text-muted-foreground mt-3 mb-1">{parseInlineMarkdown(trimmed.slice(5))}</h4>;
                 }
 
                 // Horizontal Rule
