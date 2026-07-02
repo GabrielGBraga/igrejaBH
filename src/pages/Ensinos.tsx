@@ -1822,12 +1822,100 @@ function MarkdownViewer({ url }: { url: string }) {
         );
     }
 
-    const lines = content.split('\n');
+    let frontmatter: string[] = [];
+    let markdownBody = content;
+
+    const normalizedContent = content.replace(/\r\n/g, "\n");
+    if (normalizedContent.startsWith("---")) {
+        const secondDashIndex = normalizedContent.indexOf("\n---", 3);
+        if (secondDashIndex !== -1) {
+            const fmPart = normalizedContent.slice(0, secondDashIndex + 4);
+            frontmatter = fmPart.split("\n")
+                .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
+                .map(line => line.trimEnd());
+            markdownBody = normalizedContent.slice(secondDashIndex + 4);
+        }
+    }
+
+    const lines = markdownBody.split('\n');
     let insideCode = false;
+
+    // Preprocess lines to group consecutive blockquote lines
+    const processedLines: Array<{ type: 'blockquote', lines: string[] } | { type: 'normal', text: string }> = [];
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        if (trimmed.startsWith('>')) {
+            const last = processedLines[processedLines.length - 1];
+            if (last && last.type === 'blockquote') {
+                last.lines.push(line);
+            } else {
+                processedLines.push({ type: 'blockquote', lines: [line] });
+            }
+        } else {
+            processedLines.push({ type: 'normal', text: line });
+        }
+    }
 
     return (
         <div className="space-y-4 text-foreground dark:text-zinc-300 leading-relaxed font-sans max-h-[65vh] overflow-y-auto pr-3 scrollbar-thin">
-            {lines.map((line, idx) => {
+            {frontmatter.length > 0 && (
+                <div className="bg-muted/40 border border-border/80 rounded-2xl p-4 mb-4 text-xs font-mono space-y-1.5 opacity-90">
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border/40 pb-1 mb-2 select-none">
+                        Propriedades / Metadados
+                    </div>
+                    {frontmatter.map((line, fIdx) => (
+                        <div key={fIdx} className="text-muted-foreground/90 dark:text-zinc-400">
+                            {line}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {processedLines.map((item, idx) => {
+                if (item.type === 'blockquote') {
+                    let isBibleQuote = false;
+                    const renderedLines: string[] = [];
+                    
+                    for (const l of item.lines) {
+                        const t = l.trim();
+                        const contentText = t.startsWith("> ") ? t.slice(2) : (t === ">" ? "" : t.slice(1));
+                        const contentTrimmed = contentText.trim();
+                        const lowerContent = contentTrimmed.toLowerCase();
+                        const isBibleMarker = lowerContent.startsWith("!bible") || lowerContent.startsWith("!bíblia");
+                        
+                        if (isBibleMarker) {
+                            isBibleQuote = true;
+                            const markerLength = lowerContent.startsWith("!bible") ? 6 : 7;
+                            const rest = contentTrimmed.slice(markerLength).trim();
+                            if (rest) {
+                                renderedLines.push(rest);
+                            }
+                        } else {
+                            renderedLines.push(contentText);
+                        }
+                    }
+                    
+                    return (
+                        <blockquote key={idx} className="border-l-4 border-primary pl-4 py-3 italic text-muted-foreground bg-muted/20 rounded-r-md my-4">
+                            {isBibleQuote && (
+                                <div className="flex items-center gap-1.5 text-primary font-semibold text-xs mb-2 not-italic select-none">
+                                    <BookOpenIcon className="h-3.5 w-3.5" />
+                                    <span>Bíblia</span>
+                                </div>
+                            )}
+                            <div className="space-y-1">
+                                {renderedLines.map((contentStr, lineIdx) => (
+                                    <div key={lineIdx}>
+                                        {parseInlineMarkdown(contentStr)}
+                                    </div>
+                                ))}
+                            </div>
+                        </blockquote>
+                    );
+                }
+
+                const line = item.text;
                 const trimmed = line.trim();
 
                 // Code block toggle
@@ -1892,15 +1980,6 @@ function MarkdownViewer({ url }: { url: string }) {
                 // Horizontal Rule
                 if (trimmed === '---' || trimmed === '***') {
                     return <hr key={idx} className="my-6 border-border" />;
-                }
-
-                // Blockquote
-                if (trimmed.startsWith('> ')) {
-                    return (
-                        <blockquote key={idx} className="border-l-4 border-primary pl-4 py-1 italic text-muted-foreground bg-muted/20 rounded-r-md">
-                            {parseInlineMarkdown(trimmed.slice(2))}
-                        </blockquote>
-                    );
                 }
 
                 // List Items

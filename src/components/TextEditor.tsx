@@ -199,12 +199,59 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                     .prose-editor h3 { font-size: 1.125rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.25rem; }
                     .prose-editor h4 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.7; margin-top: 0.75rem; margin-bottom: 0.25rem; }
                     .prose-editor p { font-size: 0.875rem; line-height: 1.6; color: inherit; opacity: 0.9; margin-bottom: 0.75rem; }
-                    .prose-editor blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.8; background-color: color-mix(in srgb, var(--muted) 20%, transparent); border-radius: 0 0.375rem 0.375rem 0; }
+                    .prose-editor blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.8; background-color: color-mix(in srgb, var(--muted) 20%, transparent); border-radius: 0 0.375rem 0.375rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+                    .prose-editor blockquote .blockquote-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.375rem;
+                        color: var(--primary);
+                        font-weight: 600;
+                        font-size: 0.75rem;
+                        margin-bottom: 0.5rem;
+                        user-select: none;
+                        font-style: normal;
+                    }
+                    .prose-editor blockquote .blockquote-badge svg {
+                        stroke: var(--primary);
+                    }
                     .prose-editor ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
                     .prose-editor ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
                     .prose-editor li { font-size: 0.875rem; color: inherit; opacity: 0.9; margin-top: 0.25rem; }
                     .prose-editor a { color: var(--primary); text-decoration: underline; font-weight: 500; }
                     .prose-editor code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.25rem; border-radius: 0.25rem; border: 1px solid var(--border); }
+                    .prose-editor .editor-properties-block {
+                        background-color: var(--muted);
+                        border: 1px solid var(--border);
+                        border-radius: 0.75rem;
+                        padding: 1rem;
+                        margin-bottom: 1.5rem;
+                        font-family: monospace;
+                        font-size: 0.8rem;
+                        color: inherit;
+                        opacity: 0.95;
+                    }
+                    .prose-editor .editor-properties-block .properties-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        border-bottom: 1px solid var(--border);
+                        padding-bottom: 0.5rem;
+                        margin-bottom: 0.5rem;
+                        color: var(--muted-foreground);
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        font-size: 0.7rem;
+                        user-select: none;
+                    }
+                    .prose-editor .editor-properties-block .properties-body {
+                        outline: none;
+                        min-height: 20px;
+                        line-height: 1.5;
+                    }
+                    .prose-editor .editor-properties-block .yaml-line {
+                        margin-bottom: 0.25rem;
+                    }
                     .prose-editor:empty::before {
                         content: attr(placeholder);
                         color: inherit;
@@ -224,13 +271,13 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                     </div>
                 </DialogHeader>
 
-                {loadingContent ? (
-                    <div className="flex-1 flex flex-col justify-center items-center py-20 gap-3">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
-                    </div>
-                ) : (
-                    <div className="flex-1 flex flex-col gap-4 py-4 overflow-hidden">
+                <div className="flex-1 flex flex-col gap-4 py-4 overflow-hidden relative">
+                    {loadingContent && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-[100] flex flex-col justify-center items-center gap-3 rounded-2xl">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
+                        </div>
+                    )}
                         {/* Title & Description Fields */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="md:col-span-1">
@@ -241,7 +288,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                                         placeholder="Ex: Guia de Oração Semanal" 
                                         value={title} 
                                         onChange={(e) => setTitle(e.target.value)}
-                                        className="rounded-md h-10 text-sm"
+                                        className="rounded-md h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60"
                                         maxLength={100}
                                     />
                                 </Field>
@@ -254,7 +301,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                                         placeholder="Sobre o que fala este texto?" 
                                         value={description} 
                                         onChange={(e) => setDescription(e.target.value)}
-                                        className="rounded-md h-10 text-sm"
+                                        className="rounded-md h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60"
                                         maxLength={250}
                                     />
                                 </Field>
@@ -477,7 +524,6 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                             />
                         </div>
                     </div>
-                )}
 
                 {/* Footer Controls */}
                 <div className="flex justify-end gap-2 pt-4 border-t border-border/40">
@@ -548,11 +594,47 @@ function parseInlineMarkdownToHtml(text: string): string {
 }
 
 export function markdownToHtml(markdown: string): string {
-    const lines = markdown.split("\n");
     let html = "";
+    let markdownBody = markdown;
+    let frontmatterContent = "";
+
+    // Normalize line endings
+    const normalizedMarkdown = markdown.replace(/\r\n/g, "\n");
+
+    // Check if markdown starts with YAML frontmatter
+    if (normalizedMarkdown.startsWith("---")) {
+        const secondDashIndex = normalizedMarkdown.indexOf("\n---", 3);
+        if (secondDashIndex !== -1) {
+            frontmatterContent = normalizedMarkdown.slice(0, secondDashIndex + 4);
+            markdownBody = normalizedMarkdown.slice(secondDashIndex + 4);
+        }
+    }
+
+    if (frontmatterContent) {
+        // Extract the raw lines of frontmatter between the dashes
+        const yamlLines = frontmatterContent.split("\n")
+            .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+        
+        html += `<div class="editor-properties-block" contenteditable="false">`;
+        html += `<div class="properties-header">`;
+        html += `<span class="properties-title">Propriedades / Metadados</span>`;
+        html += `</div>`;
+        html += `<div class="properties-body" contenteditable="true">`;
+        
+        for (const line of yamlLines) {
+            html += `<div class="yaml-line">${escapeHtml(line)}</div>`;
+        }
+        
+        html += `</div>`;
+        html += `</div>`;
+    }
+
+    const lines = markdownBody.split("\n");
     let insideList = false;
     let listType = ""; // "ul" or "ol"
     let insideCode = false;
+    let insideBlockquote = false;
+    let blockquoteHasContent = false;
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -596,6 +678,61 @@ export function markdownToHtml(markdown: string): string {
             continue;
         }
 
+        // Blockquote item handling
+        const isQuote = trimmed.startsWith(">");
+
+        if (isQuote) {
+            if (insideList) {
+                html += `</${listType}>`;
+                insideList = false;
+            }
+            
+            const content = trimmed.startsWith("> ") 
+                ? trimmed.slice(2) 
+                : (trimmed === ">" ? "" : trimmed.slice(1));
+            
+            const contentTrimmed = content.trim();
+            const lowerContent = contentTrimmed.toLowerCase();
+            const isBibleMarker = lowerContent.startsWith("!bible") || lowerContent.startsWith("!bíblia");
+            
+            if (isBibleMarker) {
+                const markerLength = lowerContent.startsWith("!bible") ? 6 : 7;
+                if (!insideBlockquote) {
+                    html += "<blockquote>";
+                    insideBlockquote = true;
+                    blockquoteHasContent = false;
+                }
+                html += `<div class="blockquote-badge font-sans flex items-center gap-1 text-primary font-semibold text-xs mb-2 select-none" contenteditable="false">`;
+                html += `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
+                html += `<span>Bíblia</span>`;
+                html += `</div>`;
+                
+                const rest = contentTrimmed.slice(markerLength).trim();
+                if (rest) {
+                    html += parseInlineMarkdownToHtml(rest);
+                    blockquoteHasContent = true;
+                }
+                continue;
+            }
+
+            if (!insideBlockquote) {
+                html += "<blockquote>";
+                insideBlockquote = true;
+                blockquoteHasContent = false;
+            }
+
+            if (blockquoteHasContent) {
+                html += "<br />";
+            }
+            
+            html += parseInlineMarkdownToHtml(content);
+            blockquoteHasContent = true;
+            continue;
+        } else if (insideBlockquote) {
+            html += "</blockquote>";
+            insideBlockquote = false;
+        }
+
         // List item handling
         const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("* ");
         const isNumbered = /^\d+\.\s/.test(trimmed);
@@ -633,8 +770,6 @@ export function markdownToHtml(markdown: string): string {
             html += `<h4>${parseInlineMarkdownToHtml(trimmed.slice(5))}</h4>`;
         } else if (trimmed === "---" || trimmed === "***") {
             html += "<hr />";
-        } else if (trimmed.startsWith("> ")) {
-            html += `<blockquote>${parseInlineMarkdownToHtml(trimmed.slice(2))}</blockquote>`;
         } else if (trimmed === "") {
             html += "<p><br></p>";
         } else {
@@ -644,6 +779,9 @@ export function markdownToHtml(markdown: string): string {
 
     if (insideList) {
         html += `</${listType}>`;
+    }
+    if (insideBlockquote) {
+        html += "</blockquote>";
     }
 
     return html;
@@ -666,6 +804,10 @@ function serializeElementToMarkdown(node: Node): string {
     }
 
     const element = node as HTMLElement;
+    
+    if (element.classList.contains("blockquote-badge")) {
+        return "!bible\n";
+    }
     
     // Check alignment attributes or styles
     const align = element.getAttribute("align") || element.style.textAlign;
@@ -725,6 +867,15 @@ function serializeElementToMarkdown(node: Node): string {
         case "DIV":
             if (element.classList.contains("editor-blockquote")) {
                 return `\n> ${childrenMarkdown.trim().split("\n").join("\n> ")}\n`;
+            }
+            if (element.classList.contains("editor-properties-block")) {
+                const bodyEl = element.querySelector(".properties-body") as HTMLElement;
+                if (bodyEl) {
+                    const linesText = bodyEl.innerText || bodyEl.textContent || "";
+                    const rawLines = linesText.split("\n").map(l => l.trimEnd());
+                    return `---\n${rawLines.join("\n")}\n---\n`;
+                }
+                return "";
             }
             if (alignAttr) {
                 return `\n<p${alignAttr}>${childrenMarkdown.trim()}</p>\n`;
