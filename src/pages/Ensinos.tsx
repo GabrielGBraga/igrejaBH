@@ -8,7 +8,6 @@ import {
     BookOpenIcon, 
     PlusIcon, 
     SearchIcon,
-    Loader2Icon,
     CheckCircle2Icon,
     LockIcon,
     ArrowUpIcon,
@@ -29,6 +28,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
     Field,
@@ -87,6 +89,13 @@ const studySchema = z.object({
 type ResourceFormValues = z.infer<typeof resourceSchema>;
 type StudyFormValues = z.infer<typeof studySchema>;
 
+// Extract YouTube ID helper
+const getYouTubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+};
+
 export default function Ensinos() {
     const [activeTab, setActiveTab] = useState<TabType>("estudos");
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -116,10 +125,12 @@ export default function Ensinos() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadingFile, setUploadingFile] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isSyncingRef = useRef(false);
 
     // Selected resources for study creation
     const [selectedResourcesForStudy, setSelectedResourcesForStudy] = useState<MediaResource[]>([]);
     const [selectedResourceVal, setSelectedResourceVal] = useState<string>("");
+    const [studyResourceSearch, setStudyResourceSearch] = useState("");
     const [editingStudy, setEditingStudy] = useState<Study | null>(null);
     const [animatingIndices, setAnimatingIndices] = useState<{ up: number; down: number } | null>(null);
 
@@ -165,6 +176,12 @@ export default function Ensinos() {
                         };
                         setProfile(profObj);
                         await loadDatabaseData(profObj.id);
+                        
+                        // Pre-fetch YouTube channel videos
+                        setLoadingYoutube(true);
+                        const fetched = await fetchLatestVideos();
+                        setYoutubeVideos(fetched);
+                        setLoadingYoutube(false);
                     }
                 }
             } catch (err) {
@@ -233,6 +250,38 @@ export default function Ensinos() {
 
     const canAddMaterial = profile?.is_presbyter || profile?.is_deacon || profile?.is_dev;
 
+    // Automatically sync new YouTube videos to database when an admin visits the page
+    useEffect(() => {
+        async function autoSyncYoutubeVideos() {
+            if (!profile || !canAddMaterial || uniqueYoutubeVideos.length === 0 || isSyncingRef.current) return;
+            
+            isSyncingRef.current = true;
+            try {
+                const videosToInsert = uniqueYoutubeVideos.map(video => ({
+                    title: video.title,
+                    description: video.description || null,
+                    type: "video" as const,
+                    url: `https://www.youtube.com/watch?v=${video.id}`,
+                    category: "videos"
+                }));
+                
+                const { error } = await supabase
+                    .from("media_resources")
+                    .insert(videosToInsert);
+                
+                if (error) throw error;
+                
+                await loadDatabaseData(profile.id);
+                toast.success(`${videosToInsert.length} novos vídeos do YouTube sincronizados automaticamente!`);
+            } catch (err) {
+                console.error("Error auto-syncing youtube videos:", err);
+            } finally {
+                isSyncingRef.current = false;
+            }
+        }
+        autoSyncYoutubeVideos();
+    }, [youtubeVideos, resources, profile, canAddMaterial]);
+
     // Filter content based on search query
     const filteredResources = resources.filter(res => {
         const matchesSearch = res.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -249,6 +298,21 @@ export default function Ensinos() {
     const tabVideos = filteredResources.filter(r => r.type === "video");
     const tabPDFs = filteredResources.filter(r => r.type === "pdf");
     const tabTextos = filteredResources.filter(r => r.type === "markdown");
+
+    // Extract unique YouTube channel videos that are not yet in our database
+    const dbVideoIds = new Set(
+        resources
+            .filter(r => r.type === "video")
+            .map(v => getYouTubeId(v.url))
+            .filter((id): id is string => id !== null)
+    );
+    const uniqueYoutubeVideos = youtubeVideos.filter(yt => !dbVideoIds.has(yt.id));
+
+    // Filter unique YouTube channel videos by search query
+    const filteredUniqueYoutubeVideos = uniqueYoutubeVideos.filter(video => {
+        return video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (video.description && video.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    });
 
     // Add Media Resource Handler
     const handleAddResourceSubmit = async (values: ResourceFormValues) => {
@@ -594,6 +658,35 @@ export default function Ensinos() {
         }
     };
 
+    // Import YouTube video into the collection
+    const handleImportYoutubeVideo = async (video: YouTubeVideo, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        if (!profile) return;
+
+        try {
+            setLoadingData(true);
+            const { error } = await supabase
+                .from("media_resources")
+                .insert({
+                    title: video.title,
+                    description: video.description || null,
+                    type: "video",
+                    url: `https://www.youtube.com/watch?v=${video.id}`,
+                    category: "videos"
+                });
+
+            if (error) throw error;
+
+            toast.success("Vídeo adicionado ao acervo com sucesso!");
+            await loadDatabaseData(profile.id);
+        } catch (err: any) {
+            console.error("Error importing youtube video:", err);
+            toast.error(err.message || "Erro ao adicionar vídeo ao acervo.");
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
     // Toggle complete step logic
     const handleToggleCompleteStep = async (step: StudyStep) => {
         if (!profile) return;
@@ -658,19 +751,29 @@ export default function Ensinos() {
         return { total, completed, percent, steps: currentStudySteps };
     };
 
-    // Calculate overall studies progress
-    const getOverallProgressPercent = () => {
-        const total = studySteps.length;
-        const completed = userProgress.length;
-        return total > 0 ? Math.round((completed / total) * 100) : 0;
+    // Calculate overall courses progress (completed studies vs total studies)
+    const getOverallCoursesProgress = () => {
+        if (studies.length === 0) return { total: 0, completed: 0, percent: 0 };
+        
+        let completed = 0;
+        let total = 0;
+
+        studies.forEach(study => {
+            const { total: studyStepsCount, completed: studyCompletedSteps } = getStudyProgressData(study.id);
+            // Count studies that have at least one step
+            if (studyStepsCount > 0) {
+                total++;
+                if (studyCompletedSteps === studyStepsCount) {
+                    completed++;
+                }
+            }
+        });
+
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        return { total, completed, percent };
     };
 
-    // Extract YouTube ID helper
-    const getYouTubeId = (url: string) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
-    };
+
 
     const tabs = [
         { id: "estudos", label: "Estudos", icon: GraduationCapIcon },
@@ -682,10 +785,12 @@ export default function Ensinos() {
     if (loading) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
-                <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+                <Spinner className="h-8 w-8 text-primary" />
             </div>
         );
     }
+
+    const { total: totalCourses, completed: completedCourses, percent: overallCoursesPercent } = getOverallCoursesProgress();
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
@@ -735,22 +840,22 @@ export default function Ensinos() {
                 </div>
             </div>
 
-            {/* Overall progress indicator (Only when studies exist) */}
-            {studies.length > 0 && (
+            {/* Overall progress indicator (Only when studies exist and have steps) */}
+            {studies.length > 0 && totalCourses > 0 && (
                 <Card className="border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden rounded-2xl">
                     <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <h3 className="font-semibold text-lg text-foreground">Progresso Geral em Estudos</h3>
-                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão de todas as etapas e cursos disponíveis.</p>
+                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão dos cursos disponíveis.</p>
                             </div>
                             <div className="flex items-center gap-4 w-full md:max-w-md">
                                 <div className="flex-1 space-y-1">
                                     <div className="flex justify-between text-xs font-semibold">
-                                        <span className="text-primary">{userProgress.length} de {studySteps.length} etapas</span>
-                                        <span className="text-foreground">{getOverallProgressPercent()}%</span>
+                                        <span className="text-primary">{completedCourses} de {totalCourses} {totalCourses === 1 ? 'curso' : 'cursos'} concluídos</span>
+                                        <span className="text-foreground">{overallCoursesPercent}%</span>
                                     </div>
-                                    <Progress value={getOverallProgressPercent()} className="h-3 bg-muted/60" />
+                                    <Progress value={overallCoursesPercent} className="h-3 bg-muted/60" />
                                 </div>
                             </div>
                         </div>
@@ -796,7 +901,7 @@ export default function Ensinos() {
                 <div className="min-h-[300px]">
                     {loadingData ? (
                         <div className="flex justify-center items-center py-24">
-                            <Loader2Icon className="h-10 w-10 animate-spin text-primary" />
+                            <Spinner className="h-10 w-10 text-primary" />
                         </div>
                     ) : (
                         <>
@@ -880,16 +985,8 @@ export default function Ensinos() {
                             )}
 
                             {/* TAB: VÍDEOS */}
-                            {activeTab === "videos" && (() => {
-                                const dbVideoIds = new Set(
-                                    tabVideos
-                                        .map(v => getYouTubeId(v.url))
-                                        .filter(id => id !== null)
-                                );
-                                const uniqueYoutubeVideos = youtubeVideos.filter(yt => !dbVideoIds.has(yt.id));
-
-                                return (
-                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {activeTab === "videos" && (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         {/* Database Videos (Recursos do Acervo) */}
                                         {tabVideos.length > 0 && (
                                             <div className="space-y-4">
@@ -958,17 +1055,17 @@ export default function Ensinos() {
                                         {/* Youtube Channel Videos (Últimos do Canal) */}
                                         {loadingYoutube ? (
                                             <div className="flex justify-center items-center py-16">
-                                                <Loader2Icon className="h-10 w-10 animate-spin text-primary" />
+                                                <Spinner className="h-10 w-10 text-primary" />
                                             </div>
-                                        ) : uniqueYoutubeVideos.length > 0 ? (
+                                        ) : filteredUniqueYoutubeVideos.length > 0 ? (
                                             <div className="space-y-4">
-                                                {tabVideos.length > 0 && <hr className="border-border/40" />}
+                                                {tabVideos.length > 0 && <Separator className="my-6" />}
                                                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2 text-muted-foreground">
                                                     <YoutubeIcon className="h-5 w-5 text-destructive" />
                                                     Vídeos Recentes do Canal
                                                 </h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {uniqueYoutubeVideos.map((video) => (
+                                                    {filteredUniqueYoutubeVideos.map((video) => (
                                                         <Card 
                                                             key={video.id} 
                                                             className="overflow-hidden border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer group flex flex-col rounded-2xl"
@@ -999,9 +1096,23 @@ export default function Ensinos() {
                                                                 </div>
                                                             </div>
                                                             <CardHeader className="flex-1 p-5">
-                                                                <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
+                                                                <div className="flex justify-between items-start gap-4">
+                                                                    <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
                                                                         {video.title}
-                                                                </CardTitle>
+                                                                    </CardTitle>
+                                                                    {canAddMaterial && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            onClick={(e) => handleImportYoutubeVideo(video, e)}
+                                                                            className="rounded-full gap-1 border-primary/20 text-primary hover:bg-primary/5 shrink-0 -mt-1 -mr-2 text-[10px] px-2.5 py-1 h-7"
+                                                                            title="Adicionar ao Acervo"
+                                                                        >
+                                                                            <PlusIcon className="h-3 w-3" />
+                                                                            Salvar
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
                                                                 <CardDescription className="text-xs pt-1">
                                                                     {new Date(video.publishedAt).toLocaleDateString('pt-BR')}
                                                                 </CardDescription>
@@ -1012,7 +1123,7 @@ export default function Ensinos() {
                                             </div>
                                         ) : null}
 
-                                        {tabVideos.length === 0 && youtubeVideos.length === 0 && !loadingYoutube && (
+                                        {tabVideos.length === 0 && filteredUniqueYoutubeVideos.length === 0 && !loadingYoutube && (
                                             <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl">
                                                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                                                     <YoutubeIcon className="h-8 w-8 text-muted-foreground/30" />
@@ -1024,8 +1135,7 @@ export default function Ensinos() {
                                             </div>
                                         )}
                                     </div>
-                                );
-                            })()}
+                                )}
 
                             {/* TAB: PDFs */}
                             {activeTab === "pdfs" && (
@@ -1275,7 +1385,7 @@ export default function Ensinos() {
                                 >
                                     {uploadingFile ? (
                                         <>
-                                            <Loader2Icon className="h-4 w-4 animate-spin mr-2" />
+                                            <Spinner className="mr-2" />
                                             Salvando...
                                         </>
                                     ) : (
@@ -1335,34 +1445,154 @@ export default function Ensinos() {
                             <div className="border border-border/60 rounded-2xl p-4 bg-muted/20 space-y-3">
                                 <div className="flex justify-between items-center">
                                     <h4 className="text-sm font-semibold text-foreground">Etapas do Estudo (Em Ordem)</h4>
-                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+                                    <Badge variant="outline" className="text-xs text-muted-foreground bg-muted/40 font-medium px-2 py-0.5">
                                         {selectedResourcesForStudy.length} recursos
-                                    </span>
+                                    </Badge>
                                 </div>
 
                                 {/* Resource Selector */}
                                 <div className="flex items-center">
                                     <Select 
                                         value={selectedResourceVal}
-                                        onValueChange={(val) => {
+                                        onValueChange={async (val) => {
                                             if (!val) return;
-                                            const res = resources.find(r => r.id === val);
-                                            if (res && !selectedResourcesForStudy.some(item => item.id === res.id)) {
-                                                setSelectedResourcesForStudy([...selectedResourcesForStudy, res]);
+                                            
+                                            if (val.startsWith("yt_")) {
+                                                const ytId = val.substring(3);
+                                                const video = youtubeVideos.find(v => v.id === ytId);
+                                                if (video) {
+                                                    try {
+                                                        setLoadingData(true);
+                                                        const { data: newRes, error } = await supabase
+                                                            .from("media_resources")
+                                                            .insert({
+                                                                title: video.title,
+                                                                description: video.description || null,
+                                                                type: "video",
+                                                                url: `https://www.youtube.com/watch?v=${video.id}`,
+                                                                category: "videos"
+                                                            })
+                                                            .select()
+                                                            .single();
+
+                                                        if (error) throw error;
+                                                        
+                                                        if (profile) {
+                                                            await loadDatabaseData(profile.id);
+                                                        }
+                                                        
+                                                        setSelectedResourcesForStudy(prev => [...prev, newRes]);
+                                                        toast.success("Vídeo do YouTube adicionado à trilha!");
+                                                    } catch (err: any) {
+                                                        console.error("Error importing video inside study:", err);
+                                                        toast.error("Erro ao importar vídeo do YouTube.");
+                                                    } finally {
+                                                        setLoadingData(false);
+                                                    }
+                                                }
+                                            } else {
+                                                const res = resources.find(r => r.id === val);
+                                                if (res && !selectedResourcesForStudy.some(item => item.id === res.id)) {
+                                                    setSelectedResourcesForStudy([...selectedResourcesForStudy, res]);
+                                                }
                                             }
                                             setSelectedResourceVal("");
+                                        }}
+                                        onOpenChange={(open) => {
+                                            if (!open) setStudyResourceSearch("");
                                         }}
                                     >
                                         <SelectTrigger className="rounded-xl border border-dashed border-primary/40 bg-transparent text-primary hover:bg-primary/5 px-4 h-10 w-fit flex items-center gap-2 font-medium cursor-pointer shadow-sm">
                                             <PlusIcon className="h-4 w-4" />
                                             <SelectValue placeholder="Adicionar Recurso à Trilha" />
                                         </SelectTrigger>
-                                        <SelectContent position="popper">
-                                            {resources.map(r => (
-                                                <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
-                                                    {r.type === 'video' ? '🎥' : r.type === 'pdf' ? '📄' : '📝'} {r.title}
-                                                </SelectItem>
-                                            ))}
+                                        <SelectContent position="popper" className="max-h-[300px] overflow-y-auto">
+                                            {/* Search filter inside the select dropdown */}
+                                            <div 
+                                                className="p-1.5 border-b border-border/40 sticky top-0 bg-popover z-10" 
+                                                onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            >
+                                                <Input 
+                                                    placeholder="Pesquisar por nome..." 
+                                                    value={studyResourceSearch}
+                                                    onChange={(e) => setStudyResourceSearch(e.target.value)}
+                                                    className="h-8 text-xs bg-muted/30 border-border/40 rounded-lg px-2 w-full focus-visible:ring-1 focus-visible:ring-primary"
+                                                />
+                                            </div>
+                                            
+                                            {/* VÍDEOS DO ACERVO */}
+                                            {(() => {
+                                                const dbVideos = resources.filter(r => r.type === "video" && r.title.toLowerCase().includes(studyResourceSearch.toLowerCase()));
+                                                if (dbVideos.length === 0) return null;
+                                                return (
+                                                    <>
+                                                        <div className="px-2 py-1 text-xs font-bold text-muted-foreground mt-1">
+                                                            🎥 Vídeos do Acervo
+                                                        </div>
+                                                        {dbVideos.map(r => (
+                                                            <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
+                                                                {r.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </>
+                                                );
+                                            })()}
+
+                                            {/* PDFs DO ACERVO */}
+                                            {(() => {
+                                                const dbPDFs = resources.filter(r => r.type === "pdf" && r.title.toLowerCase().includes(studyResourceSearch.toLowerCase()));
+                                                if (dbPDFs.length === 0) return null;
+                                                return (
+                                                    <>
+                                                        <div className="px-2 py-1.5 border-t border-border/40 text-xs font-bold text-muted-foreground mt-1">
+                                                            📄 Documentos PDF
+                                                        </div>
+                                                        {dbPDFs.map(r => (
+                                                            <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
+                                                                {r.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </>
+                                                );
+                                            })()}
+
+                                            {/* TEXTOS / MARKDOWN */}
+                                            {(() => {
+                                                const dbTextos = resources.filter(r => r.type === "markdown" && r.title.toLowerCase().includes(studyResourceSearch.toLowerCase()));
+                                                if (dbTextos.length === 0) return null;
+                                                return (
+                                                    <>
+                                                        <div className="px-2 py-1.5 border-t border-border/40 text-xs font-bold text-muted-foreground mt-1">
+                                                            📝 Textos e Leituras (Markdown)
+                                                        </div>
+                                                        {dbTextos.map(r => (
+                                                            <SelectItem key={r.id} value={r.id} disabled={selectedResourcesForStudy.some(s => s.id === r.id)}>
+                                                                {r.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </>
+                                                );
+                                            })()}
+                                            
+                                            {/* YOUTUBE CHANNEL VIDEOS */}
+                                            {(() => {
+                                                const ytVideos = uniqueYoutubeVideos.filter(v => v.title.toLowerCase().includes(studyResourceSearch.toLowerCase()));
+                                                if (ytVideos.length === 0) return null;
+                                                return (
+                                                    <>
+                                                        <div className="px-2 py-1.5 border-t border-border/50 text-xs font-bold text-muted-foreground flex items-center gap-1.5 mt-1">
+                                                            <YoutubeIcon className="h-3.5 w-3.5 text-destructive" />
+                                                            Vídeos Recentes do Canal (Não Salvos)
+                                                        </div>
+                                                        {ytVideos.map(v => (
+                                                            <SelectItem key={v.id} value={`yt_${v.id}`} disabled={selectedResourcesForStudy.some(s => s.url.includes(v.id))}>
+                                                                🔴 {v.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </>
+                                                );
+                                            })()}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -1617,15 +1847,15 @@ export default function Ensinos() {
 
                     return (
                         <DialogContent className={cn(
-                            "bg-card border-border shadow-2xl rounded-3xl overflow-hidden p-0",
-                            resObj.type === "video" || resObj.type === "markdown" ? "sm:max-w-5xl w-[95vw]" : "sm:max-w-3xl w-[95vw]"
+                            "bg-card border-border shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto p-0",
+                            resObj.type === "markdown" ? "sm:max-w-4xl w-[95vw]" : "sm:max-w-3xl w-[95vw]"
                         )}>
                             <DialogHeader className="p-6 pb-2 border-b border-border/50 flex flex-row items-start justify-between">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-md">
+                                        <Badge variant="secondary" className="font-bold uppercase tracking-wider text-[10px] px-2 py-0.5">
                                             {resObj.type === 'video' ? 'Vídeo' : resObj.type === 'pdf' ? 'Apostila PDF' : 'Leitura'}
-                                        </span>
+                                        </Badge>
                                     </div>
                                     <DialogTitle className="text-lg font-bold text-foreground pr-8">
                                         {resObj.title}
@@ -1817,7 +2047,7 @@ function MarkdownViewer({ url }: { url: string }) {
     if (loading) {
         return (
             <div className="flex justify-center items-center py-20">
-                <Loader2Icon className="h-6 w-6 animate-spin text-primary" />
+                <Spinner className="h-6 w-6 text-primary" />
             </div>
         );
     }
