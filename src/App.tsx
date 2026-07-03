@@ -6,7 +6,7 @@ import AddHomeGroup from './pages/AddHomeGroup.tsx';
 import MemberManagement from './pages/MemberManagement.tsx';
 import Profile from './pages/Profile.tsx';
 import CreatePost from './pages/CreatePost.tsx';
-import Materials from './pages/Materials.tsx';
+import Ensinos from './pages/Ensinos.tsx';
 import Events from './pages/Events.tsx';
 import Messages from './pages/Messages.tsx';
 import Settings from './pages/Settings.tsx';
@@ -43,7 +43,7 @@ function App() {
         <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
         <Route path="/formularios/responder/:formId" element={<FormResponder />} />
         <Route path="/noticias/nova" element={<AuthenticatedLayout><CreatePost /></AuthenticatedLayout>} />
-        <Route path="/materiais" element={<AuthenticatedLayout><Materials /></AuthenticatedLayout>} />
+        <Route path="/ensinos" element={<AuthenticatedLayout><Ensinos /></AuthenticatedLayout>} />
         <Route path="/perfil" element={<AuthenticatedLayout><Profile /></AuthenticatedLayout>} />
         <Route path="/eventos" element={<AuthenticatedLayout><Events /></AuthenticatedLayout>} />
         <Route path="/mensagens" element={<AuthenticatedLayout><Messages /></AuthenticatedLayout>} />

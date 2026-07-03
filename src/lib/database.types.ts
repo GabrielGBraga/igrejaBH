@@ -357,6 +357,156 @@ export type Database = {
           },
         ]
       }
+      media_resources: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          type: Database["public"]["Enums"]["media_type"]
+          url: string
+          series_name: string | null
+          category: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          type: Database["public"]["Enums"]["media_type"]
+          url: string
+          series_name?: string | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          type?: Database["public"]["Enums"]["media_type"]
+          url?: string
+          series_name?: string | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      studies: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          created_at: string | null
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          created_at?: string | null
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          created_at?: string | null
+          created_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      study_steps: {
+        Row: {
+          id: string
+          study_id: string
+          media_resource_id: string
+          sort_order: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          study_id: string
+          media_resource_id: string
+          sort_order: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          study_id?: string
+          media_resource_id?: string
+          sort_order?: number
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_steps_study_id_fkey"
+            columns: ["study_id"]
+            isOneToOne: false
+            referencedRelation: "studies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_steps_media_resource_id_fkey"
+            columns: ["media_resource_id"]
+            isOneToOne: false
+            referencedRelation: "media_resources"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_study_progress: {
+        Row: {
+          id: string
+          profile_id: string
+          study_id: string
+          step_id: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          study_id: string
+          step_id: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          study_id?: string
+          step_id?: string
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_study_progress_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_study_progress_study_id_fkey"
+            columns: ["study_id"]
+            isOneToOne: false
+            referencedRelation: "studies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_study_progress_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "study_steps"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
