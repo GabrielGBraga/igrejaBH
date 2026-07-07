@@ -14,7 +14,6 @@ import {
   CreditCard,
   Smartphone,
   QrCode,
-  Lock,
 } from "lucide-react"
 import {
   Card,
@@ -28,8 +27,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Progress } from "@/components/ui/progress"
+
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -95,7 +93,7 @@ export default function Events() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   // Step 3 Form Data (Payment & Notes)
-  const [paymentRef, setPaymentRef] = useState("")
+
   const [notes, setNotes] = useState("")
 
   // Integrated Payment States
@@ -411,7 +409,6 @@ export default function Events() {
         toast.success(paid ? "Inscrição efetuada e paga com sucesso!" : "Inscrição efetuada com sucesso!")
         setRegisteringRetreat(null)
         setActiveStep(1)
-        setPaymentRef("")
         setNotes("")
         // Reset card details
         setCardName("")

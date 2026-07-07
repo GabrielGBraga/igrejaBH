@@ -519,7 +519,7 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
                                 contentEditable
                                 onPaste={handlePaste}
                                 className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-6 bg-card/60 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground dark:text-zinc-100 prose-editor scrollbar-thin"
-                                placeholder="Escreva seu texto aqui..."
+                                {...{ placeholder: "Escreva seu texto aqui..." } as any}
                                 style={{ outline: "none" }}
                             />
                         </div>

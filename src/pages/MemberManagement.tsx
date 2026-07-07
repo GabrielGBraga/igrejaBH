@@ -285,7 +285,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
         try {
             const { data: profilesData, error: profilesError } = await supabase
                 .from('profiles')
-                .select('*, home_groups!profiles_home_group_id_fkey(location_text), father:father_id(full_name), mother:mother_id(full_name)')
+                .select('*, home_groups!profiles_home_group_id_fkey(location_text), father:profiles!father_id(full_name), mother:profiles!mother_id(full_name)')
                 .order('full_name');
             
             if (profilesError) throw profilesError;
@@ -297,14 +297,19 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                     location_text, 
                     leader_1_id, 
                     leader_2_id,
-                    leader_1:leader_1_id(full_name),
-                    leader_2:leader_2_id(full_name)
+                    leader_1:profiles!leader_1_id(full_name),
+                    leader_2:profiles!leader_2_id(full_name)
                 `);
             
             if (groupsError) throw groupsError;
 
             // Salva os grupos caseiros disponíveis para seleção no form
-            setHomeGroups(groupsData || []);
+            const mappedGroups = (groupsData || []).map(g => ({
+                ...g,
+                leader_1: Array.isArray(g.leader_1) ? (g.leader_1[0] || null) : null,
+                leader_2: Array.isArray(g.leader_2) ? (g.leader_2[0] || null) : null
+            }));
+            setHomeGroups(mappedGroups);
 
             const leaderIds = new Set<string>();
             groupsData?.forEach(g => {
@@ -314,7 +319,9 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
 
             const enrichedMembers = (profilesData || []).map(profile => ({
                 ...profile,
-                is_leader: leaderIds.has(profile.id)
+                is_leader: leaderIds.has(profile.id),
+                father: Array.isArray(profile.father) ? (profile.father[0] || null) : null,
+                mother: Array.isArray(profile.mother) ? (profile.mother[0] || null) : null
             }));
 
             setMembers(enrichedMembers);
@@ -854,6 +861,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <FieldLabel>E-mail*</FieldLabel>
                                                 <Input 
                                                     {...field}
+                                                    value={field.value ?? ""}
                                                     type="email"
                                                     placeholder="Ex: pedro@email.com"
                                                     className="bg-background/50 rounded-xl"
@@ -877,6 +885,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <FieldLabel>Telefone (opcional)</FieldLabel>
                                                 <Input 
                                                     {...field}
+                                                    value={field.value ?? ""}
                                                     placeholder="Ex: +55 (31) 98888-8888"
                                                     className="bg-background/50 rounded-xl"
                                                     autoComplete="off"

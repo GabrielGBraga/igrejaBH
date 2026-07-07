@@ -81,7 +81,7 @@ export default function RedeRelacionamentos() {
   const [fellowships, setFellowships] = useState<Fellowship[]>([]);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [leaderIds, setLeaderIds] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<"grafo" | "membros">("grafo");
+  const [activeTab, setActiveTab] = useState<"grafo" | "membros" | "setores">("grafo");
 
   // Filters State
   const [selectedSector, setSelectedSector] = useState<string>("all");
@@ -259,7 +259,7 @@ export default function RedeRelacionamentos() {
 
   const handleOpenEditHomeGroup = (hg: HomeGroup) => {
     setSelectedHomeGroupToEdit(hg);
-    setEditHomeGroupMeetingDay(hg.meeting_day);
+    setEditHomeGroupMeetingDay(hg.meeting_day ?? 1);
     setEditHomeGroupStartTime(hg.start_time || "20:00");
     setEditHomeGroupLocationText(hg.location_text || "");
     setEditHomeGroupLeader1Id(hg.leader_1_id || "");
@@ -871,7 +871,7 @@ export default function RedeRelacionamentos() {
 
     // 3. Gravity pulling nodes toward the center and apply velocities
     nodes.forEach(node => {
-      if (node.fx !== undefined) {
+      if (node.fx !== undefined && node.fy !== undefined) {
         node.x = node.fx;
         node.y = node.fy;
         node.vx = 0;

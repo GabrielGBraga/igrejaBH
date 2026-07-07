@@ -6,7 +6,6 @@ import {
   isValidCPF,
   isValidPhone,
   fetchAddressFromCep,
-  calculateTotalPrice,
 } from "@/lib/forms"
 import type { FormField, FormTemplate, FormSubmission } from "@/lib/forms"
 import {
@@ -36,8 +35,6 @@ import {
   GripVertical,
   AlertTriangle,
   Users,
-  Table,
-  BarChart3,
 } from "lucide-react"
 import {
   Card,
@@ -1040,16 +1037,7 @@ export default function FormBuilder() {
     }
   }
 
-  // Helper to format timestamps
-  const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+
 
   return (
     <div className="animate-in space-y-8 pb-12 duration-500 fade-in slide-in-from-bottom-4">
