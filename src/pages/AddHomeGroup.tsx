@@ -22,7 +22,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Loader2, MapPinIcon, ClockIcon } from "lucide-react";
+import { Loader2, MapPinIcon, ClockIcon, Plus, Trash2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
@@ -35,6 +35,20 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   MapContainer,
   TileLayer,
@@ -83,6 +97,13 @@ export default function AddHomeGroup() {
   const [loadingLeaders, setLoadingLeaders] = useState(true);
   const [geocoding, setGeocoding] = useState(false);
 
+  // Sectors States
+  const [sectors, setSectors] = useState<{ id: string; name: string }[]>([]);
+  const [loadingSectors, setLoadingSectors] = useState(true);
+  const [newSectorName, setNewSectorName] = useState("");
+  const [savingSector, setSavingSector] = useState(false);
+  const [isSectorDialogOpen, setIsSectorDialogOpen] = useState(false);
+
   const form = useForm<HomeGroupValue>({
     resolver: zodResolver(homeGroupSchema),
     defaultValues: {
@@ -93,12 +114,29 @@ export default function AddHomeGroup() {
       leader2Id: null,
       lat: null,
       lng: null,
+      sectorId: null,
     },
   });
 
   const locationText = form.watch("locationText");
   const currentLat = form.watch("lat");
   const currentLng = form.watch("lng");
+
+  const fetchSectors = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("sectors")
+        .select("id, name")
+        .order("name");
+      if (error) throw error;
+      setSectors(data || []);
+    } catch (error) {
+      console.error("Error fetching sectors:", error);
+      toast.error("Erro ao carregar setores.");
+    } finally {
+      setLoadingSectors(false);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchLeaders() {
@@ -122,7 +160,8 @@ export default function AddHomeGroup() {
       }
     }
     fetchLeaders();
-  }, []);
+    fetchSectors();
+  }, [fetchSectors]);
 
   useEffect(() => {
     if (!locationText || locationText.length < 8) return;
@@ -175,6 +214,45 @@ export default function AddHomeGroup() {
     form.setValue("lng", lng);
   }, [form]);
 
+  const handleCreateSector = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSectorName.trim()) return;
+    setSavingSector(true);
+    try {
+      const { error } = await supabase
+        .from("sectors")
+        .insert({ name: newSectorName.trim() });
+      if (error) throw error;
+      toast.success("Setor criado com sucesso!");
+      setNewSectorName("");
+      fetchSectors();
+    } catch (error) {
+      console.error("Error creating sector:", error);
+      if (error && typeof error === "object" && "code" in error && error.code === "23505") {
+        toast.error("Este setor já existe.");
+      } else {
+        toast.error("Erro ao criar setor.");
+      }
+    } finally {
+      setSavingSector(false);
+    }
+  };
+
+  const handleDeleteSector = async (sectorId: string) => {
+    try {
+      const { error } = await supabase
+        .from("sectors")
+        .delete()
+        .eq("id", sectorId);
+      if (error) throw error;
+      toast.success("Setor removido com sucesso!");
+      fetchSectors();
+    } catch (error) {
+      console.error("Error deleting sector:", error);
+      toast.error("Erro ao remover setor. Verifique se ele está em uso.");
+    }
+  };
+
   async function onSubmit(data: HomeGroupValue) {
     if (!data.lat || !data.lng) {
       toast.error("Por favor, aguarde a localização ser encontrada ou revise o endereço.");
@@ -194,6 +272,7 @@ export default function AddHomeGroup() {
           leader_2_id: data.leader2Id || null,
           lat: data.lat,
           lng: data.lng,
+          sector_id: data.sectorId || null,
         });
       
       if (error) throw error;
@@ -286,6 +365,104 @@ export default function AddHomeGroup() {
                 </p>
               </div>
 
+              {/* Setor e Gestão de Setores */}
+              <div className="pt-2">
+                <Controller
+                  name="sectorId"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel>Setor</FieldLabel>
+                      <Select
+                        value={field.value || "none"}
+                        onValueChange={(val) => {
+                          if (val === "create_new") {
+                            setIsSectorDialogOpen(true);
+                          } else {
+                            field.onChange(val === "none" ? null : val);
+                          }
+                        }}
+                        disabled={field.disabled}
+                      >
+                        <SelectTrigger className="w-full bg-background/50 h-11 rounded-xl text-sm px-4 border border-input focus:ring-2 focus:ring-primary/20" size="lg">
+                          <SelectValue placeholder="Selecione o setor" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="none">Sem Setor (Individual)</SelectItem>
+                          {sectors.map((sec) => (
+                            <SelectItem key={sec.id} value={sec.id}>
+                              {sec.name}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="create_new" className="text-primary font-semibold border-t border-border/50 mt-1.5 pt-2 hover:bg-primary/5 focus:bg-primary/5 cursor-pointer">
+                            <span className="flex items-center gap-1.5">
+                              <Plus className="h-3.5 w-3.5" />
+                              Criar Novo Setor...
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
+                  )}
+                />
+
+                <Dialog open={isSectorDialogOpen} onOpenChange={setIsSectorDialogOpen}>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-base font-bold">Gerenciar Setores</DialogTitle>
+                      <DialogDescription className="text-xs">
+                        Adicione novos setores ou remova setores existentes.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <form onSubmit={handleCreateSector} className="space-y-4 pt-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Nome do novo setor..."
+                          value={newSectorName}
+                          onChange={(e) => setNewSectorName(e.target.value)}
+                          className="bg-background h-10 rounded-lg text-xs"
+                          required
+                          disabled={savingSector}
+                        />
+                        <Button type="submit" disabled={savingSector} size="sm" className="h-10 px-4 rounded-lg text-xs">
+                          {savingSector ? "Criando..." : "Criar"}
+                        </Button>
+                      </div>
+                    </form>
+
+                    <div className="border-t border-border/50 pt-4 mt-4">
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">Setores Cadastrados</h4>
+                      {loadingSectors ? (
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs py-2">
+                          <Loader2 className="h-3 w-3 animate-spin" /> Carregando setores...
+                        </div>
+                      ) : sectors.length === 0 ? (
+                        <p className="text-xs text-muted-foreground py-2 italic text-center">Nenhum setor cadastrado ainda.</p>
+                      ) : (
+                        <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                          {sectors.map((sec) => (
+                            <div key={sec.id} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-border/30 hover:border-border/60 transition-colors">
+                              <span className="text-xs font-medium text-foreground">{sec.name}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => handleDeleteSector(sec.id)}
+                                className="text-destructive hover:bg-destructive/10 h-7 w-7 rounded-md"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                 <Controller
                   name="meetingDay"
@@ -293,19 +470,24 @@ export default function AddHomeGroup() {
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>Dia da Reunião*</FieldLabel>
-                      <select
-                        {...field}
-                        className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      <Select
+                        value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                        onValueChange={(val) => field.onChange(parseInt(val))}
+                        disabled={field.disabled}
                       >
-                        <option value={1}>Segunda-feira</option>
-                        <option value={2}>Terça-feira</option>
-                        <option value={3}>Quarta-feira</option>
-                        <option value={4}>Quinta-feira</option>
-                        <option value={5}>Sexta-feira</option>
-                        <option value={6}>Sábado</option>
-                        <option value={0}>Domingo</option>
-                      </select>
+                        <SelectTrigger className="w-full bg-background/50 h-11 rounded-xl text-sm px-4 border border-input focus:ring-2 focus:ring-primary/20" size="lg">
+                          <SelectValue placeholder="Selecione o dia" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="1">Segunda-feira</SelectItem>
+                          <SelectItem value="2">Terça-feira</SelectItem>
+                          <SelectItem value="3">Quarta-feira</SelectItem>
+                          <SelectItem value="4">Quinta-feira</SelectItem>
+                          <SelectItem value="5">Sexta-feira</SelectItem>
+                          <SelectItem value="6">Sábado</SelectItem>
+                          <SelectItem value="0">Domingo</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FieldError errors={[fieldState.error]} />
                     </Field>
                   )}

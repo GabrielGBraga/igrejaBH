@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { signUpSchema, type SignUpValue } from "../lib/schemas"
+import { signUpSchema, type SignUpValue, validateCPF } from "../lib/schemas"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button"
 import {
@@ -58,12 +58,28 @@ const formatPhone = (value: string) => {
     return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4, 9)}-${clean.slice(9, 13)}`;
 };
 
+const formatCPF = (value: string) => {
+    const clean = value.replace(/\D/g, "");
+    const digits = clean.slice(0, 11);
+    
+    if (digits.length <= 3) {
+        return digits;
+    }
+    if (digits.length <= 6) {
+        return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+    }
+    if (digits.length <= 9) {
+        return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+    }
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+};
+
 export default function SignUp() {
     const navigate = useNavigate()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const signForm = useForm<SignUpValue>({
-        resolver: zodResolver(signUpSchema),
+        resolver: zodResolver(signUpSchema) as any,
         defaultValues: {
             fullName: "",
             email: "",
@@ -82,6 +98,13 @@ export default function SignUp() {
             addressComplement: "",
             password: "",
             confirmPassword: "",
+            occupation: "",
+            educationLevel: "Médio Completo",
+            employmentStatus: "CLT",
+            householdIncome: "1 a 3 SM",
+            dependentsCount: 0,
+            housingStatus: "Própria",
+            driversLicense: "Não possui",
         }
     })
 
@@ -89,6 +112,88 @@ export default function SignUp() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [searchingCep, setSearchingCep] = useState(false)
+
+    const [step, setStep] = useState<'cpf_check' | 'complete'>('cpf_check')
+    const [verificationCpf, setVerificationCpf] = useState('')
+    const [verifyingCpf, setVerifyingCpf] = useState(false)
+    const [cpfError, setCpfError] = useState<string | null>(null)
+
+    const handleVerifyCpf = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const cleanCpf = verificationCpf.replace(/\D/g, "");
+        if (cleanCpf.length !== 11) {
+            setCpfError("CPF deve conter 11 dígitos");
+            return;
+        }
+        if (!validateCPF(cleanCpf)) {
+            setCpfError("CPF inválido");
+            return;
+        }
+
+        setVerifyingCpf(true);
+        setCpfError(null);
+        try {
+            const formattedCpf = formatCPF(cleanCpf);
+            const { data, error } = await (supabase.rpc as any)('check_cpf_registration', {
+                p_cpf: formattedCpf
+            });
+
+            if (error) {
+                console.error("Erro na verificação de CPF:", error);
+                setCpfError("Erro ao verificar o CPF. Tente novamente.");
+                return;
+            }
+
+            if (!data || data.length === 0 || !data[0].exists_profile) {
+                setCpfError("CPF não encontrado. Por favor, entre em contato com seu discipulador ou com um líder de grupo caseiro para realizar seu pré-cadastro.");
+                return;
+            }
+
+            const result = data[0];
+
+            if (result.is_linked) {
+                setCpfError("Este CPF já está vinculado a um usuário cadastrado. Se você já tem uma conta, faça login.");
+                return;
+            }
+
+            if (!result.has_baptism_date) {
+                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
+                return;
+            }
+
+            // CPF is eligible! Pre-fill the form and proceed
+            signForm.setValue("cpf", formattedCpf);
+            signForm.setValue("fullName", result.full_name || "");
+            signForm.setValue("email", result.email || "");
+            signForm.setValue("phone", result.phone || "");
+            signForm.setValue("birthDate", result.birth_date || "");
+            signForm.setValue("baptismDate", result.baptism_date || "");
+            if (result.gender) signForm.setValue("gender", result.gender as any);
+            if (result.marital_status) signForm.setValue("maritalStatus", result.marital_status as any);
+            signForm.setValue("addressZipCode", result.address_zip_code || "");
+            signForm.setValue("addressStreet", result.address_street || "");
+            signForm.setValue("addressNumber", result.address_number || "");
+            signForm.setValue("addressNeighborhood", result.address_neighborhood || "");
+            signForm.setValue("addressCity", result.address_city || "Belo Horizonte");
+            signForm.setValue("addressState", result.address_state || "MG");
+            signForm.setValue("addressComplement", result.address_complement || "");
+            signForm.setValue("occupation", result.occupation || "");
+            if (result.education_level) signForm.setValue("educationLevel", result.education_level as any);
+            if (result.employment_status) signForm.setValue("employmentStatus", result.employment_status as any);
+            if (result.household_income) signForm.setValue("householdIncome", result.household_income as any);
+            signForm.setValue("dependentsCount", result.dependents_count || 0);
+            if (result.housing_status) signForm.setValue("housingStatus", result.housing_status as any);
+            if (result.drivers_license) signForm.setValue("driversLicense", result.drivers_license as any);
+
+            setStep('complete');
+            toast.success("CPF verificado com sucesso! Por favor, complete seus dados de cadastro.");
+        } catch (err) {
+            console.error(err);
+            setCpfError("Ocorreu um erro inesperado.");
+        } finally {
+            setVerifyingCpf(false);
+        }
+    };
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
     const [isCropping, setIsCropping] = useState(false)
@@ -150,6 +255,30 @@ export default function SignUp() {
         setSubmitting(true)
         
         const signupOperation = async () => {
+            // 0. Verificar se existe um pré-cadastro batizado com este CPF usando a RPC
+            const { data: checkData, error: checkError } = await (supabase.rpc as any)('check_cpf_registration', {
+                p_cpf: data.cpf
+            });
+
+            if (checkError) {
+                console.error("Erro ao buscar pré-cadastro:", checkError);
+                throw new Error("Erro ao validar pré-cadastro no banco de dados.");
+            }
+
+            const check = checkData?.[0];
+
+            if (!check || !check.exists_profile) {
+                throw new Error("Pré-cadastro não encontrado. Por favor, entre em contato com seu discipulador ou com um líder de grupo caseiro para realizar seu cadastro inicial.");
+            }
+
+            if (check.is_linked) {
+                throw new Error("Este CPF já está vinculado a um usuário registrado.");
+            }
+
+            if (!check.has_baptism_date) {
+                throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
+            }
+
             // 1. Auth SignUp Primeiro
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: data.email,
@@ -157,6 +286,7 @@ export default function SignUp() {
                 options: {
                     data: {
                         full_name: data.fullName,
+                        cpf: data.cpf,
                     }
                 }
             })
@@ -208,6 +338,13 @@ export default function SignUp() {
                     address_city: data.addressCity,
                     address_state: data.addressState,
                     address_complement: data.addressComplement,
+                    occupation: data.occupation,
+                    education_level: data.educationLevel,
+                    employment_status: data.employmentStatus,
+                    household_income: data.householdIncome,
+                    dependents_count: data.dependentsCount,
+                    housing_status: data.housingStatus,
+                    drivers_license: data.driversLicense,
                 })
                 .eq('user_id', authData.user.id)
 
@@ -246,17 +383,83 @@ export default function SignUp() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px]" />
             </div>
 
-            <Card className="w-full max-w-2xl border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
-                <CardHeader className="space-y-1 text-center">
-                    <div className="flex items-center justify-between">
-                        <Button variant="ghost" onClick={() => navigate('/')}>
-                            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                            Voltar
-                        </Button>
-                    </div>
-                    <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
-                    <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
-                </CardHeader>
+            {step === 'cpf_check' ? (
+                <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-1 text-center">
+                        <div className="flex items-center justify-between">
+                            <Button variant="ghost" onClick={() => navigate('/')}>
+                                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                                Voltar
+                            </Button>
+                        </div>
+                        <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
+                        <CardDescription className="text-muted-foreground">Insira seu CPF para iniciar o cadastro</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleVerifyCpf} className="space-y-4">
+                            <div className="space-y-2">
+                                <label htmlFor="cpf-verify" className="text-sm font-medium text-foreground">
+                                    CPF*
+                                </label>
+                                <Input
+                                    id="cpf-verify"
+                                    type="text"
+                                    value={verificationCpf}
+                                    onChange={(e) => {
+                                        const formatted = formatCPF(e.target.value);
+                                        setVerificationCpf(formatted);
+                                    }}
+                                    placeholder="000.000.000-00"
+                                    maxLength={14}
+                                    className="h-10 text-lg"
+                                    required
+                                />
+                                {cpfError && (
+                                    <p className="text-sm font-medium text-destructive mt-1">
+                                        {cpfError}
+                                    </p>
+                                )}
+                            </div>
+                            <Button 
+                                type="submit" 
+                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-semibold h-12 transition-all active:scale-[0.98] mt-4"
+                                disabled={verifyingCpf}
+                            >
+                                {verifyingCpf ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Verificando...
+                                    </>
+                                ) : (
+                                    "Avançar"
+                                )}
+                            </Button>
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex flex-col space-y-4">
+                        <p className="text-center text-sm text-muted-foreground mt-2">
+                            Já tem uma conta?{" "}
+                            <Link
+                                to="/entrar"
+                                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                            >
+                                Faça login
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+            ) : (
+                <Card className="w-full max-w-2xl border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-1 text-center">
+                        <div className="flex items-center justify-between">
+                            <Button variant="ghost" onClick={() => setStep('cpf_check')}>
+                                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                                Alterar CPF
+                            </Button>
+                        </div>
+                        <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
+                        <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
+                    </CardHeader>
                 <CardContent>
                     <form id="sign-up-form" onSubmit={signForm.handleSubmit(onSubmit)} className="space-y-6">
                         
@@ -360,7 +563,7 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>CPF*</FieldLabel>
-                                        <Input {...field} placeholder="000.000.000-00" />
+                                        <Input {...field} placeholder="000.000.000-00" readOnly className="bg-muted cursor-not-allowed opacity-80" />
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -540,6 +743,149 @@ export default function SignUp() {
                             </div>
                         </FieldGroup>
 
+                        <FieldSeparator>Informações Socioeconômicas*</FieldSeparator>
+
+                        <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Controller
+                                name="occupation"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Profissão*</FieldLabel>
+                                        <Input {...field} placeholder="Sua Profissão" />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="dependentsCount"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Nº de Dependentes*</FieldLabel>
+                                        <Input {...field} type="number" min="0" />
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="educationLevel"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Escolaridade*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Fundamental Incompleto", "Fundamental Completo", "Médio Incompleto", "Médio Completo", "Superior Incompleto", "Superior Completo", "Pós-graduação"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`edu-${opt}`} />
+                                                    <FieldLabel htmlFor={`edu-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="employmentStatus"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Vínculo Empregatício*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["CLT", "Autônomo/PJ", "Desempregado", "Aposentado", "Estudante", "Empreendedor"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`emp-${opt}`} />
+                                                    <FieldLabel htmlFor={`emp-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="householdIncome"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Renda Familiar*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM", "Prefiro não informar"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`inc-${opt}`} />
+                                                    <FieldLabel htmlFor={`inc-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="housingStatus"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>Situação de Moradia*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 gap-2 mt-2"
+                                        >
+                                            {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`hou-${opt}`} />
+                                                    <FieldLabel htmlFor={`hou-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                name="driversLicense"
+                                control={signForm.control}
+                                render={({ field, fieldState }) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel>CNH*</FieldLabel>
+                                        <RadioGroup 
+                                            value={field.value} 
+                                            onValueChange={field.onChange}
+                                            className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2"
+                                        >
+                                            {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
+                                                <div key={opt} className="flex items-center space-x-2">
+                                                    <RadioGroupItem value={opt} id={`cnh-${opt}`} />
+                                                    <FieldLabel htmlFor={`cnh-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                        <FieldError errors={[fieldState.error]} />
+                                    </Field>
+                                )}
+                            />
+                        </FieldGroup>
+
                         <FieldSeparator>Segurança</FieldSeparator>
 
                         <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -627,6 +973,7 @@ export default function SignUp() {
                     </p>
                 </CardFooter>
             </Card>
+            )}
 
             <Dialog open={isCropping} onOpenChange={setIsCropping}>
                 <DialogContent className="sm:max-w-[425px]">
