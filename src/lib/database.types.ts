@@ -86,7 +86,6 @@ export type Database = {
           description: string | null
           fields: Json
           id: string
-          is_active: boolean | null
           is_public: boolean
           name: string
         }
@@ -96,7 +95,6 @@ export type Database = {
           description?: string | null
           fields: Json
           id: string
-          is_active?: boolean | null
           is_public?: boolean
           name: string
         }
@@ -106,7 +104,6 @@ export type Database = {
           description?: string | null
           fields?: Json
           id?: string
-          is_active?: boolean | null
           is_public?: boolean
           name?: string
         }
@@ -122,6 +119,7 @@ export type Database = {
           lng: number | null
           location_text: string | null
           meeting_day: number | null
+          sector_id: string | null
           start_time: string | null
         }
         Insert: {
@@ -133,6 +131,7 @@ export type Database = {
           lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
+          sector_id?: string | null
           start_time?: string | null
         }
         Update: {
@@ -144,6 +143,7 @@ export type Database = {
           lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
+          sector_id?: string | null
           start_time?: string | null
         }
         Relationships: [
@@ -161,40 +161,14 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "home_groups_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          }
         ]
-      }
-      media_resources: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          series_name: string | null
-          title: string
-          type: Database["public"]["Enums"]["media_type"]
-          url: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          series_name?: string | null
-          title: string
-          type: Database["public"]["Enums"]["media_type"]
-          url: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          series_name?: string | null
-          title?: string
-          type?: Database["public"]["Enums"]["media_type"]
-          url?: string
-        }
-        Relationships: []
       }
       posts: {
         Row: {
@@ -459,7 +433,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
+      },
       retreats: {
         Row: {
           created_at: string | null
@@ -518,28 +492,79 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      },
+      sectors: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      media_resources: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          type: Database["public"]["Enums"]["media_type"]
+          url: string
+          series_name: string | null
+          category: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          type: Database["public"]["Enums"]["media_type"]
+          url: string
+          series_name?: string | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          type?: Database["public"]["Enums"]["media_type"]
+          url?: string
+          series_name?: string | null
+          category?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
       }
       studies: {
         Row: {
-          created_at: string | null
-          created_by: string | null
-          description: string | null
           id: string
           title: string
+          description: string | null
+          created_at: string | null
+          created_by: string | null
         }
         Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
           id?: string
           title: string
-        }
-        Update: {
+          description?: string | null
           created_at?: string | null
           created_by?: string | null
-          description?: string | null
+        }
+        Update: {
           id?: string
           title?: string
+          description?: string | null
+          created_at?: string | null
+          created_by?: string | null
         }
         Relationships: [
           {
@@ -548,39 +573,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       study_steps: {
         Row: {
-          created_at: string | null
           id: string
+          study_id: string
           media_resource_id: string
           sort_order: number
-          study_id: string
+          created_at: string | null
         }
         Insert: {
-          created_at?: string | null
           id?: string
+          study_id: string
           media_resource_id: string
           sort_order: number
-          study_id: string
+          created_at?: string | null
         }
         Update: {
-          created_at?: string | null
           id?: string
+          study_id?: string
           media_resource_id?: string
           sort_order?: number
-          study_id?: string
+          created_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "study_steps_media_resource_id_fkey"
-            columns: ["media_resource_id"]
-            isOneToOne: false
-            referencedRelation: "media_resources"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "study_steps_study_id_fkey"
             columns: ["study_id"]
@@ -588,29 +606,36 @@ export type Database = {
             referencedRelation: "studies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "study_steps_media_resource_id_fkey"
+            columns: ["media_resource_id"]
+            isOneToOne: false
+            referencedRelation: "media_resources"
+            referencedColumns: ["id"]
+          }
         ]
       }
       user_study_progress: {
         Row: {
-          completed_at: string | null
           id: string
           profile_id: string
-          step_id: string
           study_id: string
+          step_id: string
+          completed_at: string | null
         }
         Insert: {
-          completed_at?: string | null
           id?: string
           profile_id: string
-          step_id: string
           study_id: string
+          step_id: string
+          completed_at?: string | null
         }
         Update: {
-          completed_at?: string | null
           id?: string
           profile_id?: string
-          step_id?: string
           study_id?: string
+          step_id?: string
+          completed_at?: string | null
         }
         Relationships: [
           {
@@ -621,19 +646,19 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_study_progress_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "study_steps"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "user_study_progress_study_id_fkey"
             columns: ["study_id"]
             isOneToOne: false
             referencedRelation: "studies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_study_progress_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "study_steps"
+            referencedColumns: ["id"]
+          }
         ]
       }
     }
@@ -671,7 +696,7 @@ export type Database = {
           profile_id: string
         }[]
       }
-    }
+        }
     Enums: {
       media_type: "video" | "pdf" | "markdown"
       post_category:
