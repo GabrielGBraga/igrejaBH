@@ -134,7 +134,7 @@ export default function SignUp() {
         setCpfError(null);
         try {
             const formattedCpf = formatCPF(cleanCpf);
-            const { data, error } = await supabase.rpc('check_cpf_registration', {
+            const { data, error } = await (supabase.rpc as any)('check_cpf_registration', {
                 p_cpf: formattedCpf
             });
 
@@ -183,7 +183,7 @@ export default function SignUp() {
             if (result.household_income) signForm.setValue("householdIncome", result.household_income as any);
             signForm.setValue("dependentsCount", result.dependents_count || 0);
             if (result.housing_status) signForm.setValue("housingStatus", result.housing_status as any);
-            if (result.drivers_license) signForm.setValue("drivers_license", result.drivers_license as any);
+            if (result.drivers_license) signForm.setValue("driversLicense", result.drivers_license as any);
 
             setStep('complete');
             toast.success("CPF verificado com sucesso! Por favor, complete seus dados de cadastro.");
@@ -256,7 +256,7 @@ export default function SignUp() {
         
         const signupOperation = async () => {
             // 0. Verificar se existe um pré-cadastro batizado com este CPF usando a RPC
-            const { data: checkData, error: checkError } = await supabase.rpc('check_cpf_registration', {
+            const { data: checkData, error: checkError } = await (supabase.rpc as any)('check_cpf_registration', {
                 p_cpf: data.cpf
             });
 
@@ -277,7 +277,6 @@ export default function SignUp() {
 
             if (!check.has_baptism_date) {
                 throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
-            }
             }
 
             // 1. Auth SignUp Primeiro

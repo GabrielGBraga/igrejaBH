@@ -1,7 +1,7 @@
-import { useForm, Controller } from "react-hook-form";
-import { signInSchema, type SignInValue } from "../lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { useForm, Controller } from "react-hook-form"
+import { signInSchema, type SignInValue } from "../lib/schemas"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,28 +9,28 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
+} from "@/components/ui/field"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/ui/input-group";
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
-import supabase from "@/lib/supabase";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+} from "@/components/ui/input-group"
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, Loader2 } from "lucide-react"
+import { useState } from "react"
+import supabase from "@/lib/supabase"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 export default function SignIn() {
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const signForm = useForm<SignInValue>({
     resolver: zodResolver(signInSchema),
@@ -38,57 +38,59 @@ export default function SignIn() {
       email: "",
       password: "",
     },
-  });
+  })
 
   async function onSubmit(data: SignInValue) {
-    setLoading(true);
-    
+    setLoading(true)
+
     toast.promise(
-      supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      }).then(({ error, data: authData }) => {
-        if (error) throw error;
-        return authData;
-      }),
+      supabase.auth
+        .signInWithPassword({
+          email: data.email,
+          password: data.password,
+        })
+        .then(({ error, data: authData }) => {
+          if (error) throw error
+          return authData
+        }),
       {
         loading: "Realizando login...",
         success: () => {
-          navigate("/");
-          return "Login realizado com sucesso!";
+          navigate("/")
+          return "Login realizado com sucesso!"
         },
         error: (error) => {
-          console.error("Error on sign in: ", error);
+          console.error("Error on sign in: ", error)
           if (error instanceof Error) {
             if (error.message === "Invalid login credentials") {
-              return "Email ou senha incorretos.";
+              return "Email ou senha incorretos."
             } else if (error.message === "Email not confirmed") {
-              return "Por favor, confirme seu e-mail antes de acessar.";
+              return "Por favor, confirme seu e-mail antes de acessar."
             }
-            return error.message;
+            return error.message
           }
-          return "Erro ao realizar login. Tente novamente.";
+          return "Erro ao realizar login. Tente novamente."
         },
         finally: () => {
-          setLoading(false);
+          setLoading(false)
         },
       }
-    );
+    )
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
       {/* Dynamic Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-primary/20 blur-[120px]" />
+        <div className="absolute right-[-10%] bottom-[-10%] h-[40%] w-[40%] rounded-full bg-secondary/20 blur-[120px]" />
       </div>
 
-      <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-xl shadow-2xl">
+      <Card className="w-full max-w-md border-border bg-card/50 shadow-2xl backdrop-blur-xl">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 shadow-inner">
-              <LockIcon className="w-8 h-8 text-primary" />
+          <div className="mb-4 flex justify-center">
+            <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3 shadow-inner">
+              <LockIcon className="h-8 w-8 text-primary" />
             </div>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
@@ -110,7 +112,9 @@ export default function SignIn() {
                 control={signForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel className="text-muted-foreground">Email</FieldLabel>
+                    <FieldLabel className="text-muted-foreground">
+                      Email
+                    </FieldLabel>
                     <InputGroup>
                       <InputGroupAddon align="inline-start">
                         <MailIcon className="h-4 w-4 text-muted-foreground" />
@@ -139,10 +143,12 @@ export default function SignIn() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <div className="flex items-center justify-between">
-                      <FieldLabel className="text-muted-foreground">Senha</FieldLabel>
+                      <FieldLabel className="text-muted-foreground">
+                        Senha
+                      </FieldLabel>
                       <button
                         type="button"
-                        className="text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="text-xs text-primary transition-colors hover:text-primary/80"
                         onClick={() => toast.info("Funcionalidade em breve")}
                       >
                         Esqueceu a senha?
@@ -161,7 +167,7 @@ export default function SignIn() {
                           variant="ghost"
                           size="icon"
                           type="button"
-                          className="text-muted-foreground hover:text-foreground hover:bg-transparent"
+                          className="text-muted-foreground hover:bg-transparent hover:text-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
@@ -186,7 +192,7 @@ export default function SignIn() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 transition-all active:scale-[0.98]"
+            className="w-full bg-primary py-6 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
             type="submit"
             form="signin-form"
             disabled={loading}
@@ -205,7 +211,7 @@ export default function SignIn() {
             Ainda não tem uma conta?{" "}
             <Link
               to="/cadastro"
-              className="text-primary hover:text-primary/80 font-medium transition-colors"
+              className="font-medium text-primary transition-colors hover:text-primary/80"
             >
               Cadastre-se agora
             </Link>
@@ -213,5 +219,5 @@ export default function SignIn() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }

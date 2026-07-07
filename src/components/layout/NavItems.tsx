@@ -1,14 +1,45 @@
-import { Home, Users, BookOpen, PlusSquare, Calendar, MessageSquare, Settings, User, ClipboardList } from 'lucide-react';
+import {
+  Home,
+  Users,
+  BookOpen,
+  PlusSquare,
+  Calendar,
+  MessageSquare,
+  Settings,
+  User,
+  ClipboardList,
+} from "lucide-react"
 
 export const navItems = [
-  { name: 'Início', href: '/', icon: Home },
-  { name: 'Grupos Caseiros', href: '/grupos-caseiros', icon: Users, requireAdmin: true },
-  { name: 'Materiais', href: '/materiais', icon: BookOpen },
-  { name: 'Nova Notícia', href: '/noticias/nova', icon: PlusSquare },
-  { name: 'Eventos', href: '/eventos', icon: Calendar },
-  { name: 'Mensagens', href: '/mensagens', icon: MessageSquare },
-  { name: 'Gestão de Membros', href: '/gestao/vinculados', icon: Users, requireManagement: true },
-  { name: 'Formulários', href: '/gestao/formularios', icon: ClipboardList, requireCanPost: true },
-  { name: 'Perfil', href: '/perfil', icon: User },
-  { name: 'Ajustes', href: '/ajustes', icon: Settings },
-];
+  { name: "Início", href: "/", icon: Home },
+  {
+    name: "Grupos Caseiros",
+    href: "/grupos-caseiros",
+    icon: Users,
+    requireAdmin: true,
+  },
+  { name: "Materiais", href: "/materiais", icon: BookOpen },
+  { name: "Nova Notícia", href: "/noticias/nova", icon: PlusSquare },
+  { name: "Eventos", href: "/eventos", icon: Calendar },
+  {
+    name: "Gestão de Eventos",
+    href: "/gestao/eventos",
+    icon: Calendar,
+    requireManagement: true,
+  },
+  { name: "Mensagens", href: "/mensagens", icon: MessageSquare },
+  {
+    name: "Gestão de Membros",
+    href: "/gestao/vinculados",
+    icon: Users,
+    requireManagement: true,
+  },
+  {
+    name: "Formulários",
+    href: "/gestao/formularios",
+    icon: ClipboardList,
+    requireCanPost: true,
+  },
+  { name: "Perfil", href: "/perfil", icon: User },
+  { name: "Ajustes", href: "/ajustes", icon: Settings },
+]
