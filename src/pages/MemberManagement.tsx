@@ -182,7 +182,7 @@ const phantomUserSchema = z.object({
         }),
         z.literal("")
     ]).optional().nullable(),
-    birthDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
+    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data de nascimento é obrigatória (AAAA-MM-DD)." }),
     baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
     gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
@@ -464,7 +464,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             email: data.registrationType === "adult" ? (data.email || null) : null,
             cpf: data.cpf,
             phone: data.registrationType === "adult" ? (data.phone || null) : null,
-            birth_date: data.birthDate || null,
+            birth_date: data.birthDate,
             baptism_date: data.registrationType === "adult" ? (data.baptismDate || null) : null, // não batizado se for criança
             gender: data.gender || null,
             marital_status: data.registrationType === "adult" ? (data.maritalStatus || null) : null,
@@ -486,20 +486,10 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                 
                 if (error) throw error;
             } else {
-                // Inserção de novo perfil provisório com placeholders para as colunas NOT NULL
-                const insertPayload = {
-                    ...basePayload,
-                    occupation: "Não informado",
-                    education_level: "Não informado",
-                    employment_status: "Não informado",
-                    household_income: "Não informado",
-                    housing_status: "Não informado",
-                    drivers_license: "Não informado",
-                };
-
+                // Inserção de novo perfil provisório
                 const { error } = await supabase
                     .from("profiles")
-                    .insert([insertPayload]);
+                    .insert([basePayload]);
                 
                 if (error) throw error;
             }
