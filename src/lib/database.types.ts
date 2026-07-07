@@ -367,6 +367,132 @@ export type Database = {
           },
         ]
       }
+      registrations: {
+        Row: {
+          created_at: string | null
+          custom_responses: Json | null
+          form_submission_id: string | null
+          guest_data: Json | null
+          id: string
+          notes: string | null
+          paid: boolean | null
+          payment_method: string | null
+          payment_reference: string | null
+          profile_id: string | null
+          retreat_id: string | null
+          room_allocation: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_responses?: Json | null
+          form_submission_id?: string | null
+          guest_data?: Json | null
+          id?: string
+          notes?: string | null
+          paid?: boolean | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          profile_id?: string | null
+          retreat_id?: string | null
+          room_allocation?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_responses?: Json | null
+          form_submission_id?: string | null
+          guest_data?: Json | null
+          id?: string
+          notes?: string | null
+          paid?: boolean | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          profile_id?: string | null
+          retreat_id?: string | null
+          room_allocation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registrations_form_submission_id_fkey"
+            columns: ["form_submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
+            referencedColumns: ["id"]
+          },
+        ]
+      },
+      retreats: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          form_id: string | null
+          form_model: Database["public"]["Enums"]["retreat_form_model"] | null
+          id: string
+          image_url: string | null
+          location_text: string | null
+          max_participants: number | null
+          price: number | null
+          registration_deadline: string | null
+          start_date: string | null
+          status: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          form_id?: string | null
+          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
+          id?: string
+          image_url?: string | null
+          location_text?: string | null
+          max_participants?: number | null
+          price?: number | null
+          registration_deadline?: string | null
+          start_date?: string | null
+          status?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          form_id?: string | null
+          form_model?: Database["public"]["Enums"]["retreat_form_model"] | null
+          id?: string
+          image_url?: string | null
+          location_text?: string | null
+          max_participants?: number | null
+          price?: number | null
+          registration_deadline?: string | null
+          start_date?: string | null
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retreats_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      },
       sectors: {
         Row: {
           created_at: string
@@ -540,8 +666,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
-    }
+      check_cpf_registration: {
+        Args: { p_cpf: string }
+        Returns: {
+          address_city: string
+          address_complement: string
+          address_neighborhood: string
+          address_number: string
+          address_state: string
+          address_street: string
+          address_zip_code: string
+          baptism_date: string
+          birth_date: string
+          dependents_count: number
+          drivers_license: string
+          education_level: string
+          email: string
+          employment_status: string
+          exists_profile: boolean
+          full_name: string
+          gender: string
+          has_baptism_date: boolean
+          household_income: string
+          housing_status: string
+          is_linked: boolean
+          marital_status: string
+          occupation: string
+          phone: string
+          profile_id: string
+        }[]
+      }
+        }
     Enums: {
       media_type: "video" | "pdf" | "markdown"
       post_category:
