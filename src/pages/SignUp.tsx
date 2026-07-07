@@ -278,7 +278,6 @@ export default function SignUp() {
             if (!check.has_baptism_date) {
                 throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
             }
-            }
 
             // 1. Auth SignUp Primeiro
             const { data: authData, error: authError } = await supabase.auth.signUp({
