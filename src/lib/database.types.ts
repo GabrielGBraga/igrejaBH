@@ -119,6 +119,7 @@ export type Database = {
           lng: number | null
           location_text: string | null
           meeting_day: number | null
+          sector_id: string | null
           start_time: string | null
         }
         Insert: {
@@ -130,6 +131,7 @@ export type Database = {
           lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
+          sector_id?: string | null
           start_time?: string | null
         }
         Update: {
@@ -141,6 +143,7 @@ export type Database = {
           lng?: number | null
           location_text?: string | null
           meeting_day?: number | null
+          sector_id?: string | null
           start_time?: string | null
         }
         Relationships: [
@@ -158,6 +161,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "home_groups_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          }
         ]
       }
       posts: {
@@ -356,6 +366,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sectors: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       media_resources: {
         Row: {

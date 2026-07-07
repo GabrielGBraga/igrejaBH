@@ -21,13 +21,57 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-interface HomeGroup {
+interface HomeGroupData {
   id: string;
-  meeting_day: number;
+  meeting_day?: number | null;
   location_text: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
+  sector_id?: string | null;
+  leader_1_id?: string | null;
+  leader_2_id?: string | null;
 }
+
+interface Sector {
+  id: string;
+  name: string;
+}
+
+const getSectorColor = (sectorId: string | null) => {
+  if (!sectorId) return "#a1a1aa";
+  const colors = [
+    "#ef4444", // Red
+    "#3b82f6", // Blue
+    "#10b981", // Emerald
+    "#f59e0b", // Amber
+    "#8b5cf6", // Violet
+    "#ec4899", // Pink
+    "#14b8a6", // Teal
+    "#f97316", // Orange
+  ];
+  let hash = 0;
+  for (let i = 0; i < sectorId.length; i++) {
+    hash = sectorId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
+const createMarkerIcon = (color: string) => {
+  return L.divIcon({
+    html: `<div style="
+      background-color: ${color};
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    "></div>`,
+    className: "custom-sector-marker",
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+};
 
 const dayMap: Record<number, string> = {
   0: "Domingo",
@@ -39,16 +83,33 @@ const dayMap: Record<number, string> = {
   6: "Sábado",
 };
 
-export function ChurchMap() {
-  const [homeGroups, setHomeGroups] = useState<HomeGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-  // Holds the Leaflet Map instance so we can call map.remove() on cleanup,
-  // which properly clears _leaflet_id and prevents Strict Mode double-init.
+interface ChurchMapProps {
+  homeGroups?: HomeGroupData[];
+  sectors?: Sector[];
+  colorLabelingBySector?: boolean;
+  getGroupLeadersName?: (hg: any) => string;
+  hideHeader?: boolean;
+}
+
+export function ChurchMap({
+  homeGroups: externalHomeGroups,
+  sectors = [],
+  colorLabelingBySector = false,
+  getGroupLeadersName,
+  hideHeader = false,
+}: ChurchMapProps) {
+  const [internalHomeGroups, setInternalHomeGroups] = useState<HomeGroupData[]>([]);
+  const [loading, setLoading] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
 
+  const homeGroups = externalHomeGroups || internalHomeGroups;
+
   useEffect(() => {
+    if (externalHomeGroups) return;
+
     async function fetchHomeGroups() {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from("home_groups")
           .select("*")
@@ -58,7 +119,7 @@ export function ChurchMap() {
         if (error) {
           console.error("Error fetching home groups:", error);
         } else if (data) {
-          setHomeGroups(data as unknown as HomeGroup[]);
+          setInternalHomeGroups(data as unknown as HomeGroupData[]);
         }
       } catch (err) {
         console.error("Failed to load home groups:", err);
@@ -68,35 +129,34 @@ export function ChurchMap() {
     }
 
     fetchHomeGroups();
-
-    // Cleanup handles itself via react-leaflet
-    return () => {};
-  }, []);
+  }, [externalHomeGroups]);
 
   const centerPosition: [number, number] = [-19.9226463, -43.935]; // Belo Horizonte center
 
   return (
-    <Card className="h-full border-border bg-card/40 backdrop-blur-md shadow-xl flex flex-col">
-      <CardHeader className="pb-4">
-        <div className="flex flex-row justify-between items-start gap-4">
-          <div>
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <MapPinIcon className="w-5 h-5 text-primary" />
-              Grupos Caseiros e Localização
-            </CardTitle>
-            <CardDescription className="mt-1">
-              Encontre um grupo caseiro perto de você em Belo Horizonte.
-            </CardDescription>
+    <Card className={`h-full border-border bg-card/40 backdrop-blur-md shadow-xl flex flex-col ${hideHeader ? "border-none shadow-none bg-transparent" : ""}`}>
+      {!hideHeader && (
+        <CardHeader className="pb-4">
+          <div className="flex flex-row justify-between items-start gap-4">
+            <div>
+              <CardTitle className="text-xl font-bold flex items-center gap-2">
+                <MapPinIcon className="w-5 h-5 text-primary" />
+                Grupos Caseiros e Localização
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Encontre um grupo caseiro perto de você em Belo Horizonte.
+              </CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-4 pt-0">
+        </CardHeader>
+      )}
+      <CardContent className={`flex-1 flex flex-col p-4 pt-0 ${hideHeader ? "p-0" : ""}`}>
         <div className="w-full flex-1 min-h-[400px] rounded-xl overflow-hidden border border-border/50 shadow-inner relative group isolate bg-secondary/10">
           {!loading && (
             <MapContainer
               ref={mapRef}
               center={centerPosition}
-              zoom={13}
+              zoom={12}
               scrollWheelZoom={false}
               className="absolute inset-0 w-full h-full z-0"
               style={{ height: "100%", width: "100%" }}
@@ -106,39 +166,47 @@ export function ChurchMap() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               
-              {/* Main Church Location Marker */}
-              <Marker position={centerPosition}>
-                <Popup className="min-w-[200px]">
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold text-sm m-0">Igreja em BH Central</p>
-                    <p className="text-xs text-muted-foreground m-0">Sede Principal</p>
-                    <Button size="sm" className="w-full mt-2 h-8 text-xs bg-primary hover:bg-primary/90">
-                      <NavigationIcon className="w-3 h-3 mr-1" />
-                      Como Chegar
-                    </Button>
-                  </div>
-                </Popup>
-              </Marker>
+
 
               {/* Home Groups Markers */}
-              {homeGroups.map((group) => (
-                <Marker key={group.id} position={[group.lat, group.lng]}>
-                  <Popup className="min-w-[220px]">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2 font-semibold text-sm m-0 text-primary">
-                        <Users className="w-4 h-4" />
-                        Grupo Caseiro
-                      </div>
-                      <div className="text-xs text-muted-foreground m-0 flex flex-col gap-1">
-                        <span className="font-medium text-foreground">
-                          {dayMap[group.meeting_day] || "Dia a definir"}
-                        </span>
-                        <span>{group.location_text}</span>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+              {homeGroups
+                .filter((g) => g.lat !== null && g.lng !== null)
+                .map((group) => {
+                  const color = colorLabelingBySector ? getSectorColor(group.sector_id || null) : "";
+                  const markerIcon = colorLabelingBySector ? createMarkerIcon(color) : DefaultIcon;
+                  const sec = colorLabelingBySector && group.sector_id ? sectors.find(s => s.id === group.sector_id) : null;
+                  const groupTitle = getGroupLeadersName ? `GC - ${getGroupLeadersName(group)}` : "Grupo Caseiro";
+
+                  return (
+                    <Marker 
+                      key={group.id} 
+                      position={[group.lat!, group.lng!]}
+                      icon={markerIcon}
+                    >
+                      <Popup className="min-w-[220px]">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 font-semibold text-sm m-0 text-primary">
+                            <Users className="w-4 h-4" />
+                            {groupTitle}
+                          </div>
+                          <div className="text-xs text-muted-foreground m-0 flex flex-col gap-1">
+                            {group.meeting_day !== undefined && group.meeting_day !== null && (
+                              <span className="font-medium text-foreground">
+                                {dayMap[group.meeting_day] || "Dia a definir"}
+                              </span>
+                            )}
+                            <span>{group.location_text}</span>
+                            {colorLabelingBySector && (
+                              <span className="inline-block mt-1 font-semibold px-2 py-0.5 rounded text-[10px] w-fit" style={{ backgroundColor: `${color}15`, color: color, border: `1px solid ${color}40` }}>
+                                Setor: {sec ? sec.name : "Sem Setor"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
             </MapContainer>
           )}
 
@@ -151,16 +219,11 @@ export function ChurchMap() {
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {homeGroups.length > 0 
-                  ? `${homeGroups.length} grupo(s) encontrado(s)` 
+                  ? `${homeGroups.length} group(s) encontrado(s)` 
                   : loading ? "Carregando..." : "Nenhum grupo com localização"}
               </p>
             </div>
-            <div className="pointer-events-auto">
-              <Button size="sm" variant="outline" className="bg-background/50 hover:bg-background">
-                <NavigationIcon className="w-4 h-4 mr-2" />
-                Igreja Central
-              </Button>
-            </div>
+
           </div>
         </div>
       </CardContent>

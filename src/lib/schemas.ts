@@ -107,6 +107,7 @@ export const homeGroupSchema = z.object({
   leader2Id: z.string().uuid().optional().nullable(),
   lat: z.number().optional().nullable(),
   lng: z.number().optional().nullable(),
+  sectorId: z.string().uuid().optional().nullable(),
 });
 export type HomeGroupValue = z.infer<typeof homeGroupSchema>;
 export const postSchema = z.object({

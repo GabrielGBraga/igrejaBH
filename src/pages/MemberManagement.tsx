@@ -12,7 +12,6 @@ import {
     Edit2Icon,
     Trash2Icon,
     MailIcon,
-    UserIcon,
     UserCheckIcon,
     HeartIcon,
     FileText
@@ -245,7 +244,11 @@ const phantomUserSchema = z.object({
 
 type PhantomUserValue = z.infer<typeof phantomUserSchema>;
 
-export default function MemberManagement() {
+interface MemberManagementProps {
+  hideHeader?: boolean;
+}
+
+export default function MemberManagement({ hideHeader = false }: MemberManagementProps) {
     const [members, setMembers] = useState<ProfileWithGroup[]>([]);
     const [homeGroups, setHomeGroups] = useState<HomeGroupOption[]>([]);
     const [loading, setLoading] = useState(true);
@@ -532,35 +535,64 @@ export default function MemberManagement() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                        <UsersIcon className="w-8 h-8 text-primary" />
-                        Gestão de Vinculados
-                    </h1>
-                    <p className="text-muted-foreground mt-1">Lista completa de irmãos e vinculados da Oikos na cidade.</p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                    <div className="relative w-full sm:w-80 group">
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                        <Input 
-                            placeholder="Buscar por nome, CPF, e-mail..." 
-                            className="pl-10 bg-card/30 backdrop-blur-sm border-border/50 rounded-xl focus:border-primary/50 transition-all focus:ring-2 focus:ring-primary/20"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+            {!hideHeader ? (
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                            <UsersIcon className="w-8 h-8 text-primary" />
+                            Gestão de Vinculados
+                        </h1>
+                        <p className="text-muted-foreground mt-1">Lista completa de irmãos e vinculados da Oikos na cidade.</p>
                     </div>
                     
-                    <Button 
-                        onClick={handleAddClick}
-                        className="bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl flex items-center gap-2"
-                    >
-                        <PlusIcon className="w-4 h-4" />
-                        Criar Vinculado
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        <div className="relative w-full sm:w-80 group">
+                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input 
+                                placeholder="Buscar por nome, CPF, e-mail..." 
+                                className="pl-10 bg-card/30 backdrop-blur-sm border-border/50 rounded-xl focus:border-primary/50 transition-all focus:ring-2 focus:ring-primary/20"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        
+                        <Button 
+                            onClick={handleAddClick}
+                            className="bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl flex items-center gap-2"
+                        >
+                            <PlusIcon className="w-4 h-4" />
+                            Criar Vinculado
+                        </Button>
+                    </div>
+                </header>
+            ) : (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-4 border-b border-border/50">
+                    <div>
+                        <h2 className="text-lg font-bold text-foreground">Lista de Vinculados</h2>
+                        <p className="text-xs text-muted-foreground">Gerencie as fichas dos discípulos e seus dados.</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="relative w-full sm:w-64 group">
+                            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input 
+                                placeholder="Buscar por nome, CPF, e-mail..." 
+                                className="pl-10 bg-card/30 backdrop-blur-sm border-border/50 rounded-xl h-9 text-xs"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        
+                        <Button 
+                            onClick={handleAddClick}
+                            size="sm"
+                            className="bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl flex items-center gap-2 h-9 px-3 text-xs font-semibold"
+                        >
+                            <PlusIcon className="w-4 h-4" />
+                            Criar Vinculado
+                        </Button>
+                    </div>
                 </div>
-            </header>
+            )}
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import SignIn from './pages/SignIn.tsx';
 import SignUp from './pages/SignUp.tsx';
 import Home from './pages/Home.tsx';
@@ -13,6 +13,7 @@ import Settings from './pages/Settings.tsx';
 import NotFound from './pages/NotFound.tsx';
 import FormBuilder from './pages/FormBuilder.tsx';
 import FormResponder from './pages/FormResponder.tsx';
+import RedeRelacionamentos from './pages/RedeRelacionamentos.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import { Toaster } from "@/components/ui/sonner";
 import { Layout } from './components/layout/Layout.tsx';
@@ -39,7 +40,8 @@ function App() {
       <Routes>
         <Route path="/" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
         <Route path="/grupos-caseiros" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
-        <Route path="/gestao/vinculados" element={<AuthenticatedLayout requireManagement><MemberManagement /></AuthenticatedLayout>} />
+        <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
+        <Route path="/gestao/grafo" element={<AuthenticatedLayout requireManagement><RedeRelacionamentos /></AuthenticatedLayout>} />
         <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
         <Route path="/formularios/responder/:formId" element={<FormResponder />} />
         <Route path="/noticias/nova" element={<AuthenticatedLayout><CreatePost /></AuthenticatedLayout>} />
