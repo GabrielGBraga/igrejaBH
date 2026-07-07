@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Home from "./pages/Home.tsx";
@@ -44,6 +45,7 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster />
+      <Analytics />
       <Routes>
         <Route path="/" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
         <Route path="/grupos-caseiros" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
