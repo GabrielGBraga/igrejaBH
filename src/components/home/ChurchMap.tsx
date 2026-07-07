@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { NavigationIcon, MapPinIcon, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MapPinIcon, Users } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -24,7 +23,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface HomeGroupData {
   id: string;
   meeting_day?: number | null;
-  location_text: string;
+  location_text: string | null;
   lat: number | null;
   lng: number | null;
   sector_id?: string | null;

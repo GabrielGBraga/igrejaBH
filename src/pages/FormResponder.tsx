@@ -142,7 +142,7 @@ export default function FormResponder() {
             fields: (dbForm.fields as unknown as FormField[]) || [],
             createdAt: dbForm.created_at,
             isPublic: dbForm.is_public,
-            isActive: dbForm.is_active,
+            isActive: dbForm.is_active ?? true,
           })
 
           // Check associated retreat for status, capacity and expiration date
