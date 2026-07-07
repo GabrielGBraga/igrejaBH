@@ -76,4 +76,5 @@ using (((EXISTS ( SELECT 1
   WHERE ((profiles.id = posts.author_id) AND (profiles.user_id = auth.uid())))) OR (EXISTS ( SELECT 1
    FROM public.profiles
   WHERE ((profiles.user_id = auth.uid()) AND ((profiles.is_presbyter = true) OR (profiles.is_deacon = true) OR (profiles.is_dev = true)))))));
+DROP TRIGGER IF EXISTS trg_sync_home_group_leaders ON public.home_groups;
 CREATE TRIGGER trg_sync_home_group_leaders AFTER INSERT OR UPDATE OF leader_1_id, leader_2_id ON public.home_groups FOR EACH ROW EXECUTE FUNCTION public.sync_home_group_leaders();
