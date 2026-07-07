@@ -23,6 +23,7 @@ CREATE OR REPLACE FUNCTION public.sync_home_group_leaders()
  SECURITY DEFINER
 AS $function$ BEGIN IF NEW.leader_1_id IS NOT NULL THEN UPDATE public.profiles SET home_group_id = NEW.id WHERE id = NEW.leader_1_id; END IF; IF NEW.leader_2_id IS NOT NULL THEN UPDATE public.profiles SET home_group_id = NEW.id WHERE id = NEW.leader_2_id; END IF; RETURN NEW; END; $function$
 ;
+  drop policy if exists "Liderança pode gerenciar comunhões" on "public"."fellowships";
   create policy "Liderança pode gerenciar comunhões"
   on "public"."fellowships"
   as permissive
