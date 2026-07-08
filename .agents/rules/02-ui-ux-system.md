@@ -30,8 +30,9 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - Mobile: Bottom Tab Bar fixa com ícones Lucide React.
   - O header principal deve SEMPRE conter o `ThemeToggle` e o `UserAvatar`.
 
-## 4. Geração de Telas
-Sempre que o agente for instruído a criar uma nova página, ele deve:
-1. Compor a página inteiramente usando peças existentes na pasta `src/components/ui/`.
-2. Adicionar o wrapper do Layout (Desktop/Mobile).
+## 4. Geração de Telas e Edição de UI
+Sempre que o agente for instruído a criar ou editar elementos de UI, ele deve:
+1. Compor a página/componente priorizando o uso de peças existentes na pasta `src/components/ui/` (shadcn/ui).
+2. Adicionar o wrapper do Layout (Desktop/Mobile) correspondente.
 3. Nunca usar cores fixas (como `text-black` ou `bg-white`) sem a contraparte `dark:`.
+4. **Verificação Pós-Edição:** Após qualquer alteração que envolva UI, verificar se não há componentes nativos ou customizados sendo implementados/mantidos que poderiam (e deveriam) ser substituídos por componentes do `shadcn/ui` já instalados ou disponíveis para instalação.
