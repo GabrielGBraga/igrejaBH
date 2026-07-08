@@ -264,29 +264,29 @@ export type Database = {
           address_zip_code: string | null
           avatar_url: string | null
           baptism_date: string | null
-          birth_date: string | null
+          birth_date: string
           can_post: boolean | null
-          cpf: string | null
-          created_at: string | null
-          dependents_count: number
+          cpf: string
+          created_at: string
+          dependents_count: number | null
           discipler_id: string | null
-          drivers_license: string
-          education_level: string
+          drivers_license: string | null
+          education_level: string | null
           email: string | null
-          employment_status: string
+          employment_status: string | null
           father_id: string | null
           full_name: string
           gender: string | null
           home_group_id: string | null
-          household_income: string
-          housing_status: string
+          household_income: string | null
+          housing_status: string | null
           id: string
           is_deacon: boolean | null
           is_dev: boolean | null
           is_presbyter: boolean | null
           marital_status: string | null
           mother_id: string | null
-          occupation: string
+          occupation: string | null
           phone: string | null
           spouse_id: string | null
           user_id: string | null
@@ -301,29 +301,29 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
-          birth_date?: string | null
+          birth_date: string
           can_post?: boolean | null
-          cpf?: string | null
-          created_at?: string | null
-          dependents_count?: number
+          cpf: string
+          created_at?: string
+          dependents_count?: number | null
           discipler_id?: string | null
-          drivers_license: string
-          education_level: string
+          drivers_license?: string | null
+          education_level?: string | null
           email?: string | null
-          employment_status: string
+          employment_status?: string | null
           father_id?: string | null
           full_name: string
           gender?: string | null
           home_group_id?: string | null
-          household_income: string
-          housing_status: string
+          household_income?: string | null
+          housing_status?: string | null
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
           mother_id?: string | null
-          occupation: string
+          occupation?: string | null
           phone?: string | null
           spouse_id?: string | null
           user_id?: string | null
@@ -338,29 +338,29 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
-          birth_date?: string | null
+          birth_date?: string
           can_post?: boolean | null
-          cpf?: string | null
-          created_at?: string | null
-          dependents_count?: number
+          cpf?: string
+          created_at?: string
+          dependents_count?: number | null
           discipler_id?: string | null
-          drivers_license?: string
-          education_level?: string
+          drivers_license?: string | null
+          education_level?: string | null
           email?: string | null
-          employment_status?: string
+          employment_status?: string | null
           father_id?: string | null
           full_name?: string
           gender?: string | null
           home_group_id?: string | null
-          household_income?: string
-          housing_status?: string
+          household_income?: string | null
+          housing_status?: string | null
           id?: string
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
           marital_status?: string | null
           mother_id?: string | null
-          occupation?: string
+          occupation?: string | null
           phone?: string | null
           spouse_id?: string | null
           user_id?: string | null
