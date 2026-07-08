@@ -83,13 +83,13 @@ interface UserProfile {
   spouse_name?: string
   father_name?: string
   mother_name?: string
-  occupation: string
-  education_level: string
-  employment_status: string
-  household_income: string
-  dependents_count: number
-  housing_status: string
-  drivers_license: string
+  occupation?: string | null
+  education_level?: string | null
+  employment_status?: string | null
+  household_income?: string | null
+  dependents_count?: number | null
+  housing_status?: string | null
+  drivers_license?: string | null
 }
 
 interface MemberOption {
@@ -663,7 +663,7 @@ export default function Profile() {
                 />
                 <InfoItem
                   label="Dependentes"
-                  value={profile.dependents_count.toString()}
+                  value={profile.dependents_count?.toString()}
                 />
                 <InfoItem label="Moradia" value={profile.housing_status} />
                 <InfoItem label="CNH" value={profile.drivers_license} />
