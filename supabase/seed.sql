@@ -628,83 +628,261 @@ BEGIN
   -- 5. CONFIGURAÇÃO DE RELACIONAMENTOS DE DISCIPULADO (Árvore Hierárquica)
   -- ==========================================================================
   
-  -- 5A. Discipulado de Presbíteros (4 homens)
-  UPDATE public.profiles SET discipler_id = presbyters[1] WHERE id IN (presbyters[2], presbyters[3], presbyters[4]);
+  -- 5A. Discipulado de Presbíteros (4 homens) e suas esposas (4 mulheres)
+  -- Presbíteros e suas esposas não possuem discipuladores (discipler_id = NULL). Eles possuem apenas companheirismo mútuo.
+  UPDATE public.profiles SET discipler_id = NULL WHERE id IN (presbyters[1], presbyters[2], presbyters[3], presbyters[4]);
+  UPDATE public.profiles SET discipler_id = NULL WHERE spouse_id IN (presbyters[1], presbyters[2], presbyters[3], presbyters[4]) AND gender = 'F';
 
-  -- 5B. Discipulado de Diáconos (6 homens, incluindo Gabriel)
+  -- 5B. Discipulado de Diáconos (6 homens, incluindo Gabriel) e suas esposas (6 mulheres)
+  -- Distribuídos de forma equilibrada sob os 4 presbíteros e suas esposas.
+  -- Ex: Diácono é discipulado por Presbítero, Esposa de Diácono é discipada por Esposa de Presbítero.
   FOR i IN 1..array_length(deacons, 1) LOOP
-    r_idx := (i % 4) + 1;
-    UPDATE public.profiles SET discipler_id = presbyters[r_idx] WHERE id = deacons[i];
+    r_idx := ((i - 1) % 4) + 1;
+    DECLARE
+      v_presbyter_id uuid := presbyters[r_idx];
+      v_deacon_id uuid := deacons[i];
+      v_presbyter_wife_id uuid;
+      v_deacon_wife_id uuid;
+    BEGIN
+      SELECT id INTO v_presbyter_wife_id FROM public.profiles WHERE spouse_id = v_presbyter_id AND gender = 'F';
+      SELECT id INTO v_deacon_wife_id FROM public.profiles WHERE spouse_id = v_deacon_id AND gender = 'F';
+      
+      -- Maridos
+      UPDATE public.profiles SET discipler_id = v_presbyter_id WHERE id = v_deacon_id;
+      -- Esposas
+      IF v_presbyter_wife_id IS NOT NULL AND v_deacon_wife_id IS NOT NULL THEN
+        UPDATE public.profiles SET discipler_id = v_presbyter_wife_id WHERE id = v_deacon_wife_id;
+      END IF;
+    END;
   END LOOP;
 
-  -- 5C. Discipulado de Outros Líderes de GC (38 homens restantes)
-  FOR i IN 1..array_length(leader_ids, 1) LOOP
-    temp_profile_id := leader_ids[i];
-    IF NOT (temp_profile_id = ANY(presbyters)) AND NOT (temp_profile_id = ANY(deacons)) THEN
-      UPDATE public.profiles p
-      SET discipler_id = (
-        SELECT id FROM public.profiles
-        WHERE gender = 'M' 
-          AND id <> p.id 
-          AND id = ANY(leader_ids)
-          AND baptism_date < p.baptism_date
-        ORDER BY baptism_date DESC
-        LIMIT 1
-      )
-      WHERE id = temp_profile_id;
-    END IF;
-  END LOOP;
+  -- 5C. Discipulado de Outros Líderes de GC (38 casais restantes)
+  -- Processados por ordem de batismo do marido crescente. Casal é discipulado por outro Casal.
+  DECLARE
+    r_leader_couple RECORD;
+    v_parent_husband_id uuid;
+    v_parent_wife_id uuid;
+  BEGIN
+    FOR r_leader_couple IN 
+      SELECT 
+        h.id AS husband_id, 
+        w.id AS wife_id, 
+        h.baptism_date AS husband_bapt, 
+        w.baptism_date AS wife_bapt
+      FROM public.profiles h
+      JOIN public.profiles w ON h.spouse_id = w.id
+      WHERE h.gender = 'M' AND w.gender = 'F'
+        AND h.id = ANY(leader_ids)
+        AND NOT (h.id = ANY(presbyters)) 
+        AND NOT (h.id = ANY(deacons))
+      ORDER BY h.baptism_date ASC, h.id ASC
+    LOOP
+      SELECT 
+        parent_h.id, parent_w.id INTO v_parent_husband_id, v_parent_wife_id
+      FROM public.profiles parent_h
+      JOIN public.profiles parent_w ON parent_h.spouse_id = parent_w.id
+      WHERE parent_h.gender = 'M' AND parent_w.gender = 'F'
+        AND parent_h.id = ANY(leader_ids)
+        AND (parent_h.discipler_id IS NOT NULL OR parent_h.id = ANY(presbyters))
+        AND parent_h.baptism_date < r_leader_couple.husband_bapt
+        AND parent_w.baptism_date < r_leader_couple.wife_bapt
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent_h.id
+        ) < 3
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent_w.id
+        ) < 3
+      ORDER BY parent_h.baptism_date ASC, parent_h.id ASC
+      LIMIT 1;
 
-  -- 5D. Discipulado Geral de Discípulos e Membros Comuns (Homens)
-  UPDATE public.profiles p
-  SET discipler_id = COALESCE(
-    (
-      SELECT id FROM public.profiles
-      WHERE gender = 'M'
-        AND id <> p.id
-        AND id = ANY(leader_ids)
-        AND baptism_date < p.baptism_date
-      ORDER BY baptism_date DESC
-      LIMIT 1
-    ),
-    (
-      SELECT id FROM public.profiles
-      WHERE gender = 'M'
-        AND id <> p.id
-        AND baptism_date < p.baptism_date
-      ORDER BY baptism_date DESC
-      LIMIT 1
-    )
-  )
-  WHERE gender = 'M' 
-    AND NOT (id = ANY(leader_ids)) 
-    AND NOT (id = ANY(presbyters)) 
-    AND NOT (id = ANY(deacons))
-    AND baptism_date IS NOT NULL;
+      IF v_parent_husband_id IS NOT NULL THEN
+        UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_leader_couple.husband_id;
+        UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_leader_couple.wife_id;
+      ELSE
+        -- Fallback: ignora maturidade da esposa e ajusta se necessário
+        SELECT 
+          parent_h.id, parent_w.id INTO v_parent_husband_id, v_parent_wife_id
+        FROM public.profiles parent_h
+        JOIN public.profiles parent_w ON parent_h.spouse_id = parent_w.id
+        WHERE parent_h.gender = 'M' AND parent_w.gender = 'F'
+          AND parent_h.id = ANY(leader_ids)
+          AND (parent_h.discipler_id IS NOT NULL OR parent_h.id = ANY(presbyters))
+          AND parent_h.baptism_date < r_leader_couple.husband_bapt
+        ORDER BY parent_h.baptism_date ASC, parent_h.id ASC
+        LIMIT 1;
 
-  -- 5E. Discipulado de Mulheres
-  UPDATE public.profiles p
-  SET discipler_id = COALESCE(
-    (
-      SELECT id FROM public.profiles
-      WHERE gender = 'F'
-        AND id <> p.id
-        AND spouse_id = ANY(leader_ids)
-        AND baptism_date < p.baptism_date
-      ORDER BY baptism_date DESC
-      LIMIT 1
-    ),
-    (
-      SELECT id FROM public.profiles
-      WHERE gender = 'F'
-        AND id <> p.id
-        AND baptism_date < p.baptism_date
-      ORDER BY baptism_date DESC
-      LIMIT 1
-    )
-  )
-  WHERE gender = 'F'
-    AND baptism_date IS NOT NULL;
+        IF v_parent_husband_id IS NOT NULL THEN
+          UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_leader_couple.husband_id;
+          UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_leader_couple.wife_id;
+          
+          -- Ajustar data de batismo
+          DECLARE
+            v_parent_wife_bapt date;
+          BEGIN
+            SELECT baptism_date INTO v_parent_wife_bapt FROM public.profiles WHERE id = v_parent_wife_id;
+            IF v_parent_wife_bapt >= r_leader_couple.wife_bapt THEN
+              UPDATE public.profiles 
+              SET baptism_date = (r_leader_couple.wife_bapt - INTERVAL '1 day')::date 
+              WHERE id = v_parent_wife_id;
+            END IF;
+          END;
+        END IF;
+      END IF;
+    END LOOP;
+  END;
+
+  -- 5D. Discipulado Geral de Casais Comuns (48 casais)
+  -- Processados por ordem de batismo do marido crescente. Casal é discipulado por outro Casal.
+  DECLARE
+    r_member_couple RECORD;
+    v_parent_husband_id uuid;
+    v_parent_wife_id uuid;
+  BEGIN
+    FOR r_member_couple IN 
+      SELECT 
+        h.id AS husband_id, 
+        w.id AS wife_id, 
+        h.baptism_date AS husband_bapt, 
+        w.baptism_date AS wife_bapt
+      FROM public.profiles h
+      JOIN public.profiles w ON h.spouse_id = w.id
+      WHERE h.gender = 'M' AND w.gender = 'F'
+        AND NOT (h.id = ANY(leader_ids))
+        AND h.baptism_date IS NOT NULL AND w.baptism_date IS NOT NULL
+      ORDER BY h.baptism_date ASC, h.id ASC
+    LOOP
+      SELECT 
+        parent_h.id, parent_w.id INTO v_parent_husband_id, v_parent_wife_id
+      FROM public.profiles parent_h
+      JOIN public.profiles parent_w ON parent_h.spouse_id = parent_w.id
+      WHERE parent_h.gender = 'M' AND parent_w.gender = 'F'
+        AND (parent_h.discipler_id IS NOT NULL OR parent_h.id = ANY(presbyters))
+        AND parent_h.baptism_date < r_member_couple.husband_bapt
+        AND parent_w.baptism_date < r_member_couple.wife_bapt
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent_h.id
+        ) < 3
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent_w.id
+        ) < 3
+      ORDER BY parent_h.baptism_date ASC, parent_h.id ASC
+      LIMIT 1;
+
+      IF v_parent_husband_id IS NOT NULL THEN
+        UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_member_couple.husband_id;
+        UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_member_couple.wife_id;
+      ELSE
+        -- Fallback
+        SELECT 
+          parent_h.id, parent_w.id INTO v_parent_husband_id, v_parent_wife_id
+        FROM public.profiles parent_h
+        JOIN public.profiles parent_w ON parent_h.spouse_id = parent_w.id
+        WHERE parent_h.gender = 'M' AND parent_w.gender = 'F'
+          AND (parent_h.discipler_id IS NOT NULL OR parent_h.id = ANY(presbyters))
+          AND parent_h.baptism_date < r_member_couple.husband_bapt
+        ORDER BY parent_h.baptism_date ASC, parent_h.id ASC
+        LIMIT 1;
+
+        IF v_parent_husband_id IS NOT NULL THEN
+          UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_member_couple.husband_id;
+          UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_member_couple.wife_id;
+          
+          -- Ajustar data de batismo
+          DECLARE
+            v_parent_wife_bapt date;
+          BEGIN
+            SELECT baptism_date INTO v_parent_wife_bapt FROM public.profiles WHERE id = v_parent_wife_id;
+            IF v_parent_wife_bapt >= r_member_couple.wife_bapt THEN
+              UPDATE public.profiles 
+              SET baptism_date = (r_member_couple.wife_bapt - INTERVAL '1 day')::date 
+              WHERE id = v_parent_wife_id;
+            END IF;
+          END;
+        END IF;
+      END IF;
+    END LOOP;
+  END;
+
+  -- 5E. Discipulado de Membros Solteiros (Homens e Mulheres Individuais)
+  -- Processados individualmente por ordem de batismo crescente.
+  
+  -- 5E.1 Solteiros Homens
+  DECLARE
+    r_single_man RECORD;
+    v_parent_id uuid;
+  BEGIN
+    FOR r_single_man IN 
+      SELECT id, baptism_date 
+      FROM public.profiles 
+      WHERE gender = 'M' AND spouse_id IS NULL AND baptism_date IS NOT NULL
+      ORDER BY baptism_date ASC, id ASC
+    LOOP
+      SELECT id INTO v_parent_id
+      FROM public.profiles parent
+      WHERE parent.gender = 'M'
+        AND parent.baptism_date < r_single_man.baptism_date
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent.id
+        ) < 3
+      ORDER BY parent.baptism_date ASC, parent.id ASC
+      LIMIT 1;
+
+      IF v_parent_id IS NOT NULL THEN
+        UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_man.id;
+      ELSE
+        -- Fallback
+        SELECT id INTO v_parent_id
+        FROM public.profiles parent
+        WHERE parent.gender = 'M'
+          AND parent.baptism_date < r_single_man.baptism_date
+        ORDER BY parent.baptism_date ASC, parent.id ASC
+        LIMIT 1;
+        
+        IF v_parent_id IS NOT NULL THEN
+          UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_man.id;
+        END IF;
+      END IF;
+    END LOOP;
+  END;
+
+  -- 5E.2 Solteiras Mulheres
+  DECLARE
+    r_single_woman RECORD;
+    v_parent_id uuid;
+  BEGIN
+    FOR r_single_woman IN 
+      SELECT id, baptism_date 
+      FROM public.profiles 
+      WHERE gender = 'F' AND spouse_id IS NULL AND baptism_date IS NOT NULL
+      ORDER BY baptism_date ASC, id ASC
+    LOOP
+      SELECT id INTO v_parent_id
+      FROM public.profiles parent
+      WHERE parent.gender = 'F'
+        AND parent.baptism_date < r_single_woman.baptism_date
+        AND (
+          SELECT count(*) FROM public.profiles WHERE discipler_id = parent.id
+        ) < 3
+      ORDER BY parent.baptism_date ASC, parent.id ASC
+      LIMIT 1;
+
+      IF v_parent_id IS NOT NULL THEN
+        UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_woman.id;
+      ELSE
+        -- Fallback
+        SELECT id INTO v_parent_id
+        FROM public.profiles parent
+        WHERE parent.gender = 'F'
+          AND parent.baptism_date < r_single_woman.baptism_date
+        ORDER BY parent.baptism_date ASC, parent.id ASC
+        LIMIT 1;
+        
+        IF v_parent_id IS NOT NULL THEN
+          UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_woman.id;
+        END IF;
+      END IF;
+    END LOOP;
+  END;
 
   -- ==========================================================================
   -- 6. CONFIGURAÇÃO DE COMPANHEIRISMO (Tabela Fellowships)
@@ -720,6 +898,25 @@ BEGIN
       END IF;
     END LOOP;
   END LOOP;
+
+  -- 6A_Wives. Companheirismo Completo entre Esposas de Presbíteros (4 mulheres)
+  DECLARE
+    v_presbyter_wives uuid[] := ARRAY[]::uuid[];
+  BEGIN
+    SELECT array_agg(id) INTO v_presbyter_wives
+    FROM public.profiles
+    WHERE spouse_id = ANY(presbyters) AND gender = 'F';
+
+    FOR i IN 1..4 LOOP
+      FOR j IN (i+1)..4 LOOP
+        IF i < j THEN
+          INSERT INTO public.fellowships (member_a_id, member_b_id, created_at)
+          VALUES (v_presbyter_wives[i], v_presbyter_wives[j], now())
+          ON CONFLICT DO NOTHING;
+        END IF;
+      END LOOP;
+    END LOOP;
+  END;
 
   -- 6B. Juntas de Companheirismo para Membros Casados (Homens e Mulheres)
   FOR rec IN SELECT id, gender, baptism_date FROM public.profiles WHERE spouse_id IS NOT NULL LOOP
@@ -803,7 +1000,49 @@ BEGIN
   -- ==========================================================================
   -- 8. DADOS ADICIONAIS: RETIRO E INSCRIÇÕES DE TESTE
   -- ==========================================================================
-  INSERT INTO public.retreats (id, title, price, start_date, end_date, description, location_text, max_participants, status, registration_deadline)
+  
+  -- 8A. Criar formulário de inscrição do retiro
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  VALUES (
+    'form-solteiros-2026',
+    'Ficha de Inscrição Complementar - Retiro de Solteiros 2026',
+    'Por favor, responda às perguntas adicionais para a logística do retiro.',
+    '[
+      {
+        "id": "tamanho_camiseta",
+        "type": "select",
+        "label": "Tamanho da Camiseta",
+        "placeholder": "Selecione o tamanho",
+        "required": true,
+        "helpText": "Camiseta oficial do retiro",
+        "options": ["P", "M", "G", "GG"]
+      },
+      {
+        "id": "restricoes_alimentares",
+        "type": "text",
+        "label": "Restrições Alimentares",
+        "placeholder": "Descreva se houver restrições (ex: alergias, vegetariano)",
+        "required": false,
+        "helpText": "Para a logística da cozinha",
+        "options": []
+      },
+      {
+        "id": "transporte",
+        "type": "radio",
+        "label": "Precisa de Transporte?",
+        "placeholder": "",
+        "required": true,
+        "helpText": "Teremos ônibus saindo da igreja na cidade",
+        "options": ["Sim", "Não"]
+      }
+    ]'::jsonb,
+    true,
+    now(),
+    true
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+
+  -- 8B. Criar Retiro de Solteiros 2026
+  INSERT INTO public.retreats (id, title, price, start_date, end_date, description, location_text, max_participants, status, registration_deadline, form_id)
   VALUES (
     '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc',
     'Retiro de Solteiros 2026',
@@ -814,27 +1053,93 @@ BEGIN
     'Sítio das Palmeiras, Santa Luzia, MG',
     150,
     'ativo',
-    '2026-09-30'
-  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
+    '2026-09-30',
+    'form-solteiros-2026'
+  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, form_id = EXCLUDED.form_id;
 
-  -- Inscreve Gabriel Góes Braga no Retiro
+  -- 8C. Inscreve Gabriel Góes Braga no Retiro
   IF gabriel_id IS NOT NULL THEN
-    INSERT INTO public.registrations (retreat_id, profile_id, paid, payment_method, payment_reference, created_at)
-    VALUES ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', gabriel_id, true, 'pix', 'REF-SEED-GABRIEL-123', now());
+    DECLARE
+      v_sub_id text := 'sub-gabriel-123';
+      v_user_id uuid;
+    BEGIN
+      SELECT user_id INTO v_user_id FROM public.profiles WHERE id = gabriel_id;
+      
+      -- Criar a submissão do formulário
+      INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
+      VALUES (
+        v_sub_id,
+        'form-solteiros-2026',
+        '{"tamanho_camiseta": "G", "restricoes_alimentares": "Nenhuma", "transporte": "Não"}'::jsonb,
+        v_user_id,
+        now()
+      );
+
+      -- Criar a inscrição apontando para a submissão
+      INSERT INTO public.registrations (
+        retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id, custom_responses
+      )
+      VALUES (
+        '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
+        gabriel_id, 
+        true, 
+        'pix', 
+        'REF-SEED-GABRIEL-123', 
+        now(), 
+        v_sub_id,
+        '{"Tamanho da Camiseta": "G", "Restrições Alimentares": "Nenhuma", "Precisa de Transporte?": "Não"}'::jsonb
+      );
+    END;
   END IF;
 
-  -- Inscreve alguns solteiros aleatórios
-  FOR rec IN SELECT id FROM public.profiles WHERE spouse_id IS NULL AND baptism_date IS NOT NULL AND id <> gabriel_id LIMIT 10 LOOP
-    INSERT INTO public.registrations (retreat_id, profile_id, paid, payment_method, payment_reference, created_at)
-    VALUES (
-      '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
-      rec.id, 
-      ((random() > 0.4)), -- 60% pago
-      'pix', 
-      'REF-SEED-SOLTEIRO-' || substring((rec.id)::text from 1 for 6), 
-      now() - (random() * 5 * INTERVAL '1 day')
-    );
-  END LOOP;
+  -- 8D. Inscreve alguns solteiros aleatórios com suas respectivas submissões
+  DECLARE
+    v_sub_id text;
+    v_user_id uuid;
+    v_tamanho text;
+    v_transporte text;
+    v_count int := 0;
+    v_rec RECORD;
+  BEGIN
+    FOR v_rec IN 
+      SELECT id, user_id 
+      FROM public.profiles 
+      WHERE spouse_id IS NULL AND baptism_date IS NOT NULL AND id <> gabriel_id 
+      LIMIT 10 
+    LOOP
+      v_count := v_count + 1;
+      v_sub_id := 'sub-solteiro-' || v_count || '-' || substring((v_rec.id)::text from 1 for 6);
+      
+      -- Respostas aleatórias
+      v_tamanho := (ARRAY['P', 'M', 'G', 'GG'])[1 + (v_count % 4)];
+      v_transporte := CASE WHEN v_count % 3 = 0 THEN 'Sim' ELSE 'Não' END;
+
+      -- Inserir submissão do formulário
+      INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
+      VALUES (
+        v_sub_id,
+        'form-solteiros-2026',
+        jsonb_build_object('tamanho_camiseta', v_tamanho, 'restricoes_alimentares', 'Nenhuma', 'transporte', v_transporte),
+        v_rec.user_id,
+        now() - (v_count * INTERVAL '12 hours')
+      );
+
+      -- Inserir inscrição
+      INSERT INTO public.registrations (
+        retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id, custom_responses
+      )
+      VALUES (
+        '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
+        v_rec.id, 
+        ((random() > 0.4)), -- 60% pago
+        'pix', 
+        'REF-SEED-SOLTEIRO-' || substring((v_rec.id)::text from 1 for 6), 
+        now() - (v_count * INTERVAL '12 hours'),
+        v_sub_id,
+        jsonb_build_object('Tamanho da Camiseta', v_tamanho, 'Restrições Alimentares', 'Nenhuma', 'Precisa de Transporte?', v_transporte)
+      );
+    END LOOP;
+  END;
 
   -- ==========================================================================
   -- 9. HIGIENE DE CAMPOS OBRIGATÓRIOS (Para passar no ProfileCompletionBlocker)
