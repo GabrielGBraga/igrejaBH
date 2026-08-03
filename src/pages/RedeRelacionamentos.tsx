@@ -58,20 +58,18 @@ interface GraphNode {
   phone: string | null;
   email: string | null;
   disciplerId: string | null;
+  spouseId: string | null;
+  level?: number;
   
-  // Physics properties
+  // Coordenadas
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  fx?: number;
-  fy?: number;
 }
 
 interface GraphLink {
   source: string;
   target: string;
-  type: "discipler" | "fellowship" | "group_leader";
+  type: "discipler" | "fellowship" | "group_leader" | "marriage";
 }
 
 export default function RedeRelacionamentos() {
@@ -90,28 +88,18 @@ export default function RedeRelacionamentos() {
   const [selectedGender, setSelectedGender] = useState<string>("all");
   const [searchName, setSearchName] = useState<string>("");
   
-  // Connection types to show
-  const [showDiscipler, setShowDiscipler] = useState(true);
-  const [showFellowship, setShowFellowship] = useState(true);
-  const [showGroupLeader, setShowGroupLeader] = useState(true);
+  // Connection type to show (only one at a time)
+  const [activeConnectionType, setActiveConnectionType] = useState<"discipler" | "fellowship" | "group_leader">("discipler");
 
   // Zoom & Pan
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [isPanning, setIsPanning] = useState(false);
+  const [isolateSelectedConnections, setIsolateSelectedConnections] = useState(false);
+  const nodePositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map());
 
   // Selected disciple details
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Refs
-  const svgRef = useRef<SVGSVGElement>(null);
-  const draggedNodeRef = useRef<string | null>(null);
-  const startPanRef = useRef({ x: 0, y: 0 });
-  const alphaRef = useRef(1.0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const canvasWidth = 800;
-  const canvasHeight = 600;
+  const canvasWidth = 1400;
+  const canvasHeight = 800;
 
   // Sectors States
   const [isSectorDialogOpen, setIsSectorDialogOpen] = useState(false);
@@ -210,52 +198,7 @@ export default function RedeRelacionamentos() {
     loadData();
   }, [loadData]);
 
-  // Keep refs of zoom and pan so handleWheelEvent never becomes stale
-  const zoomRef = useRef(zoom);
-  const panRef = useRef(pan);
-  const prevNodeRef = useRef<SVGSVGElement | null>(null);
 
-  useEffect(() => {
-    zoomRef.current = zoom;
-  }, [zoom]);
-
-  useEffect(() => {
-    panRef.current = pan;
-  }, [pan]);
-
-  const handleWheelEvent = useCallback((e: WheelEvent) => {
-    e.preventDefault();
-    
-    const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-    const currentZoom = zoomRef.current;
-    const newZoom = Math.max(0.1, Math.min(currentZoom * zoomFactor, 5));
-    
-    const svgEl = e.currentTarget as SVGSVGElement;
-    if (!svgEl) return;
-    
-    const rect = svgEl.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    setPan(prev => ({
-      x: mouseX - (mouseX - prev.x) * (newZoom / currentZoom),
-      y: mouseY - (mouseY - prev.y) * (newZoom / currentZoom),
-    }));
-    setZoom(newZoom);
-  }, []);
-
-  const svgRefCallback = useCallback((node: SVGSVGElement | null) => {
-    const ref = svgRef as React.MutableRefObject<SVGSVGElement | null>;
-    ref.current = node;
-
-    if (prevNodeRef.current) {
-      prevNodeRef.current.removeEventListener("wheel", handleWheelEvent);
-    }
-    if (node) {
-      node.addEventListener("wheel", handleWheelEvent, { passive: false });
-    }
-    prevNodeRef.current = node;
-  }, [handleWheelEvent]);
 
   const handleOpenEditHomeGroup = (hg: HomeGroup) => {
     setSelectedHomeGroupToEdit(hg);
@@ -618,9 +561,71 @@ export default function RedeRelacionamentos() {
 
   // Build the complete graph (nodes & links) from raw data
   const rawGraph = useMemo(() => {
-    if (profiles.length === 0) return { nodes: [], links: [] };
+    if (profiles.length === 0) return { nodes: [], links: [], maxLevel: 1 };
 
     const uniqueDisciplers = new Set(profiles.map(p => p.discipler_id).filter((id): id is string => !!id));
+
+    // Calculate level of discipleship for each profile recursively
+    const profileMap = new Map(profiles.map(p => [p.id, p]));
+    const nodeLevels = new Map<string, number>();
+
+    profiles.forEach(p => {
+      let currentId = p.id;
+      let distance = 0;
+      const visited = new Set<string>();
+      let computedLevel = 1;
+
+      while (currentId) {
+        if (visited.has(currentId)) break;
+        visited.add(currentId);
+
+        const currentProfile = profileMap.get(currentId);
+        if (!currentProfile) {
+          computedLevel = 1 + distance;
+          break;
+        }
+
+        if (currentProfile.is_presbyter) {
+          computedLevel = 1 + distance;
+          break;
+        }
+
+        if (!currentProfile.discipler_id || !profileMap.has(currentProfile.discipler_id)) {
+          let baseLevel = 1;
+          const isLeader = leaderIds.has(currentProfile.id);
+          const isDiscipler = uniqueDisciplers.has(currentProfile.id);
+          const isChild = !!(currentProfile.father_id || currentProfile.mother_id) && !currentProfile.baptism_date;
+
+          if (currentProfile.is_presbyter) baseLevel = 1;
+          else if (currentProfile.is_deacon) baseLevel = 2;
+          else if (isLeader || isDiscipler) baseLevel = 3;
+          else if (isChild) baseLevel = 5;
+          else baseLevel = 4; // standard disciple
+
+          computedLevel = baseLevel + distance;
+          break;
+        }
+        currentId = currentProfile.discipler_id;
+        distance++;
+      }
+
+      nodeLevels.set(p.id, computedLevel);
+    });
+
+    // Align levels for married couples to avoid vertical layout conflicts
+    profiles.forEach(p => {
+      if (p.spouse_id) {
+        const spouseLevel = nodeLevels.get(p.spouse_id);
+        const myLevel = nodeLevels.get(p.id);
+        if (myLevel && spouseLevel && myLevel !== spouseLevel) {
+          const minLevel = Math.min(myLevel, spouseLevel);
+          nodeLevels.set(p.id, minLevel);
+          nodeLevels.set(p.spouse_id, minLevel);
+        }
+      }
+    });
+
+    const maxLevelGlobal = Math.max(...Array.from(nodeLevels.values()), 1);
 
     // Create Nodes
     const nodes: GraphNode[] = profiles.map((p, idx) => {
@@ -638,6 +643,8 @@ export default function RedeRelacionamentos() {
       else if (uniqueDisciplers.has(p.id)) role = "discipler";
       else if (!!(p.father_id || p.mother_id) && !p.baptism_date) role = "child";
 
+      const level = nodeLevels.get(p.id) || 1;
+
       // Circular initial layout to distribute clusters nicely
       const angle = (idx / profiles.length) * 2 * Math.PI;
       const radius = role === "presbyter" ? 80 
@@ -647,12 +654,18 @@ export default function RedeRelacionamentos() {
         : role === "child" ? 300 
         : 260;
       
+      const existingPos = nodePositionsRef.current.get(p.id);
+      
+      const genderMapped = p.gender === "F" || p.gender === "feminino" ? "feminino" : p.gender === "M" || p.gender === "masculino" ? "masculino" : p.gender;
+
+      const targetY = level * (canvasHeight / (maxLevelGlobal + 1));
+
       return {
         id: p.id,
         name: p.full_name,
         avatarUrl: p.avatar_url,
         role,
-        gender: p.gender,
+        gender: genderMapped,
         homeGroupId: p.home_group_id,
         homeGroupName: hgName,
         sector: hgSector,
@@ -660,10 +673,10 @@ export default function RedeRelacionamentos() {
         phone: p.phone,
         email: p.email,
         disciplerId: p.discipler_id,
-        x: canvasWidth / 2 + Math.cos(angle) * radius + (Math.random() - 0.5) * 40,
-        y: canvasHeight / 2 + Math.sin(angle) * radius + (Math.random() - 0.5) * 40,
-        vx: 0,
-        vy: 0
+        spouseId: p.spouse_id,
+        level,
+        x: existingPos ? existingPos.x : (canvasWidth / 2 + Math.cos(angle) * radius * 3 + (Math.random() - 0.5) * 80),
+        y: existingPos ? existingPos.y : (targetY + (Math.random() - 0.5) * 40)
       };
     });
 
@@ -682,8 +695,11 @@ export default function RedeRelacionamentos() {
           }
         }
         if (parent) {
-          n.x = parent.x + (Math.random() - 0.5) * 60;
-          n.y = parent.y + (Math.random() - 0.5) * 60;
+          const existingPos = nodePositionsRef.current.get(n.id);
+          if (!existingPos) {
+            n.x = parent.x + (Math.random() - 0.5) * 60;
+            n.y = parent.y + (Math.random() - 0.5) * 60;
+          }
         }
       }
     });
@@ -732,13 +748,26 @@ export default function RedeRelacionamentos() {
       }
     });
 
-    return { nodes, links };
+    // 4. Marriage links (undirected, rose-colored solid lines)
+    profiles.forEach(p => {
+      if (p.spouse_id && nodeMap.has(p.spouse_id)) {
+        if (p.id < p.spouse_id) {
+          links.push({
+            source: p.id,
+            target: p.spouse_id,
+            type: "marriage"
+          });
+        }
+      }
+    });
+
+    return { nodes, links, maxLevel: maxLevelGlobal };
   }, [profiles, fellowships, leaderIds, groupMap, getGroupLeadersName, sectorMap]);
 
   // 2. Filter Graph based on filter values
   const filteredData = useMemo(() => {
     const { nodes, links } = rawGraph;
-    if (nodes.length === 0) return { nodes: [], links: [] };
+    if (nodes.length === 0) return { nodes: [], links: [], maxLevel: 1 };
 
     // Clone nodes so simulation does not affect rawGraph
     const nodesCloned: GraphNode[] = nodes.map(n => ({ ...n }));
@@ -746,7 +775,12 @@ export default function RedeRelacionamentos() {
     // Determine which nodes match the filters
     const matchingNodeIds = new Set<string>();
 
+    const shouldHideChildren = activeConnectionType === "discipler" || activeConnectionType === "fellowship";
+
     nodesCloned.forEach(n => {
+      // REGRA 3: Ocultar crianças em visões de discipulado ("discipler") ou comunhão ("fellowship")
+      if (shouldHideChildren && n.role === "child") return;
+
       // Filter by Sector
       if (selectedSector !== "all" && n.sector !== selectedSector) return;
 
@@ -762,287 +796,47 @@ export default function RedeRelacionamentos() {
       matchingNodeIds.add(n.id);
     });
 
-    // Handle connection filters (which link types are we showing)
-    const activeLinkTypes = new Set<string>();
-    if (showDiscipler) activeLinkTypes.add("discipler");
-    if (showFellowship) activeLinkTypes.add("fellowship");
-    if (showGroupLeader) activeLinkTypes.add("group_leader");
-
-    // Filter links
+    // Filter links by active connection type OR marriage connection
     const filteredLinks = links.filter(link => {
-      // Link type must be checked
-      if (!activeLinkTypes.has(link.type)) return false;
+      const isTypeMatch = link.type === activeConnectionType || link.type === "marriage";
+      if (!isTypeMatch) return false;
       
       // Both ends must be currently matching/visible nodes
       return matchingNodeIds.has(link.source) && matchingNodeIds.has(link.target);
     });
 
     // Nodes that are visible: matching nodes
-    const filteredNodes = nodesCloned.filter(n => matchingNodeIds.has(n.id));
+    let filteredNodes = nodesCloned.filter(n => matchingNodeIds.has(n.id));
 
-    return { nodes: filteredNodes, links: filteredLinks };
-  }, [rawGraph, selectedSector, selectedGroup, selectedRole, selectedGender, showDiscipler, showFellowship, showGroupLeader]);
-
-  // Nodes & Links currently active in the physics simulation
-  const [graphNodes, setGraphNodes] = useState<GraphNode[]>([]);
-  const [graphLinks, setGraphLinks] = useState<GraphLink[]>([]);
-
-  // Sync state and run layout simulation on filter changes
-  useEffect(() => {
-    setGraphNodes(filteredData.nodes);
-    setGraphLinks(filteredData.links);
-    
-    // Wake up the simulation
-    alphaRef.current = 1.0;
-    setIsAnimating(true);
-  }, [filteredData]);
-
-  // Single step of the physics simulation (Verlet integration)
-  const runSimulationStep = (
-    nodes: GraphNode[],
-    links: GraphLink[],
-    width: number,
-    height: number,
-    alpha: number
-  ) => {
-    const kRepulsion = 1500;
-    const kAttraction = 0.06;
-    const kGravity = 0.02;
-    const linkRestLength = 65;
-    const damping = 0.75;
-
-    const nodeMap = new Map<string, GraphNode>();
-    nodes.forEach(n => nodeMap.set(n.id, n));
-
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // 1. Repulsion force between all nodes (prevent overlap)
-    for (let i = 0; i < nodes.length; i++) {
-      const nodeA = nodes[i];
-      for (let j = i + 1; j < nodes.length; j++) {
-        const nodeB = nodes[j];
-        const dx = nodeB.x - nodeA.x;
-        const dy = nodeB.y - nodeA.y;
-        const distSq = dx * dx + dy * dy + 1;
-        const dist = Math.sqrt(distSq);
-        
-        if (dist < 250) {
-          const force = (kRepulsion / distSq) * (1 - dist / 250) * alpha;
-          const fx = dx * force;
-          const fy = dy * force;
-          
-          if (nodeA.fx === undefined) {
-            nodeA.vx -= fx;
-            nodeA.vy -= fy;
-          }
-          if (nodeB.fx === undefined) {
-            nodeB.vx += fx;
-            nodeB.vy += fy;
-          }
+    // If "All groups" is selected and no sector is filtered, filter out isolated nodes to prevent massive clutter
+    if (selectedGroup === "all" && selectedSector === "all") {
+      const connectedNodeIds = new Set<string>();
+      filteredLinks.forEach(link => {
+        // Only count active connection type (not marriage) for isolation filter to prevent cluttering
+        if (link.type === activeConnectionType) {
+          connectedNodeIds.add(link.source);
+          connectedNodeIds.add(link.target);
         }
-      }
+      });
+      filteredNodes = filteredNodes.filter(n => connectedNodeIds.has(n.id));
     }
 
-    // 2. Attraction force along links (pull connected nodes closer)
-    links.forEach(link => {
-      const sourceNode = nodeMap.get(link.source);
-      const targetNode = nodeMap.get(link.target);
-      
-      if (sourceNode && targetNode) {
-        const dx = targetNode.x - sourceNode.x;
-        const dy = targetNode.y - sourceNode.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = (dist - linkRestLength) * kAttraction * alpha;
-        
-        const fx = (dx / dist) * force;
-        const fy = (dy / dist) * force;
-        
-        if (sourceNode.fx === undefined) {
-          sourceNode.vx += fx;
-          sourceNode.vy += fy;
-        }
-        if (targetNode.fx === undefined) {
-          targetNode.vx -= fx;
-          targetNode.vy -= fy;
-        }
-      }
-    });
+    return { nodes: filteredNodes, links: filteredLinks, maxLevel: rawGraph.maxLevel };
+  }, [rawGraph, selectedSector, selectedGroup, selectedRole, selectedGender, activeConnectionType]);
 
-    // 3. Gravity pulling nodes toward the center and apply velocities
-    nodes.forEach(node => {
-      if (node.fx !== undefined && node.fy !== undefined) {
-        node.x = node.fx;
-        node.y = node.fy;
-        node.vx = 0;
-        node.vy = 0;
-        return;
-      }
-      
-      node.vx += (centerX - node.x) * kGravity * alpha;
-      node.vy += (centerY - node.y) * kGravity * alpha;
-
-      // Update positions
-      node.x += node.vx;
-      node.y += node.vy;
-      
-      // Apply damping friction
-      node.vx *= damping;
-      node.vy *= damping;
-
-      // Boundary check to keep nodes inside canvas bounds
-      const padding = 20;
-      node.x = Math.max(padding, Math.min(width - padding, node.x));
-      node.y = Math.max(padding, Math.min(height - padding, node.y));
-    });
-  };
-
-  // Live simulation tick animation loop
-  useEffect(() => {
-    if (!isAnimating || graphNodes.length === 0) return;
-
-    let frameId: number;
-    const tick = () => {
-      // Run 3 steps per frame for faster stabilization
-      for (let i = 0; i < 3; i++) {
-        runSimulationStep(graphNodes, graphLinks, canvasWidth, canvasHeight, alphaRef.current);
-      }
-      
-      // Force React state update
-      setGraphNodes([...graphNodes]);
-      
-      // Cooling factor
-      alphaRef.current *= 0.985;
-      
-      // Stop loop when cooled down and not dragging
-      if (alphaRef.current < 0.005 && !draggedNodeRef.current) {
-        setIsAnimating(false);
-      } else {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-  }, [isAnimating, graphNodes, graphLinks]);
-
-  // Reset Zoom & Pan
-  const handleResetZoom = () => {
-    setPan({ x: 0, y: 0 });
-    setZoom(1);
-  };
-
-  // Pan controls
-  const handleZoom = (factor: number) => {
-    setZoom(prev => Math.max(0.1, Math.min(prev * factor, 5)));
-  };
-
-  // Mouse pan handlers
-  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (e.target !== svgRef.current && (e.target as SVGElement).tagName !== "svg") {
-      return;
-    }
-    setIsPanning(true);
-    startPanRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (draggedNodeRef.current && svgRef.current) {
-      // Dragging node
-      const node = graphNodes.find(n => n.id === draggedNodeRef.current);
-      if (node) {
-        const rect = svgRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        
-        node.fx = (mouseX - pan.x) / zoom;
-        node.fy = (mouseY - pan.y) / zoom;
-        node.x = node.fx;
-        node.y = node.fy;
-        
-        // Re-heat simulation
-        alphaRef.current = 1.0;
-        setIsAnimating(true);
-      }
-    } else if (isPanning) {
-      // Panning background
-      setPan(prev => ({
-        x: prev.x + (e.clientX - startPanRef.current.x),
-        y: prev.y + (e.clientY - startPanRef.current.y),
-      }));
-      startPanRef.current = { x: e.clientX, y: e.clientY };
-    }
-  };
-
-  const handleMouseUpOrLeave = () => {
-    if (draggedNodeRef.current) {
-      const node = graphNodes.find(n => n.id === draggedNodeRef.current);
-      if (node) {
-        node.fx = undefined;
-        node.fy = undefined;
-      }
-      draggedNodeRef.current = null;
-      
-      alphaRef.current = 0.5;
-      setIsAnimating(true);
-    }
-    setIsPanning(false);
-  };
-
-  // Node drag handlers
-  const handleNodeMouseDown = (node: GraphNode, e: React.MouseEvent) => {
-    e.stopPropagation();
-    draggedNodeRef.current = node.id;
-    
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    node.fx = (mouseX - pan.x) / zoom;
-    node.fy = (mouseY - pan.y) / zoom;
-    
-    alphaRef.current = 1.0;
-    setIsAnimating(true);
-  };
-
-  // Node Selection (Focus in detail panel)
-  const handleNodeClick = (node: GraphNode, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedNodeId(node.id);
-  };
-
+  // Selected disciple details
   const selectedNode = useMemo(() => {
     if (!selectedNodeId) return null;
-    return graphNodes.find(n => n.id === selectedNodeId) || null;
-  }, [selectedNodeId, graphNodes]);
-
-  // Highlight matches based on searchName (dim non-matching nodes)
-  const highlightedNodeIds = useMemo(() => {
-    if (!searchName.trim()) return null;
-    const term = searchName.toLowerCase();
-    
-    // Find matching nodes
-    const matches = graphNodes.filter(n => n.name.toLowerCase().includes(term));
-    const ids = new Set(matches.map(n => n.id));
-    
-    // Include their immediate neighbors to keep context
-    graphLinks.forEach(link => {
-      if (ids.has(link.source)) ids.add(link.target);
-      if (ids.has(link.target)) ids.add(link.source);
-    });
-
-    return ids;
-  }, [searchName, graphNodes, graphLinks]);
+    return rawGraph.nodes.find(n => n.id === selectedNodeId) || null;
+  }, [selectedNodeId, rawGraph.nodes]);
 
   // Statistics calculations
   const stats = useMemo(() => {
-    const totalDisciples = graphNodes.length;
-    const totalGcs = new Set(graphNodes.map(n => n.homeGroupId).filter(Boolean)).size;
-    const totalLeaders = graphNodes.filter(n => leaderIds.has(n.id)).length;
+    const totalDisciples = filteredData.nodes.length;
+    const totalGcs = new Set(filteredData.nodes.map(n => n.homeGroupId).filter(Boolean)).size;
+    const totalLeaders = filteredData.nodes.filter(n => leaderIds.has(n.id)).length;
     
-    const disciplesWithDiscipler = graphNodes.filter(n => n.disciplerId);
+    const disciplesWithDiscipler = filteredData.nodes.filter(n => n.disciplerId);
     const uniqueDisciplers = new Set(disciplesWithDiscipler.map(n => n.disciplerId));
     const avgDisciplesPerDiscipler = uniqueDisciplers.size > 0 
       ? (disciplesWithDiscipler.length / uniqueDisciplers.size).toFixed(1) 
@@ -1054,14 +848,14 @@ export default function RedeRelacionamentos() {
       totalLeaders,
       avgDisciplesPerDiscipler
     };
-  }, [graphNodes, leaderIds]);
+  }, [filteredData.nodes, leaderIds]);
 
   // Helpers for selected node connections list
   const selectedNodeRelationships = useMemo(() => {
     if (!selectedNode) return [];
     
     const relations: { nodeId: string; name: string; typeName: string; icon: string }[] = [];
-    const nodeMap = new Map(graphNodes.map(n => [n.id, n]));
+    const nodeMap = new Map(rawGraph.nodes.map(n => [n.id, n]));
 
     // 1. Discipler
     if (selectedNode.disciplerId) {
@@ -1077,7 +871,7 @@ export default function RedeRelacionamentos() {
     }
 
     // 2. Disciples (who they disciple)
-    graphNodes.forEach(n => {
+    rawGraph.nodes.forEach(n => {
       if (n.disciplerId === selectedNode.id) {
         relations.push({
           nodeId: n.id,
@@ -1089,7 +883,7 @@ export default function RedeRelacionamentos() {
     });
 
     // 3. Fellowships
-    graphLinks.forEach(link => {
+    rawGraph.links.forEach(link => {
       if (link.type === "fellowship") {
         if (link.source === selectedNode.id && nodeMap.has(link.target)) {
           const n = nodeMap.get(link.target)!;
@@ -1118,78 +912,7 @@ export default function RedeRelacionamentos() {
       seen.add(key);
       return true;
     });
-  }, [selectedNode, graphNodes, graphLinks]);
-
-  // Node Color Helper
-  const getNodeColorClass = (role: GraphNode["role"], gender: string | null) => {
-    switch (role) {
-      case "presbyter":
-        return {
-          stroke: "#a78bfa", // Violet
-          fill: "rgba(167, 139, 250, 0.15)",
-          text: "text-violet-500",
-          border: "border-violet-500",
-          color: "Violet"
-        };
-      case "deacon":
-        return {
-          stroke: "#22d3ee", // Cyan
-          fill: "rgba(34, 211, 238, 0.15)",
-          text: "text-cyan-500",
-          border: "border-cyan-500",
-          color: "Cyan"
-        };
-      case "leader":
-        return {
-          stroke: "#34d399", // Emerald
-          fill: "rgba(52, 211, 153, 0.15)",
-          text: "text-emerald-500",
-          border: "border-emerald-500",
-          color: "Emerald"
-        };
-      case "discipler":
-        return {
-          stroke: "#6366f1", // Indigo
-          fill: "rgba(99, 102, 241, 0.15)",
-          text: "text-indigo-500",
-          border: "border-indigo-500",
-          color: "Indigo"
-        };
-      case "child":
-        return {
-          stroke: "#f97316", // Orange
-          fill: "rgba(249, 115, 22, 0.15)",
-          text: "text-orange-500",
-          border: "border-orange-500",
-          color: "Orange"
-        };
-      default:
-        if (gender === "feminino") {
-          return {
-            stroke: "#f472b6", // Pink
-            fill: "rgba(244, 114, 182, 0.15)",
-            text: "text-pink-400",
-            border: "border-pink-400",
-            color: "Pink"
-          };
-        } else if (gender === "masculino") {
-          return {
-            stroke: "#60a5fa", // Blue
-            fill: "rgba(96, 165, 250, 0.15)",
-            text: "text-blue-400",
-            border: "border-blue-400",
-            color: "Blue"
-          };
-        }
-        return {
-          stroke: "#a1a1aa", // Zinc/Gray
-          fill: "rgba(161, 161, 170, 0.15)",
-          text: "text-zinc-500 dark:text-zinc-400",
-          border: "border-zinc-400 dark:border-zinc-500",
-          color: "Zinc"
-        };
-    }
-  };
+  }, [selectedNode, rawGraph]);
 
   const getRoleBadgeLabel = (role: GraphNode["role"]) => {
     switch (role) {
@@ -1199,17 +922,6 @@ export default function RedeRelacionamentos() {
       case "discipler": return "Discipulador";
       case "child": return "Criança";
       default: return "Discípulo";
-    }
-  };
-
-  const focusNode = (nodeId: string) => {
-    const node = graphNodes.find(n => n.id === nodeId);
-    if (node) {
-      setPan({
-        x: canvasWidth / 2 - node.x * zoom,
-        y: canvasHeight / 2 - node.y * zoom
-      });
-      setSelectedNodeId(nodeId);
     }
   };
 
@@ -1344,229 +1056,17 @@ export default function RedeRelacionamentos() {
         
         {/* Canvas Graph View */}
         <div className="lg:col-span-3 flex flex-col space-y-4">
-          <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-900/60 backdrop-blur-sm shadow-md dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] overflow-hidden relative min-h-[500px] h-[600px] flex flex-col">
-            
-            {/* Legend / Overlay info */}
-            <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 max-w-[80%] pointer-events-none">
-              <div className="bg-background/90 dark:bg-zinc-900/90 border border-border/50 backdrop-blur px-3 py-1.5 rounded-xl text-xs flex items-center gap-4 shadow-sm pointer-events-auto">
-                <span className="font-semibold text-muted-foreground">Linhas:</span>
-                <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-indigo-500 inline-block"></span> Discipulado</span>
-                <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 border-t border-dashed border-teal-500 inline-block"></span> Companheiros</span>
-                <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 border-t border-dotted border-amber-500 inline-block"></span> Membros do GC</span>
-              </div>
-            </div>
-
-            {/* Canvas Actions Control */}
-            <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
-              <Button size="icon" variant="secondary" onClick={() => handleZoom(1.2)} title="Aproximar">
-                <ZoomIn className="h-4 w-4" />
-              </Button>
-              <Button size="icon" variant="secondary" onClick={() => handleZoom(0.8)} title="Afastar">
-                <ZoomOut className="h-4 w-4" />
-              </Button>
-              <Button size="icon" variant="secondary" onClick={handleResetZoom} title="Centralizar e Redefinir">
-                <Maximize2 className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Empty graph message */}
-            {graphNodes.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-zinc-950/5">
-                <Network className="h-12 w-12 text-zinc-400 mb-2" />
-                <h4 className="text-lg font-semibold text-foreground">Nenhum discípulo coincide com os filtros</h4>
-                <p className="text-sm text-muted-foreground mt-1">Ajuste os filtros de setor, GC ou papéis na barra lateral.</p>
-              </div>
-            )}
-
-            {/* SVG Renderer */}
-            <svg
-              ref={svgRefCallback}
-              className="w-full h-full cursor-grab active:cursor-grabbing select-none"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUpOrLeave}
-              onMouseLeave={handleMouseUpOrLeave}
-            >
-              {/* Directed Link Arrow Marker */}
-              <defs>
-                <marker
-                  id="arrow-marker"
-                  viewBox="0 0 10 10"
-                  refX="9" 
-                  refY="5"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto-start-reverse"
-                >
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1" />
-                </marker>
-              </defs>
-
-              {/* Wrapped translation group for Zoom & Pan */}
-              <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-                
-                {/* Edges (Links) */}
-                <g>
-                  {graphLinks.map((link, idx) => {
-                    const nodeMap = new Map(graphNodes.map(n => [n.id, n]));
-                    const sourceNode = nodeMap.get(link.source);
-                    const targetNode = nodeMap.get(link.target);
-
-                    if (!sourceNode || !targetNode) return null;
-
-                    let color = "#6366f1"; // Indigo default for discipler
-                    let strokeDash: string | undefined = undefined;
-                    let marker: string | undefined = undefined;
-
-                    if (link.type === "fellowship") {
-                      color = "#14b8a6"; // Teal for fellowship
-                      strokeDash = "4,4";
-                    } else if (link.type === "group_leader") {
-                      color = "#f59e0b"; // Amber for group members
-                      strokeDash = "2,2";
-                    } else {
-                      marker = "url(#arrow-marker)";
-                    }
-
-                    const isHighlighted = highlightedNodeIds === null || 
-                      (highlightedNodeIds.has(link.source) && highlightedNodeIds.has(link.target));
-
-                    const sourceRadius = sourceNode.role === "presbyter" ? 22 
-                      : sourceNode.role === "deacon" ? 20 
-                      : sourceNode.role === "leader" ? 18 
-                      : sourceNode.role === "discipler" ? 18 
-                      : sourceNode.role === "child" ? 12 
-                      : 16;
-
-                    const targetRadius = targetNode.role === "presbyter" ? 22 
-                      : targetNode.role === "deacon" ? 20 
-                      : targetNode.role === "leader" ? 18 
-                      : targetNode.role === "discipler" ? 18 
-                      : targetNode.role === "child" ? 12 
-                      : 16;
-
-                    const dx = targetNode.x - sourceNode.x;
-                    const dy = targetNode.y - sourceNode.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    const sourceOffset = sourceRadius;
-                    const targetOffset = targetRadius + (marker ? 2 : 0);
-
-                    const x1 = distance > 0 ? sourceNode.x + (dx / distance) * sourceOffset : sourceNode.x;
-                    const y1 = distance > 0 ? sourceNode.y + (dy / distance) * sourceOffset : sourceNode.y;
-
-                    const x2 = distance > 0 ? targetNode.x - (dx / distance) * targetOffset : targetNode.x;
-                    const y2 = distance > 0 ? targetNode.y - (dy / distance) * targetOffset : targetNode.y;
-
-                    return (
-                      <line
-                        key={`link-${idx}`}
-                        x1={x1}
-                        y1={y1}
-                        x2={x2}
-                        y2={y2}
-                        stroke={color}
-                        strokeWidth={link.type === "discipler" ? 2.5 : 1.8}
-                        strokeDasharray={strokeDash}
-                        markerEnd={marker}
-                        opacity={isHighlighted ? 0.75 : 0.15}
-                        className="transition-opacity duration-200"
-                      />
-                    );
-                  })}
-                </g>
-
-                {/* Nodes (Disciples) */}
-                <g>
-                  {graphNodes.map(node => {
-                    const styles = getNodeColorClass(node.role, node.gender);
-                    const isSelected = selectedNodeId === node.id;
-                    const isDimmed = highlightedNodeIds !== null && !highlightedNodeIds.has(node.id);
-                    const nodeRadius = node.role === "presbyter" ? 22 : node.role === "deacon" ? 20 : node.role === "leader" ? 18 : node.role === "discipler" ? 18 : node.role === "child" ? 12 : 16;
-                    
-                    const nameInitials = node.name
-                      .split(" ")
-                      .filter(Boolean)
-                      .map(n => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .substring(0, 2);
-
-                    return (
-                      <g
-                        key={`node-${node.id}`}
-                        transform={`translate(${node.x}, ${node.y})`}
-                        onMouseDown={(e) => handleNodeMouseDown(node, e)}
-                        onClick={(e) => handleNodeClick(node, e)}
-                        className="cursor-pointer"
-                        opacity={isDimmed ? 0.2 : 1.0}
-                        style={{ transition: "opacity 0.2s" }}
-                      >
-                        {isSelected && (
-                          <circle
-                            r={nodeRadius + 6}
-                            fill="none"
-                            stroke={styles.stroke}
-                            strokeWidth={3}
-                            strokeDasharray="4,2"
-                            className="animate-spin"
-                            style={{ animationDuration: "12s" }}
-                          />
-                        )}
-
-                        <circle
-                          r={nodeRadius}
-                          fill={styles.fill}
-                          stroke={styles.stroke}
-                          strokeWidth={isSelected ? 3.5 : 2}
-                          className="transition-colors duration-200"
-                        />
-
-                        {node.avatarUrl ? (
-                          <g>
-                            <clipPath id={`clip-${node.id}`}>
-                              <circle r={nodeRadius - 1.5} />
-                            </clipPath>
-                            <image
-                              href={node.avatarUrl}
-                              x={-nodeRadius}
-                              y={-nodeRadius}
-                              width={nodeRadius * 2}
-                              height={nodeRadius * 2}
-                              clipPath={`url(#clip-${node.id})`}
-                              preserveAspectRatio="xMidYMid slice"
-                            />
-                          </g>
-                        ) : (
-                          <text
-                            textAnchor="middle"
-                            dy=".3em"
-                            fontSize={nodeRadius * 0.75}
-                            fontWeight="bold"
-                            fill={styles.stroke}
-                            pointerEvents="none"
-                          >
-                            {nameInitials}
-                          </text>
-                        )}
-
-                        <text
-                          textAnchor="middle"
-                          y={nodeRadius + 14}
-                          fontSize="10"
-                          fontWeight={node.role !== "disciple" ? "bold" : "normal"}
-                          fill="currentColor"
-                          className="text-foreground dark:text-zinc-200 select-none bg-background/50 pointer-events-none drop-shadow-sm"
-                        >
-                          {node.name.split(" ")[0]}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
-              </g>
-            </svg>
-          </div>
+          <RelationshipGraph
+            nodes={filteredData.nodes}
+            links={filteredData.links}
+            searchName={searchName}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={setSelectedNodeId}
+            isolateSelectedConnections={isolateSelectedConnections}
+            nodePositionsRef={nodePositionsRef}
+            connectionType={activeConnectionType}
+            maxLevel={filteredData.maxLevel}
+          />
         </div>
 
         {/* Side Panel: Filters and Details */}
@@ -1687,46 +1187,62 @@ export default function RedeRelacionamentos() {
 
               <Separator className="my-2" />
 
-              {/* Connections types to render */}
+              {/* Connection Type Filter (Mutually Exclusive) */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-muted-foreground">Tipos de Conexões</Label>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="link-discipler" 
-                    checked={showDiscipler} 
-                    onCheckedChange={(checked) => {
-                      setShowDiscipler(!!checked);
-                    }} 
-                  />
-                  <Label htmlFor="link-discipler" className="text-xs font-medium cursor-pointer flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span> Discipulado
-                  </Label>
+                <Label className="text-xs font-semibold text-muted-foreground">Tipo de Conexão (Ver uma por vez)</Label>
+                <div className="grid grid-cols-1 gap-1 bg-zinc-100/50 dark:bg-zinc-800/30 p-1 rounded-xl border border-border/30">
+                  <button
+                    type="button"
+                    onClick={() => setActiveConnectionType("discipler")}
+                    className={`px-3 py-1.5 rounded-lg text-left text-xs font-medium transition-all flex items-center gap-2 ${
+                      activeConnectionType === "discipler"
+                        ? "bg-indigo-500 text-white shadow-sm"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50"
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${activeConnectionType === "discipler" ? "bg-white" : "bg-indigo-500"}`}></span>
+                    Discipulado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveConnectionType("fellowship")}
+                    className={`px-3 py-1.5 rounded-lg text-left text-xs font-medium transition-all flex items-center gap-2 ${
+                      activeConnectionType === "fellowship"
+                        ? "bg-teal-500 text-white shadow-sm"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50"
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${activeConnectionType === "fellowship" ? "bg-white" : "bg-teal-500"}`}></span>
+                    Companheiros / Comunhão
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveConnectionType("group_leader")}
+                    className={`px-3 py-1.5 rounded-lg text-left text-xs font-medium transition-all flex items-center gap-2 ${
+                      activeConnectionType === "group_leader"
+                        ? "bg-amber-500 text-white shadow-sm"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50"
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${activeConnectionType === "group_leader" ? "bg-white" : "bg-amber-500"}`}></span>
+                    Liderança do GC
+                  </button>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 pt-2 border-t border-border/30 mt-2">
                   <Checkbox 
-                    id="link-fellowship" 
-                    checked={showFellowship} 
+                    id="isolate-connections" 
+                    checked={isolateSelectedConnections} 
                     onCheckedChange={(checked) => {
-                      setShowFellowship(!!checked);
+                      setIsolateSelectedConnections(!!checked);
                     }} 
+                    disabled={!selectedNodeId}
                   />
-                  <Label htmlFor="link-fellowship" className="text-xs font-medium cursor-pointer flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span> Comunhão / Companheiros
-                  </Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="link-groupleader" 
-                    checked={showGroupLeader} 
-                    onCheckedChange={(checked) => {
-                      setShowGroupLeader(!!checked);
-                    }} 
-                  />
-                  <Label htmlFor="link-groupleader" className="text-xs font-medium cursor-pointer flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Liderança do GC
+                  <Label 
+                    htmlFor="isolate-connections" 
+                    className={`text-xs font-semibold cursor-pointer flex items-center gap-1.5 ${!selectedNodeId ? "opacity-50 cursor-not-allowed" : "text-foreground"}`}
+                  >
+                    Isolar relações do selecionado
                   </Label>
                 </div>
               </div>
@@ -1745,9 +1261,16 @@ export default function RedeRelacionamentos() {
                 </Avatar>
                 <div className="overflow-hidden">
                   <CardTitle className="text-sm font-bold truncate leading-tight">{selectedNode.name}</CardTitle>
-                  <span className="inline-block mt-1 text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-md uppercase tracking-wide">
-                    {getRoleBadgeLabel(selectedNode.role)}
-                  </span>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    <span className="inline-block text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-md uppercase tracking-wide">
+                      {getRoleBadgeLabel(selectedNode.role)}
+                    </span>
+                    {selectedNode.level !== undefined && (
+                      <span className="inline-block text-[10px] font-semibold bg-indigo-500/10 text-indigo-500 px-2 py-0.5 rounded-md uppercase tracking-wide">
+                        Nível {selectedNode.level}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-2 space-y-4 text-xs">
@@ -1792,7 +1315,7 @@ export default function RedeRelacionamentos() {
                       {selectedNodeRelationships.map((rel, idx) => (
                         <div
                           key={`rel-${idx}`}
-                          onClick={() => focusNode(rel.nodeId)}
+                          onClick={() => setSelectedNodeId(rel.nodeId)}
                           className="w-full flex items-center justify-between p-1.5 rounded-lg border border-border/20 bg-background/5 hover:bg-primary/5 hover:border-primary/25 transition-all text-left group cursor-pointer"
                         >
                           <span className="truncate pr-1 flex-1">
@@ -2276,6 +1799,1182 @@ export default function RedeRelacionamentos() {
         </form>
       </DialogContent>
     </Dialog>
+    </div>
+  );
+}
+
+interface RelationshipGraphProps {
+  nodes: GraphNode[];
+  links: GraphLink[];
+  searchName: string;
+  selectedNodeId: string | null;
+  onSelectNode: (id: string | null) => void;
+  isolateSelectedConnections: boolean;
+  nodePositionsRef: React.MutableRefObject<Map<string, { x: number; y: number }>>;
+  connectionType: "discipler" | "fellowship" | "group_leader";
+  maxLevel?: number;
+}
+
+interface TreeNode {
+  id: string;
+  nodes: GraphNode[];
+  parent: TreeNode | null;
+  children: TreeNode[];
+  level: number;
+  prelimX: number;
+  x: number;
+  y: number;
+  width: number;
+  leftContour: Map<number, number>;
+  rightContour: Map<number, number>;
+}
+
+/**
+ * Verifica se a inserção da aresta criaria um ciclo na árvore de discipulado (DAG)
+ */
+function wouldCreateCycle(parent: TreeNode, child: TreeNode): boolean {
+  let current: TreeNode | null = parent;
+  while (current !== null) {
+    if (current.id === child.id) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
+}
+
+/**
+ * Calcula o posicionamento de árvore estática perfeitamente alinhada e compacta
+ */
+export function computeStaticHierarchyLayout(
+  nodes: GraphNode[],
+  links: GraphLink[],
+  width: number,
+  height: number,
+  options?: {
+    levelSpacing?: number;
+    minSiblingSpacing?: number;
+    nodeWidth?: number;
+    spouseGap?: number;
+  }
+): GraphNode[] {
+  const {
+    levelSpacing = 140,
+    minSiblingSpacing = 80,
+    nodeWidth = 36,
+    spouseGap = 16
+  } = options || {};
+
+  if (nodes.length === 0) return [];
+
+  const nodeMap = new Map<string, GraphNode>(nodes.map(n => [n.id, n]));
+
+  // 1. Agrupamento de casais em Super Nós
+  const spouseMap = new Map<string, string>();
+  nodes.forEach(n => {
+    if (n.spouseId && nodeMap.has(n.spouseId)) {
+      spouseMap.set(n.id, n.spouseId);
+    }
+  });
+
+  const treeNodes: TreeNode[] = [];
+  const nodeToTreeNodeMap = new Map<string, TreeNode>();
+  const processedNodes = new Set<string>();
+
+  nodes.forEach(n => {
+    if (processedNodes.has(n.id)) return;
+
+    const spouseId = spouseMap.get(n.id);
+    const nodesInGroup: GraphNode[] = [n];
+    processedNodes.add(n.id);
+
+    if (spouseId && !processedNodes.has(spouseId)) {
+      const spouseNode = nodeMap.get(spouseId);
+      if (spouseNode) {
+        nodesInGroup.push(spouseNode);
+        processedNodes.add(spouseId);
+      }
+    }
+
+    const treeNodeId = nodesInGroup
+      .map(x => x.id)
+      .sort()
+      .join("_");
+
+    const tn: TreeNode = {
+      id: treeNodeId,
+      nodes: nodesInGroup,
+      parent: null,
+      children: [],
+      // REGRA 1: Inicializa o nível com o valor semântico real vindo do banco de dados
+      level: nodesInGroup[0].level || 1,
+      prelimX: 0,
+      x: 0,
+      y: 0,
+      width: nodesInGroup.length === 2 ? (nodeWidth * 2 + spouseGap) : nodeWidth,
+      leftContour: new Map(),
+      rightContour: new Map()
+    };
+
+    treeNodes.push(tn);
+    nodesInGroup.forEach(x => nodeToTreeNodeMap.set(x.id, tn));
+  });
+
+  // 2. Estabelecer fiações de discipulado excluindo ciclos (DAG)
+  links.forEach(link => {
+    if (link.type === "discipler") {
+      const parentTN = nodeToTreeNodeMap.get(link.source);
+      const childTN = nodeToTreeNodeMap.get(link.target);
+
+      if (parentTN && childTN && parentTN.id !== childTN.id) {
+        if (childTN.parent === null) {
+          if (!wouldCreateCycle(parentTN, childTN)) {
+            childTN.parent = parentTN;
+            parentTN.children.push(childTN);
+          }
+        }
+      }
+    }
+  });
+
+  // Identifica todas as raízes da visualização
+  const roots = treeNodes.filter(tn => tn.parent === null);
+
+  // REGRA 2: Separar raízes conectadas (treeRoots) e nós solitários sem ramificações (orphans)
+  const treeRoots: TreeNode[] = [];
+  const orphans: TreeNode[] = [];
+
+  roots.forEach(tn => {
+    if (tn.children.length > 0) {
+      treeRoots.push(tn);
+    } else {
+      orphans.push(tn);
+    }
+  });
+
+  // Ordena raízes das árvores principais pelo cargo
+  const getRolePriority = (role: string) => {
+    switch (role) {
+      case "presbyter": return 1;
+      case "deacon": return 2;
+      case "leader": return 3;
+      case "discipler": return 4;
+      default: return 5;
+    }
+  };
+  treeRoots.sort((a, b) => getRolePriority(a.nodes[0].role) - getRolePriority(b.nodes[0].role));
+
+  // REGRA 1: Recalcular níveis semânticos herdando caminhos reais, sem achatar com nível 1
+  function assignLevels(tn: TreeNode, currentLevel: number) {
+    tn.level = Math.max(tn.nodes[0].level || 1, currentLevel);
+    tn.children.forEach(child => assignLevels(child, tn.level + 1));
+  }
+  treeRoots.forEach(root => assignLevels(root, 1));
+  
+  // Para órfãos, eles já possuem seus níveis semânticos definidos e não se alteram por conexões
+  orphans.forEach(o => {
+    o.level = o.nodes[0].level || 1;
+  });
+
+  // 3. Primeira Passagem (Bottom-Up): prelimX e Contornos (APENAS em treeRoots)
+  function calculatePrelimAndContours(tn: TreeNode) {
+    tn.children.forEach(child => calculatePrelimAndContours(child));
+
+    // A inicialização do contorno do nó deve usar o seu nível absoluto
+    tn.leftContour.set(tn.level, -tn.width / 2);
+    tn.rightContour.set(tn.level, tn.width / 2);
+
+    if (tn.children.length === 0) {
+      tn.prelimX = 0;
+    } else {
+      const children = tn.children;
+      children[0].prelimX = 0;
+
+      const accumulatedRightContour = new Map<number, number>();
+      children[0].rightContour.forEach((val, level) => {
+        accumulatedRightContour.set(level, val);
+      });
+
+      for (let i = 1; i < children.length; i++) {
+        const child = children[i];
+        let shift = 0;
+
+        accumulatedRightContour.forEach((leftRightVal, level) => {
+          const childLeftVal = child.leftContour.get(level);
+          if (childLeftVal !== undefined) {
+            const requiredShift = leftRightVal - childLeftVal + minSiblingSpacing;
+            shift = Math.max(shift, requiredShift);
+          }
+        });
+
+        child.prelimX = shift;
+
+        child.rightContour.forEach((rightVal, level) => {
+          const currentMax = accumulatedRightContour.get(level);
+          const childValDeslocado = child.prelimX + rightVal;
+          if (currentMax !== undefined) {
+            accumulatedRightContour.set(level, Math.max(currentMax, childValDeslocado));
+          } else {
+            accumulatedRightContour.set(level, childValDeslocado);
+          }
+        });
+      }
+
+      const firstChild = children[0];
+      const lastChild = children[children.length - 1];
+      const midPoint = (firstChild.prelimX + lastChild.prelimX) / 2;
+
+      children.forEach(child => {
+        child.prelimX -= midPoint;
+      });
+
+      // Mesclar contornos dos filhos usando os níveis absolutos diretamente
+      children.forEach(child => {
+        child.leftContour.forEach((val, absoluteLevel) => {
+          const currentMin = tn.leftContour.get(absoluteLevel);
+          const valDeslocado = child.prelimX + val;
+          tn.leftContour.set(
+            absoluteLevel,
+            currentMin !== undefined ? Math.min(currentMin, valDeslocado) : valDeslocado
+          );
+        });
+
+        child.rightContour.forEach((val, absoluteLevel) => {
+          const currentMax = tn.rightContour.get(absoluteLevel);
+          const valDeslocado = child.prelimX + val;
+          tn.rightContour.set(
+            absoluteLevel,
+            currentMax !== undefined ? Math.max(currentMax, valDeslocado) : valDeslocado
+          );
+        });
+      });
+    }
+  }
+
+  treeRoots.forEach(root => calculatePrelimAndContours(root));
+
+  // 4. Posicionar raízes da floresta principal sem sobreposição (APENAS em treeRoots)
+  if (treeRoots.length > 0) {
+    treeRoots[0].prelimX = 0;
+    const accumulatedRight = new Map<number, number>();
+    treeRoots[0].rightContour.forEach((val, level) => {
+      accumulatedRight.set(level, val);
+    });
+
+    for (let i = 1; i < treeRoots.length; i++) {
+      const root = treeRoots[i];
+      let shift = 0;
+
+      accumulatedRight.forEach((leftRightVal, level) => {
+        const rootLeftVal = root.leftContour.get(level);
+        if (rootLeftVal !== undefined) {
+          const requiredShift = leftRightVal - rootLeftVal + minSiblingSpacing * 1.5;
+          shift = Math.max(shift, requiredShift);
+        }
+      });
+
+      root.prelimX = shift;
+
+      root.rightContour.forEach((rightVal, level) => {
+        const currentMax = accumulatedRight.get(level);
+        const rootValDeslocado = root.prelimX + rightVal;
+        if (currentMax !== undefined) {
+          accumulatedRight.set(level, Math.max(currentMax, rootValDeslocado));
+        } else {
+          accumulatedRight.set(level, rootValDeslocado);
+        }
+      });
+    }
+  }
+
+  // 5. Segunda Passagem (Top-Down): Resolver X e Y Finais (APENAS em treeRoots)
+  function resolveFinalPositions(tn: TreeNode, parentX: number) {
+    tn.x = parentX + tn.prelimX;
+    tn.y = tn.level * levelSpacing;
+
+    tn.children.forEach(child => {
+      resolveFinalPositions(child, tn.x);
+    });
+  }
+  treeRoots.forEach(root => resolveFinalPositions(root, 0));
+
+  // REGRA 2: Nova Fase - Posicionar Órfãos em Grades (Grids) Compactas por Nível
+  const orphansByLevel = new Map<number, TreeNode[]>();
+  orphans.forEach(o => {
+    const lvl = o.level;
+    if (!orphansByLevel.has(lvl)) {
+      orphansByLevel.set(lvl, []);
+    }
+    orphansByLevel.get(lvl)!.push(o);
+  });
+
+  const cols = 12; // Quebra de linha a cada 12 órfãos
+  const columnSpacing = nodeWidth + minSiblingSpacing * 0.8;
+  const rowSpacing = 50; // Altura entre linhas do mesmo nível no grid
+
+  orphansByLevel.forEach((levelOrphans, lvl) => {
+    // Ordenação estável por nome
+    levelOrphans.sort((a, b) => a.nodes[0].name.localeCompare(b.nodes[0].name));
+
+    levelOrphans.forEach((o, index) => {
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      const numInRow = Math.min(cols, levelOrphans.length - row * cols);
+
+      // prelimX centraliza a linha localmente em relação ao eixo X médio 0
+      o.prelimX = (col - (numInRow - 1) / 2) * columnSpacing;
+      o.x = o.prelimX;
+
+      // Y final é o nível semântico real multiplicado pelo espaçamento mais o desvio da linha
+      o.y = o.level * levelSpacing + row * rowSpacing;
+    });
+  });
+
+  // 6. Centralização Horizontal do Grafo
+  let mainMinX = Infinity;
+  let mainMaxX = -Infinity;
+  let hasMainNodes = false;
+
+  treeNodes.forEach(tn => {
+    const isOrphan = orphans.some(o => o.id === tn.id);
+    if (!isOrphan) {
+      if (tn.x < mainMinX) mainMinX = tn.x;
+      if (tn.x > mainMaxX) mainMaxX = tn.x;
+      hasMainNodes = true;
+    }
+  });
+
+  let mainShiftX = 0;
+  if (hasMainNodes) {
+    const mainWidth = mainMaxX - mainMinX;
+    mainShiftX = (width - mainWidth) / 2 - mainMinX;
+  } else {
+    mainShiftX = width / 2;
+  }
+
+  // Centraliza as subárvores principais
+  treeNodes.forEach(tn => {
+    const isOrphan = orphans.some(o => o.id === tn.id);
+    if (!isOrphan) {
+      tn.x += mainShiftX;
+    }
+  });
+
+  // Centraliza cada grid de órfãos no eixo médio vertical do Canvas (width / 2)
+  orphans.forEach(o => {
+    o.x = width / 2 + o.prelimX;
+  });
+
+  // 7. Desempacotamento de Casais
+  const outputNodes: GraphNode[] = [];
+  treeNodes.forEach(tn => {
+    if (tn.nodes.length === 1) {
+      const singleNode = tn.nodes[0];
+      singleNode.x = tn.x;
+      singleNode.y = tn.y;
+      outputNodes.push(singleNode);
+    } else {
+      const nodeA = tn.nodes[0];
+      const nodeB = tn.nodes[1];
+
+      let femaleNode = nodeA;
+      let maleNode = nodeB;
+
+      if (nodeB.gender === "feminino" || nodeA.gender === "masculino") {
+        femaleNode = nodeB;
+        maleNode = nodeA;
+      }
+
+      const halfGap = (nodeWidth / 2) + (spouseGap / 2);
+
+      femaleNode.x = tn.x - halfGap;
+      femaleNode.y = tn.y;
+
+      maleNode.x = tn.x + halfGap;
+      maleNode.y = tn.y;
+
+      outputNodes.push(femaleNode, maleNode);
+    }
+  });
+
+  return outputNodes;
+}
+
+export function RelationshipGraph({
+  nodes,
+  links,
+  searchName,
+  selectedNodeId,
+  onSelectNode,
+  isolateSelectedConnections,
+  nodePositionsRef,
+  connectionType,
+  maxLevel,
+}: RelationshipGraphProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const startPanRef = useRef({ x: 0, y: 0 });
+
+  const canvasWidth = 1400;
+  const canvasHeight = 800;
+
+  // Zoom & Pan refs (completely decoupled from React states to prevent high-frequency re-renders)
+  const zoomRef = useRef(1);
+  const panRef = useRef({ x: 0, y: 0 });
+  const isPanningRef = useRef(false);
+  const prevNodeRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Mouse interaction tracker for click vs drag detection
+  const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
+  const clickedNodeIdRef = useRef<string | null>(null);
+  
+  // Hover tracking
+  const hoveredNodeRef = useRef<GraphNode | null>(null);
+
+  // Mapear referências de filtros para desenho dinâmico no Canvas
+  const connectionTypeRef = useRef(connectionType);
+  const selectedNodeIdRef = useRef(selectedNodeId);
+  const searchNameRef = useRef(searchName);
+  const isolateSelectedConnectionsRef = useRef(isolateSelectedConnections);
+  
+  // Guardar nós e links calculados
+  const simNodesRef = useRef<GraphNode[]>([]);
+  const simLinksRef = useRef<GraphLink[]>([]);
+
+  connectionTypeRef.current = connectionType;
+  selectedNodeIdRef.current = selectedNodeId;
+  searchNameRef.current = searchName;
+  isolateSelectedConnectionsRef.current = isolateSelectedConnections;
+
+  // 1. CÁLCULO E ESTABILIZAÇÃO DO LAYOUT ESTÁTICO (useMemo)
+  const layoutNodes = useMemo(() => {
+    // Para posicionamento coerente de todos os layouts, usamos a árvore de discipulado
+    const disciplerLinks = links.filter(l => l.type === "discipler");
+    
+    const computed = computeStaticHierarchyLayout(nodes, disciplerLinks, canvasWidth, canvasHeight, {
+      levelSpacing: 140,
+      minSiblingSpacing: 80,
+      nodeWidth: 36,
+      spouseGap: 16
+    });
+
+    // Atualiza o mapa de posições do componente pai
+    computed.forEach(node => {
+      nodePositionsRef.current.set(node.id, { x: node.x, y: node.y });
+    });
+
+    return computed;
+  }, [nodes, links]);
+
+  // Atualizar referências
+  simNodesRef.current = layoutNodes;
+  simLinksRef.current = links;
+
+  const getRoleLabel = (role: GraphNode["role"]) => {
+    switch (role) {
+      case "presbyter": return "Presbítero";
+      case "deacon": return "Diácono";
+      case "leader": return "Líder de GC";
+      case "discipler": return "Discipulador";
+      case "child": return "Criança";
+      case "disciple":
+      default:
+        return "Discípulo";
+    }
+  };
+
+  // Estilos visuais dos nós
+  const getNodeColorClass = (role: GraphNode["role"], gender: string | null) => {
+    const isDark = document.documentElement.classList.contains("dark");
+    switch (role) {
+      case "presbyter":
+        return isDark 
+          ? { stroke: "#fb7185", fill: "rgba(251, 113, 133, 0.15)" }
+          : { stroke: "#e11d48", fill: "rgba(225, 29, 72, 0.12)" };
+      case "deacon":
+        return isDark 
+          ? { stroke: "#c084fc", fill: "rgba(192, 132, 252, 0.15)" }
+          : { stroke: "#9333ea", fill: "rgba(147, 51, 234, 0.12)" };
+      case "leader":
+        return isDark 
+          ? { stroke: "#60a5fa", fill: "rgba(96, 165, 250, 0.15)" }
+          : { stroke: "#2563eb", fill: "rgba(37, 99, 235, 0.12)" };
+      case "discipler":
+        return isDark 
+          ? { stroke: "#fbbf24", fill: "rgba(251, 191, 36, 0.15)" }
+          : { stroke: "#d97706", fill: "rgba(217, 119, 6, 0.12)" };
+      case "child":
+        return isDark 
+          ? { stroke: "#e4e4e7", fill: "rgba(228, 228, 231, 0.1)" }
+          : { stroke: "#71717a", fill: "rgba(113, 113, 122, 0.08)" };
+      case "disciple":
+      default:
+        if (gender === "feminino") {
+          return isDark 
+            ? { stroke: "#f472b6", fill: "rgba(244, 114, 182, 0.15)" }
+            : { stroke: "#db2777", fill: "rgba(219, 39, 119, 0.12)" };
+        }
+        if (gender === "masculino") {
+          return isDark 
+            ? { stroke: "#60a5fa", fill: "rgba(96, 165, 250, 0.15)" }
+            : { stroke: "#2563eb", fill: "rgba(37, 99, 235, 0.12)" };
+        }
+        return isDark 
+          ? { stroke: "#a1a1aa", fill: "rgba(161, 161, 170, 0.15)" }
+          : { stroke: "#71717a", fill: "rgba(113, 113, 122, 0.12)" };
+    }
+  };
+
+  // Destaques e filtros
+  const connectedNodeIds = useMemo(() => {
+    if (!selectedNodeId) return null;
+    const ids = new Set<string>([selectedNodeId]);
+    links.forEach(link => {
+      if (link.source === selectedNodeId) ids.add(link.target);
+      if (link.target === selectedNodeId) ids.add(link.source);
+    });
+    return ids;
+  }, [selectedNodeId, links]);
+
+  const highlightedNodeIds = useMemo(() => {
+    if (!searchName.trim()) return null;
+    const term = searchName.toLowerCase();
+    const matches = nodes.filter(n => n.name.toLowerCase().includes(term));
+    const ids = new Set(matches.map(n => n.id));
+    links.forEach(link => {
+      if (ids.has(link.source)) ids.add(link.target);
+      if (ids.has(link.target)) ids.add(link.source);
+    });
+    return ids;
+  }, [searchName, nodes, links]);
+
+  const connectedNodeIdsRef = useRef<Set<string> | null>(null);
+  const highlightedNodeIdsRef = useRef<Set<string> | null>(null);
+
+  connectedNodeIdsRef.current = connectedNodeIds;
+  highlightedNodeIdsRef.current = highlightedNodeIds;
+
+  // Função principal de desenho
+  const drawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const displayW = Math.round(rect.width);
+    const displayH = Math.round(rect.height);
+    if (canvas.width !== displayW * dpr || canvas.height !== displayH * dpr) {
+      canvas.width = displayW * dpr;
+      canvas.height = displayH * dpr;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    // Pan & Zoom
+    ctx.translate(panRef.current.x, panRef.current.y);
+    ctx.scale(zoomRef.current, zoomRef.current);
+
+    const activeNodes = simNodesRef.current;
+    const activeNodesMap = new Map(activeNodes.map(n => [n.id, n]));
+    const visibleNodesCount = nodes.length;
+    
+    const scaleFactor = visibleNodesCount > 250 ? 0.40 
+      : visibleNodesCount > 120 ? 0.60 
+      : visibleNodesCount > 60 ? 0.80 
+      : 1.0;
+
+    const getNodeRadius = (role: GraphNode["role"]) => {
+      let r = 16;
+      switch (role) {
+        case "presbyter": r = 22; break;
+        case "deacon": r = 20; break;
+        case "leader": r = 18; break;
+        case "discipler": r = 18; break;
+        case "child": r = 12; break;
+        case "disciple":
+        default:
+          r = 16; break;
+      }
+      return r * scaleFactor;
+    };
+
+    const isDark = document.documentElement.classList.contains("dark");
+    const bgSolidColor = isDark ? "#18181b" : "#ffffff";
+
+    const linksToDraw = (isolateSelectedConnectionsRef.current && selectedNodeIdRef.current)
+      ? simLinksRef.current.filter(link => link.source === selectedNodeIdRef.current || link.target === selectedNodeIdRef.current)
+      : simLinksRef.current;
+
+    const connNodeIds = connectedNodeIdsRef.current;
+    const nodesToDraw = (isolateSelectedConnectionsRef.current && selectedNodeIdRef.current && connNodeIds)
+      ? activeNodes.filter(node => connNodeIds.has(node.id))
+      : activeNodes;
+
+    // Helpers para desduplicar conexões familiares e centralizar no vão do casal
+    const getGroupId = (node: GraphNode) => {
+      if (node.spouseId) {
+        return node.id < node.spouseId ? node.id : node.spouseId;
+      }
+      return node.id;
+    };
+
+    const getVisualCenter = (node: GraphNode) => {
+      if (node.spouseId) {
+        const spouse = activeNodesMap.get(node.spouseId);
+        if (spouse) {
+          return { x: (node.x + spouse.x) / 2, y: node.y };
+        }
+      }
+      return { x: node.x, y: node.y };
+    };
+
+    const drawnGroupLinks = new Set<string>();
+
+    // 1. Desenhar Links
+    linksToDraw.forEach(link => {
+      const sourceNode = activeNodesMap.get(link.source);
+      const targetNode = activeNodesMap.get(link.target);
+      if (!sourceNode || !targetNode) return;
+
+      // Se não for casamento, aplica a desduplicação por grupo familiar (casais)
+      if (link.type !== "marriage") {
+        const groupSource = getGroupId(sourceNode);
+        const groupTarget = getGroupId(targetNode);
+        if (groupSource === groupTarget) return;
+
+        const linkKey = `${groupSource}->${groupTarget}`;
+        if (drawnGroupLinks.has(linkKey)) return;
+        drawnGroupLinks.add(linkKey);
+      }
+
+      // Determinar as posições geométricas do desenho
+      const isMarriage = link.type === "marriage";
+      const p1 = isMarriage ? { x: sourceNode.x, y: sourceNode.y } : getVisualCenter(sourceNode);
+      const p2 = isMarriage ? { x: targetNode.x, y: targetNode.y } : getVisualCenter(targetNode);
+
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+
+      let isHighlighted = true;
+      if (highlightedNodeIdsRef.current !== null) {
+        isHighlighted = highlightedNodeIdsRef.current.has(link.source) && highlightedNodeIdsRef.current.has(link.target);
+      } else if (connectedNodeIdsRef.current !== null) {
+        isHighlighted = connectedNodeIdsRef.current.has(link.source) && connectedNodeIdsRef.current.has(link.target);
+      }
+
+      ctx.save();
+      
+      const opacity = isHighlighted 
+        ? (visibleNodesCount > 250 ? 0.35 : visibleNodesCount > 120 ? 0.55 : 0.85) 
+        : 0.02;
+      
+      ctx.globalAlpha = opacity;
+
+      let color = "#6366f1";
+      ctx.setLineDash([]);
+      
+      if (link.type === "fellowship") {
+        color = "#14b8a6";
+        ctx.setLineDash([4, 4]);
+      } else if (link.type === "group_leader") {
+        color = "#f59e0b";
+        ctx.setLineDash([2, 2]);
+      } else if (link.type === "marriage") {
+        color = "#f43f5e";
+      }
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = link.type === "discipler"
+        ? (visibleNodesCount > 250 ? 0.8 : visibleNodesCount > 120 ? 1.4 : 2.5)
+        : (visibleNodesCount > 250 ? 0.5 : visibleNodesCount > 120 ? 1.0 : 1.8);
+
+      const sourceRadius = getNodeRadius(sourceNode.role);
+      const targetRadius = getNodeRadius(targetNode.role);
+      
+      const hasArrow = link.type === "discipler";
+      
+      // Se a origem/destino for casado (e não for linha de casamento), o ponto é o vão central, reduzindo o offset
+      const sourceHasSpouse = !isMarriage && sourceNode.spouseId && activeNodesMap.has(sourceNode.spouseId);
+      const targetHasSpouse = !isMarriage && targetNode.spouseId && activeNodesMap.has(targetNode.spouseId);
+
+      const sourceOffset = sourceHasSpouse ? 0 : sourceRadius + 2;
+      const targetOffset = targetHasSpouse 
+        ? (hasArrow ? 8 : 0) 
+        : targetRadius + (hasArrow ? 5 : 2);
+
+      const x1 = p1.x + (dx / distance) * sourceOffset;
+      const y1 = p1.y + (dy / distance) * sourceOffset;
+      const x2 = p2.x - (dx / distance) * targetOffset;
+      const y2 = p2.y - (dy / distance) * targetOffset;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      if (hasArrow) {
+        ctx.beginPath();
+        const angle = Math.atan2(dy, dx);
+        const arrowLength = visibleNodesCount > 250 ? 5 : visibleNodesCount > 120 ? 6 : 8;
+        
+        ctx.fillStyle = color;
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(
+          x2 - arrowLength * Math.cos(angle - Math.PI / 6),
+          y2 - arrowLength * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+          x2 - arrowLength * Math.cos(angle + Math.PI / 6),
+          y2 - arrowLength * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+
+    // 2. Desenhar Nós
+    nodesToDraw.forEach(node => {
+      const isSelected = selectedNodeIdRef.current === node.id;
+      const isHovered = hoveredNodeRef.current && hoveredNodeRef.current.id === node.id;
+
+      let isDimmed = false;
+      if (highlightedNodeIdsRef.current !== null) {
+        isDimmed = !highlightedNodeIdsRef.current.has(node.id);
+      } else if (connectedNodeIdsRef.current !== null) {
+        isDimmed = !connectedNodeIdsRef.current.has(node.id);
+      }
+
+      ctx.save();
+      ctx.globalAlpha = isDimmed ? 0.15 : 1.0;
+
+      const radius = getNodeRadius(node.role);
+      const styles = getNodeColorClass(node.role, node.gender);
+
+      if (isSelected) {
+        ctx.strokeStyle = styles.stroke;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([4, 2]);
+        ctx.lineDashOffset = - (Date.now() / 150) % 6;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius + 6, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+
+      const spouseNode = node.spouseId ? activeNodesMap.get(node.spouseId) : null;
+      const isMarriedToPresbyter = spouseNode?.role === "presbyter";
+      
+      if (connectionTypeRef.current === "discipler" && node.role !== "presbyter" && node.role !== "child" && !isMarriedToPresbyter && !node.disciplerId) {
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 2]);
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius + 4, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = bgSolidColor;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.fillStyle = styles.fill;
+      ctx.strokeStyle = styles.stroke;
+      ctx.lineWidth = isSelected ? 3.5 : 2;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      const nameInitials = node.name
+        .split(" ")
+        .filter(Boolean)
+        .map(n => n[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2);
+
+      ctx.fillStyle = styles.stroke;
+      ctx.font = `bold ${Math.max(8, radius * 0.75)}px Geist, Outfit, Inter, system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(nameInitials, node.x, node.y);
+
+      const isHighlighted = isSelected || isHovered || (connectedNodeIdsRef.current && connectedNodeIdsRef.current.has(node.id));
+      const showLabel = 
+        isHighlighted || 
+        (visibleNodesCount <= 120) || 
+        (node.role !== "disciple" && node.role !== "child" && visibleNodesCount <= 220);
+
+      if (showLabel) {
+        ctx.fillStyle = isSelected 
+          ? (isDark ? "#ffffff" : "#000000")
+          : (isDark ? "#e4e4e7" : "#3f3f46");
+        
+        const isBold = isSelected || node.role !== "disciple";
+        const fontSize = visibleNodesCount > 150 ? 8 : 10;
+        
+        ctx.font = `${isBold ? "bold" : "normal"} ${fontSize}px Geist, Outfit, Inter, system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText(node.name.split(" ")[0], node.x, node.y + radius + 14);
+      }
+
+      ctx.restore();
+    });
+
+    // 3. Desenhar Tooltip
+    if (hoveredNodeRef.current) {
+      const node = hoveredNodeRef.current;
+      const radius = getNodeRadius(node.role);
+      
+      ctx.save();
+      
+      const tooltipX = node.x;
+      const tooltipY = node.y - radius - 12;
+      
+      const textLine1 = node.name;
+      const levelPrefix = connectionTypeRef.current === "discipler" && node.level !== undefined ? `Nível ${node.level} • ` : "";
+      const textLine2 = `${levelPrefix}${getRoleLabel(node.role)} • GC: ${node.homeGroupName || "Sem GC"}`;
+      
+      ctx.font = "11px Geist, Outfit, Inter, system-ui, -apple-system, sans-serif";
+      const metrics1 = ctx.measureText(textLine1);
+      const metrics2 = ctx.measureText(textLine2);
+      const cardWidth = Math.max(metrics1.width, metrics2.width) + 24;
+      const cardHeight = 36;
+      
+      const rx = tooltipX - cardWidth / 2;
+      const ry = tooltipY - cardHeight;
+      const r = 8;
+      
+      ctx.fillStyle = isDark 
+        ? "rgba(24, 24, 27, 0.95)" 
+        : "rgba(255, 255, 255, 0.95)";
+      ctx.strokeStyle = isDark
+        ? "rgba(63, 63, 70, 0.5)" 
+        : "rgba(228, 228, 231, 0.9)";
+      ctx.lineWidth = 1;
+      
+      ctx.beginPath();
+      ctx.moveTo(rx + r, ry);
+      ctx.lineTo(rx + cardWidth - r, ry);
+      ctx.quadraticCurveTo(rx + cardWidth, ry, rx + cardWidth, ry + r);
+      ctx.lineTo(rx + cardWidth, ry + cardHeight - r);
+      ctx.quadraticCurveTo(rx + cardWidth, ry + cardHeight, rx + cardWidth - r, ry + cardHeight);
+      ctx.lineTo(rx + cardWidth / 2 + 5, ry + cardHeight);
+      ctx.lineTo(rx + cardWidth / 2, ry + cardHeight + 4);
+      ctx.lineTo(rx + cardWidth / 2 - 5, ry + cardHeight);
+      ctx.lineTo(rx + r, ry + cardHeight);
+      ctx.quadraticCurveTo(rx, ry + cardHeight, rx, ry + cardHeight - r);
+      ctx.lineTo(rx, ry + r);
+      ctx.quadraticCurveTo(rx, ry, rx + r, ry);
+      ctx.closePath();
+      
+      ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 4;
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.stroke();
+      
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      ctx.fillStyle = isDark ? "#ffffff" : "#09090b";
+      ctx.font = "bold 11px Geist, Outfit, Inter, system-ui, -apple-system, sans-serif";
+      ctx.fillText(textLine1, tooltipX, ry + 11);
+      
+      ctx.fillStyle = isDark ? "#a1a1aa" : "#71717a";
+      ctx.font = "10px Geist, Outfit, Inter, system-ui, -apple-system, sans-serif";
+      ctx.fillText(textLine2, tooltipX, ry + 25);
+      
+      ctx.restore();
+    }
+
+    ctx.restore();
+  };
+
+  // Centralização e encaixe de zoom automático ao alterar os nós
+  useEffect(() => {
+    const canvasEl = canvasRef.current;
+    const rect2 = canvasEl ? canvasEl.getBoundingClientRect() : { width: 600, height: 500 };
+    const displayWidth = rect2.width;
+    const displayHeight = rect2.height;
+    const fitZoom = Math.max(0.1, (displayWidth * 0.95) / canvasWidth);
+
+    panRef.current = {
+      x: displayWidth / 2 - (canvasWidth / 2) * fitZoom,
+      y: displayHeight / 2 - (canvasHeight / 2) * fitZoom,
+    };
+    zoomRef.current = fitZoom;
+    
+    drawCanvas();
+  }, [layoutNodes]);
+
+  // Centralizar na seleção
+  useEffect(() => {
+    if (selectedNodeId) {
+      const node = simNodesRef.current.find(n => n.id === selectedNodeId);
+      if (node) {
+        panRef.current = {
+          x: canvasWidth / 2 - node.x * zoomRef.current,
+          y: canvasHeight / 2 - node.y * zoomRef.current
+        };
+        drawCanvas();
+      }
+    }
+  }, [selectedNodeId]);
+
+  // Evento do mouse scroll (zoom)
+  const handleWheelEvent = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.05 : 0.95;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const currentZoom = zoomRef.current;
+    const newZoom = Math.max(0.1, Math.min(currentZoom * factor, 5));
+
+    panRef.current = {
+      x: mouseX - (mouseX - panRef.current.x) * (newZoom / currentZoom),
+      y: mouseY - (mouseY - panRef.current.y) * (newZoom / currentZoom),
+    };
+    zoomRef.current = newZoom;
+    drawCanvas();
+  }, []);
+
+  const canvasRefCallback = useCallback((node: HTMLCanvasElement | null) => {
+    const ref = canvasRef as React.MutableRefObject<HTMLCanvasElement | null>;
+    ref.current = node;
+
+    if (prevNodeRef.current) {
+      prevNodeRef.current.removeEventListener("wheel", handleWheelEvent);
+    }
+    if (node) {
+      node.addEventListener("wheel", handleWheelEvent, { passive: false });
+    }
+    prevNodeRef.current = node;
+    
+    drawCanvas();
+  }, [handleWheelEvent]);
+
+  // Controles de Zoom
+  const handleResetZoom = () => {
+    const canvasEl = canvasRef.current;
+    const rect2 = canvasEl ? canvasEl.getBoundingClientRect() : { width: 600, height: 500 };
+    const displayWidth = rect2.width;
+    const displayHeight = rect2.height;
+    const fitZoom = Math.max(0.1, (displayWidth * 0.95) / canvasWidth);
+    panRef.current = {
+      x: displayWidth / 2 - (canvasWidth / 2) * fitZoom,
+      y: displayHeight / 2 - (canvasHeight / 2) * fitZoom,
+    };
+    zoomRef.current = fitZoom;
+    drawCanvas();
+  };
+
+  const handleZoom = (factor: number) => {
+    zoomRef.current = Math.max(0.1, Math.min(zoomRef.current * factor, 5));
+    drawCanvas();
+  };
+
+  // Evento Mousedown
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX - rect.left;
+    const clientY = e.clientY - rect.top;
+    
+    const worldX = (clientX - panRef.current.x) / zoomRef.current;
+    const worldY = (clientY - panRef.current.y) / zoomRef.current;
+    
+    // Detectar clique sobre nó
+    let clickedNode: GraphNode | null = null;
+    const activeNodes = simNodesRef.current;
+    const visibleNodesCount = nodes.length;
+    const scaleFactor = visibleNodesCount > 250 ? 0.40 
+      : visibleNodesCount > 120 ? 0.60 
+      : visibleNodesCount > 60 ? 0.80 
+      : 1.0;
+      
+    const getNodeRadius = (role: GraphNode["role"]) => {
+      let r = 16;
+      switch (role) {
+        case "presbyter": r = 22; break;
+        case "deacon": r = 20; break;
+        case "leader": r = 18; break;
+        case "discipler": r = 18; break;
+        case "child": r = 12; break;
+        case "disciple":
+        default:
+          r = 16; break;
+      }
+      return r * scaleFactor;
+    };
+
+    for (const node of activeNodes) {
+      const dx = worldX - node.x;
+      const dy = worldY - node.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const radius = getNodeRadius(node.role);
+      if (dist <= radius + 5) {
+        clickedNode = node;
+        break;
+      }
+    }
+    
+    if (clickedNode) {
+      clickedNodeIdRef.current = clickedNode.id;
+      mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+      hasDraggedRef.current = false;
+    } else {
+      isPanningRef.current = true;
+      startPanRef.current = { x: e.clientX, y: e.clientY };
+      mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+      hasDraggedRef.current = false;
+    }
+  };
+
+  // Evento Mousemove
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX - rect.left;
+    const clientY = e.clientY - rect.top;
+    
+    if (mouseDownPosRef.current) {
+      const travel = Math.sqrt(
+        Math.pow(e.clientX - mouseDownPosRef.current.x, 2) + 
+        Math.pow(e.clientY - mouseDownPosRef.current.y, 2)
+      );
+      if (travel > 4) {
+        hasDraggedRef.current = true;
+      }
+    }
+    
+    if (isPanningRef.current) {
+      panRef.current = {
+        x: panRef.current.x + (e.clientX - startPanRef.current.x),
+        y: panRef.current.y + (e.clientY - startPanRef.current.y),
+      };
+      startPanRef.current = { x: e.clientX, y: e.clientY };
+      drawCanvas();
+    } else {
+      // Hover detection
+      let newHoveredNode: GraphNode | null = null;
+      const activeNodes = simNodesRef.current;
+      const visibleNodesCount = nodes.length;
+      const scaleFactor = visibleNodesCount > 250 ? 0.40 
+        : visibleNodesCount > 120 ? 0.60 
+        : visibleNodesCount > 60 ? 0.80 
+        : 1.0;
+        
+      const getNodeRadius = (role: GraphNode["role"]) => {
+        let r = 16;
+        switch (role) {
+          case "presbyter": r = 22; break;
+          case "deacon": r = 20; break;
+          case "leader": r = 18; break;
+          case "discipler": r = 18; break;
+          case "child": r = 12; break;
+          case "disciple":
+          default:
+            r = 16; break;
+        }
+        return r * scaleFactor;
+      };
+
+      const worldX = (clientX - panRef.current.x) / zoomRef.current;
+      const worldY = (clientY - panRef.current.y) / zoomRef.current;
+      
+      for (const node of activeNodes) {
+        const dx = worldX - node.x;
+        const dy = worldY - node.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const radius = getNodeRadius(node.role);
+        if (dist <= radius + 5) {
+          newHoveredNode = node;
+          break;
+        }
+      }
+      
+      if (newHoveredNode !== hoveredNodeRef.current) {
+        hoveredNodeRef.current = newHoveredNode;
+        canvas.style.cursor = newHoveredNode ? "pointer" : "grab";
+        drawCanvas();
+      }
+    }
+  };
+
+  // Evento Mouseup ou Leave
+  const handleMouseUpOrLeave = () => {
+    if (clickedNodeIdRef.current) {
+      if (!hasDraggedRef.current) {
+        onSelectNode(clickedNodeIdRef.current === selectedNodeIdRef.current ? null : clickedNodeIdRef.current);
+      }
+      clickedNodeIdRef.current = null;
+    }
+    isPanningRef.current = false;
+    mouseDownPosRef.current = null;
+  };
+
+  return (
+    <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-900/60 backdrop-blur-sm shadow-md dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] overflow-hidden relative min-h-[500px] h-[600px] flex flex-col">
+      {/* Legenda dos links */}
+      <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 max-w-[80%] pointer-events-none">
+        <div className="bg-background/90 dark:bg-zinc-900/90 border border-border/50 backdrop-blur px-3 py-1.5 rounded-xl text-xs flex items-center gap-4 shadow-sm pointer-events-auto">
+          <span className="font-semibold text-muted-foreground">Linhas:</span>
+          <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-indigo-500 inline-block"></span> Discipulado</span>
+          <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 border-t border-dashed border-teal-500 inline-block"></span> Companheiros</span>
+          <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 border-t border-dotted border-amber-500 inline-block"></span> Irmãos do GC</span>
+          <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-rose-500 inline-block"></span> Casamento</span>
+        </div>
+      </div>
+
+      {/* Controles de Zoom */}
+      <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2 pointer-events-auto">
+        <Button size="icon" variant="secondary" onClick={() => handleZoom(1.2)} title="Aproximar">
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+        <Button size="icon" variant="secondary" onClick={() => handleZoom(0.8)} title="Afastar">
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+        <Button size="icon" variant="secondary" onClick={handleResetZoom} title="Centralizar e Redefinir">
+          <Maximize2 className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {nodes.length === 0 && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-zinc-950/5">
+          <Network className="h-12 w-12 text-zinc-400 mb-2" />
+          <h4 className="text-lg font-semibold text-foreground">Nenhum discípulo coincide com os filtros</h4>
+          <p className="text-sm text-muted-foreground mt-1">Ajuste os filtros de setor, GC ou papéis na barra lateral.</p>
+        </div>
+      )}
+
+      <canvas
+        ref={canvasRefCallback}
+        className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUpOrLeave}
+        onMouseLeave={handleMouseUpOrLeave}
+      />
     </div>
   );
 }
