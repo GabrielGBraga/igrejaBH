@@ -726,6 +726,15 @@ BEGIN
               WHERE id = v_parent_wife_id;
             END IF;
           END;
+        ELSE
+          -- Fallback 2: Se nenhum casal líder com batismo mais antigo for encontrado, associa ao primeiro presbítero e esposa
+          v_parent_husband_id := presbyters[1];
+          SELECT id INTO v_parent_wife_id FROM public.profiles WHERE spouse_id = v_parent_husband_id AND gender = 'F';
+          
+          IF v_parent_husband_id IS NOT NULL AND v_parent_wife_id IS NOT NULL THEN
+            UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_leader_couple.husband_id;
+            UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_leader_couple.wife_id;
+          END IF;
         END IF;
       END IF;
     END LOOP;
@@ -798,6 +807,15 @@ BEGIN
               WHERE id = v_parent_wife_id;
             END IF;
           END;
+        ELSE
+          -- Fallback 2: Se nenhum casal com batismo mais antigo for encontrado, associa ao primeiro presbítero e esposa
+          v_parent_husband_id := presbyters[1];
+          SELECT id INTO v_parent_wife_id FROM public.profiles WHERE spouse_id = v_parent_husband_id AND gender = 'F';
+          
+          IF v_parent_husband_id IS NOT NULL AND v_parent_wife_id IS NOT NULL THEN
+            UPDATE public.profiles SET discipler_id = v_parent_husband_id WHERE id = r_member_couple.husband_id;
+            UPDATE public.profiles SET discipler_id = v_parent_wife_id WHERE id = r_member_couple.wife_id;
+          END IF;
         END IF;
       END IF;
     END LOOP;
@@ -830,7 +848,7 @@ BEGIN
       IF v_parent_id IS NOT NULL THEN
         UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_man.id;
       ELSE
-        -- Fallback
+        -- Fallback 1: ignora o limite de 3 discipulandos
         SELECT id INTO v_parent_id
         FROM public.profiles parent
         WHERE parent.gender = 'M'
@@ -840,6 +858,12 @@ BEGIN
         
         IF v_parent_id IS NOT NULL THEN
           UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_man.id;
+        ELSE
+          -- Fallback 2: Se for o homem mais antigo em batismo, associa ao primeiro presbítero
+          v_parent_id := presbyters[1];
+          IF v_parent_id IS NOT NULL THEN
+            UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_man.id;
+          END IF;
         END IF;
       END IF;
     END LOOP;
@@ -869,7 +893,7 @@ BEGIN
       IF v_parent_id IS NOT NULL THEN
         UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_woman.id;
       ELSE
-        -- Fallback
+        -- Fallback 1: ignora o limite de 3 discipulandos
         SELECT id INTO v_parent_id
         FROM public.profiles parent
         WHERE parent.gender = 'F'
@@ -879,6 +903,16 @@ BEGIN
         
         IF v_parent_id IS NOT NULL THEN
           UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_woman.id;
+        ELSE
+          -- Fallback 2: Se for a mulher mais antiga em batismo, associa à esposa de um dos presbíteros
+          SELECT id INTO v_parent_id
+          FROM public.profiles
+          WHERE spouse_id = ANY(presbyters) AND gender = 'F'
+          LIMIT 1;
+          
+          IF v_parent_id IS NOT NULL THEN
+            UPDATE public.profiles SET discipler_id = v_parent_id WHERE id = r_single_woman.id;
+          END IF;
         END IF;
       END IF;
     END LOOP;

@@ -56,8 +56,6 @@ async function run() {
   // Construir a string de conexão postgres
   const connectionString = `postgresql://postgres:${encodeURIComponent(password)}@${host}:5432/postgres`;
 
-  console.log(`Conectando ao host: ${host}`);
-
   // Ler o seed.sql
   const seedFilePath = path.join(process.cwd(), 'supabase', 'seed.sql');
   if (!fs.existsSync(seedFilePath)) {
@@ -66,8 +64,12 @@ async function run() {
   }
   const seedSql = fs.readFileSync(seedFilePath, 'utf8');
 
-  // Inicializar cliente pg
-  const client = new pg.Client({
+  let client;
+  let connected = false;
+
+  // Tentativa 1: Conexão Direta (IPv6)
+  console.log(`Tentando conexão direta (IPv6) ao host: ${host}...`);
+  client = new pg.Client({
     connectionString: connectionString,
     ssl: {
       rejectUnauthorized: false
@@ -75,8 +77,56 @@ async function run() {
   });
 
   try {
-    await client.connect();
-    console.log('Conectado ao PostgreSQL com sucesso.');
+    // Configurar um timeout curto para a tentativa inicial (ex: 5 segundos)
+    const connectPromise = client.connect();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('timeout')), 5000)
+    );
+    await Promise.race([connectPromise, timeoutPromise]);
+    connected = true;
+    console.log('Conectado via conexão direta com sucesso.');
+  } catch (err) {
+    console.log(`Conexão direta indisponível ou expirou. Erro: ${err.message}`);
+    await client.end().catch(() => {});
+    
+    // Tentativa 2: Conexão via Pooler (IPv4)
+    const poolerHosts = [
+      `aws-0-sa-east-1.pooler.supabase.com`,
+      `aws-1-sa-east-1.pooler.supabase.com`
+    ];
+    
+    let poolerConnected = false;
+    for (const poolerHost of poolerHosts) {
+      const poolerUser = `postgres.${projectRef}`;
+      const poolerConnectionString = `postgresql://${poolerUser}:${encodeURIComponent(password)}@${poolerHost}:6543/postgres`;
+      console.log(`Tentando conexão via Pooler (IPv4) ao host: ${poolerHost}...`);
+      
+      client = new pg.Client({
+        connectionString: poolerConnectionString,
+        ssl: {
+          rejectUnauthorized: false
+        }
+      });
+      
+      try {
+        await client.connect();
+        connected = true;
+        poolerConnected = true;
+        console.log(`Conectado via Pooler (IPv4) ao host ${poolerHost} com sucesso.`);
+        break;
+      } catch (poolerErr) {
+        console.log(`Falha ao conectar via Pooler ao host ${poolerHost}: ${poolerErr.message}`);
+        await client.end().catch(() => {});
+      }
+    }
+    
+    if (!poolerConnected) {
+      console.error('\n❌ Erro em todas as tentativas de conexão com o banco.');
+      process.exit(1);
+    }
+  }
+
+  try {
     console.log('Executando o script SQL (isso pode levar alguns segundos devido ao volume)...');
     
     const startTime = Date.now();
