@@ -2701,10 +2701,7 @@ export function RelationshipGraph({
   };
 
   // Centralização e encaixe de zoom automático ao alterar os nós
-  const prevLayoutNodesRef = useRef<GraphNode[]>([]);
-  if (prevLayoutNodesRef.current !== layoutNodes) {
-    prevLayoutNodesRef.current = layoutNodes;
-
+  useEffect(() => {
     const canvasEl = canvasRef.current;
     const rect2 = canvasEl ? canvasEl.getBoundingClientRect() : { width: 600, height: 500 };
     const displayWidth = rect2.width;
@@ -2717,11 +2714,8 @@ export function RelationshipGraph({
     };
     zoomRef.current = fitZoom;
     
-    // Dispara redesenho síncrono imediato
-    setTimeout(() => {
-      drawCanvas();
-    }, 0);
-  }
+    drawCanvas();
+  }, [layoutNodes]);
 
   // Centralizar na seleção
   useEffect(() => {
