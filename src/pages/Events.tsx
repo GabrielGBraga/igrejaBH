@@ -81,6 +81,8 @@ export default function Events() {
     phone: "",
     cpf: "",
     birthDate: "",
+    gender: "Masculino",
+    cityState: "",
   })
   const [guestErrors, setGuestErrors] = useState<Record<string, string>>({})
 
@@ -140,6 +142,8 @@ export default function Events() {
           phone: profile.phone || "",
           cpf: profile.cpf || "",
           birthDate: profile.birth_date || "",
+          gender: "Masculino",
+          cityState: "",
         })
       }
 
@@ -257,6 +261,10 @@ export default function Events() {
     }
     if (!guestData.birthDate)
       errors.birthDate = "Data de nascimento é obrigatória."
+    if (!guestData.gender)
+      errors.gender = "Sexo/Gênero é obrigatório."
+    if (!guestData.cityState.trim())
+      errors.cityState = "Cidade/Estado é obrigatório."
 
     setGuestErrors(errors)
     return Object.keys(errors).length === 0
@@ -616,6 +624,47 @@ export default function Events() {
                     />
                     {guestErrors.birthDate && (
                       <FieldError>{guestErrors.birthDate}</FieldError>
+                    )}
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="gender">Sexo / Gênero *</FieldLabel>
+                    <Select
+                      value={guestData.gender}
+                      onValueChange={(val) =>
+                        setGuestData((prev) => ({ ...prev, gender: val }))
+                      }
+                    >
+                      <SelectTrigger id="gender">
+                        <SelectValue placeholder="Selecione o sexo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Masculino">Masculino</SelectItem>
+                        <SelectItem value="Feminino">Feminino</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {guestErrors.gender && (
+                      <FieldError>{guestErrors.gender}</FieldError>
+                    )}
+                  </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="cityState">Cidade / Estado *</FieldLabel>
+                    <Input
+                      id="cityState"
+                      value={guestData.cityState}
+                      onChange={(e) =>
+                        setGuestData((prev) => ({
+                          ...prev,
+                          cityState: e.target.value,
+                        }))
+                      }
+                      placeholder="Ex: Belo Horizonte / MG"
+                    />
+                    {guestErrors.cityState && (
+                      <FieldError>{guestErrors.cityState}</FieldError>
                     )}
                   </Field>
                 </div>

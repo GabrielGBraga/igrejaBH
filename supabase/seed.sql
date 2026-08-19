@@ -84,7 +84,7 @@ BEGIN
   -- ==========================================================================
   -- 1. LIMPEZA TOTAL DO BANCO
   -- ==========================================================================
-  TRUNCATE public.profiles, public.home_groups, public.sectors, public.posts, public.fellowships, public.retreats, public.registrations, public.forms, public.form_submissions, public.user_study_progress CASCADE;
+  TRUNCATE public.profiles, public.home_groups, public.sectors, public.posts, public.fellowships, public.retreats, public.registrations, public.retreat_rooms, public.retreat_expenses, public.forms, public.form_submissions, public.user_study_progress CASCADE;
   DELETE FROM auth.users;
 
   -- Senha padrão pré-calculada para "senha123" usando Blowfish bcrypt salt
@@ -1032,33 +1032,81 @@ BEGIN
     (deacons[2], 'diaconato', 'Campanha de Arrecadação de Inverno', 'O diaconato inicia hoje a campanha de coleta de cobertores e agasalhos para assistência social das famílias assistidas. As caixas de coleta estão em cada Grupo Caseiro. Agradecemos a generosidade comum.', true, now() - INTERVAL '4 days');
 
   -- ==========================================================================
-  -- 8. DADOS ADICIONAIS: RETIRO E INSCRIÇÕES DE TESTE
+  -- 8. DADOS ADICIONAIS: RETIRO, QUARTOS, DESPESAS E 55+ INSCRIÇÕES DE TESTE
   -- ==========================================================================
   
-  -- 8A. Criar formulário de inscrição do retiro
+  -- 8A. Criar formulário de inscrição do retiro contendo os 6 campos obrigatórios
   INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
   VALUES (
     'form-solteiros-2026',
-    'Ficha de Inscrição Complementar - Retiro de Solteiros 2026',
-    'Por favor, responda às perguntas adicionais para a logística do retiro.',
+    'Ficha de Inscrição Oficial - Retiro de Solteiros 2026',
+    'Ficha oficial com informações básicas e logísticas para o Retiro de Solteiros.',
     '[
+      {
+        "id": "mandatory_full_name",
+        "type": "text",
+        "label": "Nome Completo",
+        "placeholder": "Seu nome completo",
+        "required": true,
+        "helpText": "Nome do participante",
+        "options": []
+      },
+      {
+        "id": "mandatory_email",
+        "type": "text",
+        "label": "E-mail",
+        "placeholder": "exemplo@email.com",
+        "required": true,
+        "helpText": "E-mail para envio de confirmação",
+        "validationPreset": "email",
+        "options": []
+      },
+      {
+        "id": "mandatory_phone",
+        "type": "text",
+        "label": "Telefone / WhatsApp",
+        "placeholder": "(31) 99999-9999",
+        "required": true,
+        "helpText": "Telefone com DDD",
+        "validationPreset": "phone",
+        "options": []
+      },
+      {
+        "id": "mandatory_gender",
+        "type": "select",
+        "label": "Sexo / Gênero",
+        "placeholder": "Selecione o sexo",
+        "required": true,
+        "helpText": "Para alocação de alojamentos",
+        "options": ["Masculino", "Feminino"]
+      },
+      {
+        "id": "mandatory_city_state",
+        "type": "text",
+        "label": "Cidade / Estado",
+        "placeholder": "Belo Horizonte / MG",
+        "required": true,
+        "helpText": "Cidade e UF de residência",
+        "options": []
+      },
+      {
+        "id": "mandatory_birth_date",
+        "type": "date",
+        "label": "Data de Nascimento / Idade",
+        "placeholder": "DD/MM/AAAA",
+        "required": true,
+        "helpText": "Data de nascimento",
+        "options": []
+      },
       {
         "id": "tamanho_camiseta",
         "type": "select",
         "label": "Tamanho da Camiseta",
         "placeholder": "Selecione o tamanho",
         "required": true,
-        "helpText": "Camiseta oficial do retiro",
-        "options": ["P", "M", "G", "GG"]
-      },
-      {
-        "id": "restricoes_alimentares",
-        "type": "text",
-        "label": "Restrições Alimentares",
-        "placeholder": "Descreva se houver restrições (ex: alergias, vegetariano)",
-        "required": false,
-        "helpText": "Para a logística da cozinha",
-        "options": []
+        "helpText": "Camiseta oficial do retiro (+R$ 30,00)",
+        "options": ["P", "M", "G", "GG"],
+        "priceModifiers": { "P": 30, "M": 30, "G": 30, "GG": 30 }
       },
       {
         "id": "transporte",
@@ -1066,8 +1114,18 @@ BEGIN
         "label": "Precisa de Transporte?",
         "placeholder": "",
         "required": true,
-        "helpText": "Teremos ônibus saindo da igreja na cidade",
-        "options": ["Sim", "Não"]
+        "helpText": "Ônibus executivo da igreja na cidade (+R$ 40,00)",
+        "options": ["Sim", "Não"],
+        "priceModifiers": { "Sim": 40, "Não": 0 }
+      },
+      {
+        "id": "restricoes_alimentares",
+        "type": "text",
+        "label": "Restrições Alimentares",
+        "placeholder": "Alergias, vegetariano, etc.",
+        "required": false,
+        "helpText": "Logística da cozinha",
+        "options": []
       }
     ]'::jsonb,
     true,
@@ -1091,88 +1149,231 @@ BEGIN
     'form-solteiros-2026'
   ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, form_id = EXCLUDED.form_id;
 
-  -- 8C. Inscreve Gabriel Góes Braga no Retiro
-  IF gabriel_id IS NOT NULL THEN
-    DECLARE
-      v_sub_id text := 'sub-gabriel-123';
-      v_user_id uuid;
-    BEGIN
-      SELECT user_id INTO v_user_id FROM public.profiles WHERE id = gabriel_id;
-      
-      -- Criar a submissão do formulário
-      INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
-      VALUES (
-        v_sub_id,
-        'form-solteiros-2026',
-        '{"tamanho_camiseta": "G", "restricoes_alimentares": "Nenhuma", "transporte": "Não"}'::jsonb,
-        v_user_id,
-        now()
-      );
-
-      -- Criar a inscrição apontando para a submissão
-      INSERT INTO public.registrations (
-        retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id, custom_responses
-      )
-      VALUES (
-        '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
-        gabriel_id, 
-        true, 
-        'pix', 
-        'REF-SEED-GABRIEL-123', 
-        now(), 
-        v_sub_id,
-        '{"Tamanho da Camiseta": "G", "Restrições Alimentares": "Nenhuma", "Precisa de Transporte?": "Não"}'::jsonb
-      );
-    END;
-  END IF;
-
-  -- 8D. Inscreve alguns solteiros aleatórios com suas respectivas submissões
+  -- 8C. Criar Quartos / Alojamentos do Evento
   DECLARE
-    v_sub_id text;
-    v_user_id uuid;
-    v_tamanho text;
-    v_transporte text;
-    v_count int := 0;
-    v_rec RECORD;
+    r_chale_m1 uuid := extensions.uuid_generate_v4();
+    r_chale_m2 uuid := extensions.uuid_generate_v4();
+    r_dorm_m3 uuid := extensions.uuid_generate_v4();
+    r_chale_f1 uuid := extensions.uuid_generate_v4();
+    r_chale_f2 uuid := extensions.uuid_generate_v4();
+    r_dorm_f3 uuid := extensions.uuid_generate_v4();
+    r_suite_1 uuid := extensions.uuid_generate_v4();
+    r_suite_2 uuid := extensions.uuid_generate_v4();
   BEGIN
-    FOR v_rec IN 
-      SELECT id, user_id 
-      FROM public.profiles 
-      WHERE spouse_id IS NULL AND baptism_date IS NOT NULL AND id <> gabriel_id 
-      LIMIT 10 
-    LOOP
-      v_count := v_count + 1;
-      v_sub_id := 'sub-solteiro-' || v_count || '-' || substring((v_rec.id)::text from 1 for 6);
-      
-      -- Respostas aleatórias
-      v_tamanho := (ARRAY['P', 'M', 'G', 'GG'])[1 + (v_count % 4)];
-      v_transporte := CASE WHEN v_count % 3 = 0 THEN 'Sim' ELSE 'Não' END;
+    INSERT INTO public.retreat_rooms (id, retreat_id, name, gender_type, capacity, notes) VALUES
+      (r_chale_m1, '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Chalé Aliança 01', 'masculino', 10, 'Próximo ao campo de futebol'),
+      (r_chale_m2, '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Chalé Aliança 02', 'masculino', 10, 'Próximo ao refeitório'),
+      (r_dorm_m3,  '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Dormitório Varão 03', 'masculino', 8,  'Beliches duplos'),
+      (r_chale_f1, '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Chalé Graciosa 01', 'feminino', 10, 'Com ar condicionado'),
+      (r_chale_f2, '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Chalé Graciosa 02', 'feminino', 10, 'Próximo ao auditório'),
+      (r_dorm_f3,  '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Dormitório Serva 03', 'feminino', 8,  'Próximo à piscina'),
+      (r_suite_1,  '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Suíte Master 01', 'suite', 4, 'Banheiro privativo e frigobar'),
+      (r_suite_2,  '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Suíte Master 02', 'suite', 4, 'Cama casal + beliche');
 
-      -- Inserir submissão do formulário
-      INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
-      VALUES (
-        v_sub_id,
-        'form-solteiros-2026',
-        jsonb_build_object('tamanho_camiseta', v_tamanho, 'restricoes_alimentares', 'Nenhuma', 'transporte', v_transporte),
-        v_rec.user_id,
-        now() - (v_count * INTERVAL '12 hours')
-      );
+    -- 8D. Inserir Despesas Financeiras do Evento
+    INSERT INTO public.retreat_expenses (retreat_id, description, category, amount, expense_date, notes) VALUES
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Aluguel do Sítio das Palmeiras (3 dias)', 'local', 8500.00, '2026-09-01', 'Sinal de 50% já pago'),
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Buffet & Alimentação Completa', 'alimentacao', 5200.00, '2026-09-05', 'Café, almoço e jantar para 120 pessoas'),
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Fretamento de Ônibus Executivo (2 ônibus)', 'transporte', 1800.00, '2026-09-10', 'Empresa TransTurismo'),
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Equipamento de Som e Iluminação', 'som_multimidia', 1200.00, '2026-09-12', 'Mesa de som, microfones e iluminação LED'),
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Kits de Boas-Vindas & Canetas', 'outros', 600.00, '2026-09-15', 'Blocos de anotações e canetas gravadas'),
+      ('4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 'Materiais de Apoio & Crachás', 'material', 450.00, '2026-09-18', 'Impressão de pulseiras e crachás');
 
-      -- Inserir inscrição
-      INSERT INTO public.registrations (
-        retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id, custom_responses
-      )
-      VALUES (
-        '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
-        v_rec.id, 
-        ((random() > 0.4)), -- 60% pago
-        'pix', 
-        'REF-SEED-SOLTEIRO-' || substring((v_rec.id)::text from 1 for 6), 
-        now() - (v_count * INTERVAL '12 hours'),
-        v_sub_id,
-        jsonb_build_object('Tamanho da Camiseta', v_tamanho, 'Restrições Alimentares', 'Nenhuma', 'Precisa de Transporte?', v_transporte)
-      );
-    END LOOP;
+    -- 8E. Geração Programática de 55+ Inscrições em Retiro com Gênero Coerente com o Nome
+    DECLARE
+      v_sub_id text;
+      v_count int := 0;
+      v_rec RECORD;
+      v_is_paid boolean;
+      v_method text;
+      v_gender text;
+      v_first_name text;
+      v_tamanho text;
+      v_transporte text;
+      v_assigned_room_id uuid;
+      v_assigned_room_name text;
+      v_male_room_ids uuid[] := ARRAY[r_chale_m1, r_chale_m2, r_dorm_m3];
+      v_male_room_names text[] := ARRAY['Chalé Aliança 01', 'Chalé Aliança 02', 'Dormitório Varão 03'];
+      v_female_room_ids uuid[] := ARRAY[r_chale_f1, r_chale_f2, r_dorm_f3];
+      v_female_room_names text[] := ARRAY['Chalé Graciosa 01', 'Chalé Graciosa 02', 'Dormitório Serva 03'];
+      v_male_count int := 0;
+      v_female_count int := 0;
+      v_room_idx int;
+      v_fnames text[] := ARRAY['Sandra', 'Carolina', 'Regina', 'Mariana', 'Patrícia', 'Laura', 'Juliana', 'Cláudia', 'Letícia', 'Camila', 'Amanda', 'Maria', 'Helena', 'Nair', 'Terezinha', 'Lourdes', 'Ana', 'Beatriz', 'Júlia', 'Cristina', 'Fernanda', 'Gabriela', 'Aline', 'Sofia', 'Renata', 'Sônia', 'Marta', 'Luciana', 'Clara', 'Luiza', 'Isadora', 'Larissa', 'Mariane', 'Priscila', 'Natália', 'Cecília', 'Olívia'];
+      v_mnames text[] := ARRAY['Gabriel', 'Lucas', 'Tiago', 'Felipe', 'Mateus', 'Marcos', 'André', 'Roberto', 'Cláudio', 'Carlos', 'João', 'Pedro', 'Antônio', 'Paulo', 'José', 'Francisco', 'Luiz', 'Geraldo', 'Sebastião', 'Raimundo', 'Walter', 'Rodrigo', 'Daniel', 'Renato', 'Julio', 'Ricardo', 'Eduardo', 'Arthur', 'Bruno', 'Marcelo', 'Breno', 'Hugo', 'Rafael', 'Vinícius', 'Gustavo', 'Diego', 'Leonardo', 'Thiago'];
+    BEGIN
+      -- Inscrever Gabriel Góes Braga
+      IF gabriel_id IS NOT NULL THEN
+        v_sub_id := 'sub-gabriel-123';
+        v_male_count := v_male_count + 1;
+        INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
+        VALUES (
+          v_sub_id,
+          'form-solteiros-2026',
+          jsonb_build_object(
+            'mandatory_full_name', 'Gabriel Góes Braga',
+            'mandatory_email', 'gabriel@igrejabh.com.br',
+            'mandatory_phone', '(31) 99888-7777',
+            'mandatory_gender', 'Masculino',
+            'mandatory_city_state', 'Belo Horizonte / MG',
+            'mandatory_birth_date', '1995-05-15',
+            'tamanho_camiseta', 'G',
+            'transporte', 'Não',
+            'restricoes_alimentares', 'Nenhuma'
+          ),
+          (SELECT user_id FROM public.profiles WHERE id = gabriel_id),
+          now()
+        );
+
+        INSERT INTO public.registrations (
+          retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id,
+          room_id, room_allocation, guest_data, custom_responses
+        )
+        VALUES (
+          '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc',
+          gabriel_id,
+          true,
+          'pix',
+          'REF-GABRIEL-PIX-123',
+          now(),
+          v_sub_id,
+          r_chale_m1,
+          'Chalé Aliança 01',
+          jsonb_build_object(
+            'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
+            'email', 'gabriel@igrejabh.com.br', 'phone', '(31) 99888-7777',
+            'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
+            'birthDate', '1995-05-15'
+          ),
+          jsonb_build_object(
+            'Nome Completo', 'Gabriel Góes Braga',
+            'E-mail', 'gabriel@igrejabh.com.br',
+            'Telefone / WhatsApp', '(31) 99888-7777',
+            'Sexo / Gênero', 'Masculino',
+            'Cidade / Estado', 'Belo Horizonte / MG',
+            'Data de Nascimento / Idade', '1995-05-15',
+            'Tamanho da Camiseta', 'G',
+            'Precisa de Transporte?', 'Não',
+            'Restrições Alimentares', 'Nenhuma'
+          )
+        );
+      END IF;
+
+      -- Inscrever 28 solteiros homens e 28 solteiras mulheres
+      FOR v_rec IN 
+        (SELECT id, user_id, full_name, email, phone, cpf, birth_date, gender
+         FROM public.profiles 
+         WHERE spouse_id IS NULL AND baptism_date IS NOT NULL AND gender = 'M' AND (gabriel_id IS NULL OR id <> gabriel_id)
+         LIMIT 28)
+        UNION ALL
+        (SELECT id, user_id, full_name, email, phone, cpf, birth_date, gender
+         FROM public.profiles 
+         WHERE spouse_id IS NULL AND baptism_date IS NOT NULL AND gender = 'F' AND (gabriel_id IS NULL OR id <> gabriel_id)
+         LIMIT 28)
+      LOOP
+        v_count := v_count + 1;
+        v_sub_id := 'sub-solteiro-' || v_count || '-' || substring((v_rec.id)::text from 1 for 6);
+        
+        -- Detecção de gênero precisa pelo primeiro nome
+        v_first_name := split_part(trim(COALESCE(v_rec.full_name, '')), ' ', 1);
+
+        IF v_first_name = ANY(v_fnames) THEN
+          v_gender := 'Feminino';
+        ELSIF v_first_name = ANY(v_mnames) THEN
+          v_gender := 'Masculino';
+        ELSIF lower(v_first_name) LIKE '%a' AND lower(v_first_name) NOT IN ('luca', 'garcia') THEN
+          v_gender := 'Feminino';
+        ELSE
+          v_gender := 'Masculino';
+        END IF;
+
+        v_is_paid := (v_count % 3 <> 0); -- ~70% pagos
+        v_method := CASE WHEN v_count % 2 = 0 THEN 'pix' ELSE 'card' END;
+        v_tamanho := (ARRAY['P', 'M', 'G', 'GG'])[1 + (v_count % 4)];
+        v_transporte := CASE WHEN v_count % 3 = 0 THEN 'Sim' ELSE 'Não' END;
+
+        -- Alocação estrita por gênero (15 homens em quartos masculinos, 15 mulheres em quartos femininos, o restante não alocado)
+        IF v_gender = 'Masculino' THEN
+          v_male_count := v_male_count + 1;
+          IF v_male_count <= 15 THEN
+            v_room_idx := 1 + ((v_male_count - 1) % 3);
+            v_assigned_room_id := v_male_room_ids[v_room_idx];
+            v_assigned_room_name := v_male_room_names[v_room_idx];
+          ELSE
+            v_assigned_room_id := NULL;
+            v_assigned_room_name := NULL;
+          END IF;
+        ELSE
+          v_female_count := v_female_count + 1;
+          IF v_female_count <= 15 THEN
+            v_room_idx := 1 + ((v_female_count - 1) % 3);
+            v_assigned_room_id := v_female_room_ids[v_room_idx];
+            v_assigned_room_name := v_female_room_names[v_room_idx];
+          ELSE
+            v_assigned_room_id := NULL;
+            v_assigned_room_name := NULL;
+          END IF;
+        END IF;
+
+        -- Inserir submissão do formulário
+        INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
+        VALUES (
+          v_sub_id,
+          'form-solteiros-2026',
+          jsonb_build_object(
+            'mandatory_full_name', COALESCE(v_rec.full_name, 'Discípulo ' || v_count),
+            'mandatory_email', COALESCE(v_rec.email, 'discipulo' || v_count || '@igrejabh.com.br'),
+            'mandatory_phone', COALESCE(v_rec.phone, '(31) 99' || lpad(v_count::text, 3, '0') || '-0000'),
+            'mandatory_gender', v_gender,
+            'mandatory_city_state', 'Belo Horizonte / MG',
+            'mandatory_birth_date', COALESCE(v_rec.birth_date::text, '1998-03-20'),
+            'tamanho_camiseta', v_tamanho,
+            'transporte', v_transporte,
+            'restricoes_alimentares', 'Nenhuma'
+          ),
+          v_rec.user_id,
+          now() - (v_count * INTERVAL '3 hours')
+        );
+
+        -- Inserir inscrição
+        INSERT INTO public.registrations (
+          retreat_id, profile_id, paid, payment_method, payment_reference, created_at, form_submission_id,
+          room_id, room_allocation, guest_data, custom_responses
+        )
+        VALUES (
+          '4faf45cb-c431-48f6-9d3f-598fbe9e5bcc', 
+          v_rec.id, 
+          v_is_paid, 
+          v_method, 
+          'REF-SEED-' || upper(v_method) || '-' || substring((v_rec.id)::text from 1 for 6), 
+          now() - (v_count * INTERVAL '3 hours'),
+          v_sub_id,
+          v_assigned_room_id,
+          v_assigned_room_name,
+          jsonb_build_object(
+            'fullName', COALESCE(v_rec.full_name, 'Discípulo ' || v_count),
+            'full_name', COALESCE(v_rec.full_name, 'Discípulo ' || v_count),
+            'email', COALESCE(v_rec.email, 'discipulo' || v_count || '@igrejabh.com.br'),
+            'phone', COALESCE(v_rec.phone, '(31) 99' || lpad(v_count::text, 3, '0') || '-0000'),
+            'gender', v_gender,
+            'cityState', 'Belo Horizonte / MG',
+            'city_state', 'Belo Horizonte / MG',
+            'birthDate', COALESCE(v_rec.birth_date::text, '1998-03-20')
+          ),
+          jsonb_build_object(
+            'Nome Completo', COALESCE(v_rec.full_name, 'Discípulo ' || v_count),
+            'E-mail', COALESCE(v_rec.email, 'discipulo' || v_count || '@igrejabh.com.br'),
+            'Telefone / WhatsApp', COALESCE(v_rec.phone, '(31) 99' || lpad(v_count::text, 3, '0') || '-0000'),
+            'Sexo / Gênero', v_gender,
+            'Cidade / Estado', 'Belo Horizonte / MG',
+            'Data de Nascimento / Idade', COALESCE(v_rec.birth_date::text, '1998-03-20'),
+            'Tamanho da Camiseta', v_tamanho,
+            'Precisa de Transporte?', v_transporte,
+            'Restrições Alimentares', 'Nenhuma'
+          )
+        );
+      END LOOP;
+    END;
   END;
 
   -- ==========================================================================
