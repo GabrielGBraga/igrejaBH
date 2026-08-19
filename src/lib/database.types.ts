@@ -417,6 +417,7 @@ export type Database = {
           profile_id: string | null
           retreat_id: string | null
           room_allocation: string | null
+          room_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -431,6 +432,7 @@ export type Database = {
           profile_id?: string | null
           retreat_id?: string | null
           room_allocation?: string | null
+          room_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -445,6 +447,7 @@ export type Database = {
           profile_id?: string | null
           retreat_id?: string | null
           room_allocation?: string | null
+          room_id?: string | null
         }
         Relationships: [
           {
@@ -463,6 +466,102 @@ export type Database = {
           },
           {
             foreignKeyName: "registrations_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "retreat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retreat_expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string
+          expense_date: string | null
+          id: string
+          notes: string | null
+          retreat_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          expense_date?: string | null
+          id?: string
+          notes?: string | null
+          retreat_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          expense_date?: string | null
+          id?: string
+          notes?: string | null
+          retreat_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retreat_expenses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retreat_expenses_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retreat_rooms: {
+        Row: {
+          capacity: number
+          created_at: string | null
+          gender_type: string | null
+          id: string
+          name: string
+          notes: string | null
+          retreat_id: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string | null
+          gender_type?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          retreat_id: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string | null
+          gender_type?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          retreat_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retreat_rooms_retreat_id_fkey"
             columns: ["retreat_id"]
             isOneToOne: false
             referencedRelation: "retreats"

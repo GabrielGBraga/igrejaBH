@@ -5,7 +5,9 @@
 - `home_groups`: Define os locais de reunião, dia e líderes. Tem `lat` e `lng` para mapas.
 - `posts`: Unifica notícias, pedidos de oração, avisos e diaconato através do ENUM `post_category`.
 - `media_resources`: Central de vídeos (YouTube) e PDFs de estudo (Catequese).
-- `registrations` & `retreats`: Gestão de eventos e pagamentos.
+- `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e pagamentos.
+- `retreat_rooms`: Gestão de quartos/alocação de alojamentos customizáveis por retiro (`retreat_id`, `gender_type`, `capacity`).
+- `retreat_expenses`: Lançamento e controle de despesas/gastos por retiro para cálculo de resultado líquido (`retreat_id`, `category`, `amount`, `expense_date`).
 
 ## 2. Tratamento de Dados Sensíveis
 - Dados como `cpf`, `household_income` (renda familiar), etc., só podem ser manipulados se o agente for instruído a criar interfaces administrativas de Diaconato.

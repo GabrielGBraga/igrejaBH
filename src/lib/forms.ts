@@ -261,3 +261,173 @@ export function calculateTotalPrice(
 
   return Math.max(0, total)
 }
+
+/**
+ * Define the 6 mandatory baseline fields that must exist in every event registration form.
+ */
+export const MANDATORY_EVENT_FIELDS: FormField[] = [
+  {
+    id: "mandatory_full_name",
+    type: "text",
+    label: "Nome Completo",
+    placeholder: "Digite seu nome completo",
+    required: true,
+    helpText: "Nome do participante inscritos",
+    options: [],
+    halfWidth: false
+  },
+  {
+    id: "mandatory_email",
+    type: "text",
+    label: "E-mail",
+    placeholder: "exemplo@email.com",
+    required: true,
+    helpText: "E-mail para envio da confirmação",
+    validationPreset: "email",
+    options: [],
+    halfWidth: true
+  },
+  {
+    id: "mandatory_phone",
+    type: "text",
+    label: "Telefone / WhatsApp",
+    placeholder: "(31) 99999-9999",
+    required: true,
+    helpText: "Telefone de contato com DDD",
+    validationPreset: "phone",
+    options: [],
+    halfWidth: true
+  },
+  {
+    id: "mandatory_gender",
+    type: "select",
+    label: "Sexo / Gênero",
+    placeholder: "Selecione o sexo",
+    required: true,
+    helpText: "Utilizado para alocação de quartos",
+    options: ["Masculino", "Feminino"],
+    halfWidth: true
+  },
+  {
+    id: "mandatory_city_state",
+    type: "text",
+    label: "Cidade / Estado",
+    placeholder: "Ex: Belo Horizonte / MG",
+    required: true,
+    helpText: "Cidade e UF de residência",
+    options: [],
+    halfWidth: true
+  },
+  {
+    id: "mandatory_birth_date",
+    type: "date",
+    label: "Data de Nascimento / Idade",
+    placeholder: "DD/MM/AAAA",
+    required: true,
+    helpText: "Data de nascimento do participante",
+    options: [],
+    halfWidth: true
+  }
+]
+
+/**
+ * Checks if a given field list contains a match for a mandatory requirement based on label or preset.
+ */
+export function matchesMandatoryRequirement(field: FormField, req: FormField): boolean {
+  const fLabel = field.label.toLowerCase()
+
+  if (req.id === "mandatory_full_name") {
+    return fLabel.includes("nome") || fLabel.includes("participante")
+  }
+  if (req.id === "mandatory_email") {
+    return field.validationPreset === "email" || fLabel.includes("email") || fLabel.includes("e-mail")
+  }
+  if (req.id === "mandatory_phone") {
+    return field.validationPreset === "phone" || fLabel.includes("telefone") || fLabel.includes("whatsapp") || fLabel.includes("celular")
+  }
+  if (req.id === "mandatory_gender") {
+    return fLabel.includes("gênero") || fLabel.includes("genero") || fLabel.includes("sexo")
+  }
+  if (req.id === "mandatory_city_state") {
+    return fLabel.includes("cidade") || fLabel.includes("estado") || fLabel.includes("município")
+  }
+  if (req.id === "mandatory_birth_date") {
+    return fLabel.includes("nascimento") || fLabel.includes("idade") || fLabel.includes("data de nasci") || field.type === "date"
+  }
+  return false
+}
+
+/**
+ * Ensures that a list of form fields contains all 6 mandatory baseline event fields.
+ * If missing, injects them and sets required = true.
+ */
+export function ensureMandatoryEventFields(existingFields: FormField[]): FormField[] {
+  const result: FormField[] = [...existingFields]
+
+  MANDATORY_EVENT_FIELDS.forEach((req) => {
+    const existingIndex = result.findIndex((f) => matchesMandatoryRequirement(f, req))
+    if (existingIndex >= 0) {
+      // Force required = true on matching existing field
+      result[existingIndex] = {
+        ...result[existingIndex],
+        required: true
+      }
+    } else {
+      // Inject missing mandatory field at the beginning
+      result.unshift(req)
+    }
+  })
+
+  return result
+}
+
+/**
+ * Validates a set of form submission responses against mandatory event requirements.
+ */
+export function validateEventRegistrationData(
+  responses: Record<string, any>,
+  fieldsList?: FormField[]
+): { valid: boolean; missingFields: string[] } {
+  const missingFields: string[] = []
+
+  MANDATORY_EVENT_FIELDS.forEach((req) => {
+    let value: any = undefined
+
+    // Try finding by exact matching field in fieldsList if provided
+    if (fieldsList && fieldsList.length > 0) {
+      const match = fieldsList.find((f) => matchesMandatoryRequirement(f, req))
+      if (match) {
+        value = responses[match.id] || responses[match.label]
+      }
+    }
+
+    // Fallback: check by key in responses object
+    if (value === undefined || value === null || String(value).trim() === "") {
+      const keys = Object.keys(responses)
+      const matchingKey = keys.find((k) => {
+        const kLower = k.toLowerCase()
+        if (req.id === "mandatory_full_name") return kLower.includes("nome")
+        if (req.id === "mandatory_email") return kLower.includes("email") || kLower.includes("e-mail")
+        if (req.id === "mandatory_phone") return kLower.includes("telefone") || kLower.includes("phone") || kLower.includes("whatsapp")
+        if (req.id === "mandatory_gender") return kLower.includes("gênero") || kLower.includes("genero") || kLower.includes("sexo")
+        if (req.id === "mandatory_city_state") return kLower.includes("cidade") || kLower.includes("estado")
+        if (req.id === "mandatory_birth_date") return kLower.includes("nascim") || kLower.includes("idade")
+        return false
+      })
+
+      if (matchingKey) {
+        value = responses[matchingKey]
+      }
+    }
+
+    if (value === undefined || value === null || String(value).trim() === "") {
+      missingFields.push(req.label)
+    }
+  })
+
+  return {
+    valid: missingFields.length === 0,
+    missingFields
+  }
+}
+
