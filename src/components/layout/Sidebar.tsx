@@ -85,10 +85,8 @@ export function Sidebar() {
   }, [])
 
   const filteredNavItems = navItems.filter((item) => {
-    // @ts-ignore
     if (item.requireAdmin && !isAdmin) return false
     if (item.requireManagement && !isManagement) return false
-    // @ts-ignore
     if (item.requireCanPost && !canPost) return false
     return true
   })
@@ -124,7 +122,7 @@ export function Sidebar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                to="/"
+                to="/dashboard"
                 className={cn(
                   "flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-primary/10 transition-all duration-300",
                   !isCollapsed && "mr-3"

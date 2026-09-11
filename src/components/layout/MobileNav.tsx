@@ -63,17 +63,15 @@ export function MobileNav() {
   }, [])
 
   const filteredNavItems = navItems.filter((item) => {
-    // @ts-ignore
     if (item.requireAdmin && !isAdmin) return false
     if (item.requireManagement && !isManagement) return false
-    // @ts-ignore
     if (item.requireCanPost && !canPost) return false
     return true
   })
 
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between border-b bg-background/80 p-4 backdrop-blur-md md:hidden">
-      <Link to="/" className="flex items-center gap-2">
+      <Link to="/dashboard" className="flex items-center gap-2">
         <img src="/logo_igreja.png" alt="Logo" className="h-8 w-auto" />
         <span className="text-lg font-bold tracking-tight">Igreja BH</span>
       </Link>

@@ -281,7 +281,7 @@ export default function AddHomeGroup() {
     toast.promise(operation(), {
       loading: "Salvando grupo caseiro...",
       success: () => {
-        navigate("/");
+        navigate("/dashboard");
         return "Grupo caseiro adicionado com sucesso!";
       },
       error: "Erro ao salvar grupo caseiro.",
