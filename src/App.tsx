@@ -1,4 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import supabase from "@/lib/supabase";
+import { Loader2 } from "lucide-react";
+import Landing from "./pages/Landing.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Home from "./pages/Home.tsx";
@@ -40,12 +44,56 @@ const AuthenticatedLayout = ({
   </ProtectedRoute>
 )
 
+// Root route dispatcher: landing page for unlogged users, dashboard for authenticated users
+function RootRoute() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (active) {
+        setIsAuthenticated(!!session?.user)
+      }
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setIsAuthenticated(!!session?.user)
+      }
+    })
+
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return <Landing />
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Toaster />
       <Routes>
-        <Route path="/" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
+        <Route path="/" element={<RootRoute />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/dashboard" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
         <Route path="/grupos-caseiros" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
         <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
         <Route path="/gestao/grafo" element={<AuthenticatedLayout requireManagement><RedeRelacionamentos /></AuthenticatedLayout>} />

@@ -137,7 +137,7 @@ export default function CreatePost() {
     toast.promise(operation(), {
       loading: "Publicando aviso...",
       success: () => {
-        navigate("/")
+        navigate("/dashboard")
         return "Aviso publicado com sucesso!"
       },
       error: (error: any) => {

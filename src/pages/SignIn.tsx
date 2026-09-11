@@ -24,11 +24,12 @@ import {
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, Loader2 } from "lucide-react"
 import { useState } from "react"
 import supabase from "@/lib/supabase"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { toast } from "sonner"
 
 export default function SignIn() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -56,7 +57,10 @@ export default function SignIn() {
       {
         loading: "Realizando login...",
         success: () => {
-          navigate("/")
+          const from =
+            (location.state as { from?: { pathname?: string } })?.from
+              ?.pathname || "/dashboard"
+          navigate(from, { replace: true })
           return "Login realizado com sucesso!"
         },
         error: (error) => {

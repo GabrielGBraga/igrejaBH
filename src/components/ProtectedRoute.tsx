@@ -101,7 +101,7 @@ export function ProtectedRoute({
     if (requireAdmin) {
       const isAllowed = profile.is_dev || profile.is_presbyter
       if (!isAllowed) {
-        return <Navigate to="/" replace />
+        return <Navigate to="/dashboard" replace />
       }
     }
 
@@ -112,7 +112,7 @@ export function ProtectedRoute({
         profile.is_deacon ||
         profile.is_leader
       if (!isAllowed) {
-        return <Navigate to="/" replace />
+        return <Navigate to="/dashboard" replace />
       }
     }
 
@@ -123,7 +123,7 @@ export function ProtectedRoute({
         profile.can_post
       )
       if (!isAllowed) {
-        return <Navigate to="/" replace />
+        return <Navigate to="/dashboard" replace />
       }
     }
   }
