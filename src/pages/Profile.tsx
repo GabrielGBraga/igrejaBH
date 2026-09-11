@@ -264,20 +264,39 @@ export default function Profile() {
   const handleAvatarSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
+    setAvatarFile(file)
     setAvatarPreview(URL.createObjectURL(file))
     setIsCropping(true)
+    event.target.value = ""
   }
 
-  const handleCropComplete = (croppedBlob: Blob) => {
-    if (!avatarPreview) return
+  const handleEditExistingPhoto = async () => {
+    if (!profile?.avatar_url) return
+    try {
+      setSaving(true)
+      const response = await fetch(profile.avatar_url)
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      setAvatarPreview(objectUrl)
+      setIsCropping(true)
+    } catch (err) {
+      console.error("Erro ao carregar foto existente:", err)
+      setAvatarPreview(profile.avatar_url)
+      setIsCropping(true)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
     const file = new File([croppedBlob], "avatar.jpg", { type: "image/jpeg" })
     setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(croppedBlob))
-    setIsCropping(false)
+    await handleAvatarUpload(file)
   }
 
-  const handleAvatarUpload = async () => {
-    if (!avatarFile) return
+  const handleAvatarUpload = async (fileToUpload?: File) => {
+    const file = fileToUpload || avatarFile
+    if (!file) return
 
     try {
       setSaving(true)
@@ -286,28 +305,51 @@ export default function Profile() {
       } = await supabase.auth.getSession()
       if (!session?.user) return
 
-      // 1. Delete old avatar if exists
+      const userId = session.user.id
+
+      // 1. Delete previous avatar by URL path if exists
       if (profile?.avatar_url) {
         try {
-          // Extract path from URL: .../storage/v1/object/public/avatars/PATH
           const urlParts = profile.avatar_url.split("/avatars/")
           if (urlParts.length > 1) {
-            const oldPath = urlParts[1]
-            await supabase.storage.from("avatars").remove([oldPath])
+            const oldPath = decodeURIComponent(urlParts[1].split("?")[0])
+            if (oldPath) {
+              await supabase.storage.from("avatars").remove([oldPath])
+            }
           }
         } catch (deleteError) {
-          // Log error but don't block upload if deletion fails
           console.error("Erro ao deletar avatar antigo:", deleteError)
         }
       }
 
-      const fileExt = avatarFile.name.split(".").pop()
-      const fileName = `${session.user.id}-${Date.now()}.${fileExt}`
-      const filePath = `${fileName}`
+      // 2. Clean up any leftover legacy files for this user in root
+      try {
+        const { data: rootFiles } = await supabase.storage
+          .from("avatars")
+          .list("", { search: userId })
+
+        if (rootFiles && rootFiles.length > 0) {
+          const legacyFiles = rootFiles
+            .filter((f) => f.name.startsWith(userId))
+            .map((f) => f.name)
+          if (legacyFiles.length > 0) {
+            await supabase.storage.from("avatars").remove(legacyFiles)
+          }
+        }
+      } catch (cleanupError) {
+        console.error("Erro na limpeza de arquivos antigos:", cleanupError)
+      }
+
+      // 3. Upload new avatar with upsert into user folder
+      const fileExt = file.name.split(".").pop() || "jpg"
+      const filePath = `${userId}/avatar.${fileExt}`
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, avatarFile)
+        .upload(filePath, file, {
+          upsert: true,
+          contentType: file.type || "image/jpeg",
+        })
 
       if (uploadError) throw uploadError
 
@@ -315,16 +357,19 @@ export default function Profile() {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath)
 
+      const publicUrlWithTimestamp = `${publicUrl}?t=${Date.now()}`
+
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ avatar_url: publicUrl })
-        .eq("user_id", session.user.id)
+        .update({ avatar_url: publicUrlWithTimestamp })
+        .eq("user_id", userId)
 
       if (updateError) throw updateError
 
       toast.success("Foto de perfil atualizada!")
       await fetchProfile()
       setIsEditingAvatar(false)
+      setIsCropping(false)
       setAvatarPreview(null)
       setAvatarFile(null)
     } catch (error) {
@@ -1011,7 +1056,17 @@ export default function Profile() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isEditingAvatar} onOpenChange={setIsEditingAvatar}>
+      <Dialog
+        open={isEditingAvatar}
+        onOpenChange={(open) => {
+          setIsEditingAvatar(open)
+          if (!open) {
+            setIsCropping(false)
+            setAvatarPreview(null)
+            setAvatarFile(null)
+          }
+        }}
+      >
         <DialogContent
           className={cn(
             "rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl",
@@ -1034,67 +1089,62 @@ export default function Profile() {
               <ImageCropper
                 image={avatarPreview}
                 onCropComplete={handleCropComplete}
-                onCancel={() => setIsCropping(false)}
+                onCancel={() => {
+                  setIsCropping(false)
+                  setAvatarPreview(null)
+                  setAvatarFile(null)
+                }}
               />
             </div>
           ) : (
-            <>
-              <div className="flex flex-col items-center gap-6 py-6">
+            <div className="flex flex-col items-center gap-6 py-6">
+              <div className="group relative">
                 <Avatar className="size-56 border-4 border-muted shadow-2xl transition-transform duration-500">
-                  <AvatarImage src={avatarPreview || profile.avatar_url} />
+                  <AvatarImage src={profile.avatar_url} />
                   <AvatarFallback className="bg-primary text-7xl font-bold text-primary-foreground">
                     {getInitials(profile.full_name)}
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="flex w-full flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2 rounded-xl border-border/50 py-6"
-                    asChild
+                {profile.avatar_url && (
+                  <button
+                    type="button"
+                    className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 text-white opacity-0 backdrop-blur-[2px] transition-all group-hover:opacity-100 focus:opacity-100"
+                    onClick={handleEditExistingPhoto}
+                    disabled={saving}
+                    title="Editar foto existente"
                   >
-                    <label
-                      htmlFor="avatar-file-input"
-                      className="cursor-pointer"
-                    >
-                      <CameraIcon className="size-4" />
-                      {avatarFile ? "Escolher outra" : "Trocar Foto de Perfil"}
-                    </label>
-                  </Button>
-                  <input
-                    id="avatar-file-input"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarSelect}
-                  />
-                </div>
+                    <PencilIcon className="mb-1 size-8" />
+                    <span className="text-xs font-semibold">Editar foto</span>
+                  </button>
+                )}
               </div>
-              <DialogFooter className="gap-2 sm:gap-0">
+
+              <div className="flex w-full flex-col gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setIsEditingAvatar(false)
-                    setAvatarPreview(null)
-                    setAvatarFile(null)
-                    setIsCropping(false)
-                  }}
-                  className="rounded-xl border-border/50"
+                  className="w-full gap-2 rounded-xl border-border/50 py-6"
+                  asChild
                 >
-                  Cancelar
+                  <label
+                    htmlFor="avatar-file-input"
+                    className="cursor-pointer"
+                  >
+                    <CameraIcon className="size-4" />
+                    {profile.avatar_url
+                      ? "Trocar Foto de Perfil"
+                      : "Adicionar Foto de Perfil"}
+                  </label>
                 </Button>
-                <Button
-                  onClick={handleAvatarUpload}
-                  disabled={!avatarFile || saving}
-                  className="rounded-xl shadow-lg shadow-primary/20"
-                >
-                  {saving && (
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                  )}
-                  Salvar Nova Foto
-                </Button>
-              </DialogFooter>
-            </>
+                <input
+                  id="avatar-file-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarSelect}
+                />
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

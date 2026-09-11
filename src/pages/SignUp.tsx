@@ -298,18 +298,18 @@ export default function SignUp() {
 
             // 2. Upload Avatar (Agora com usuário criado)
             if (avatarFile) {
-                const fileExt = avatarFile.name.split('.').pop()
-                // Usando o ID do usuário para o nome do arquivo
-                const filePath = `${authData.user.id}-${Date.now()}.${fileExt}`
+                const fileExt = avatarFile.name.split('.').pop() || "jpg"
+                const filePath = `${authData.user.id}/avatar.${fileExt}`
 
                 const { error: uploadError } = await supabase.storage
                     .from('avatars')
-                    .upload(filePath, avatarFile)
+                    .upload(filePath, avatarFile, {
+                        upsert: true,
+                        contentType: avatarFile.type || "image/jpeg"
+                    })
 
                 if (uploadError) {
                     console.error("Erro no upload do avatar:", uploadError);
-                    // Se falhar o upload, podemos continuar ou avisar, 
-                    // mas aqui vamos lançar erro para o toast mostrar
                     throw uploadError;
                 }
 
@@ -317,7 +317,7 @@ export default function SignUp() {
                     .from('avatars')
                     .getPublicUrl(filePath)
                 
-                avatarUrl = publicUrl
+                avatarUrl = `${publicUrl}?t=${Date.now()}`
             }
 
             // 3. Update Profile
