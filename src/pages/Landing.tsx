@@ -224,17 +224,17 @@ export default function Landing() {
       <section className="relative overflow-hidden border-b border-border/40 py-16 sm:py-24 md:py-32">
         {/* Subtle background glow */}
         <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center opacity-30 dark:opacity-20">
-          <div className="h-[320px] w-[320px] rounded-full bg-primary/30 blur-[100px] sm:h-[480px] sm:w-[480px]" />
+          <div className="h-[320px] w-[320px] rounded-full bg-primary/25 blur-[100px] sm:h-[480px] sm:w-[480px]" />
         </div>
 
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8 animate-section-enter">
           {/* Badge */}
           <div className="inline-flex items-center justify-center">
             <Badge
               variant="outline"
-              className="gap-2 rounded-full border-primary/30 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary"
+              className="gap-2 rounded-full border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary shadow-2xs"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
               Uma Comunidade Orgânica de Discípulos • Atos 2:42-47
             </Badge>
           </div>
@@ -242,7 +242,7 @@ export default function Landing() {
           {/* Headline */}
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
             A Igreja que se reúne{" "}
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-foreground bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-primary/90 to-foreground bg-clip-text text-transparent">
               pelas casas e na cidade
             </span>
             .
@@ -261,7 +261,7 @@ export default function Landing() {
             <Button
               asChild
               size="lg"
-              className="min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
             >
               <Link to="/entrar">
                 Acessar o Portal
@@ -272,25 +272,28 @@ export default function Landing() {
               asChild
               variant="outline"
               size="lg"
-              className="min-h-[48px] w-full px-6 text-base font-semibold sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold sm:w-auto"
             >
               <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4" />
+                <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
                 Ativar meu Acesso
               </Link>
             </Button>
           </div>
 
           {/* Biblical quote card */}
-          <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-border/60 bg-card/60 p-6 text-left shadow-xs backdrop-blur-xs sm:p-8">
-            <p className="italic text-muted-foreground sm:text-base">
+          <div className="card-hover-elevation mx-auto mt-12 max-w-2xl rounded-2xl border border-border/60 border-l-4 border-l-amber-600 dark:border-l-amber-500 bg-card/70 p-6 text-left shadow-xs backdrop-blur-xs sm:p-8">
+            <p className="italic text-muted-foreground sm:text-base leading-relaxed">
               &ldquo;E, perseverando unânimes todos os dias no templo, e partindo
               o pão em casa, comiam juntos com alegria e singeleza de coração,
               louvando a Deus e caindo na graça de todo o povo.&rdquo;
             </p>
             <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-4 text-xs font-semibold uppercase tracking-wider text-primary">
-              <span>Atos 2:46-47a</span>
-              <span className="text-muted-foreground">O Modelo do Reino</span>
+              <span className="flex items-center gap-1.5 font-bold">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-400 inline-block"></span>
+                Atos 2:46-47a
+              </span>
+              <span className="text-muted-foreground font-medium">O Modelo do Reino</span>
             </div>
           </div>
         </div>
@@ -300,7 +303,7 @@ export default function Landing() {
       <section className="border-b border-border/40 bg-muted/30 py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
+            <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
               <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
                 24+
               </span>
@@ -312,7 +315,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
+            <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
               <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
                 6
               </span>
@@ -324,7 +327,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
+            <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
               <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
                 De Casa em Casa
               </span>
@@ -336,7 +339,7 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
+            <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
               <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
                 100%
               </span>
@@ -372,7 +375,7 @@ export default function Landing() {
 
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {/* Pilar 1 */}
-            <Card className="rounded-xl border border-border/60 transition-all hover:border-primary/40 hover:shadow-xs">
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Home className="h-5 w-5" />
@@ -392,7 +395,7 @@ export default function Landing() {
             </Card>
 
             {/* Pilar 2 */}
-            <Card className="rounded-xl border border-border/60 transition-all hover:border-primary/40 hover:shadow-xs">
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Users className="h-5 w-5" />
@@ -412,15 +415,15 @@ export default function Landing() {
             </Card>
 
             {/* Pilar 3 */}
-            <Card className="rounded-xl border border-border/60 transition-all hover:border-primary/40 hover:shadow-xs">
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <UtensilsCrossed className="h-5 w-5" />
+                  <UtensilsCrossed className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <CardTitle className="text-lg font-bold">
                   O Partir do Pão
                 </CardTitle>
-                <CardDescription className="text-xs font-medium text-primary">
+                <CardDescription className="text-xs font-medium text-amber-600 dark:text-amber-400">
                   Comunhão e a Mesa
                 </CardDescription>
               </CardHeader>
@@ -432,7 +435,7 @@ export default function Landing() {
             </Card>
 
             {/* Pilar 4 */}
-            <Card className="rounded-xl border border-border/60 transition-all hover:border-primary/40 hover:shadow-xs">
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <HeartHandshake className="h-5 w-5" />

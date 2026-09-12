@@ -43,6 +43,7 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - Sempre que novas cores ou combinações de cores forem propostas ou adicionadas a `src/constants/colors.ts`.
   - Ao criar novos botões, badges, alertas ou elementos com contraste entre texto e fundo.
   - O agente deve validar se o par de cores atinge o padrão **WCAG AA** (mínimo de 4.5:1 para texto normal e 3:1 para texto grande/componentes) tanto para o tema **Light** quanto para o tema **Dark**.
+  - **Validação Estrita de Contraste:** Textos normais e componentes interativos primários (ex: botões de ação e links principais) DEVEM alcançar conformidade com **WCAG AAA** (mínimo 7.0:1) no modo Light e no modo Dark sempre que viável, e NUNCA menos que **WCAG AA** (mínimo 4.5:1).
   - Em caso de dúvida sobre texto claro ou escuro sobre fundos customizados, execute `use-light-or-dark` para selecionar a combinação ideal de contraste.
 
 ### 4.2. Stitch MCP (`StitchMCP`) — Prototipagem e Design Systems
@@ -51,6 +52,10 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - **Geração de Novas Telas/Layouts:** Ao ser solicitado a criar novas páginas, fluxos complexos ou reformulações visuais completas, utilize o Stitch MCP (`generate_screen_from_text` ou `generate_variants`) para conceber protótipos de tela e explorar alternativas de layout antes de codificar os componentes React.
   - **Sincronização com o Design System:** Ao atualizar a identidade ou documentação de design, utilize as ferramentas de sincronização (`upload_design_md`, `apply_design_system`) para manter os protótipos alinhados ao sistema de design do projeto.
   - **Edição e Variações Visuais:** Utilize `edit_screens` e `generate_variants` para iterar layouts de forma assistida quando o usuário desejar comparar propostas de interface.
+
+### 4.3. Animações e Acessibilidade Vestibular (`prefers-reduced-motion`)
+- **Regra de Ouro:** Qualquer animação CSS, transição com `transform`/`scale` ou efeito de translação implementado DEVE obrigatoriamente respeitar a media query `@media (prefers-reduced-motion: reduce)`.
+- Quando o usuário tiver ativado o movimento reduzido no sistema operacional ou navegador, as durações devem ser colapsadas (`animation-duration: 0.001ms !important`, `transition-duration: 0.001ms !important`) e os deslocamentos táteis anulados (`transform: none !important`).
 
 ## 5. Geração de Telas e Edição de UI
 Sempre que o agente for instruído a criar ou editar elementos de UI, ele deve:
@@ -61,3 +66,4 @@ Sempre que o agente for instruído a criar ou editar elementos de UI, ele deve:
 5. Adicionar o wrapper do Layout (Desktop/Mobile) correspondente.
 6. Nunca usar cores fixas (como `text-black` ou `bg-white`) sem a contraparte `dark:`.
 7. **Verificação Pós-Edição:** Após qualquer alteração que envolva UI, verificar se não há componentes nativos ou customizados sendo implementados/mantidos que poderiam (e deveriam) ser substituídos por componentes do `shadcn/ui` já instalados ou disponíveis para instalação.
+8. **Acessibilidade Vestibular:** Garantir que novas animações ou transições incluam suporte a `prefers-reduced-motion`.

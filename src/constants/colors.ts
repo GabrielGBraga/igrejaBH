@@ -38,12 +38,22 @@ export const PALETTE = {
 export const BRAND_COLORS = {
   primary: {
     light: {
-      oklch: "oklch(0.48 0.18 285)",
-      hex: "#6366f1", // Indigo/Purple accent
+      oklch: "oklch(0.35 0.08 155)",
+      hex: "#1b4332", // Deep Forest Olive
     },
     dark: {
-      oklch: "oklch(0.65 0.18 285)",
-      hex: "#818cf8",
+      oklch: "oklch(0.88 0.15 145)",
+      hex: "#86efac", // Sage / Mint
+    },
+  },
+  accent: {
+    light: {
+      oklch: "oklch(0.55 0.16 65)",
+      hex: "#b45309", // Warm Amber
+    },
+    dark: {
+      oklch: "oklch(0.82 0.16 80)",
+      hex: "#fbbf24", // Golden Amber
     },
   },
 } as const;
@@ -53,25 +63,25 @@ export const BRAND_COLORS = {
 // ==========================================
 export const THEME_TOKENS = {
   light: {
-    background: "#fafafa",
+    background: "#faf9f6",
     foreground: "#18181b",
     card: "#ffffff",
     cardForeground: "#18181b",
     popover: "#ffffff",
     popoverForeground: "#18181b",
-    primary: "#6366f1",
+    primary: "#1b4332",
     primaryForeground: "#fafafa",
-    secondary: "#f4f4f5",
-    secondaryForeground: "#18181b",
-    muted: "#f4f4f5",
-    mutedForeground: "#71717a",
-    accent: "#f4f4f5",
-    accentForeground: "#18181b",
+    secondary: "#f4efe6",
+    secondaryForeground: "#1b4332",
+    muted: "#f4efe6",
+    mutedForeground: "#52525b",
+    accent: "#f4efe6",
+    accentForeground: "#92400e",
     destructive: "#dc2626",
     destructiveForeground: "#fafafa",
-    border: "#e4e4e7",
-    input: "#e4e4e7",
-    ring: "#6366f1",
+    border: "#e5e7eb",
+    input: "#e5e7eb",
+    ring: "#1b4332",
   },
   dark: {
     background: "#09090b",
@@ -80,19 +90,19 @@ export const THEME_TOKENS = {
     cardForeground: "#fafafa",
     popover: "#18181b",
     popoverForeground: "#fafafa",
-    primary: "#818cf8",
+    primary: "#86efac",
     primaryForeground: "#09090b",
-    secondary: "#27272a",
-    secondaryForeground: "#fafafa",
-    muted: "#27272a",
+    secondary: "#162e24",
+    secondaryForeground: "#86efac",
+    muted: "#162e24",
     mutedForeground: "#a1a1aa",
-    accent: "#27272a",
-    accentForeground: "#fafafa",
+    accent: "#162e24",
+    accentForeground: "#fbbf24",
     destructive: "#ef4444",
     destructiveForeground: "#fafafa",
     border: "#27272a",
     input: "#27272a",
-    ring: "#818cf8",
+    ring: "#86efac",
   },
 } as const;
 
