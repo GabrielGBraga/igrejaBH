@@ -15,7 +15,10 @@
 - Lembre-se de importar o CSS do leaflet para evitar quebra de renderização: `import 'leaflet/dist/leaflet.css'`.
 
 ## 4. MCP e Servidores
-- Ao ser instruído a alterar o banco de dados (backend), o agente deve propor a migração `.sql` ou utilizar os servidores MCP configurados, nunca alterar arquivos não relacionados.
+- **Supabase MCP (`supabase-mcp-server`):** Ao ser instruído a alterar o banco de dados (backend), o agente deve propor a migração `.sql` ou utilizar os servidores MCP configurados, nunca alterar arquivos não relacionados.
+- **Accessibility MCP (`accessibility`):** O agente deve obrigatoriamente validar contrastes e conformidade WCAG AA/AAA (`are-colors-accessible`, `get-color-contrast`, `use-light-or-dark`) ao definir ou alterar cores no arquivo `src/constants/colors.ts` ou nos componentes de UI.
+- **Stitch MCP (`StitchMCP`):** O agente deve utilizar as ferramentas do Stitch (`generate_screen_from_text`, `generate_variants`, `upload_design_md`, `apply_design_system`) para prototipar telas novas, gerar variações de interface e manter o alinhamento com o design system antes de codificar telas complexas.
+- **Constantes de Cores (`src/constants/colors.ts`):** É regra estrita manter todas as cores do projeto registradas em `src/constants/colors.ts`. Qualquer cor nova em tempo de execução ou elemento visual DEVE ser adicionada e importada dessa constante.
 
 ## 5. Manutenção do Contexto (Regra de Ouro do Agente)
 - O agente DEVE ser proativo quanto à integridade e atualização das regras desta pasta (`.agents/rules/`).
