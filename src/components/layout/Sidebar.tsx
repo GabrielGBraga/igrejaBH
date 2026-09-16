@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ChurchAvatar } from "@/components/ui/church-avatar"
+
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -124,28 +126,29 @@ export function Sidebar() {
               <Link
                 to="/dashboard"
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-primary/10 transition-all duration-300",
-                  !isCollapsed && "mr-3"
+                  "flex items-center gap-3 transition-opacity hover:opacity-90",
+                  isCollapsed && "justify-center"
                 )}
               >
-                <img
-                  src="/logo_igreja.png"
-                  alt="Logo"
-                  className="h-full w-full object-contain p-1"
-                />
+                <ChurchAvatar size="md" variant="subtle" />
+                {!isCollapsed && (
+                  <div className="flex flex-col min-w-0">
+                    <span className="truncate text-base font-bold tracking-tight text-foreground leading-none">
+                      Igreja em BH
+                    </span>
+                    <span className="truncate text-[10px] uppercase tracking-wider text-muted-foreground font-medium mt-0.5">
+                      A Igreja na Cidade
+                    </span>
+                  </div>
+                )}
               </Link>
             </TooltipTrigger>
             {isCollapsed && (
               <TooltipContent side="right" sideOffset={10}>
-                Igreja BH
+                Igreja em BH
               </TooltipContent>
             )}
           </Tooltip>
-          {!isCollapsed && (
-            <h1 className="truncate text-lg font-bold tracking-tight text-foreground">
-              Igreja BH
-            </h1>
-          )}
 
           <Button
             variant="ghost"
