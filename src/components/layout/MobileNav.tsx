@@ -12,6 +12,8 @@ import { navItems } from "./NavItems"
 import { cn } from "@/lib/utils"
 import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
+import { ChurchAvatar } from "@/components/ui/church-avatar"
+import { ChurchLogo } from "@/components/icons/ChurchLogo"
 
 export function MobileNav() {
   const location = useLocation()
@@ -71,9 +73,8 @@ export function MobileNav() {
 
   return (
     <div className="sticky top-0 z-50 flex items-center justify-between border-b bg-background/80 p-4 backdrop-blur-md md:hidden">
-      <Link to="/dashboard" className="flex items-center gap-2">
-        <img src="/logo_igreja.png" alt="Logo" className="h-8 w-auto" />
-        <span className="text-lg font-bold tracking-tight">Igreja BH</span>
+      <Link to="/dashboard">
+        <ChurchLogo size="sm" />
       </Link>
 
       <Sheet>
@@ -84,11 +85,8 @@ export function MobileNav() {
         </SheetTrigger>
         <SheetContent side="left" className="w-[300px] p-0 sm:w-[350px]">
           <SheetHeader className="border-b p-6">
-            <SheetTitle className="flex items-center gap-2">
-              <img src="/logo_igreja.png" alt="Logo" className="h-8 w-auto" />
-              <span className="text-xl font-bold tracking-tight">
-                Igreja BH
-              </span>
+            <SheetTitle>
+              <ChurchLogo size="md" />
             </SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-1 p-4">

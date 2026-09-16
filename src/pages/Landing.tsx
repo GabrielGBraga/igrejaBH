@@ -31,6 +31,8 @@ import {
   SheetClose,
 } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { ChurchAvatar } from "@/components/ui/church-avatar"
+import { ChurchLogo } from "@/components/icons/ChurchLogo"
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -82,25 +84,8 @@ export default function Landing() {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo & Nome */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
-          >
-            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border border-primary/20 bg-primary/10">
-              <img
-                src="/logo_igreja.png"
-                alt="Logo da Igreja em BH"
-                className="h-full w-full object-contain p-1"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight sm:text-lg">
-                Igreja em BH
-              </span>
-              <span className="hidden text-[10px] uppercase tracking-wider text-muted-foreground sm:inline-block">
-                A Igreja na Cidade
-              </span>
-            </div>
+          <Link to="/">
+            <ChurchLogo size="md" />
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -156,15 +141,8 @@ export default function Landing() {
               <SheetContent side="right" className="w-[300px] p-0 sm:w-[350px]">
                 <SheetHeader className="border-b border-border/50 p-6 text-left">
                   <div className="flex items-center justify-between">
-                    <SheetTitle className="flex items-center gap-2 text-base font-bold">
-                      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-primary/20 bg-primary/10">
-                        <img
-                          src="/logo_igreja.png"
-                          alt="Logo"
-                          className="h-full w-full object-contain p-0.5"
-                        />
-                      </div>
-                      Igreja em BH
+                    <SheetTitle>
+                      <ChurchLogo size="sm" />
                     </SheetTitle>
                     <SheetClose asChild>
                       <Button
@@ -694,13 +672,7 @@ export default function Landing() {
       <footer className="border-t border-border/50 bg-card/40 py-10 text-xs text-muted-foreground">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 text-center sm:flex-row sm:px-6 sm:text-left lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-primary/20 bg-primary/10">
-              <img
-                src="/logo_igreja.png"
-                alt="Logo"
-                className="h-full w-full object-contain p-0.5"
-              />
-            </div>
+            <ChurchAvatar size="md" variant="subtle" />
             <div>
               <p className="font-semibold text-foreground">
                 A Igreja em Belo Horizonte
