@@ -12,7 +12,6 @@ import { navItems } from "./NavItems"
 import { cn } from "@/lib/utils"
 import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
-import { ChurchAvatar } from "@/components/ui/church-avatar"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
 
 export function MobileNav() {
