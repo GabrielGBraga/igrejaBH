@@ -161,9 +161,9 @@ export default function RedeRelacionamentos() {
   const [savingHomeGroup, setSavingHomeGroup] = useState<boolean>(false)
   const [geocodingEdit, setGeocodingEdit] = useState<boolean>(false)
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (isInitial = false) => {
     try {
-      setLoading(true)
+      if (isInitial) setLoading(true)
 
       // Fetch profiles
       const { data: profilesData, error: profilesError } = await supabase
@@ -211,7 +211,7 @@ export default function RedeRelacionamentos() {
       console.error("Erro ao carregar dados do grafo:", err)
       toast.error("Erro ao carregar os dados de relacionamentos.")
     } finally {
-      setLoading(false)
+      if (isInitial) setLoading(false)
     }
   }, [])
 
@@ -229,7 +229,7 @@ export default function RedeRelacionamentos() {
   }, [])
 
   useEffect(() => {
-    loadData()
+    loadData(true)
   }, [loadData])
 
   const handleOpenEditHomeGroup = (hg: HomeGroup) => {

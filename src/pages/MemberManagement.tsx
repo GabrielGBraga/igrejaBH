@@ -280,8 +280,8 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
 
     const registrationType = form.watch("registrationType");
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (isInitial = false) => {
+        if (isInitial) setLoading(true);
         try {
             const { data: profilesData, error: profilesError } = await supabase
                 .from('profiles')
@@ -329,12 +329,12 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             console.error("Error fetching members:", error);
             toast.error("Erro ao carregar dados dos vinculados.");
         } finally {
-            setLoading(false);
+            if (isInitial) setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData(true);
     }, []);
 
     const handleAddClick = () => {
@@ -512,6 +512,9 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
         });
     };
 
+    const itemsPerPage = 24;
+    const [currentPage, setCurrentPage] = useState(1);
+
     const filteredMembers = members.filter(m => 
         m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         m.phone?.includes(searchQuery) ||
@@ -519,6 +522,14 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
         m.address_neighborhood?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         m.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
+    const paginatedMembers = filteredMembers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    // Reset to page 1 when search query changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     const getInitials = (name: string) => {
         return name
@@ -607,8 +618,9 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                     </div>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-                    {filteredMembers.map((member) => (
+                <div className="space-y-6 pb-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {paginatedMembers.map((member) => (
                         <Card key={member.id} className="border-border/50 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-500 group rounded-2xl overflow-hidden flex flex-col">
                             <CardHeader className="flex flex-row items-center gap-4 pb-4 px-5 pt-5 shrink-0">
                                 <Avatar className="size-14 border border-border shadow-sm group-hover:scale-110 transition-transform duration-500">
@@ -757,6 +769,32 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                             </CardContent>
                         </Card>
                     ))}
+                    </div>
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 pt-4">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="h-9 px-4 rounded-xl"
+                            >
+                                Anterior
+                            </Button>
+                            <span className="text-sm text-muted-foreground px-4">
+                                Página {currentPage} de {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="h-9 px-4 rounded-xl"
+                            >
+                                Próxima
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
 

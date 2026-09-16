@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
@@ -23,8 +23,17 @@ import { Toaster } from "@/components/ui/sonner";
 import { Layout } from "./components/layout/Layout.tsx";
 import type { ReactNode } from "react";
 
-// Helper component to wrap protected routes with Layout
-const AuthenticatedLayout = ({
+// Helper component to provide Layout context to protected routes
+const AppLayout = () => (
+  <ProtectedRoute>
+    <Layout>
+      <Outlet />
+    </Layout>
+  </ProtectedRoute>
+)
+
+// Helper component for specific permissions within the layout
+const PermissionGuard = ({
   children,
   requireAdmin,
   requireManagement,
@@ -40,7 +49,7 @@ const AuthenticatedLayout = ({
     requireManagement={requireManagement}
     requireCanPost={requireCanPost}
   >
-    <Layout>{children}</Layout>
+    {children}
   </ProtectedRoute>
 )
 
@@ -93,21 +102,39 @@ function App() {
       <Routes>
         <Route path="/" element={<RootRoute />} />
         <Route path="/landing" element={<Landing />} />
-        <Route path="/dashboard" element={<AuthenticatedLayout><Home /></AuthenticatedLayout>} />
-        <Route path="/grupos-caseiros" element={<AuthenticatedLayout requireAdmin><AddHomeGroup /></AuthenticatedLayout>} />
-        <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
-        <Route path="/gestao/grafo" element={<AuthenticatedLayout requireManagement><RedeRelacionamentos /></AuthenticatedLayout>} />
-        <Route path="/gestao/formularios" element={<AuthenticatedLayout requireCanPost><FormBuilder /></AuthenticatedLayout>} />
-        <Route path="/formularios/responder/:formId" element={<FormResponder />} />
-        <Route path="/noticias/nova" element={<AuthenticatedLayout><CreatePost /></AuthenticatedLayout>} />
-        <Route path="/ensinos" element={<AuthenticatedLayout><Ensinos /></AuthenticatedLayout>} />
-        <Route path="/perfil" element={<AuthenticatedLayout><Profile /></AuthenticatedLayout>} />
-        <Route path="/eventos" element={<AuthenticatedLayout><Events /></AuthenticatedLayout>} />
-        <Route path="/gestao/eventos" element={<AuthenticatedLayout requireManagement><ManageEvents /></AuthenticatedLayout>} />
-        <Route path="/mensagens" element={<AuthenticatedLayout><Messages /></AuthenticatedLayout>} />
-        <Route path="/ajustes" element={<AuthenticatedLayout><Settings /></AuthenticatedLayout>} />
         <Route path="/entrar" element={<SignIn />} />
         <Route path="/cadastro" element={<SignUp />} />
+        <Route path="/formularios/responder/:formId" element={<FormResponder />} />
+
+        {/* Protected Routes inside shared Layout */}
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<Home />} />
+          <Route path="/noticias/nova" element={<CreatePost />} />
+          <Route path="/ensinos" element={<Ensinos />} />
+          <Route path="/perfil" element={<Profile />} />
+          <Route path="/eventos" element={<Events />} />
+          <Route path="/mensagens" element={<Messages />} />
+          <Route path="/ajustes" element={<Settings />} />
+
+          <Route path="/grupos-caseiros" element={
+            <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>
+          } />
+          
+          <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
+          
+          <Route path="/gestao/grafo" element={
+            <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
+          } />
+          
+          <Route path="/gestao/eventos" element={
+            <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
+          } />
+          
+          <Route path="/gestao/formularios" element={
+            <PermissionGuard requireCanPost><FormBuilder /></PermissionGuard>
+          } />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
