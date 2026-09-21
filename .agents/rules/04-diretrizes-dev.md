@@ -5,10 +5,11 @@
 - Evite `any` a todo custo. Tipagem estrita é obrigatória.
 - Hooks de dados (busca no Supabase) devem ser encapsulados ou tratados com `useEffect`/React Query (se adicionado futuramente). Atualmente, trate o loading state de forma explícita com `Skeleton` do shadcn.
 
-## 2. Formulários e Validação
-- Para qualquer entrada de dados de usuário, utilize OBRIGATORIAMENTE `react-hook-form` integrado ao `zod` via `@hookform/resolvers`.
+## 2. Formulários, Validação e Drag-and-Drop
+- Para qualquer entrada de dados de usuário convencional, utilize OBRIGATORIAMENTE `react-hook-form` integrado ao `zod` via `@hookform/resolvers`.
 - Exemplo de import: `import { useForm } from "react-hook-form"` e `import * as z from "zod"`.
 - Use os componentes `<Form>`, `<FormField>`, `<FormItem>`, `<FormMessage>` já existentes na UI.
+- Para interações de Drag-and-Drop (como a ordenação e construção de formulários), utilize as bibliotecas `@dnd-kit/core`, `@dnd-kit/sortable` e `@dnd-kit/utilities` que já fazem parte da stack do projeto.
 
 ## 3. Mapas
 - Ao renderizar mapas (Grupos Caseiros), utilize OBRIGATORIAMENTE `react-leaflet`.
