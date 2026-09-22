@@ -3,15 +3,16 @@ import { Link } from "react-router-dom"
 import {
   ArrowRight,
   ChevronDown,
+  Compass,
+  Flame,
   HeartHandshake,
   Home,
+  KeyRound,
   Menu,
   ShieldCheck,
   Sparkles,
   Users,
-  UtensilsCrossed,
   X,
-  KeyRound,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -42,35 +43,40 @@ export default function Landing() {
     { name: "A Visão", href: "#visao" },
     { name: "Grupos Caseiros", href: "#grupos-caseiros" },
     { name: "Vida Comum", href: "#vida-comum" },
-    { name: "Como Participar", href: "#acesso-portal" },
+    { name: "Caminhe Conosco", href: "#acesso-portal" },
     { name: "Dúvidas Frequentes", href: "#faq" },
   ]
 
   const faqs = [
     {
-      question: "Onde fica o templo ou prédio da igreja?",
+      question: "Onde fica o templo ou prédio de reuniões?",
       answer:
-        "Não possuímos uma sede central com auditório permanente ou templo físico. Seguindo o padrão bíblico do Novo Testamento, a Igreja em Belo Horizonte se reúne nos lares dos discípulos espalhados pelos bairros da cidade e da região metropolitana, além de encontros periódicos coletivos para adoração e comunhão.",
+        "Não possuímos prédios, templos físicos ou sedes administrativas. A Igreja do Senhor não é um endereço, mas as próprias pessoas salvas por Cristo. Como parte da Igreja de Cristo que vive em Belo Horizonte e região metropolitana, os discípulos se reúnem nos lares espalhados pelos bairros e realizam encontros periódicos coletivos para comunhão e o partir do pão.",
     },
     {
-      question: "O que são os Grupos Caseiros (Oikos)?",
+      question: "Vocês pertencem a qual denominação religiosa?",
       answer:
-        "São pequenos grupos de irmãos e famílias que se encontram semanalmente nas casas para orar, ler a Palavra de Deus, compartilhar refeições e cuidar uns dos outros de maneira próxima e espontânea. É onde a vida do Corpo acontece na prática diária.",
+        "A nenhuma denominação. Cremos que o Corpo de Cristo é indivisível e universal. Não somos a totalidade da Igreja do Senhor, mas apenas uma parte dela que habita em Belo Horizonte. Por isso, não adotamos nomes sectários ou títulos humanos, reconhecendo como irmãos todos aqueles que nasceram de novo pelo sangue de Jesus.",
     },
     {
-      question: "Como funciona o discipulado?",
+      question: "O que são os Grupos Caseiros (Oikos) e o que fazem?",
       answer:
-        "O discipulado acontece através de relacionamentos transparentes ('juntas e ligamentos') entre irmãos do mesmo gênero. Um discípulo mais experiente na fé caminha ao lado de outro, orando, ensinando o evangelho e apoiando nas lutas cotidianas, sem hierarquias corporativas.",
+        "São pequenos grupos de discípulos e famílias que se encontram nos lares. Não são reuniões passivas para assistir a um pregador, mas ambientes familiares onde todos funcionam como sacerdotes: partilham a mesa na Ceia do Senhor, oram, cuidam uns dos outros e atuam como equipes de trabalho para compartilhar o Evangelho do Reino na vizinhança e nas ruas.",
     },
     {
-      question: "Já me reúno com os irmãos em um GC. Como ativo meu acesso ao portal?",
+      question: "Como funciona o discipulado (juntas e ligamentos)?",
       answer:
-        "Se você já faz parte de um Grupo Caseiro, seus dados básicos já foram incluídos previamente pelos responsáveis da sua região. Basta clicar em 'Ativar Conta' no topo da página e informar o e-mail ou telefone cadastrado para definir sua senha de acesso.",
+        "O discipulado é a reprodução do caráter de Jesus de 'vida na vida'. Irmãos do mesmo gênero caminham juntos no dia a dia, prestando contas com honestidade, orando, ensinando a obedecer às palavras do Senhor e cuidando mutuamente, sem qualquer divisão entre clero e leigos.",
     },
     {
-      question: "Desejo conhecer a comunidade, como posso fazer?",
+      question: "O que significa 'O Propósito Eterno' de Deus?",
       answer:
-        "Você é muito bem-vindo(a)! Os Grupos Caseiros estão de portas abertas nos bairros de Belo Horizonte, Contagem, Betim e demais regiões metropolitanas. Você pode se conectar através de um irmão ou nos contatar para indicarmos o Grupo Caseiro mais próximo da sua residência.",
+        "É o plano original de Deus desenhado antes da fundação do mundo (Romanos 8:29 e Efésios 1): ter uma grande família de muitos filhos semelhantes a Jesus Cristo. A salvação não é o fim em si mesma, mas a porta de entrada pela qual a vida de Deus nos transforma diariamente à imagem de Seu Filho.",
+    },
+    {
+      question: "Como posso conhecer a comunhão ou iniciar meu discipulado?",
+      answer:
+        "Você é muito bem-vindo(a)! Não temos procedimentos burocráticos ou formulários institucionais de membros. Você pode se conectar com um irmão próximo ou nos contatar para ser recebido em um Grupo Caseiro perto da sua casa, conhecer o testemunho vivo de Cristo e caminhar conosco.",
     },
   ]
 
@@ -119,7 +125,7 @@ export default function Landing() {
             >
               <Link to="/cadastro">
                 <KeyRound className="mr-2 h-4 w-4" />
-                Ativar Conta
+                Caminhe Conosco
               </Link>
             </Button>
           </div>
@@ -187,7 +193,7 @@ export default function Landing() {
                     >
                       <Link to="/cadastro">
                         <KeyRound className="mr-2 h-4 w-4" />
-                        Ativar meu Acesso
+                        Caminhe Conosco
                       </Link>
                     </Button>
                   </div>
@@ -213,25 +219,27 @@ export default function Landing() {
               className="gap-2 rounded-full border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary shadow-2xs"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-              Uma Comunidade Orgânica de Discípulos • Atos 2:42-47
+              O Propósito Eterno de Deus • Romanos 8:29
             </Badge>
           </div>
 
           {/* Headline */}
           <h1 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            A Igreja que se reúne{" "}
+            Uma família de discípulos{" "}
             <span className="bg-gradient-to-r from-primary via-primary/90 to-foreground bg-clip-text text-transparent">
-              pelas casas e na cidade
+              semelhantes a Jesus pelas casas e ruas
             </span>
             .
           </h1>
 
           {/* Subtitle */}
           <p className="mx-auto mt-6 max-w-3xl text-base text-muted-foreground sm:text-lg md:text-xl">
-            Não somos um prédio comercial ou uma organização institucional.
-            Somos uma família de discípulos perseverando no partir do pão de
-            casa em casa, na oração, no ensino dos apóstolos e na comunhão diária
-            em Belo Horizonte e região metropolitana.
+            O propósito de Deus antes da fundação do mundo é ter uma família de
+            muitos filhos conformados à imagem de Jesus Cristo. Não somos uma
+            denominação, nem temos templos físicos ou divisão de clero: somos
+            discípulos, parte do Corpo de Cristo em Belo Horizonte,
+            reunindo-nos nos lares como equipes de trabalho e proclamando o
+            Evangelho do Reino no dia a dia da cidade.
           </p>
 
           {/* CTAs */}
@@ -241,8 +249,8 @@ export default function Landing() {
               size="lg"
               className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
             >
-              <Link to="/entrar">
-                Acessar o Portal
+              <Link to="/cadastro">
+                Caminhe Conosco
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -252,9 +260,9 @@ export default function Landing() {
               size="lg"
               className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold sm:w-auto"
             >
-              <Link to="/cadastro">
+              <Link to="/entrar">
                 <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
-                Ativar meu Acesso
+                Acessar o Portal
               </Link>
             </Button>
           </div>
@@ -262,77 +270,79 @@ export default function Landing() {
           {/* Biblical quote card */}
           <div className="card-hover-elevation mx-auto mt-12 max-w-2xl rounded-2xl border border-border/60 border-l-4 border-l-amber-600 dark:border-l-amber-500 bg-card/70 p-6 text-left shadow-xs backdrop-blur-xs sm:p-8">
             <p className="italic text-muted-foreground sm:text-base leading-relaxed">
-              &ldquo;E, perseverando unânimes todos os dias no templo, e partindo
-              o pão em casa, comiam juntos com alegria e singeleza de coração,
-              louvando a Deus e caindo na graça de todo o povo.&rdquo;
+              &ldquo;Porquanto aos que de antemão conheceu, também os predestinou
+              para serem conformes à imagem de seu Filho, a fim de que Ele seja o
+              primogênito entre muitos irmãos.&rdquo;
             </p>
             <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-4 text-xs font-semibold uppercase tracking-wider text-primary">
               <span className="flex items-center gap-1.5 font-bold">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-400 inline-block"></span>
-                Atos 2:46-47a
+                Romanos 8:29
               </span>
-              <span className="text-muted-foreground font-medium">O Modelo do Reino</span>
+              <span className="text-muted-foreground font-medium">
+                O Propósito Eterno de Deus
+              </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Métricas e Alcance Territorial */}
+      {/* 3. Métricas e Fundamentos de Fé */}
       <section className="border-b border-border/40 bg-muted/30 py-12">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
-              <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                24+
+              <span className="text-xl font-extrabold text-foreground sm:text-2xl">
+                Propósito Eterno
               </span>
               <span className="mt-1 text-sm font-semibold text-primary">
-                Grupos Caseiros (Oikos)
+                Semelhança com Cristo
               </span>
               <p className="mt-1 text-xs text-muted-foreground">
-                Reuniões de comunhão e oração nos lares
+                Uma família de muitos filhos formados à imagem de Jesus
               </p>
             </div>
 
             <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
-              <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                6
+              <span className="text-xl font-extrabold text-foreground sm:text-2xl">
+                Casas e Ruas
               </span>
               <span className="mt-1 text-sm font-semibold text-primary">
-                Regiões Conectadas
+                Equipes de Trabalho
               </span>
               <p className="mt-1 text-xs text-muted-foreground">
-                Barreiro, Betim, Contagem, Pampulha, Santa Luzia e Venda Nova
+                Comunhão nos lares e evangelismo prático na cidade
               </p>
             </div>
 
             <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
-              <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                De Casa em Casa
+              <span className="text-xl font-extrabold text-foreground sm:text-2xl">
+                100% Sacerdotes
               </span>
               <span className="mt-1 text-sm font-semibold text-primary">
-                Vida ao Redor da Mesa
+                Sem Divisão Clero/Leigo
               </span>
               <p className="mt-1 text-xs text-muted-foreground">
-                Partir do pão, hospitalidade e amparo mútuo
+                Cada discípulo é ministro ativo na edificação mútua do Corpo
               </p>
             </div>
 
             <div className="card-hover-elevation flex flex-col items-center justify-center rounded-xl border border-border/60 bg-card p-6 text-center shadow-2xs">
-              <span className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                100%
+              <span className="text-xl font-extrabold text-foreground sm:text-2xl">
+                Vida na Vida
               </span>
               <span className="mt-1 text-sm font-semibold text-primary">
-                Relacional & Discipulado
+                Juntas e Ligamentos
               </span>
               <p className="mt-1 text-xs text-muted-foreground">
-                Juntas e ligamentos de cuidado e amizade
+                Discipulado pessoal de cuidado mútuo, oração e transparência
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. A Visão: Os Pilares de Atos 2 */}
+      {/* 4. A Visão: Os Pilares Teológicos */}
       <section id="visao" className="scroll-mt-20 py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -340,95 +350,142 @@ export default function Landing() {
               variant="outline"
               className="rounded-full border-primary/30 px-3 py-1 text-xs font-semibold text-primary"
             >
-              Fundamentos
+              Fundamentos do Reino
             </Badge>
             <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-              Como vivemos o Evangelho na prática
+              Como expressamos a vida do Corpo
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-              Nossa dinâmica é moldada pela simplicidade dos primeiros discípulos:
-              relacionamentos autênticos no lugar de programas burocráticos.
+              Sem modelos corporativos ou tradições religiosas humanas. Tudo o
+              que vivemos brota da simplicidade do Evangelho do Reino e do eterno
+              propósito de Deus.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Pilar 1 */}
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Pilar 1: O Propósito Eterno */}
             <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Home className="h-5 w-5" />
+                  <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <CardTitle className="text-lg font-bold">
-                  Grupos Caseiros
+                  O Propósito Eterno
                 </CardTitle>
                 <CardDescription className="text-xs font-medium text-primary">
-                  Oikos • Reunião nos Lares
+                  Romanos 8:29 • Família de Filhos
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                As salas de estar e mesas de refeição são o coração da nossa
-                reunião. Pequenos grupos onde todos participam, oram e cuidam uns
-                dos outros.
+                O desígnio de Deus não é manter estruturas institucionais, mas ter
+                uma família de muitos filhos semelhantes a Jesus Cristo. A
+                salvação é a porta para sermos transformados diariamente à Sua
+                imagem.
               </CardContent>
             </Card>
 
-            {/* Pilar 2 */}
+            {/* Pilar 2: Sacerdócio Universal */}
             <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Users className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg font-bold">
-                  Discipulado Pessoal
+                  Sacerdócio de Todos
                 </CardTitle>
                 <CardDescription className="text-xs font-medium text-primary">
-                  Juntas e Ligamentos
+                  1 Pedro 2:9 • Sem Divisão Clero/Leigo
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                Nenhum discípulo caminha sozinho. Através de relacionamentos de
-                mesmo gênero, irmãos mais maduros caminham lado a lado com os
-                mais novos.
+                Não existem espectadores passivos nem superastros de púlpito.
+                Todos os discípulos são sacerdotes e ministros de Cristo. Os
+                líderes existem apenas para equipar os santos para a obra do
+                ministério.
               </CardContent>
             </Card>
 
-            {/* Pilar 3 */}
-            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
-              <CardHeader className="space-y-2 pb-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <UtensilsCrossed className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <CardTitle className="text-lg font-bold">
-                  O Partir do Pão
-                </CardTitle>
-                <CardDescription className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                  Comunhão e a Mesa
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                A Ceia do Senhor é celebrada com singeleza e alegria tanto nas
-                casas quanto nos encontros da cidade, como refeição de aliança e
-                amor fraternal.
-              </CardContent>
-            </Card>
-
-            {/* Pilar 4 */}
+            {/* Pilar 3: Edificação por Relacionamentos */}
             <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
               <CardHeader className="space-y-2 pb-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <HeartHandshake className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg font-bold">
-                  Cuidado e Diaconato
+                  Juntas e Ligamentos
                 </CardTitle>
                 <CardDescription className="text-xs font-medium text-primary">
-                  Suporte Mútuo Fraterno
+                  Efésios 4:16 • Discipulado Vida na Vida
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                Entre nós não deve haver necessitados. Quando uma família ou
-                irmão enfrenta dificuldades, o diaconato e a comunidade se
-                mobilizam para apoiar.
+                O Corpo cresce e se edifica através de vínculos de discipulado
+                pessoal e companheirismo honesto entre irmãos do mesmo gênero,
+                caminhando juntos nas lutas cotidianas com oração e prestação de
+                contas.
+              </CardContent>
+            </Card>
+
+            {/* Pilar 4: Nas Casas e nas Ruas */}
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
+              <CardHeader className="space-y-2 pb-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Home className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-lg font-bold">
+                  Nas Casas e nas Ruas
+                </CardTitle>
+                <CardDescription className="text-xs font-medium text-primary">
+                  Atos 20:20 • Sem Templismo
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                A igreja são as pessoas, não um prédio. Reunimo-nos nos lares
+                como equipes de trabalho e centros de treinamento, e atuamos
+                nas ruas como testemunhas vivas de Cristo no contato simples com
+                as pessoas.
+              </CardContent>
+            </Card>
+
+            {/* Pilar 5: Evangelismo e Frutificação */}
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
+              <CardHeader className="space-y-2 pb-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Flame className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <CardTitle className="text-lg font-bold">
+                  Evangelismo e Frutos
+                </CardTitle>
+                <CardDescription className="text-xs font-medium text-primary">
+                  João 15:8 • O Evangelho do Reino
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                Dar fruto é indispensável e significa reproduzir o caráter de
+                Cristo em novos discípulos. Compartilhamos o testemunho pessoal
+                de renovação, proclamando o Reino e ensinando a obediência às
+                ordens de Jesus.
+              </CardContent>
+            </Card>
+
+            {/* Pilar 6: Identidade Não-Denominacional */}
+            <Card className="card-hover-elevation rounded-xl border border-border/60 hover:border-primary/40 hover:shadow-xs">
+              <CardHeader className="space-y-2 pb-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Compass className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-lg font-bold">
+                  Corpo Único na Cidade
+                </CardTitle>
+                <CardDescription className="text-xs font-medium text-primary">
+                  1 Coríntios 1:10 • Cristo Indivisível
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                Cristo não dividiu Sua Igreja em franquias ou marcas. Reconhecemos
+                que não somos a totalidade da Igreja do Senhor, mas apenas parte
+                dela em Belo Horizonte, caminhando em amor e unidade com todo o
+                povo de Deus.
               </CardContent>
             </Card>
           </div>
@@ -452,8 +509,8 @@ export default function Landing() {
               O ritmo da vida em comunidade
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-              A vida cristã não se resume a um evento de domingo. Ela se desdobra
-              em três níveis orgânicos de encontro e comunhão:
+              A vida cristã não se resume a assistir a um evento semanal. Ela se
+              desdobra em três dimensões orgânicas de comunhão e missão:
             </p>
           </div>
 
@@ -462,14 +519,15 @@ export default function Landing() {
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
                 1
               </div>
-              <h3 className="text-lg font-bold">Semanalmente: Nos Lares</h3>
+              <h3 className="text-lg font-bold">Semanalmente: Nas Casas</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Nos Grupos Caseiros, os discípulos de uma mesma região se
-                reúnem semanalmente. Há tempo para orar, partilhar o que Deus tem
-                ensinado, cantar salmos e cear juntos ao redor da mesa.
+                Nos Grupos Caseiros, os discípulos se reúnem nos lares como
+                equipes de trabalho: partilham a mesa na Ceia do Senhor, oram,
+                estudam as ordens de Cristo e planejam o evangelismo prático na
+                vizinhança.
               </p>
               <div className="mt-auto pt-4 text-xs font-medium text-primary">
-                Aconchego, proximidade e transparência
+                Comunhão ao redor da mesa e alinhamento prático
               </div>
             </div>
 
@@ -477,14 +535,15 @@ export default function Landing() {
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
                 2
               </div>
-              <h3 className="text-lg font-bold">Diariamente: Discipulado</h3>
+              <h3 className="text-lg font-bold">Diariamente: Vida na Vida e nas Ruas</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Entre as semanas, os irmãos mantêm contato em oração, cafés,
-                conversas e apoio mútuo. As juntas de companheirismo garantem que
-                cada pessoa tenha com quem contar nas lutas e vitórias.
+                No cotidiano, o sacerdócio universal é vivido: irmãos cuidam uns
+                dos outros por juntas e ligamentos, oram juntos, prestam contas
+                e compartilham o amor de Cristo nos locais de trabalho, estudo e
+                nas ruas.
               </p>
               <div className="mt-auto pt-4 text-xs font-medium text-primary">
-                Cuidado pastoral descentralizado
+                Cuidado mútuo e sacerdócio de todos os discípulos
               </div>
             </div>
 
@@ -493,22 +552,23 @@ export default function Landing() {
                 3
               </div>
               <h3 className="text-lg font-bold">
-                Periodicamente: O Corpo na Cidade
+                Periodicamente: Encontros Coletivos
               </h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Periodicamente, todos os Grupos Caseiros de Belo Horizonte e
-                região metropolitana se unem em grandes reuniões coletivas para
-                louvor unânime, comunhão ampliada e instrução da Palavra.
+                Periodicamente, os discípulos de todas as regiões se encontram
+                para celebrar a Ceia, adorar em louvor unânime e expressar a
+                unidade visível do Corpo de Cristo em Belo Horizonte e região
+                metropolitana.
               </p>
               <div className="mt-auto pt-4 text-xs font-medium text-primary">
-                Unidade do Corpo de Cristo em BH
+                Unidade e comunhão de toda a cidade
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Vida Comum e Intranet: Exclusividade e Segurança */}
+      {/* 6. Vida Comum e Intranet: Ambiente Relacional */}
       <section id="vida-comum" className="scroll-mt-20 py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-muted/40 p-6 shadow-xs sm:p-10">
@@ -516,16 +576,16 @@ export default function Landing() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  Intranet Protegida • Acesso por Convite
+                  Ambiente Relacional • Acesso por Vínculo
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                  Um portal feito para cuidar dos irmãos
+                  Um portal relacional a serviço do Corpo
                 </h2>
                 <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-                  Diferente de redes sociais abertas, este portal é um ambiente
-                  privativo dedicado ao cuidado, pedidos de oração, avisos
-                  internos, gestão de retiros e apoio entre as famílias dos
-                  Grupos Caseiros da Igreja em Belo Horizonte.
+                  Diferente de redes sociais abertas ou sistemas burocráticos,
+                  este portal é um instrumento dedicado ao cuidado dos irmãos,
+                  pedidos de oração, avisos das regiões, acompanhamento do
+                  discipulado e apoio mútuo nas necessidades materiais.
                 </p>
               </div>
             </div>
@@ -534,17 +594,16 @@ export default function Landing() {
               <div className="space-y-2 rounded-xl border border-border/40 bg-background/50 p-5">
                 <h4 className="flex items-center gap-2 text-sm font-bold">
                   <KeyRound className="h-4 w-4 text-primary" />
-                  Já frequento um Grupo Caseiro?
+                  Já caminha com os discípulos em um Grupo Caseiro?
                 </h4>
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  Se você já caminha em um dos nossos grupos, sua liderança ou
-                  discipulador já realizou seu pré-cadastro. Basta clicar no
-                  botão abaixo para ativar sua conta informando seu e-mail ou
-                  telefone.
+                  Se você já se reúne com os irmãos, seu discipulador ou os
+                  responsáveis pelo seu Grupo Caseiro já realizaram seu pré-cadastro.
+                  Basta clicar abaixo para definir sua senha de acesso ao portal.
                 </p>
                 <div className="pt-2">
                   <Button asChild size="sm" className="min-h-[44px] w-full sm:w-auto">
-                    <Link to="/cadastro">Ativar minha Conta</Link>
+                    <Link to="/cadastro">Caminhe Conosco / Ativar Acesso</Link>
                   </Button>
                 </div>
               </div>
@@ -552,13 +611,12 @@ export default function Landing() {
               <div className="space-y-2 rounded-xl border border-border/40 bg-background/50 p-5">
                 <h4 className="flex items-center gap-2 text-sm font-bold">
                   <Users className="h-4 w-4 text-primary" />
-                  Deseja conhecer a Igreja na cidade?
+                  Deseja caminhar com os irmãos na cidade?
                 </h4>
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   Se você reside em Belo Horizonte ou região metropolitana e quer
-                  conhecer nossa dinâmica ou visitar um Grupo Caseiro, fale com um
-                  irmão próximo ou venha nos visitar em uma das reuniões nos
-                  lares.
+                  conhecer a dinâmica dos lares, ouvir o testemunho de transformação
+                  do Evangelho ou iniciar um discipulado bíblico, venha nos visitar.
                 </p>
                 <div className="pt-2">
                   <Button
@@ -593,7 +651,7 @@ export default function Landing() {
               Perguntas Frequentes
             </h2>
             <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              Tudo o que você precisa saber sobre como nos reunimos e operamos.
+              Tudo o que você precisa saber sobre a vida e a dinâmica dos discípulos.
             </p>
           </div>
 
@@ -636,11 +694,12 @@ export default function Landing() {
       <section id="acesso-portal" className="border-t border-border/40 py-16 text-center">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Pronto para se conectar à vida comum?
+            Caminhe conosco no Propósito Eterno
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Se você já faz parte da comunidade, ative sua conta ou acesse o
-            portal para acompanhar o mural, os pedidos de oração e os ensinos.
+            Venha viver o Evangelho na simplicidade dos lares e na força do
+            discipulado pessoal, expressando a vida de Cristo na cidade de Belo
+            Horizonte.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
@@ -648,8 +707,8 @@ export default function Landing() {
               size="lg"
               className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
             >
-              <Link to="/entrar">
-                Acessar o Portal
+              <Link to="/cadastro">
+                Caminhe Conosco
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -659,9 +718,9 @@ export default function Landing() {
               size="lg"
               className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
             >
-              <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4" />
-                Ativar meu Acesso
+              <Link to="/entrar">
+                <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
+                Acessar o Portal
               </Link>
             </Button>
           </div>
@@ -675,10 +734,10 @@ export default function Landing() {
             <ChurchAvatar size="md" variant="subtle" />
             <div>
               <p className="font-semibold text-foreground">
-                A Igreja em Belo Horizonte
+                Discípulos de Cristo em Belo Horizonte
               </p>
               <p className="text-[11px] text-muted-foreground">
-                De casa em casa, com alegria e singeleza de coração.
+                Parte do Corpo do Senhor • De casa em casa e nas ruas da cidade.
               </p>
             </div>
           </div>
@@ -693,6 +752,12 @@ export default function Landing() {
             >
               Grupos Caseiros
             </a>
+            <a
+              href="#vida-comum"
+              className="transition-colors hover:text-foreground"
+            >
+              Vida Comum
+            </a>
             <Link to="/entrar" className="transition-colors hover:text-foreground">
               Entrar
             </Link>
@@ -700,13 +765,13 @@ export default function Landing() {
               to="/cadastro"
               className="transition-colors hover:text-foreground"
             >
-              Ativar Conta
+              Caminhe Conosco
             </Link>
           </div>
         </div>
 
         <div className="mx-auto mt-8 max-w-6xl border-t border-border/30 px-4 pt-6 text-center text-[11px] text-muted-foreground/80 sm:px-6 lg:px-8">
-          © {new Date().getFullYear()} A Igreja em Belo Horizonte • Portal de Vida Comum dos Discípulos
+          © {new Date().getFullYear()} Discípulos de Cristo em Belo Horizonte • Parte do Corpo Único do Senhor na cidade.
         </div>
       </footer>
     </div>
