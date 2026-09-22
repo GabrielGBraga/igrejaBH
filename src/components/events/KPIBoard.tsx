@@ -13,6 +13,10 @@ import {
   TrendingUp,
   BarChart2,
   SlidersHorizontal,
+  QrCode,
+  Percent,
+  Pin,
+  Receipt,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -51,8 +55,47 @@ export function KPIBoard({
         return <AlertCircle className={`${iconClass} text-amber-600 dark:text-amber-400`} />;
       case "trending-up":
         return <TrendingUp className={`${iconClass} text-emerald-600 dark:text-emerald-400`} />;
+      case "qr_code":
+        return <QrCode className={`${iconClass} text-emerald-600 dark:text-emerald-400`} />;
+      case "percent":
+        return <Percent className={`${iconClass} text-zinc-700 dark:text-zinc-300`} />;
+      case "pin":
+        return <Pin className={`${iconClass} text-zinc-700 dark:text-zinc-300`} />;
+      case "receipt":
+        return <Receipt className={`${iconClass} text-zinc-700 dark:text-zinc-300`} />;
       default:
         return <BarChart2 className={`${iconClass} text-zinc-700 dark:text-zinc-300`} />;
+    }
+  };
+
+  const getAccentBarStyle = (theme?: string) => {
+    switch (theme) {
+      case "emerald":
+        return "bg-emerald-500";
+      case "blue":
+        return "bg-blue-500";
+      case "amber":
+        return "bg-amber-500";
+      case "rose":
+        return "bg-rose-500";
+      case "zinc":
+      default:
+        return "bg-zinc-300 dark:bg-zinc-700";
+    }
+  };
+
+  const getMetricColorClass = (theme?: string) => {
+    switch (theme) {
+      case "emerald":
+        return "text-emerald-600 dark:text-emerald-400";
+      case "blue":
+        return "text-blue-600 dark:text-blue-400";
+      case "amber":
+        return "text-amber-600 dark:text-amber-400";
+      case "rose":
+        return "text-rose-600 dark:text-rose-400";
+      default:
+        return "text-zinc-900 dark:text-zinc-50";
     }
   };
 
@@ -99,8 +142,14 @@ export function KPIBoard({
           return (
             <Card
               key={card.id}
-              className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm p-4 flex flex-col justify-between transition-all hover:border-zinc-300 dark:hover:border-zinc-700"
+              className="rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm p-4 pt-5 flex flex-col justify-between transition-all hover:border-zinc-300 dark:hover:border-zinc-700 relative overflow-hidden"
             >
+              <div
+                className={`absolute top-0 left-0 right-0 h-1 ${getAccentBarStyle(
+                  card.colorTheme
+                )}`}
+              />
+
               <CardContent className="p-0 space-y-3">
                 {/* Header row: Icon, Title & Badge */}
                 <div className="flex items-center justify-between gap-2">
@@ -128,11 +177,9 @@ export function KPIBoard({
                 {/* Primary Metric Value */}
                 <div>
                   <div
-                    className={`text-2xl font-extrabold tracking-tight truncate ${
-                      card.colorTheme === "emerald"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-zinc-900 dark:text-zinc-50"
-                    }`}
+                    className={`text-2xl font-extrabold tracking-tight truncate ${getMetricColorClass(
+                      card.colorTheme
+                    )}`}
                   >
                     {card.value}{" "}
                     {card.secondaryValue && (
