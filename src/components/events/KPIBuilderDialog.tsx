@@ -425,10 +425,10 @@ export function KPIBuilderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-hidden p-0 rounded-2xl flex flex-col border border-zinc-200 dark:border-zinc-800 shadow-2xl">
+      <DialogContent className="w-[96vw] max-w-5xl sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-hidden p-0 rounded-2xl flex flex-col border border-zinc-200 dark:border-zinc-800 shadow-2xl">
         
         {/* DIALOG HEADER */}
-        <DialogHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/70 dark:bg-zinc-900/50">
+        <DialogHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/70 dark:bg-zinc-900/50 pr-12 sm:pr-14">
           <div className="flex items-start sm:items-center justify-between gap-3">
             <div className="flex items-start sm:items-center gap-3">
               <div className="p-2.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl shadow-xs shrink-0 mt-0.5 sm:mt-0">
@@ -453,29 +453,41 @@ export function KPIBuilderDialog({
         </DialogHeader>
 
         {/* TABS NAVIGATION */}
-        <div className="px-5 sm:px-6 pt-2 pb-0 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <div className="px-4 sm:px-6 pt-2 pb-0 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
           <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)} className="w-full">
             <TabsList className="grid grid-cols-3 w-full bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-xl min-h-[44px]">
-              <TabsTrigger value="editor" className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer">
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>{editingConfigId ? "Editar Métrica" : "Configurar Métrica"}</span>
-                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[10px] font-mono rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 ml-1">
+              <TabsTrigger
+                value="editor"
+                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
+              >
+                <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                <span className="sm:hidden truncate">{editingConfigId ? "Editar" : "Editor"}</span>
+                <span className="hidden sm:inline truncate">{editingConfigId ? "Editar Métrica" : "Configurar Métrica"}</span>
+                <span className="hidden lg:inline-block px-1.5 py-0.2 text-[10px] font-mono rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 ml-1 shrink-0">
                   Editor
                 </span>
               </TabsTrigger>
 
-              <TabsTrigger value="active" className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer">
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                <span>Métricas Ativas</span>
-                <span className="px-1.5 py-0.2 text-[11px] font-bold rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 ml-1">
+              <TabsTrigger
+                value="active"
+                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1 sm:px-3 overflow-hidden"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                <span className="sm:hidden truncate">Ativas</span>
+                <span className="hidden sm:inline truncate">Métricas Ativas</span>
+                <span className="px-1 sm:px-1.5 py-0.2 text-[10px] sm:text-[11px] font-bold rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 ml-0.5 sm:ml-1 shrink-0">
                   {configs.length}
                 </span>
               </TabsTrigger>
 
-              <TabsTrigger value="templates" className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Modelos Prontos</span>
-                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[10px] font-bold tracking-wide uppercase rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 ml-1">
+              <TabsTrigger
+                value="templates"
+                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span className="sm:hidden truncate">Modelos</span>
+                <span className="hidden sm:inline truncate">Modelos Prontos</span>
+                <span className="hidden lg:inline-block px-1.5 py-0.2 text-[10px] font-bold tracking-wide uppercase rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 ml-1 shrink-0">
                   1-Clique
                 </span>
               </TabsTrigger>
@@ -484,7 +496,7 @@ export function KPIBuilderDialog({
         </div>
 
         {/* SCROLLABLE DIALOG BODY */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-50/50 dark:bg-zinc-950/60">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 bg-zinc-50/50 dark:bg-zinc-950/60 custom-scrollbar">
           
           {/* ======================================================== */}
           {/* TAB 1: CONFIGURAR NOVA MÉTRICA / EDITOR */}
@@ -1141,12 +1153,12 @@ export function KPIBuilderDialog({
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={onResetDefaults}
-              className="min-h-[44px] px-4 text-xs font-semibold rounded-lg cursor-pointer"
+              className="min-h-[44px] px-3.5 text-xs font-semibold rounded-lg cursor-pointer w-full sm:w-auto"
             >
               Restaurar Padrões
             </Button>
@@ -1155,7 +1167,7 @@ export function KPIBuilderDialog({
               type="button"
               variant="secondary"
               onClick={onClose}
-              className="min-h-[44px] px-4 text-xs font-semibold rounded-lg cursor-pointer"
+              className="min-h-[44px] px-4 text-xs font-semibold rounded-lg cursor-pointer w-full sm:w-auto"
             >
               Cancelar
             </Button>
@@ -1165,7 +1177,7 @@ export function KPIBuilderDialog({
                 type="button"
                 onClick={handleSaveForm}
                 disabled={!title.trim()}
-                className="min-h-[44px] px-5 text-xs font-bold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-white shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
+                className="min-h-[44px] px-5 text-xs font-bold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-white shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 w-full sm:w-auto"
               >
                 <Check className="w-4 h-4" />
                 <span>{editingConfigId ? "Salvar Alterações" : "Salvar Métrica & Atualizar"}</span>

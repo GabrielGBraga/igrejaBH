@@ -12,3 +12,6 @@ Os agentes DEVEM usar os seguintes termos nas interfaces e variáveis:
 
 ## 3. Lógica de Relacionamentos (Core Business)
 A estrutura de dados central não é o indivíduo isolado, mas a quem ele está ligado. A tabela `profiles` possui auto-relacionamento (`discipler_id`) para montar a "Árvore de Discipulado". Todas as features desenvolvidas devem respeitar a privacidade e a prestação de contas baseada nesses vínculos.
+
+## 4. Diretrizes Teológicas, Conteúdo e Design
+Consulte obrigatoriamente [06-diretrizes-conteudo-design.md](file:///c:/Users/ggoes/Documents/igrejaBH/.agents/rules/06-diretrizes-conteudo-design.md) e [docs/DIRETRIZES_CONTEUDO_DESIGN.md](file:///c:/Users/ggoes/Documents/igrejaBH/docs/DIRETRIZES_CONTEUDO_DESIGN.md) para a aplicação prática dos 7 princípios teológicos no design, copywriting e arquitetura de informação.
