@@ -12,19 +12,27 @@ import {
   AlertCircle,
   TrendingUp,
   BarChart2,
-  PieChart,
+  SlidersHorizontal,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import type { ComputedKPICard } from "@/types/eventsFilter";
+import type { ComputedKPICard, KPIConfig } from "@/types/eventsFilter";
 
 interface KPIBoardProps {
   cards: ComputedKPICard[];
+  configs?: KPIConfig[];
   isFiltered?: boolean;
+  onOpenBuilder?: () => void;
 }
 
-export function KPIBoard({ cards, isFiltered = false }: KPIBoardProps) {
+export function KPIBoard({
+  cards,
+  configs,
+  isFiltered = false,
+  onOpenBuilder,
+}: KPIBoardProps) {
   // Render corresponding icon dynamically
   const renderIcon = (iconName: string) => {
     const iconClass = "w-3.5 h-3.5";
@@ -49,18 +57,42 @@ export function KPIBoard({ cards, isFiltered = false }: KPIBoardProps) {
   };
 
   return (
-    <div className="space-y-2 w-full">
-      {isFiltered && (
-        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 px-1">
-          <span className="flex items-center gap-1.5 font-medium">
-            <PieChart className="w-3.5 h-3.5 text-primary" />
-            <span>Métricas recalculadas dinamicamente com base nos filtros ativos</span>
+    <div className="space-y-2.5 w-full">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5">
+            <BarChart2 className="w-3.5 h-3.5 text-primary" />
+            <span>Indicadores do Retiro</span>
           </span>
-          <span className="text-[11px] uppercase font-bold text-primary">
-            Cálculo Reativo
-          </span>
+          {isFiltered && (
+            <Badge
+              variant="outline"
+              className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold uppercase px-2 py-0.5"
+            >
+              Recálculo Reativo Ativo
+            </Badge>
+          )}
+          {configs && configs.length > 4 && (
+            <Badge
+              variant="secondary"
+              className="text-[10px] font-semibold px-2 py-0.5"
+            >
+              {configs.length} métricas
+            </Badge>
+          )}
         </div>
-      )}
+
+        {onOpenBuilder && (
+          <Button
+            variant="outline"
+            onClick={onOpenBuilder}
+            className="min-h-[44px] px-3.5 text-xs font-semibold rounded-lg flex items-center gap-2 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 self-end sm:self-auto"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-500" />
+            <span>Construtor de KPIs</span>
+          </Button>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {cards.map((card) => {

@@ -9,7 +9,6 @@ import {
   Trash2,
   Filter,
   RotateCcw,
-  Sparkles,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -500,7 +499,7 @@ export function FilterBuilder({
                 variant="outline"
                 size="sm"
                 onClick={handleAddRule}
-                className="min-h-[44px] h-11 sm:min-h-[36px] sm:h-9 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="min-h-[44px] px-3 text-xs font-semibold rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <Plus className="w-4 h-4" />
                 <span>Adicionar Regra</span>
@@ -509,9 +508,8 @@ export function FilterBuilder({
               {isFiltered && (
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={onClearFilters}
-                  className="min-h-[44px] h-11 sm:min-h-[36px] sm:h-9 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-lg flex items-center gap-1.5 cursor-pointer"
+                  className="min-h-[44px] px-3 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-lg flex items-center gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Limpar Tudo</span>
@@ -522,9 +520,8 @@ export function FilterBuilder({
             <Button
               onClick={onApplyFilters}
               disabled={isLoading}
-              className="min-h-[44px] h-11 sm:min-h-[36px] sm:h-9 px-4 text-xs font-bold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 cursor-pointer shadow-sm flex items-center gap-2"
+              className="min-h-[44px] px-4 text-xs font-bold rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 cursor-pointer shadow-sm flex items-center gap-2"
             >
-              <Sparkles className="w-3.5 h-3.5" />
               <span>Aplicar Filtros ({activeRulesCount})</span>
             </Button>
           </div>

@@ -31,6 +31,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { KPIBoard } from "@/components/events/KPIBoard";
+import { KPIBuilderDialog } from "@/components/events/KPIBuilderDialog";
 import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
 import { CreateEditEventDialog } from "@/components/events/CreateEditEventDialog";
@@ -46,7 +47,7 @@ import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
 import type { Database } from "@/lib/database.types";
-import type { FilterRule, FilterLogic } from "@/types/eventsFilter";
+import type { FilterRule, FilterLogic, KPIConfig } from "@/types/eventsFilter";
 import {
   DEFAULT_KPI_CONFIGS,
   aggregateKpis,
@@ -138,23 +139,69 @@ export default function ManageEventDetail() {
     try {
       // Map to Supabase JavaScript client query modifiers
       const query = buildSupabaseRegistrationsQuery(eventId, filterRules);
-      const { data, error } = await query;
-      if (error) throw error;
-      if (data) {
-        toast.success(
-          `Filtro aplicado: ${data.length} de ${registrations.length} participantes encontrados.`
-        );
-      }
+      await query;
     } catch (err: unknown) {
       console.warn("Consulta no Supabase completada com fallback cliente:", err);
     } finally {
       setLoadingFilterQuery(false);
+      // The actual filtered dataset shown in table and KPIs is activeFilteredRegistrations
+      const filtered = filterRegistrationsClientSide(registrations, filterRules, filterLogic);
+      setTableFilteredRegistrations(filtered);
+      toast.success(
+        `Filtro aplicado: ${filtered.length} de ${registrations.length} participante${
+          filtered.length === 1 ? "" : "s"
+        } encontrado${filtered.length === 1 ? "" : "s"}.`
+      );
     }
   };
 
   const handleClearFilters = () => {
     setFilterRules([]);
     toast.info("Filtros limpos");
+  };
+
+  // Dynamic KPI Builder state with persistent localStorage cache
+  const [kpiConfigs, setKpiConfigs] = useState<KPIConfig[]>(() => {
+    if (typeof window !== "undefined" && eventId) {
+      try {
+        const stored = localStorage.getItem(`igrejaBH_kpi_configs_${eventId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.warn("Erro ao carregar KPIs do cache:", e);
+      }
+    }
+    return DEFAULT_KPI_CONFIGS;
+  });
+  const [isKpiBuilderOpen, setIsKpiBuilderOpen] = useState(false);
+
+  const handleSaveKpiConfigs = (newConfigs: KPIConfig[]) => {
+    setKpiConfigs(newConfigs);
+    if (typeof window !== "undefined" && eventId) {
+      try {
+        localStorage.setItem(
+          `igrejaBH_kpi_configs_${eventId}`,
+          JSON.stringify(newConfigs)
+        );
+      } catch (e) {
+        console.warn("Erro ao salvar KPIs no cache:", e);
+      }
+    }
+    toast.success("Métricas do painel atualizadas com sucesso!");
+  };
+
+  const handleResetKpiConfigs = () => {
+    setKpiConfigs(DEFAULT_KPI_CONFIGS);
+    if (typeof window !== "undefined" && eventId) {
+      try {
+        localStorage.removeItem(`igrejaBH_kpi_configs_${eventId}`);
+      } catch (e) {
+        console.warn("Erro ao limpar KPIs do cache:", e);
+      }
+    }
+    toast.info("Painel restaurado para os 4 KPIs padrão.");
   };
 
   const fetchFormTemplate = useCallback(async (formId: string) => {
@@ -561,10 +608,10 @@ export default function ManageEventDetail() {
     getRegPrice,
   ]);
 
-  // Dynamically computed KPI cards based on the active filtered records
+  // Dynamically computed KPI cards based on the active filtered records and custom KPI configurations
   const computedKpiCards = useMemo(() => {
-    return aggregateKpis(tableFilteredRegistrations, DEFAULT_KPI_CONFIGS, contextMeta);
-  }, [tableFilteredRegistrations, contextMeta]);
+    return aggregateKpis(tableFilteredRegistrations, kpiConfigs, contextMeta);
+  }, [tableFilteredRegistrations, kpiConfigs, contextMeta]);
 
   // Financial & Metrics calculations for secondary tabs based on active filtered dataset
   const totalRegistered = tableFilteredRegistrations.length;
@@ -745,10 +792,12 @@ export default function ManageEventDetail() {
       {/* Dynamic KPI Cards Row */}
       <KPIBoard
         cards={computedKpiCards}
+        configs={kpiConfigs}
         isFiltered={
           filterRules.length > 0 ||
           tableFilteredRegistrations.length !== registrations.length
         }
+        onOpenBuilder={() => setIsKpiBuilderOpen(true)}
       />
 
       {/* Navigation Tabs */}
@@ -1134,6 +1183,17 @@ export default function ManageEventDetail() {
         onSuccess={() => {
           if (eventId) fetchRetreatDetails(eventId);
         }}
+      />
+
+      {/* Modal: Construtor de KPIs */}
+      <KPIBuilderDialog
+        isOpen={isKpiBuilderOpen}
+        onClose={() => setIsKpiBuilderOpen(false)}
+        configs={kpiConfigs}
+        onSaveConfigs={handleSaveKpiConfigs}
+        onResetDefaults={handleResetKpiConfigs}
+        data={tableFilteredRegistrations}
+        meta={contextMeta}
       />
     </div>
   );
