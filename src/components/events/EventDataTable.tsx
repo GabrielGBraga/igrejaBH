@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   useLegacyTable as useReactTable,
   getCoreRowModel,
@@ -63,6 +63,7 @@ interface EventDataTableProps {
   onAssignRoomClick: (reg: RegistrationWithDetails) => void;
   onDeleteRegistration: (reg: RegistrationWithDetails) => void;
   onExportData: () => void;
+  onFilteredDataChange?: (filtered: RegistrationWithDetails[]) => void;
 }
 
 export function EventDataTable({
@@ -73,6 +74,7 @@ export function EventDataTable({
   onAssignRoomClick,
   onDeleteRegistration,
   onExportData,
+  onFilteredDataChange,
 }: EventDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "created_at", desc: true },
@@ -424,6 +426,10 @@ export function EventDataTable({
       return true;
     });
   }, [data, paymentFilter, roomFilter, globalFilter]);
+
+  useEffect(() => {
+    onFilteredDataChange?.(filteredData);
+  }, [filteredData, onFilteredDataChange]);
 
   const table = useReactTable({
     data: filteredData,
