@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -30,7 +30,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { EventKpiCards } from "@/components/events/EventKpiCards";
+import { KPIBoard } from "@/components/events/KPIBoard";
+import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
 import { CreateEditEventDialog } from "@/components/events/CreateEditEventDialog";
 import {
@@ -45,6 +46,16 @@ import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
 import type { Database } from "@/lib/database.types";
+import type { FilterRule, FilterLogic } from "@/types/eventsFilter";
+import {
+  DEFAULT_KPI_CONFIGS,
+  aggregateKpis,
+  type ContextMeta,
+} from "@/lib/kpiAggregator";
+import {
+  filterRegistrationsClientSide,
+  buildSupabaseRegistrationsQuery,
+} from "@/lib/eventsQueryBuilder";
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"] & {
   forms?: {
@@ -97,6 +108,54 @@ export default function ManageEventDetail() {
     useState<RegistrationWithDetails | null>(null);
   const [selectedRegistrationForRoomModal, setSelectedRegistrationForRoomModal] =
     useState<RegistrationWithDetails | null>(null);
+
+  // Dynamic Filter Builder states
+  const [filterRules, setFilterRules] = useState<FilterRule[]>([]);
+  const [filterLogic, setFilterLogic] = useState<FilterLogic>("AND");
+  const [loadingFilterQuery, setLoadingFilterQuery] = useState(false);
+
+  // Table-level filtered attendee records
+  const [tableFilteredRegistrations, setTableFilteredRegistrations] = useState<
+    RegistrationWithDetails[]
+  >([]);
+
+  // Apply client-side filters reactively whenever filterRules, filterLogic, or raw registrations change
+  const activeFilteredRegistrations = useMemo(() => {
+    return filterRegistrationsClientSide(registrations, filterRules, filterLogic);
+  }, [registrations, filterRules, filterLogic]);
+
+  // Keep tableFilteredRegistrations in sync with activeFilteredRegistrations
+  useEffect(() => {
+    setTableFilteredRegistrations(activeFilteredRegistrations);
+  }, [activeFilteredRegistrations]);
+
+  const handleApplyFilters = async () => {
+    if (!eventId || filterRules.length === 0) {
+      return;
+    }
+
+    setLoadingFilterQuery(true);
+    try {
+      // Map to Supabase JavaScript client query modifiers
+      const query = buildSupabaseRegistrationsQuery(eventId, filterRules);
+      const { data, error } = await query;
+      if (error) throw error;
+      if (data) {
+        toast.success(
+          `Filtro aplicado: ${data.length} de ${registrations.length} participantes encontrados.`
+        );
+      }
+    } catch (err: unknown) {
+      console.warn("Consulta no Supabase completada com fallback cliente:", err);
+    } finally {
+      setLoadingFilterQuery(false);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setFilterRules([]);
+    toast.info("Filtros limpos");
+  };
 
   const fetchFormTemplate = useCallback(async (formId: string) => {
     try {
@@ -454,50 +513,84 @@ export default function ManageEventDetail() {
     toast.success("Dados exportados com sucesso!");
   };
 
-  // Financial & Metrics calculations
-  const totalRegistered = registrations.length;
-  const paidCount = registrations.filter((r) => r.paid).length;
-  const pendingCount = registrations.filter((r) => !r.paid).length;
+  // Helper to calculate price of a registration
+  const getRegPrice = useCallback(
+    (reg: RegistrationWithDetails): number => {
+      let price = retreat?.price || 0;
+      if (retreat?.form_id && selectedFormTemplate) {
+        const customResps = reg.custom_responses as Record<string, unknown> | null;
+        if (customResps) {
+          const idResponses: Record<string, unknown> = {};
+          selectedFormTemplate.fields?.forEach((field) => {
+            const val = customResps[field.label];
+            if (val !== undefined) idResponses[field.id] = val;
+          });
+          price = calculateTotalPrice(
+            retreat.price || 0,
+            selectedFormTemplate.fields || [],
+            idResponses
+          );
+        }
+      }
+      return price;
+    },
+    [retreat?.price, retreat?.form_id, selectedFormTemplate]
+  );
+
+  const totalBeds = useMemo(
+    () => retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0),
+    [retreatRooms]
+  );
+
+  // Dynamic Context Meta for KPI Builder
+  const contextMeta: ContextMeta = useMemo(() => {
+    return {
+      rawTotalCount: registrations.length,
+      basePrice: retreat?.price || 0,
+      maxParticipants: retreat?.max_participants || 100,
+      totalBeds,
+      rooms: retreatRooms,
+      calculatePrice: getRegPrice,
+    };
+  }, [
+    registrations.length,
+    retreat?.price,
+    retreat?.max_participants,
+    totalBeds,
+    retreatRooms,
+    getRegPrice,
+  ]);
+
+  // Dynamically computed KPI cards based on the active filtered records
+  const computedKpiCards = useMemo(() => {
+    return aggregateKpis(tableFilteredRegistrations, DEFAULT_KPI_CONFIGS, contextMeta);
+  }, [tableFilteredRegistrations, contextMeta]);
+
+  // Financial & Metrics calculations for secondary tabs based on active filtered dataset
+  const totalRegistered = tableFilteredRegistrations.length;
 
   let totalRevenueConfirmed = 0;
   let totalRevenueEstimated = 0;
 
-  registrations.forEach((reg) => {
-    let price = retreat?.price || 0;
-    if (retreat?.form_id && selectedFormTemplate) {
-      const customResps = reg.custom_responses as Record<string, unknown> | null;
-      if (customResps) {
-        const idResponses: Record<string, unknown> = {};
-        selectedFormTemplate.fields?.forEach((field) => {
-          const val = customResps[field.label];
-          if (val !== undefined) idResponses[field.id] = val;
-        });
-        price = calculateTotalPrice(
-          retreat.price || 0,
-          selectedFormTemplate.fields || [],
-          idResponses
-        );
-      }
-    }
-
+  tableFilteredRegistrations.forEach((reg) => {
+    const price = getRegPrice(reg);
     totalRevenueEstimated += price;
     if (reg.paid) {
       totalRevenueConfirmed += price;
     }
   });
 
-  const totalBeds = retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0);
-  const allocatedBedsCount = registrations.filter(
+  const allocatedBedsCount = tableFilteredRegistrations.filter(
     (r) =>
       r.room_id ||
       (r.room_allocation && r.room_allocation !== "Não alocado")
   ).length;
   const unallocatedCount = totalRegistered - allocatedBedsCount;
 
-  const maleCount = registrations.filter(
+  const maleCount = tableFilteredRegistrations.filter(
     (r) => getParticipantGender(r) === "masculino"
   ).length;
-  const femaleCount = registrations.filter(
+  const femaleCount = tableFilteredRegistrations.filter(
     (r) => getParticipantGender(r) === "feminino"
   ).length;
   const malePct =
@@ -649,17 +742,13 @@ export default function ManageEventDetail() {
         </div>
       </div>
 
-      {/* KPI Cards Row */}
-      <EventKpiCards
-        totalRegistered={totalRegistered}
-        maxParticipants={retreat.max_participants || 100}
-        paidCount={paidCount}
-        pendingCount={pendingCount}
-        totalRevenueEstimated={totalRevenueEstimated}
-        totalRevenueConfirmed={totalRevenueConfirmed}
-        totalBeds={totalBeds}
-        allocatedBedsCount={allocatedBedsCount}
-        unallocatedCount={unallocatedCount}
+      {/* Dynamic KPI Cards Row */}
+      <KPIBoard
+        cards={computedKpiCards}
+        isFiltered={
+          filterRules.length > 0 ||
+          tableFilteredRegistrations.length !== registrations.length
+        }
       />
 
       {/* Navigation Tabs */}
@@ -713,17 +802,33 @@ export default function ManageEventDetail() {
         </button>
       </div>
 
-      {/* Tab 1: Inscrições via TanStack Data Table */}
+      {/* Tab 1: Inscrições com Construtor de Filtros e TanStack Data Table */}
       {activeTab === "registrations" && (
-        <EventDataTable
-          data={registrations}
-          isLoading={loadingRegistrations}
-          onViewDetails={(reg) => setSelectedRegistrationForDetail(reg)}
-          onTogglePayment={handleTogglePayment}
-          onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
-          onDeleteRegistration={handleDeleteRegistration}
-          onExportData={handleExportData}
-        />
+        <div className="space-y-4">
+          <FilterBuilder
+            rules={filterRules}
+            logic={filterLogic}
+            retreatRooms={retreatRooms}
+            totalRawCount={registrations.length}
+            filteredCount={activeFilteredRegistrations.length}
+            isLoading={loadingFilterQuery}
+            onRulesChange={setFilterRules}
+            onLogicChange={setFilterLogic}
+            onApplyFilters={handleApplyFilters}
+            onClearFilters={handleClearFilters}
+          />
+
+          <EventDataTable
+            data={activeFilteredRegistrations}
+            isLoading={loadingRegistrations}
+            onViewDetails={(reg) => setSelectedRegistrationForDetail(reg)}
+            onTogglePayment={handleTogglePayment}
+            onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
+            onDeleteRegistration={handleDeleteRegistration}
+            onExportData={handleExportData}
+            onFilteredDataChange={setTableFilteredRegistrations}
+          />
+        </div>
       )}
 
       {/* Tab 2: Divisão de Quartos */}
