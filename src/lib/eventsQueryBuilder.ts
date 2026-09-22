@@ -83,9 +83,17 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
     if (rule.field === "paid") {
       const boolVal = rule.value === true || rule.value === "true";
       if (rule.operator === "eq") {
-        query = query.eq("paid", boolVal);
+        if (boolVal) {
+          query = query.eq("paid", true);
+        } else {
+          query = query.or("paid.eq.false,paid.is.null");
+        }
       } else if (rule.operator === "neq") {
-        query = query.neq("paid", boolVal);
+        if (boolVal) {
+          query = query.or("paid.eq.false,paid.is.null");
+        } else {
+          query = query.eq("paid", true);
+        }
       }
     } else if (rule.field === "payment_method") {
       const strVal = String(rule.value);

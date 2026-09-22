@@ -191,9 +191,18 @@ export function computeKpiCard(
           : "Todos alocados";
     } else {
       const rate = baseValue > 0 ? Math.min(100, Math.round((count / baseValue) * 100)) : 0;
-      progress = rate;
-      badgeText = `${rate}%`;
-      secondaryValue = `/ ${baseValue}`;
+      progress = config.totalBase ? rate : undefined;
+      badgeText = config.totalBase ? `${rate}%` : `${count} ${count === 1 ? "inscrito" : "inscritos"}`;
+      badgeVariant =
+        config.colorTheme === "emerald"
+          ? "success"
+          : config.colorTheme === "amber"
+          ? "warning"
+          : "outline";
+      secondaryValue = config.totalBase ? `/ ${baseValue}` : "inscritos";
+      if (!description) {
+        description = `${count} de ${totalInFilter} no filtro atual`;
+      }
     }
   }
 
@@ -218,7 +227,16 @@ export function computeKpiCard(
       const pendingAmount = Math.max(0, totalEstimated - sumAmount);
       description = `A receber: ${formatCurrency(pendingAmount)}`;
     } else {
-      badgeText = `${filteredSubset.length} itens`;
+      badgeText = `${filteredSubset.length} pagantes`;
+      badgeVariant =
+        config.colorTheme === "emerald"
+          ? "success"
+          : config.colorTheme === "amber"
+          ? "warning"
+          : "outline";
+      if (!description) {
+        description = `Valor consolidado dos itens`;
+      }
     }
   }
 
@@ -228,6 +246,31 @@ export function computeKpiCard(
     computedValue = formatPercent(rate);
     progress = Math.min(100, Math.round(rate));
     badgeText = `${count} de ${baseValue}`;
+    badgeVariant =
+      config.colorTheme === "emerald"
+        ? "success"
+        : config.colorTheme === "amber"
+        ? "warning"
+        : "outline";
+    secondaryValue = "do total";
+  }
+
+  // 5. Average Type
+  if (config.type === "average") {
+    const sumAmount = filteredSubset.reduce((acc, reg) => {
+      const price = meta.calculatePrice ? meta.calculatePrice(reg) : meta.basePrice;
+      return acc + price;
+    }, 0);
+    const avg = count > 0 ? sumAmount / count : 0;
+    computedValue = formatCurrency(avg);
+    secondaryValue = "por inscrito";
+    badgeText = `${count} registros`;
+    badgeVariant =
+      config.colorTheme === "emerald"
+        ? "success"
+        : config.colorTheme === "amber"
+        ? "warning"
+        : "outline";
   }
 
   return {
