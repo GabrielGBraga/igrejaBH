@@ -21,7 +21,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, Loader2 } from "lucide-react"
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, Loader2, ArrowLeft } from "lucide-react"
 import { useState } from "react"
 import supabase from "@/lib/supabase"
 import { Link, useNavigate, useLocation } from "react-router-dom"
@@ -92,6 +92,19 @@ export default function SignIn() {
 
       <Card className="w-full max-w-md border-border bg-card/50 shadow-2xl backdrop-blur-xl">
         <CardHeader className="space-y-1 text-center">
+          <div className="flex items-center justify-start">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="min-h-[44px] -ml-2 text-muted-foreground hover:text-foreground"
+            >
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar ao início
+              </Link>
+            </Button>
+          </div>
           <div className="mb-4 flex justify-center">
             <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3 shadow-inner">
               <LockIcon className="h-8 w-8 text-primary" />

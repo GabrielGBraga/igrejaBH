@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import {
-  ArrowRight,
   ChevronDown,
   HeartHandshake,
   Home,
@@ -178,7 +177,7 @@ export default function Landing() {
                       className="min-h-[44px] w-full justify-center text-sm font-medium"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Link to="/entrar">Entrar no Portal</Link>
+                      <Link to="/entrar">Entrar</Link>
                     </Button>
                     <Button
                       asChild
@@ -240,17 +239,6 @@ export default function Landing() {
               asChild
               size="lg"
               className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
-            >
-              <Link to="/entrar">
-                Acessar o Portal
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold sm:w-auto"
             >
               <Link to="/cadastro">
                 <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -639,25 +627,14 @@ export default function Landing() {
             Pronto para se conectar à vida comum?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Se você já faz parte da comunidade, ative sua conta ou acesse o
-            portal para acompanhar o mural, os pedidos de oração e os ensinos.
+            Se você já faz parte da comunidade, ative sua conta para acompanhar o
+            mural, os pedidos de oração e os ensinos.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               asChild
               size="lg"
-              className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
-            >
-              <Link to="/entrar">
-                Acessar o Portal
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-6 text-sm font-semibold shadow-md sm:w-auto"
             >
               <Link to="/cadastro">
                 <KeyRound className="mr-2 h-4 w-4" />
