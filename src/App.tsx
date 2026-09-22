@@ -12,6 +12,7 @@ import CreatePost from "./pages/CreatePost.tsx";
 import Ensinos from "./pages/Ensinos.tsx";
 import Events from "./pages/Events.tsx";
 import ManageEvents from "./pages/ManageEvents.tsx";
+import ManageEventDetail from "./pages/ManageEventDetail.tsx";
 import Messages from "./pages/Messages.tsx";
 import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -126,9 +127,16 @@ function App() {
             <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
           } />
           
-          <Route path="/gestao/eventos" element={
+          <Route path="/manage-events" element={
             <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
           } />
+          
+          <Route path="/manage-events/:eventId" element={
+            <PermissionGuard requireManagement><ManageEventDetail /></PermissionGuard>
+          } />
+
+          <Route path="/gestao/eventos" element={<Navigate to="/manage-events" replace />} />
+          <Route path="/gestao/eventos/:eventId" element={<Navigate to="/manage-events" replace />} />
           
           <Route path="/gestao/formularios" element={
             <PermissionGuard requireCanPost><FormBuilder /></PermissionGuard>
