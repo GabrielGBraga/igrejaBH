@@ -88,7 +88,7 @@ export const DEFAULT_KPI_CONFIGS: KPIConfig[] = [
 /**
  * Filter items according to a KPI condition.
  */
-function applyKpiCondition(
+export function applyKpiCondition(
   items: RegistrationWithDetails[],
   config: KPIConfig
 ): RegistrationWithDetails[] {
@@ -273,6 +273,28 @@ export function computeKpiCard(
         : "outline";
   }
 
+  // Generate human-readable synthesized formula for transparency
+  let formulaText = "";
+  if (config.type === "count") {
+    if (config.condition && config.condition.field && config.condition.field !== "none") {
+      formulaText = `=COUNTIFS(Inscrições[${config.condition.field}]; "${config.condition.value ?? "ativo"}")`;
+    } else {
+      formulaText = `=COUNTA(Inscrições[ID])`;
+    }
+  } else if (config.type === "sum") {
+    if (config.condition && config.condition.field && config.condition.field !== "none") {
+      formulaText = `=SUMIFS(Inscrições[Preço]; Inscrições[${config.condition.field}]; "${config.condition.value ?? "ativo"}")`;
+    } else {
+      formulaText = `=SUM(Inscrições[Preço_Total])`;
+    }
+  } else if (config.type === "percentage") {
+    formulaText = `=(${config.condition ? "COUNTIFS(...)" : "Contagem"} / Base[${config.totalBase || "Total"}]) * 100%`;
+  } else if (config.type === "average") {
+    formulaText = `=AVERAGE(Inscrições[Preço_Inscrição])`;
+  }
+
+  const targetText = config.target ? `Alvo: ${config.target}` : undefined;
+
   return {
     id: config.id,
     title: config.title,
@@ -284,6 +306,8 @@ export function computeKpiCard(
     iconName: config.iconName || "users",
     colorTheme: config.colorTheme || "default",
     description,
+    targetText,
+    formulaText,
   };
 }
 

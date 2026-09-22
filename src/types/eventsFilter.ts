@@ -37,9 +37,10 @@ export interface KPIConfig {
   condition?: KPICondition;
   totalBase?: "totalFiltered" | "maxParticipants" | "totalBeds" | "totalRaw";
   format?: "number" | "currency" | "percentage";
-  iconName?: "users" | "dollar" | "bed" | "check" | "clock" | "alert" | "trending-up";
-  colorTheme?: "default" | "emerald" | "amber" | "blue" | "zinc";
+  iconName?: "users" | "dollar" | "bed" | "check" | "clock" | "alert" | "trending-up" | "chart" | "pin" | "percent" | "qr_code";
+  colorTheme?: "default" | "emerald" | "amber" | "blue" | "zinc" | "rose";
   subtitle?: string;
+  target?: string;
 }
 
 export interface ComputedKPICard {
@@ -53,6 +54,8 @@ export interface ComputedKPICard {
   iconName: string;
   colorTheme: string;
   description?: string;
+  targetText?: string;
+  formulaText?: string;
 }
 
 export interface FilterFieldOption {
