@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import {
+  ArrowRight,
   ChevronDown,
   HeartHandshake,
   Home,
@@ -105,21 +106,10 @@ export default function Landing() {
             <ThemeToggle />
             <Button
               asChild
-              variant="ghost"
-              size="sm"
-              className="min-h-[44px] px-4 font-medium"
-            >
-              <Link to="/entrar">Entrar</Link>
-            </Button>
-            <Button
-              asChild
               size="sm"
               className="min-h-[44px] px-4 font-medium shadow-xs"
             >
-              <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4" />
-                Ativar Conta
-              </Link>
+              <Link to="/entrar">Entrar</Link>
             </Button>
           </div>
 
@@ -173,21 +163,10 @@ export default function Landing() {
                   <div className="flex flex-col gap-3 pt-2">
                     <Button
                       asChild
-                      variant="outline"
                       className="min-h-[44px] w-full justify-center text-sm font-medium"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Link to="/entrar">Entrar</Link>
-                    </Button>
-                    <Button
-                      asChild
-                      className="min-h-[44px] w-full justify-center text-sm font-medium"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Link to="/cadastro">
-                        <KeyRound className="mr-2 h-4 w-4" />
-                        Ativar meu Acesso
-                      </Link>
+                      <Link to="/entrar">Entrar no Portal</Link>
                     </Button>
                   </div>
                 </div>
@@ -234,15 +213,15 @@ export default function Landing() {
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          <div className="mt-8 flex items-center justify-center">
             <Button
               asChild
               size="lg"
-              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-8 text-base font-semibold shadow-md sm:w-auto"
             >
-              <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
-                Ativar meu Acesso
+              <Link to="/entrar">
+                Acessar o Portal
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -526,13 +505,12 @@ export default function Landing() {
                 </h4>
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   Se você já caminha em um dos nossos grupos, sua liderança ou
-                  discipulador já realizou seu pré-cadastro. Basta clicar no
-                  botão abaixo para ativar sua conta informando seu e-mail ou
-                  telefone.
+                  discipulador já realizou seu pré-cadastro. Basta acessar o
+                  portal para prosseguir com seu acesso.
                 </p>
                 <div className="pt-2">
                   <Button asChild size="sm" className="min-h-[44px] w-full sm:w-auto">
-                    <Link to="/cadastro">Ativar minha Conta</Link>
+                    <Link to="/entrar">Acessar o Portal</Link>
                   </Button>
                 </div>
               </div>
@@ -627,18 +605,18 @@ export default function Landing() {
             Pronto para se conectar à vida comum?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Se você já faz parte da comunidade, ative sua conta para acompanhar o
+            Se você já faz parte da comunidade, acesse o portal para acompanhar o
             mural, os pedidos de oração e os ensinos.
           </p>
-          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-6 flex items-center justify-center">
             <Button
               asChild
               size="lg"
-              className="btn-tactile min-h-[48px] w-full px-6 text-sm font-semibold shadow-md sm:w-auto"
+              className="min-h-[48px] w-full px-8 text-sm font-semibold sm:w-auto"
             >
-              <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4" />
-                Ativar meu Acesso
+              <Link to="/entrar">
+                Acessar o Portal
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -672,12 +650,6 @@ export default function Landing() {
             </a>
             <Link to="/entrar" className="transition-colors hover:text-foreground">
               Entrar
-            </Link>
-            <Link
-              to="/cadastro"
-              className="transition-colors hover:text-foreground"
-            >
-              Ativar Conta
             </Link>
           </div>
         </div>
