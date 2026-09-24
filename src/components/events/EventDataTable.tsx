@@ -62,7 +62,7 @@ interface EventDataTableProps {
   onTogglePayment: (reg: RegistrationWithDetails) => void;
   onAssignRoomClick: (reg: RegistrationWithDetails) => void;
   onDeleteRegistration: (reg: RegistrationWithDetails) => void;
-  onExportData: () => void;
+  onExportData: (filteredRecords?: RegistrationWithDetails[]) => void;
   onFilteredDataChange?: (filtered: RegistrationWithDetails[]) => void;
 }
 
@@ -508,11 +508,11 @@ export function EventDataTable({
           {/* Export Button */}
           <Button
             variant="outline"
-            onClick={onExportData}
+            onClick={() => onExportData(filteredData)}
             className="min-h-[44px] h-11 px-4 text-xs font-semibold rounded-lg flex items-center gap-2 cursor-pointer shrink-0"
           >
             <Download className="h-4 w-4 text-zinc-500" />
-            <span>Exportar JSON</span>
+            <span>Exportar CSV</span>
           </Button>
         </div>
       </div>

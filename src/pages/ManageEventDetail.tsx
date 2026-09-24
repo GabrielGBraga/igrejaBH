@@ -518,48 +518,6 @@ export default function ManageEventDetail() {
     return "indefinido";
   };
 
-  // Export Data to JSON
-  const handleExportData = () => {
-    if (!retreat || registrations.length === 0) {
-      toast.error("Não há dados de inscrições para exportar.");
-      return;
-    }
-
-    const dataToExport = registrations.map((reg) => {
-      const guest = reg.guest_data as GuestDataShape | null;
-      return {
-        Participante:
-          reg.profiles?.full_name || guest?.full_name || "Desconhecido",
-        Email: reg.profiles?.email || guest?.email || "",
-        Telefone: reg.profiles?.phone || guest?.phone || "",
-        CPF: reg.profiles?.cpf || guest?.cpf || "",
-        Pago: reg.paid ? "Sim" : "Não",
-        MetodoPagamento: reg.payment_method || "",
-        ReferenciaPagamento: reg.payment_reference || "",
-        Alojamento:
-          reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
-        Observacoes: reg.notes || "",
-        RespostasCustomizadas: reg.custom_responses || {},
-        DataInscricao: reg.created_at,
-      };
-    });
-
-    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `inscricoes_${retreat.title
-      .toLowerCase()
-      .replace(/\s+/g, "_")}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success("Dados exportados com sucesso!");
-  };
-
   // Helper to calculate price of a registration
   const getRegPrice = useCallback(
     (reg: RegistrationWithDetails): number => {
@@ -583,6 +541,169 @@ export default function ManageEventDetail() {
     },
     [retreat?.price, retreat?.form_id, selectedFormTemplate]
   );
+
+  // Helper function to escape CSV cell value according to RFC 4180
+  const escapeCsvCell = (val: unknown): string => {
+    if (val === null || val === undefined) return "";
+    const str = String(val).trim();
+    if (str.includes(";") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  // Export Data to CSV
+  const handleExportData = (filteredList?: RegistrationWithDetails[]) => {
+    if (!retreat || registrations.length === 0) {
+      toast.error("Não há dados de inscrições para exportar.");
+      return;
+    }
+
+    const dataToExport =
+      filteredList ??
+      (tableFilteredRegistrations.length > 0
+        ? tableFilteredRegistrations
+        : activeFilteredRegistrations.length > 0
+        ? activeFilteredRegistrations
+        : registrations);
+
+    if (dataToExport.length === 0) {
+      toast.error("Nenhuma inscrição encontrada para exportar com os filtros selecionados.");
+      return;
+    }
+
+    // 1. Collect all custom field labels dynamically
+    const customFieldKeys: string[] = [];
+    if (selectedFormTemplate?.fields) {
+      selectedFormTemplate.fields.forEach((field) => {
+        if (field.label && !customFieldKeys.includes(field.label)) {
+          customFieldKeys.push(field.label);
+        }
+      });
+    }
+
+    dataToExport.forEach((reg) => {
+      const cr = reg.custom_responses as Record<string, unknown> | null;
+      if (cr && typeof cr === "object") {
+        Object.keys(cr).forEach((key) => {
+          if (!customFieldKeys.includes(key)) {
+            customFieldKeys.push(key);
+          }
+        });
+      }
+    });
+
+    // 2. Base headers
+    const baseHeaders = [
+      "Participante",
+      "Email",
+      "Telefone",
+      "CPF",
+      "Gênero",
+      "Valor (R$)",
+      "Pago",
+      "Método de Pagamento",
+      "Referência de Pagamento",
+      "Alojamento",
+      "Observações",
+      "Data de Inscrição",
+    ];
+
+    const allHeaders = [...baseHeaders, ...customFieldKeys];
+
+    // 3. Generate CSV rows
+    const rows = dataToExport.map((reg) => {
+      const guest = reg.guest_data as GuestDataShape | null;
+      const rawGender = getParticipantGender(reg);
+      const genero =
+        rawGender === "masculino"
+          ? "Masculino"
+          : rawGender === "feminino"
+          ? "Feminino"
+          : "Não informado";
+
+      const price = getRegPrice(reg);
+      const valorStr = price.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      const dateStr = reg.created_at
+        ? new Date(reg.created_at).toLocaleString("pt-BR")
+        : "";
+
+      const cr = (reg.custom_responses as Record<string, unknown> | null) || {};
+
+      const customValues = customFieldKeys.map((key) => {
+        let val = cr[key];
+        // If not directly by label, check by field id from template
+        if (val === undefined && selectedFormTemplate?.fields) {
+          const fieldDef = selectedFormTemplate.fields.find((f) => f.label === key);
+          if (fieldDef && cr[fieldDef.id] !== undefined) {
+            val = cr[fieldDef.id];
+          }
+        }
+
+        if (val === null || val === undefined) return "";
+        if (Array.isArray(val)) return val.join(", ");
+        if (typeof val === "boolean") return val ? "Sim" : "Não";
+        if (typeof val === "object") return JSON.stringify(val);
+        return String(val);
+      });
+
+      return [
+        reg.profiles?.full_name || guest?.full_name || "Desconhecido",
+        reg.profiles?.email || guest?.email || "",
+        reg.profiles?.phone || guest?.phone || "",
+        reg.profiles?.cpf || guest?.cpf || "",
+        genero,
+        valorStr,
+        reg.paid ? "Sim" : "Não",
+        reg.payment_method || "",
+        reg.payment_reference || "",
+        reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
+        reg.notes || "",
+        dateStr,
+        ...customValues,
+      ];
+    });
+
+    // 4. Construct CSV with UTF-8 BOM (\uFEFF) for Excel pt-BR compatibility
+    const csvContent =
+      "\uFEFF" +
+      [
+        allHeaders.map(escapeCsvCell).join(";"),
+        ...rows.map((row) => row.map(escapeCsvCell).join(";")),
+      ].join("\r\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    const safeTitle = retreat.title
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "");
+
+    link.download = `inscricoes_${safeTitle || "evento"}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(
+      dataToExport.length === registrations.length
+        ? "Inscrições exportadas com sucesso (CSV)!"
+        : `${dataToExport.length} inscrição(ões) exportada(s) com sucesso (CSV)!`
+    );
+  };
 
   const totalBeds = useMemo(
     () => retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0),
