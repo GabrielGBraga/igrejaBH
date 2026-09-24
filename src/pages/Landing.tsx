@@ -492,7 +492,7 @@ export default function Landing() {
                   Diferente de redes sociais abertas, este portal é um ambiente
                   privativo dedicado ao cuidado, pedidos de oração, avisos
                   internos, gestão de retiros e apoio entre as famílias dos
-                  Grupos Caseiros da Igreja em Belo Horizonte.
+                  Grupos Caseiros dessa parte da Igreja em Belo Horizonte.
                 </p>
               </div>
             </div>
