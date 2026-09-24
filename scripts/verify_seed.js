@@ -68,6 +68,41 @@ async function verify() {
   console.log('\nGabriel Góes Braga data:');
   console.log(gabrielRes.rows[0]);
 
+  // Verify Rafael Moraes & Family
+  const rafaelRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.is_deacon, p.dependents_count,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
+           (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Rafael Moraes'
+  `);
+  console.log('\nRafael Moraes data:');
+  console.log(rafaelRes.rows[0]);
+
+  const isabeleRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.dependents_count,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name
+    FROM public.profiles p
+    WHERE p.full_name = 'Isabele Moraes'
+  `);
+  console.log('\nIsabele Moraes data:');
+  console.log(isabeleRes.rows[0]);
+
+  if (rafaelRes.rows[0]?.id) {
+    const familyRes = await client.query(`
+      SELECT p.id, p.full_name, p.gender, p.birth_date, p.baptism_date, p.occupation,
+             (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
+             (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name
+      FROM public.profiles p
+      WHERE p.father_id = $1
+      ORDER BY p.birth_date ASC
+    `, [rafaelRes.rows[0].id]);
+    console.log('\nFilhos de Rafael e Isabele:');
+    console.table(familyRes.rows);
+  }
+
   // Check retreat statuses
   const retreatRes = await client.query(`SELECT id, title, status, price, max_participants FROM public.retreats ORDER BY start_date`);
   console.log('\nRetreats:');
@@ -103,7 +138,7 @@ async function verify() {
   const avatars = await client.query(`
     SELECT count(*) as populated_avatars FROM public.profiles WHERE avatar_url IS NOT NULL
   `);
-  console.log(`Populated avatars: ${avatars.rows[0].populated_avatars} of 528 profiles`);
+  console.log(`Populated avatars: ${avatars.rows[0].populated_avatars}`);
 
   await client.end();
 }

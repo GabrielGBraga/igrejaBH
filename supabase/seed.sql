@@ -130,6 +130,13 @@ DECLARE
   -- Gabriel Braga ID
   gabriel_id uuid;
 
+  -- Rafael Moraes, Isabele Moraes e Filhos IDs
+  rafael_id uuid;
+  isabele_id uuid;
+  bia_id uuid := extensions.uuid_generate_v4();
+  andre_id uuid := extensions.uuid_generate_v4();
+  filipe_id uuid := extensions.uuid_generate_v4();
+
   -- Variáveis temporárias de laço
   i int;
   j int;
@@ -277,6 +284,16 @@ BEGIN
           phone_num := '(31) 99888-7777';
           gabriel_id := temp_profile_id;
           avatar_val := 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
+        ELSIF i = 2 AND j = 2 AND k = 1 THEN
+          -- Rafael Moraes: Diácono e Líder 1 do GC Castelo (Setor 2: Pampulha/São Gabriel, GC 2)
+          full_nm := 'Rafael Moraes';
+          email_addr := 'rafael.moraes@igrejabh.org';
+          cpf_val := '145.892.301-44';
+          b_date := '1989-05-18'::date;
+          bapt_date := '2007-08-25'::date;
+          phone_num := '(31) 98765-4321';
+          rafael_id := temp_profile_id;
+          avatar_val := 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80';
         ELSE
           email_seq := email_seq + 1;
           cpf_seq := cpf_seq + 1;
@@ -336,7 +353,7 @@ BEGIN
             s_employment[1 + ((i * 4 + j + k) % array_length(s_employment, 1))],
             s_income[1 + ((i * 2 + j * 3 + k) % array_length(s_income, 1))],
             s_housing[1 + ((i + j * 2 + k) % array_length(s_housing, 1))],
-            'Casado(a)', 'Sim (B)', 2, avatar_val
+            'Casado(a)', 'Sim (B)', CASE WHEN i = 2 AND j = 2 AND k = 1 THEN 3 ELSE 2 END, avatar_val
           );
 
           temp_auth_id := extensions.uuid_generate_v4();
@@ -410,24 +427,37 @@ BEGIN
         BEGIN
           SELECT * INTO m_profile FROM public.profiles WHERE id = m_id;
           
-          email_seq := email_seq + 1;
-          cpf_seq := cpf_seq + 1;
-          phone_seq := phone_seq + 1;
-
           temp_profile_id := extensions.uuid_generate_v4();
-          r_idx := (i * 45 + j * 21 + k * 19) % array_length(s_fnames, 1) + 1;
-          f_first := s_fnames[r_idx];
-          
-          l_surname := split_part(m_profile.full_name, ' ', 2);
-          IF l_surname = '' THEN l_surname := s_surnames[(i*j+k)%array_length(s_surnames,1)+1]; END IF;
-          
-          full_nm := f_first || ' ' || l_surname;
-          email_addr := lower(f_first) || '.' || lower(l_surname) || email_seq::text || '@' || domains[1 + (email_seq % 4)];
-          cpf_val := lpad(cpf_seq::text, 3, '0') || '.' || lpad(((cpf_seq * 7) % 899 + 100)::text, 3, '0') || '.' || lpad(((cpf_seq * 13) % 899 + 100)::text, 3, '0') || '-' || lpad(((cpf_seq * 3) % 89 + 10)::text, 2, '0');
-          b_date := m_profile.birth_date + '1 year'::interval;
-          bapt_date := ('2003-01-01'::date + ((i * 120 + j * 80 + k * 95) % 3800) * '1 day'::interval)::date;
-          phone_num := '(31) 9' || ((8000 + phone_seq % 1900)::text) || '-' || lpad(((phone_seq * 37) % 8999 + 1000)::text, 4, '0');
-          avatar_val := s_avatars_female[1 + ((i * 2 + j * 4 + k) % array_length(s_avatars_female, 1))];
+
+          IF m_id = rafael_id THEN
+            -- Isabele Moraes: Esposa do Diácono Rafael Moraes (GC Castelo)
+            full_nm := 'Isabele Moraes';
+            email_addr := 'isabele.moraes@igrejabh.org';
+            cpf_val := '148.913.402-55';
+            phone_num := '(31) 98765-4322';
+            b_date := '1991-09-22'::date;
+            bapt_date := '2009-10-18'::date;
+            avatar_val := 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80';
+            isabele_id := temp_profile_id;
+          ELSE
+            email_seq := email_seq + 1;
+            cpf_seq := cpf_seq + 1;
+            phone_seq := phone_seq + 1;
+
+            r_idx := (i * 45 + j * 21 + k * 19) % array_length(s_fnames, 1) + 1;
+            f_first := s_fnames[r_idx];
+            
+            l_surname := split_part(m_profile.full_name, ' ', 2);
+            IF l_surname = '' THEN l_surname := s_surnames[(i*j+k)%array_length(s_surnames,1)+1]; END IF;
+            
+            full_nm := f_first || ' ' || l_surname;
+            email_addr := lower(f_first) || '.' || lower(l_surname) || email_seq::text || '@' || domains[1 + (email_seq % 4)];
+            cpf_val := lpad(cpf_seq::text, 3, '0') || '.' || lpad(((cpf_seq * 7) % 899 + 100)::text, 3, '0') || '.' || lpad(((cpf_seq * 13) % 899 + 100)::text, 3, '0') || '-' || lpad(((cpf_seq * 3) % 89 + 10)::text, 2, '0');
+            b_date := m_profile.birth_date + '1 year'::interval;
+            bapt_date := ('2003-01-01'::date + ((i * 120 + j * 80 + k * 95) % 3800) * '1 day'::interval)::date;
+            phone_num := '(31) 9' || ((8000 + phone_seq % 1900)::text) || '-' || lpad(((phone_seq * 37) % 8999 + 1000)::text, 4, '0');
+            avatar_val := s_avatars_female[1 + ((i * 2 + j * 4 + k) % array_length(s_avatars_female, 1))];
+          END IF;
 
           INSERT INTO public.profiles (
             id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, spouse_id,
@@ -442,7 +472,7 @@ BEGIN
             s_employment[1 + ((i * 2 + j * 3 + k) % array_length(s_employment, 1))],
             m_profile.household_income,
             m_profile.housing_status,
-            'Casado(a)', 'Sim (B)', 2, avatar_val
+            'Casado(a)', 'Sim (B)', CASE WHEN m_id = rafael_id THEN 3 ELSE 2 END, avatar_val
           );
 
           UPDATE public.profiles SET spouse_id = temp_profile_id WHERE id = m_id;
@@ -468,6 +498,50 @@ BEGIN
           );
         END;
       END LOOP;
+
+      -- ========================================================================
+      -- 4A.1 FILHOS DE RAFAEL E ISABELE MORAES (GC Castelo, Setor 2)
+      -- ========================================================================
+      IF i = 2 AND j = 2 THEN
+        -- Bia Moraes (Menina, ~8 anos, não batizada)
+        INSERT INTO public.profiles (
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
+          occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
+        ) VALUES (
+          bia_id, 'Bia Moraes', '152.671.309-81', '2018-04-10'::date, NULL, 'F', gc_id, rafael_id, isabele_id,
+          gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
+          'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
+          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80'
+        );
+        all_member_ids := array_append(all_member_ids, bia_id);
+
+        -- André Moraes (Menino, ~6 anos, não batizado)
+        INSERT INTO public.profiles (
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
+          occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
+        ) VALUES (
+          andre_id, 'André Moraes', '154.892.418-72', '2020-08-15'::date, NULL, 'M', gc_id, rafael_id, isabele_id,
+          gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
+          'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
+          'https://images.unsplash.com/photo-1545167622-3a6ac756afa4?w=200&auto=format&fit=crop&q=80'
+        );
+        all_member_ids := array_append(all_member_ids, andre_id);
+
+        -- Filipe Moraes (Menino, ~3 anos, não batizado)
+        INSERT INTO public.profiles (
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
+          occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
+        ) VALUES (
+          filipe_id, 'Filipe Moraes', '156.913.527-63', '2023-02-20'::date, NULL, 'M', gc_id, rafael_id, isabele_id,
+          gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
+          'Educação Infantil', 'Educação Infantil', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
+          'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80'
+        );
+        all_member_ids := array_append(all_member_ids, filipe_id);
+      END IF;
 
       -- ========================================================================
       -- 4B. FAMÍLIAS ORDINÁRIAS (2 Casais por GC)
