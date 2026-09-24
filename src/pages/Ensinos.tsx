@@ -847,12 +847,12 @@ export default function Ensinos() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <h3 className="font-semibold text-lg text-foreground">Progresso Geral em Estudos</h3>
-                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão dos cursos disponíveis.</p>
+                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão dos estudos disponíveis.</p>
                             </div>
                             <div className="flex items-center gap-4 w-full md:max-w-md">
                                 <div className="flex-1 space-y-1">
                                     <div className="flex justify-between text-xs font-semibold">
-                                        <span className="text-primary">{completedCourses} de {totalCourses} {totalCourses === 1 ? 'curso' : 'cursos'} concluídos</span>
+                                        <span className="text-primary">{completedCourses} de {totalCourses} {totalCourses === 1 ? 'estudo' : 'estudos'} concluídos</span>
                                         <span className="text-foreground">{overallCoursesPercent}%</span>
                                     </div>
                                     <Progress value={overallCoursesPercent} className="h-3 bg-muted/60" />
