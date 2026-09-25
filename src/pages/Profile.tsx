@@ -152,10 +152,10 @@ export default function Profile() {
           `
                     *,
                     home_groups:home_group_id (location_text),
-                    discipler:profiles!discipler_id (full_name),
-                    spouse:profiles!spouse_id (full_name),
-                    father:profiles!father_id (full_name),
-                    mother:profiles!mother_id (full_name)
+                    discipler:discipler_id (full_name),
+                    spouse:spouse_id (full_name),
+                    father:father_id (full_name),
+                    mother:mother_id (full_name)
                 `
         )
 
@@ -171,6 +171,36 @@ export default function Profile() {
       if (data) {
         const isOwn = requestedProfileId ? data.user_id === session.user.id : true
         setIsOwnProfile(isOwn)
+
+        // Helper to extract full_name safely whether PostgREST returns object or array
+        const getRelationName = (rel: unknown): string | undefined => {
+          if (!rel) return undefined
+          if (Array.isArray(rel)) {
+            return (rel[0] as { full_name?: string })?.full_name || undefined
+          }
+          return (rel as { full_name?: string }).full_name || undefined
+        }
+
+        let spouseId = data.spouse_id || undefined
+        let spouseName = getRelationName(data.spouse)
+
+        // Se spouse_id não estiver preenchido neste registro, verificar vínculo reverso
+        if (!spouseId) {
+          try {
+            const { data: revSpouse } = await supabase
+              .from("profiles")
+              .select("id, full_name")
+              .eq("spouse_id", data.id)
+              .maybeSingle()
+
+            if (revSpouse) {
+              spouseId = revSpouse.id
+              spouseName = revSpouse.full_name
+            }
+          } catch (err) {
+            console.error("Erro ao buscar cônjuge reverso:", err)
+          }
+        }
 
         // Query children where father_id or mother_id equals this profile's id
         let childrenList: ChildProfile[] = []
@@ -211,14 +241,14 @@ export default function Profile() {
           baptism_date: data.baptism_date || undefined,
           home_group_id: data.home_group_id || undefined,
           discipler_id: data.discipler_id || undefined,
-          spouse_id: data.spouse_id || undefined,
+          spouse_id: spouseId,
           father_id: data.father_id || undefined,
           mother_id: data.mother_id || undefined,
           home_group_name: data.home_groups?.location_text || undefined,
-          discipler_name: data.discipler?.full_name || undefined,
-          spouse_name: data.spouse?.full_name || undefined,
-          father_name: data.father?.full_name || undefined,
-          mother_name: data.mother?.full_name || undefined,
+          discipler_name: getRelationName(data.discipler),
+          spouse_name: spouseName,
+          father_name: getRelationName(data.father),
+          mother_name: getRelationName(data.mother),
           occupation: data.occupation,
           education_level: data.education_level,
           employment_status: data.employment_status,
@@ -540,7 +570,7 @@ export default function Profile() {
     <div
       className={cn(
         "min-w-0 space-y-1",
-        onClick && value && "group cursor-pointer"
+        onClick && value && "group cursor-pointer min-h-[44px]"
       )}
       onClick={value ? onClick : undefined}
       role={onClick && value ? "button" : undefined}
@@ -999,7 +1029,10 @@ export default function Profile() {
               <Combobox
                 value={
                   allMembers.find((m) => m.id === editForm.spouse_id)
-                    ?.full_name || ""
+                    ?.full_name ||
+                  (editForm.spouse_id === profile.spouse_id
+                    ? profile.spouse_name || ""
+                    : "")
                 }
                 onValueChange={(name) => {
                   const member = allMembers.find((m) => m.full_name === name)
@@ -1038,7 +1071,10 @@ export default function Profile() {
               <Combobox
                 value={
                   allMembers.find((m) => m.id === editForm.father_id)
-                    ?.full_name || ""
+                    ?.full_name ||
+                  (editForm.father_id === profile.father_id
+                    ? profile.father_name || ""
+                    : "")
                 }
                 onValueChange={(name) => {
                   const member = allMembers.find((m) => m.full_name === name)
@@ -1072,7 +1108,10 @@ export default function Profile() {
               <Combobox
                 value={
                   allMembers.find((m) => m.id === editForm.mother_id)
-                    ?.full_name || ""
+                    ?.full_name ||
+                  (editForm.mother_id === profile.mother_id
+                    ? profile.mother_name || ""
+                    : "")
                 }
                 onValueChange={(name) => {
                   const member = allMembers.find((m) => m.full_name === name)
