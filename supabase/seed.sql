@@ -130,6 +130,10 @@ DECLARE
   -- Gabriel Braga ID
   gabriel_id uuid;
 
+  -- Fernando Gomes Braga e Clara Góes Braga IDs (Presbítero e Pais de Gabriel)
+  fernando_id uuid;
+  clara_id uuid;
+
   -- Rafael Moraes, Isabele Moraes e Filhos IDs
   rafael_id uuid;
   isabele_id uuid;
@@ -273,9 +277,20 @@ BEGIN
       FOR k IN 1..2 LOOP -- 2 líderes por GC
         temp_profile_id := extensions.uuid_generate_v4();
         
+        -- Configuração Oficial para Fernando Gomes Braga (Presbítero e Pai de Gabriel Góes Braga)
+        -- Setor 1 (Barreiro/Oeste), GC 1 (GC Barreiro), Líder 1
+        IF i = 1 AND j = 1 AND k = 1 THEN
+          full_nm := 'Fernando Gomes Braga';
+          email_addr := 'fernando.braga@igrejabh.org';
+          cpf_val := '103.821.540-52';
+          b_date := '1966-04-12'::date;
+          bapt_date := '1984-06-20'::date;
+          phone_num := '(31) 99123-4567';
+          fernando_id := temp_profile_id;
+          avatar_val := 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80';
         -- Configuração Oficial para Gabriel Góes Braga (Líder 1 do GC São Gabriel)
         -- GC São Gabriel é Setor 2 (Pampulha/SG), GC 3, Líder 1
-        IF i = 2 AND j = 3 AND k = 1 THEN
+        ELSIF i = 2 AND j = 3 AND k = 1 THEN
           full_nm := 'Gabriel Góes Braga';
           email_addr := 'ggoesbraga@gmail.com';
           cpf_val := '132.507.246-02';
@@ -429,7 +444,17 @@ BEGIN
           
           temp_profile_id := extensions.uuid_generate_v4();
 
-          IF m_id = rafael_id THEN
+          IF m_id = fernando_id THEN
+            -- Clara Góes Braga: Esposa do Presbítero Fernando Gomes Braga e Mãe de Gabriel Góes Braga
+            full_nm := 'Clara Góes Braga';
+            email_addr := 'clara.braga@igrejabh.org';
+            cpf_val := '167.370.473-66';
+            phone_num := '(31) 99123-4568';
+            b_date := '1968-09-15'::date;
+            bapt_date := '1986-11-10'::date;
+            avatar_val := 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80';
+            clara_id := temp_profile_id;
+          ELSIF m_id = rafael_id THEN
             -- Isabele Moraes: Esposa do Diácono Rafael Moraes (GC Castelo)
             full_nm := 'Isabele Moraes';
             email_addr := 'isabele.moraes@igrejabh.org';
@@ -929,6 +954,13 @@ BEGIN
   END LOOP;
 
   -- ==========================================================================
+  -- 4E. VÍNCULO FAMILIAR DE GABRIEL GÓES BRAGA
+  -- ==========================================================================
+  IF gabriel_id IS NOT NULL AND fernando_id IS NOT NULL AND clara_id IS NOT NULL THEN
+    UPDATE public.profiles SET father_id = fernando_id, mother_id = clara_id WHERE id = gabriel_id;
+  END IF;
+
+  -- ==========================================================================
   -- 5. RELACIONAMENTOS DE DISCIPULADO (Árvore Hierárquica por Maturidade)
   -- ==========================================================================
   
@@ -955,6 +987,11 @@ BEGIN
       END IF;
     END;
   END LOOP;
+
+  -- Discipulado direto: Gabriel Góes Braga discipulado por Fernando Gomes Braga (Presbítero)
+  IF gabriel_id IS NOT NULL AND fernando_id IS NOT NULL THEN
+    UPDATE public.profiles SET discipler_id = fernando_id WHERE id = gabriel_id;
+  END IF;
 
   -- 5C. Discipulado de Outros Líderes de GC (38 casais)
   DECLARE

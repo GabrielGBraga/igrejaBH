@@ -59,6 +59,8 @@ async function verify() {
   // Verify Gabriel
   const gabrielRes = await client.query(`
     SELECT p.id, p.full_name, p.email, p.phone, p.is_deacon, p.is_dev, p.discipler_id,
+           (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name,
            (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
            (SELECT count(*) FROM public.registrations WHERE profile_id = p.id) as registrations_count,
            (SELECT count(*) FROM public.user_study_progress WHERE profile_id = p.id) as studies_completed
@@ -67,6 +69,27 @@ async function verify() {
   `);
   console.log('\nGabriel Góes Braga data:');
   console.log(gabrielRes.rows[0]);
+
+  // Verify Fernando Gomes Braga (Presbyter) & Clara Góes Braga
+  const fernandoRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.is_presbyter,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Fernando Gomes Braga'
+  `);
+  console.log('\nFernando Gomes Braga data:');
+  console.log(fernandoRes.rows[0]);
+
+  const claraRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT count(*) FROM public.profiles WHERE mother_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Clara Góes Braga'
+  `);
+  console.log('\nClara Góes Braga data:');
+  console.log(claraRes.rows[0]);
 
   // Verify Rafael Moraes & Family
   const rafaelRes = await client.query(`
