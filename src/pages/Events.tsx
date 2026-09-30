@@ -357,8 +357,8 @@ export default function Events() {
     if (!registeringRetreat || !userProfile) return
     setSubmitting(true)
 
-    // Map custom responses field IDs to their labels for easy display
-    const finalPrice = calculateTotalPrice(registeringRetreat.price || 0, customFormFields, customResponses)
+    const basePrice = registeringRetreat.has_payment === false ? 0 : (registeringRetreat.price || 0)
+    const finalPrice = calculateTotalPrice(basePrice, customFormFields, customResponses)
 
     const performSubmission = async (paid: boolean, method: string, ref: string) => {
       try {

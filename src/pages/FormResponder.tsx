@@ -61,6 +61,13 @@ export default function FormResponder() {
     return code ? code.trim().toUpperCase() : null
   })
   const [couponCpf, setCouponCpf] = useState("")
+  const [couponCpfError, setCouponCpfError] = useState<string | null>(null)
+  const [couponValidation, setCouponValidation] = useState<{
+    checked: boolean
+    valid: boolean
+    requiresCpf?: boolean
+    message?: string
+  }>({ checked: false, valid: false })
 
   // Integrated payment states
   const [showCheckout, setShowCheckout] = useState(false)
@@ -284,8 +291,26 @@ export default function FormResponder() {
               }
             }
           } else {
-            setAssociatedRetreat(null)
-            setAssociatedEventTitle(null)
+            // Fallback: check if URL specified retreat_id or eventId directly
+            const urlParams = new URLSearchParams(window.location.search)
+            const directRetreatId = urlParams.get("retreat_id") || urlParams.get("eventId") || urlParams.get("retreatId")
+            if (directRetreatId) {
+              const { data: directRetreat } = await supabase
+                .from("retreats")
+                .select("id, title, status, start_date, end_date, max_participants, registration_deadline, price, has_payment, location_text, description, image_url")
+                .eq("id", directRetreatId)
+                .maybeSingle()
+              if (directRetreat) {
+                setAssociatedRetreat(directRetreat)
+                setAssociatedEventTitle(directRetreat.title)
+              } else {
+                setAssociatedRetreat(null)
+                setAssociatedEventTitle(null)
+              }
+            } else {
+              setAssociatedRetreat(null)
+              setAssociatedEventTitle(null)
+            }
             if (!dbForm.is_active) {
               setClosedReason("manual")
             } else {
@@ -332,7 +357,13 @@ export default function FormResponder() {
           p_retreat_id: associatedRetreat?.id || undefined,
         })
         if (!error && data) {
-          const res = data as { valid: boolean; message?: string }
+          const res = data as { valid: boolean; message?: string; requires_cpf?: boolean }
+          setCouponValidation({
+            checked: true,
+            valid: res.valid,
+            requiresCpf: res.requires_cpf,
+            message: res.message,
+          })
           if (res.valid) {
             toast.success(
               `Código de isenção ${couponCode} ativo! Conclua o formulário para garantir sua vaga gratuita.`,
@@ -350,6 +381,12 @@ export default function FormResponder() {
               }
             )
           }
+        } else if (error) {
+          setCouponValidation({
+            checked: true,
+            valid: false,
+            message: error.message,
+          })
         }
       } catch (e) {
         console.error("Error validating coupon on load", e)
@@ -604,23 +641,49 @@ export default function FormResponder() {
       }
     })
 
-    // Extract CPF, Email and Name values from current submission
+    // Extract CPF, Email, Name and Gender values from current submission
     let emailVal = ""
     let cpfVal = ""
     let nameVal = ""
+    let genderVal = ""
     template.fields.forEach((field) => {
       const val = formData[field.id]
-      if (val) {
+      if (val !== undefined && val !== null && String(val).trim() !== "") {
         const label = field.label.toLowerCase()
-        if (field.validationPreset === "email" || label.includes("email") || label.includes("e-mail")) {
+        const fid = field.id.toLowerCase()
+        if (field.validationPreset === "email" || label.includes("email") || label.includes("e-mail") || fid.includes("email")) {
           emailVal = String(val).trim().toLowerCase()
-        } else if (field.validationPreset === "cpf" || label.includes("cpf")) {
+        } else if (field.validationPreset === "cpf" || label.includes("cpf") || fid.includes("cpf")) {
           cpfVal = String(val).replace(/\D/g, "")
-        } else if (label.includes("nome")) {
+        } else if (label.includes("nome") || fid.includes("name")) {
           nameVal = String(val).trim()
+        } else if (label.includes("sexo") || label.includes("gênero") || label.includes("genero") || fid.includes("gender") || fid.includes("sexo")) {
+          genderVal = String(val).trim()
         }
       }
     })
+
+    if (!cpfVal && couponCpf) {
+      cpfVal = couponCpf.replace(/\D/g, "")
+    }
+
+    // Strict validation if coupon is active
+    if (couponCode) {
+      setCouponCpfError(null)
+      const cleanCpf = cpfVal || couponCpf.replace(/\D/g, "")
+
+      if (!cleanCpf) {
+        setCouponCpfError("Informe o CPF do beneficiário para liberar a isenção.")
+        toast.error("Por favor, informe o CPF do beneficiário para validar o código de isenção.")
+        return
+      }
+
+      if (cleanCpf.length !== 11 || !isValidCPF(cleanCpf)) {
+        setCouponCpfError("CPF inválido. Verifique o número digitado.")
+        toast.error("CPF do beneficiário inválido. Digite um número de CPF válido.")
+        return
+      }
+    }
 
     // Save submission to Supabase
     async function executeSubmission(paid: boolean, method: string, reference: string) {
@@ -741,17 +804,29 @@ export default function FormResponder() {
             const val = formData[field.id]
             if (val !== undefined && val !== null) {
               const label = field.label.toLowerCase()
-              if (label.includes("nome")) {
+              const fid = field.id.toLowerCase()
+              if (label.includes("nome") || fid.includes("name")) {
                 guestData.full_name = val
-              } else if (label.includes("email") || label.includes("e-mail")) {
+              } else if (label.includes("email") || label.includes("e-mail") || fid.includes("email")) {
                 guestData.email = val
-              } else if (label.includes("telefone") || label.includes("celular") || label.includes("fone") || label.includes("whatsapp")) {
+              } else if (label.includes("telefone") || label.includes("celular") || label.includes("fone") || label.includes("whatsapp") || fid.includes("phone")) {
                 guestData.phone = val
-              } else if (label.includes("cpf")) {
+              } else if (label.includes("sexo") || label.includes("gênero") || label.includes("genero") || fid.includes("gender") || fid.includes("sexo")) {
+                guestData.gender = val
+              } else if (label.includes("cpf") || fid.includes("cpf")) {
                 guestData.cpf = val
               }
             }
           })
+
+          if (!guestData.full_name && nameVal) guestData.full_name = nameVal
+          if (!guestData.email && emailVal) guestData.email = emailVal
+          if (!guestData.cpf && (cpfVal || couponCpf)) {
+            guestData.cpf = (cpfVal || couponCpf).replace(/\D/g, "")
+          }
+          if (!guestData.gender) {
+            guestData.gender = genderVal || "Não informado"
+          }
 
           const { error: regError } = await supabase.from("registrations").insert({
             retreat_id: associatedRetreat.id,
@@ -778,69 +853,71 @@ export default function FormResponder() {
       }
     }
 
-    const isFreeEvent = associatedRetreat?.has_payment === false
+    const isFreeEvent = associatedRetreat
+      ? (associatedRetreat.has_payment === false || Number(associatedRetreat.price) === 0)
+      : true
     const total = isFreeEvent
       ? 0
-      : calculateTotalPrice(associatedRetreat?.price || 0, template.fields, filteredData)
+      : calculateTotalPrice(Number(associatedRetreat?.price) || 0, template.fields, filteredData)
 
-    if (total > 0 && associatedRetreat) {
-      if (couponCode) {
-        // Beneficiary has coupon link - redeem atomically with CPF validation!
-        const redeemToastId = toast.loading("Validando código de isenção...")
-        try {
-          // If cpfVal or emailVal or nameVal is not found in form fields, check couponCpf or user profile
-          let resolvedCpf = cpfVal || couponCpf.replace(/\D/g, "")
-          let resolvedName = nameVal
-          let resolvedEmail = emailVal
-          if ((!resolvedCpf || !resolvedName || !resolvedEmail) && user) {
-            const { data: prof } = await supabase
-              .from("profiles")
-              .select("cpf, full_name, email")
-              .eq("user_id", user.id)
-              .maybeSingle()
-            if (!resolvedCpf && prof?.cpf) resolvedCpf = prof.cpf.replace(/\D/g, "")
-            if (!resolvedName && prof?.full_name) resolvedName = prof.full_name
-            if (!resolvedEmail && prof?.email) resolvedEmail = prof.email
-          }
+    // BRANCH 1: Beneficiary with coupon code
+    if (couponCode) {
+      const redeemToastId = toast.loading("Validando código de isenção...")
+      try {
+        let resolvedCpf = cpfVal || couponCpf.replace(/\D/g, "")
+        let resolvedName = nameVal
+        let resolvedEmail = emailVal
+        if ((!resolvedCpf || !resolvedName || !resolvedEmail) && user) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("cpf, full_name, email")
+            .eq("user_id", user.id)
+            .maybeSingle()
+          if (!resolvedCpf && prof?.cpf) resolvedCpf = prof.cpf.replace(/\D/g, "")
+          if (!resolvedName && prof?.full_name) resolvedName = prof.full_name
+          if (!resolvedEmail && prof?.email) resolvedEmail = prof.email
+        }
 
-          if (!resolvedCpf) {
-            toast.dismiss(redeemToastId)
-            toast.error("Por favor, preencha o CPF para validar o código de isenção.")
-            return
-          }
-
-          const { data: redeemData, error: redeemError } = await supabase.rpc("redeem_coupon", {
-            p_code: couponCode,
-            p_cpf: resolvedCpf || undefined,
-            p_user_name: resolvedName || undefined,
-            p_user_email: resolvedEmail || undefined,
-            p_retreat_id: associatedRetreat.id || undefined,
-            p_form_id: template.id || undefined,
-          })
-
+        if (!resolvedCpf || resolvedCpf.length !== 11) {
           toast.dismiss(redeemToastId)
-
-          if (redeemError) {
-            toast.error(`Erro ao validar isenção: ${redeemError.message}`)
-            return
-          }
-
-          const result = redeemData as { success: boolean; message?: string }
-          if (!result || !result.success) {
-            toast.error(result?.message || "Código de isenção inválido ou CPF divergente.")
-            return
-          }
-
-          toast.success("Código de isenção validado com sucesso!")
-          await executeSubmission(true, "cupom", `Isenção - Cupom: ${couponCode}`)
-          return
-        } catch (err: any) {
-          toast.dismiss(redeemToastId)
-          toast.error("Falha ao processar código de isenção: " + err.message)
+          toast.error("Por favor, preencha um CPF válido para validar o código de isenção.")
           return
         }
-      }
 
+        const { data: redeemData, error: redeemError } = await supabase.rpc("redeem_coupon", {
+          p_code: couponCode,
+          p_cpf: resolvedCpf,
+          p_user_name: resolvedName || undefined,
+          p_user_email: resolvedEmail || undefined,
+          p_retreat_id: associatedRetreat?.id || undefined,
+          p_form_id: template.id || undefined,
+        })
+
+        toast.dismiss(redeemToastId)
+
+        if (redeemError) {
+          toast.error(`Erro ao validar isenção: ${redeemError.message}`)
+          return
+        }
+
+        const result = redeemData as { success: boolean; message?: string }
+        if (!result || !result.success) {
+          toast.error(result?.message || "Código de isenção inválido ou CPF divergente.")
+          return
+        }
+
+        toast.success("Código de isenção validado com sucesso!")
+        await executeSubmission(true, "cupom", `Isenção - Cupom: ${couponCode}`)
+        return
+      } catch (err: any) {
+        toast.dismiss(redeemToastId)
+        toast.error("Falha ao processar código de isenção: " + err.message)
+        return
+      }
+    }
+
+    // BRANCH 2: Event requiring payment
+    if (associatedRetreat && !isFreeEvent && total > 0) {
       setPendingSubmission({
         execute: async (p: boolean, m: string, r: string) => {
           await executeSubmission(p, m, r)
@@ -848,9 +925,11 @@ export default function FormResponder() {
       })
       setCheckoutPrice(total)
       setShowCheckout(true)
-    } else {
-      executeSubmission(true, "gratuito", isFreeEvent ? "Evento Gratuito" : "Isento")
+      return
     }
+
+    // BRANCH 3: Free event or form without payment
+    await executeSubmission(true, "gratuito", isFreeEvent ? "Evento Gratuito" : "Gratuito")
   }
 
   const handleConfirmIntegratedPayment = async () => {
@@ -1072,34 +1151,56 @@ export default function FormResponder() {
           </div>
 
           {couponCode && (
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 space-y-3 shadow-xs">
-              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-sm">
-                <Ticket className="h-4 w-4 shrink-0" />
-                <span>Código de Isenção Ativo: {couponCode}</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Sua inscrição terá <strong>isenção de 100% no valor do evento</strong>. Para confirmar o benefício com segurança, o sistema validará o seu CPF na finalização.
-              </p>
-              {!formTemplate.fields.some(
-                (f) => f.validationPreset === "cpf" || f.label.toLowerCase().includes("cpf")
-              ) && (
-                <div className="space-y-1.5 pt-1">
-                  <label className="text-xs font-semibold text-foreground block">
-                    CPF do Beneficiário: <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    value={couponCpf}
-                    onChange={(e) => setCouponCpf(formatValue(e.target.value, "cpf"))}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                    className="max-w-xs h-10 text-sm bg-background border-border"
-                  />
-                  <p className="text-[11px] text-muted-foreground">
-                    Insira o mesmo CPF informado na criação deste código para liberar a isenção.
-                  </p>
+            couponValidation.checked && !couponValidation.valid ? (
+              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 sm:p-5 space-y-2 shadow-xs">
+                <div className="flex items-center gap-2 text-destructive font-bold text-sm">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Código de Isenção Inválido ou Já Utilizado: {couponCode}</span>
                 </div>
-              )}
-            </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {couponValidation.message || "Este código de isenção não é válido ou já foi utilizado para este evento."} A inscrição seguirá pelo fluxo normal.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 space-y-3 shadow-xs">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-sm">
+                  <Ticket className="h-4 w-4 shrink-0" />
+                  <span>Código de Isenção Ativo: {couponCode}</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Sua inscrição terá <strong>isenção de 100% no valor do evento</strong>. Para confirmar o benefício com segurança, o sistema validará o seu CPF na finalização.
+                </p>
+                {!formTemplate.fields.some(
+                  (f) => f.validationPreset === "cpf" || f.label.toLowerCase().includes("cpf")
+                ) && (
+                  <div className="space-y-1.5 pt-1">
+                    <label htmlFor="coupon-cpf-field" className="text-xs font-semibold text-foreground block">
+                      CPF do Beneficiário: <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      id="coupon-cpf-field"
+                      value={couponCpf}
+                      onChange={(e) => {
+                        setCouponCpf(formatValue(e.target.value, "cpf"))
+                        if (couponCpfError) setCouponCpfError(null)
+                      }}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      className={`max-w-xs min-h-[44px] h-11 text-sm bg-background ${
+                        couponCpfError ? "border-destructive focus-visible:ring-destructive" : "border-border"
+                      }`}
+                    />
+                    {couponCpfError ? (
+                      <p className="text-xs font-medium text-destructive">{couponCpfError}</p>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground">
+                        Insira o mesmo CPF informado pelo gestor na criação deste código para liberar a isenção.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
           )}
 
           <form onSubmit={handleSubmit} className="space-y-12">
