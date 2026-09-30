@@ -33,10 +33,12 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { ChurchAvatar } from "@/components/ui/church-avatar"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
+import { VisitorWelcomeDialog } from "@/components/landing/VisitorWelcomeDialog"
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false)
 
   const navLinks = [
     { name: "A Visão", href: "#visao" },
@@ -213,7 +215,7 @@ export default function Landing() {
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex items-center justify-center">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               asChild
               size="lg"
@@ -223,6 +225,16 @@ export default function Landing() {
                 Acessar o Portal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => setIsWelcomeOpen(true)}
+              className="btn-tactile min-h-[48px] w-full gap-2 border-primary/30 px-6 text-base font-semibold hover:bg-primary/5 sm:w-auto"
+            >
+              <HeartHandshake className="h-4 w-4 text-primary" />
+              Quero Conhecer um Grupo Caseiro
             </Button>
           </div>
 
@@ -526,7 +538,16 @@ export default function Landing() {
                   irmão próximo ou venha nos visitar em uma das reuniões nos
                   lares.
                 </p>
-                <div className="pt-2">
+                <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    onClick={() => setIsWelcomeOpen(true)}
+                    size="sm"
+                    className="btn-tactile min-h-[44px] w-full gap-1.5 font-semibold sm:w-auto"
+                  >
+                    <HeartHandshake className="h-4 w-4" />
+                    Quero ser Acolhido(a)
+                  </Button>
                   <Button
                     asChild
                     variant="outline"
@@ -608,7 +629,7 @@ export default function Landing() {
             Se você já faz parte da comunidade, acesse o portal para acompanhar o
             mural, os pedidos de oração e os ensinos.
           </p>
-          <div className="mt-6 flex items-center justify-center">
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               asChild
               size="lg"
@@ -618,6 +639,16 @@ export default function Landing() {
                 Acessar o Portal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => setIsWelcomeOpen(true)}
+              className="min-h-[48px] w-full gap-2 border-primary/30 px-6 text-sm font-semibold sm:w-auto hover:bg-primary/5"
+            >
+              <HeartHandshake className="h-4 w-4 text-primary" />
+              Quero Conhecer um Grupo Caseiro
             </Button>
           </div>
         </div>
@@ -658,6 +689,9 @@ export default function Landing() {
           © {new Date().getFullYear()} A Igreja em Belo Horizonte • Portal de Vida Comum dos Discípulos
         </div>
       </footer>
+
+      {/* Modal de Acolhimento a Visitantes */}
+      <VisitorWelcomeDialog open={isWelcomeOpen} onOpenChange={setIsWelcomeOpen} />
     </div>
   )
 }

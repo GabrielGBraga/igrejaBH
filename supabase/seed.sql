@@ -152,7 +152,7 @@ DECLARE
   
   -- Sequenciadores globais para garantir unicidade estrita e formatos válidos
   email_seq int := 100;
-  cpf_seq int := 100;
+  cpf_seq int := 200;
   phone_seq int := 100;
   domains text[] := ARRAY['igrejabh.org', 'gmail.com', 'outlook.com', 'yahoo.com.br'];
   
@@ -298,7 +298,7 @@ BEGIN
           bapt_date := '2012-06-15'::date;
           phone_num := '(31) 99888-7777';
           gabriel_id := temp_profile_id;
-          avatar_val := 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
+          avatar_val := 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80';
         ELSIF i = 2 AND j = 2 AND k = 1 THEN
           -- Rafael Moraes: Diácono e Líder 1 do GC Castelo (Setor 2: Pampulha/São Gabriel, GC 2)
           full_nm := 'Rafael Moraes';
