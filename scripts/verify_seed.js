@@ -58,7 +58,7 @@ async function verify() {
 
   // Verify Gabriel
   const gabrielRes = await client.query(`
-    SELECT p.id, p.full_name, p.email, p.phone, p.is_deacon, p.is_dev, p.discipler_id,
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.avatar_url, p.is_deacon, p.is_dev, p.discipler_id,
            (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
            (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name,
            (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
