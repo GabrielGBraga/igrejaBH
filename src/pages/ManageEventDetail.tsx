@@ -15,6 +15,7 @@ import {
   Loader2,
   AlertTriangle,
   PieChart,
+  Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -34,7 +35,7 @@ import { KPIBoard } from "@/components/events/KPIBoard";
 import { KPIBuilderDialog } from "@/components/events/KPIBuilderDialog";
 import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
-import { CreateEditEventDialog } from "@/components/events/CreateEditEventDialog";
+import { CreateEditEventDialog, type FormOption } from "@/components/events/CreateEditEventDialog";
 import {
   RegistrationDetailDialog,
   type RegistrationWithDetails,
@@ -43,6 +44,7 @@ import {
   RoomManagementTab,
   type RetreatRoom,
 } from "@/components/events/RoomManagementTab";
+import { EventCouponsTab } from "@/components/events/EventCouponsTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
@@ -63,11 +65,6 @@ type Retreat = Database["public"]["Tables"]["retreats"]["Row"] & {
     name: string;
   } | null;
 };
-
-interface FormOption {
-  id: string;
-  name: string;
-}
 
 interface FormTemplateShape {
   id: string;
@@ -100,7 +97,7 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    "registrations" | "rooms" | "finance" | "dashboard"
+    "registrations" | "rooms" | "finance" | "coupons" | "dashboard"
   >("registrations");
 
   // Dialog & Modal states
@@ -250,12 +247,29 @@ export default function ManageEventDetail() {
 
   const fetchForms = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("forms")
-        .select("id, name")
-        .order("name", { ascending: true });
-      if (error) throw error;
-      setForms(data || []);
+      const [{ data: formsData, error: formsError }, { data: retreatsData, error: retreatsError }] =
+        await Promise.all([
+          supabase.from("forms").select("id, name").order("name", { ascending: true }),
+          supabase.from("retreats").select("id, title, form_id"),
+        ]);
+      if (formsError) throw formsError;
+      if (retreatsError) throw retreatsError;
+
+      const retreatsByForm = new Map(
+        (retreatsData || []).filter((r) => r.form_id).map((r) => [r.form_id as string, r])
+      );
+
+      const mappedForms: FormOption[] = (formsData || []).map((f) => {
+        const conn = retreatsByForm.get(f.id);
+        return {
+          id: f.id,
+          name: f.name,
+          connectedRetreatId: conn?.id || null,
+          connectedRetreatTitle: conn?.title || null,
+        };
+      });
+
+      setForms(mappedForms);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro desconhecido";
       console.error("Erro ao buscar formulários:", msg);
@@ -960,6 +974,18 @@ export default function ManageEventDetail() {
         </button>
 
         <button
+          onClick={() => setActiveTab("coupons")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "coupons"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <Ticket className="w-4 h-4" />
+          <span>Códigos de Isenção</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("dashboard")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "dashboard"
@@ -1146,6 +1172,15 @@ export default function ManageEventDetail() {
             </Card>
           </div>
         </div>
+      )}
+
+      {/* Tab 5: Códigos de Isenção (Cupons Descartáveis) */}
+      {activeTab === "coupons" && retreat && (
+        <EventCouponsTab
+          retreat={retreat}
+          eventId={eventId!}
+          formId={retreat.form_id}
+        />
       )}
 
       {/* Modal: Alocar Quarto para Inscrito Específico */}

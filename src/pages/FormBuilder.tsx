@@ -35,7 +35,9 @@ import {
   GripVertical,
   AlertTriangle,
   Users,
+  Sparkles,
 } from "lucide-react"
+import { FormPresentationEditor } from "@/components/forms/FormPresentationEditor"
 import {
   Card,
   CardContent,
@@ -96,6 +98,7 @@ const mapDbFormToTemplate = (dbForm: any): FormTemplate => {
     createdAt: dbForm.created_at,
     isPublic: dbForm.is_public,
     isActive: dbForm.is_active,
+    presentationPage: dbForm.presentation_page || undefined,
   }
 }
 
@@ -127,9 +130,9 @@ export default function FormBuilder() {
 
   // Builder panel states
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null)
-  const [builderTab, setBuilderTab] = useState<"edit" | "preview" | "json">(
-    "edit"
-  )
+  const [builderTab, setBuilderTab] = useState<
+    "edit" | "presentation" | "preview" | "json"
+  >("edit")
   const [newOptionTexts, setNewOptionTexts] = useState<Record<string, string>>(
     {}
   )
@@ -350,6 +353,7 @@ export default function FormBuilder() {
         name: selectedForm.name,
         description: selectedForm.description || null,
         fields: selectedForm.fields as any,
+        presentation_page: (selectedForm.presentationPage as any) || null,
         is_public: !!selectedForm.isPublic,
         created_by: session?.user?.id || null,
       })
@@ -393,6 +397,9 @@ export default function FormBuilder() {
       id: generateFormId(),
       name: `${form.name} (Cópia)`,
       createdAt: new Date().toISOString(),
+      presentationPage: form.presentationPage
+        ? JSON.parse(JSON.stringify(form.presentationPage))
+        : undefined,
     }
 
     try {
@@ -406,6 +413,7 @@ export default function FormBuilder() {
         name: duplicated.name,
         description: duplicated.description || null,
         fields: duplicated.fields as any,
+        presentation_page: (duplicated.presentationPage as any) || null,
         is_public: !!duplicated.isPublic,
         created_by: session?.user?.id || null,
       })
@@ -1124,20 +1132,38 @@ export default function FormBuilder() {
               {forms.map((form) => {
                 const subCount = submissions[form.id]?.length || 0
                 const connectedRetreats = retreats.filter((r) => r.form_id === form.id)
-                
-                const hasDraftRetreat = connectedRetreats.some((r) => r.status === "rascunho")
-                const hasEndedRetreat = connectedRetreats.some((r) => r.status === "encerrado")
-                const hasExpiredRetreat = connectedRetreats.some((r) => {
-                  const deadline = r.registration_deadline || r.end_date
-                  return deadline && new Date() > new Date(new Date(deadline).setHours(23, 59, 59, 999))
-                })
-                const hasFullRetreat = connectedRetreats.some((r) => r.max_participants && subCount >= r.max_participants)
 
-                const isFormActive = !!form.isActive && (connectedRetreats.length === 0 || (connectedRetreats.some((r) => r.status === "ativo") && !hasExpiredRetreat && !hasFullRetreat && !hasEndedRetreat))
-                const isFormSuspended = !!form.isActive && hasDraftRetreat
-                const isFormExpired = !!form.isActive && hasExpiredRetreat
-                const isFormFull = !!form.isActive && hasFullRetreat
-                const isFormEnded = !!form.isActive && hasEndedRetreat
+                // Select primary retreat prioritizing active, then draft, then ended
+                const activeRetreat = connectedRetreats.find((r) => r.status === "ativo")
+                const primaryRetreat =
+                  activeRetreat ||
+                  connectedRetreats.find((r) => r.status === "rascunho") ||
+                  connectedRetreats[0]
+
+                let isFormActive = !!form.isActive
+                let isFormSuspended = false
+                let isFormExpired = false
+                let isFormFull = false
+                let isFormEnded = false
+
+                if (connectedRetreats.length > 0 && primaryRetreat) {
+                  const deadline = primaryRetreat.registration_deadline || primaryRetreat.end_date
+                  isFormExpired = !!(
+                    deadline &&
+                    new Date() > new Date(new Date(deadline).setHours(23, 59, 59, 999))
+                  )
+                  isFormFull = !!(
+                    primaryRetreat.max_participants &&
+                    subCount >= primaryRetreat.max_participants
+                  )
+                  isFormSuspended = primaryRetreat.status === "rascunho"
+                  isFormEnded = primaryRetreat.status === "encerrado"
+                  isFormActive =
+                    !!form.isActive &&
+                    primaryRetreat.status === "ativo" &&
+                    !isFormExpired &&
+                    !isFormFull
+                }
                 return (
                   <Card
                     key={form.id}
@@ -1445,34 +1471,108 @@ export default function FormBuilder() {
             </div>
           </div>
 
-          {/* Builder Workspace Layout */}
-          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-            {/* Mobile Tab Control */}
-            <div className="col-span-1 flex overflow-hidden rounded-xl border border-border bg-card/30 p-1 lg:hidden">
+          {/* Builder Navigation Tab Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/30 p-1.5 shadow-sm">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
               <button
+                type="button"
                 onClick={() => setBuilderTab("edit")}
-                className={`flex-1 rounded-lg py-3 text-[10px] font-bold tracking-normal uppercase transition-all sm:text-xs sm:tracking-widest ${builderTab === "edit" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[44px] ${
+                  builderTab === "edit"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                }`}
               >
-                Editar Campos
+                <ClipboardList className="h-4 w-4" />
+                <span>Campos do Formulário</span>
               </button>
+
               <button
+                type="button"
+                onClick={() => setBuilderTab("presentation")}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[44px] ${
+                  builderTab === "presentation"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                }`}
+              >
+                <Sparkles className="h-4 w-4 text-amber-500" />
+                <span>Página de Apresentação</span>
+                {selectedForm.presentationPage?.enabled && (
+                  <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                    Ativada
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setBuilderTab("preview")}
-                className={`flex-1 rounded-lg py-3 text-[10px] font-bold tracking-normal uppercase transition-all sm:text-xs sm:tracking-widest ${builderTab === "preview" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[44px] lg:hidden ${
+                  builderTab === "preview"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                }`}
               >
-                Testar Preview
+                <Eye className="h-4 w-4" />
+                <span>Preview</span>
               </button>
+
               <button
+                type="button"
                 onClick={() => setBuilderTab("json")}
-                className={`flex-1 rounded-lg py-3 text-[10px] font-bold tracking-normal uppercase transition-all sm:text-xs sm:tracking-widest ${builderTab === "json" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[44px] ${
+                  builderTab === "json"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                }`}
               >
-                Esquema JSON
+                <FileText className="h-4 w-4" />
+                <span>Esquema JSON</span>
               </button>
             </div>
+          </div>
 
-            {/* COLUMN 1: FIELD EDITOR PANEL (Show on desktop or when active tab is 'edit') */}
-            <div
-              className={`col-span-1 ${showPreview ? "lg:col-span-7" : "lg:col-span-12"} space-y-6 ${builderTab === "edit" ? "block" : "hidden lg:block"}`}
-            >
+          {/* Builder Workspace Layout */}
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            {builderTab === "presentation" ? (
+              <div className="col-span-1 lg:col-span-12">
+                <FormPresentationEditor
+                  form={selectedForm}
+                  onChange={(presentationPage) =>
+                    setSelectedForm((prev) =>
+                      prev ? { ...prev, presentationPage } : null
+                    )
+                  }
+                />
+              </div>
+            ) : builderTab === "json" ? (
+              <div className="col-span-1 lg:col-span-12 space-y-4">
+                <Card className="rounded-xl border-border bg-card/40 p-5 shadow-lg backdrop-blur-xl">
+                  <div className="mb-4 flex items-center justify-between border-b border-border/50 pb-3">
+                    <h3 className="text-sm font-bold text-foreground">
+                      Esquema Estrutural JSON
+                    </h3>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => handleExportJSON(selectedForm, e)}
+                      className="h-8 cursor-pointer rounded-md"
+                    >
+                      Copiar JSON
+                    </Button>
+                  </div>
+                  <pre className="max-h-[450px] overflow-x-auto rounded-lg border border-border/60 bg-background p-4 font-mono text-[10px] leading-normal text-muted-foreground">
+                    {JSON.stringify(selectedForm, null, 2)}
+                  </pre>
+                </Card>
+              </div>
+            ) : (
+              <>
+                {/* COLUMN 1: FIELD EDITOR PANEL (Show on desktop or when active tab is 'edit') */}
+                <div
+                  className={`col-span-1 ${showPreview ? "lg:col-span-7" : "lg:col-span-12"} space-y-6 ${builderTab === "edit" ? "block" : "hidden lg:block"}`}
+                >
               {/* Header Text Block */}
               <div className="rounded-xl border border-border/40 bg-card/20 p-5 dark:bg-zinc-900/10">
                 <h3 className="text-lg font-bold text-foreground">
@@ -1853,33 +1953,11 @@ export default function FormBuilder() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* COLUMN 3: RAW JSON SCHEMATIC VIEW (Show on mobile active tab 'json') */}
-            <div
-              className={`col-span-1 space-y-4 ${builderTab === "json" ? "block" : "hidden"}`}
-            >
-              <Card className="rounded-xl border-border bg-card/40 p-5 shadow-lg backdrop-blur-xl">
-                <div className="mb-4 flex items-center justify-between border-b border-border/50 pb-3">
-                  <h3 className="text-sm font-bold text-foreground">
-                    Esquema Estrutural JSON
-                  </h3>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => handleExportJSON(selectedForm, e)}
-                    className="h-8 cursor-pointer rounded-md"
-                  >
-                    Copiar JSON
-                  </Button>
-                </div>
-                <pre className="max-h-[450px] overflow-x-auto rounded-lg border border-border/60 bg-background p-4 font-mono text-[10px] leading-normal text-muted-foreground">
-                  {JSON.stringify(selectedForm, null, 2)}
-                </pre>
-              </Card>
-            </div>
-          </div>
+          </>
+        )}
         </div>
-      )}
+      </div>
+    )}
 
       {/* VIEW SUBMISSIONS MODAL */}
       {viewingSubmissionsFormId &&

@@ -883,7 +883,8 @@ export default function Events() {
 
             {/* STEP 3: Payment & Notes */}
             {activeStep === 3 && (() => {
-              const totalPrice = calculateTotalPrice(registeringRetreat?.price || 0, customFormFields, customResponses)
+              const basePrice = registeringRetreat?.has_payment === false ? 0 : (registeringRetreat?.price || 0)
+              const totalPrice = calculateTotalPrice(basePrice, customFormFields, customResponses)
 
               return (
                 <div className="space-y-5 text-left">

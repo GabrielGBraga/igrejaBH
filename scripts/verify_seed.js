@@ -131,6 +131,32 @@ async function verify() {
   console.log('\nRetreats:');
   console.table(retreatRes.rows);
 
+  // Check retreat forms
+  const retreatFormsRes = await client.query(`
+    SELECT r.id, r.title, r.status, r.form_id, f.name as form_name,
+           (SELECT count(*) FROM public.form_submissions fs WHERE fs.form_id = r.form_id) as submissions_count
+    FROM public.retreats r
+    LEFT JOIN public.forms f ON f.id = r.form_id
+    ORDER BY r.start_date
+  `);
+  console.log('\nRetreat Forms & Submissions:');
+  console.table(retreatFormsRes.rows);
+
+  // Check 1-to-1 uniqueness: no form_id shared across multiple retreats
+  const duplicateFormsRes = await client.query(`
+    SELECT form_id, count(*) as count
+    FROM public.retreats
+    WHERE form_id IS NOT NULL
+    GROUP BY form_id
+    HAVING count(*) > 1
+  `);
+  if (duplicateFormsRes.rows.length > 0) {
+    console.error('❌ ERRO: Existem formulários vinculados a mais de um evento:', duplicateFormsRes.rows);
+    process.exitCode = 1;
+  } else {
+    console.log('✅ Verificação 1-para-1 de formulários por evento: Nenhum formulário duplicado em múltiplos eventos.');
+  }
+
   // Check post categories
   const postsRes = await client.query(`SELECT category, count(*) FROM public.posts GROUP BY category`);
   console.log('\nPosts by Category:');

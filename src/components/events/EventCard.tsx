@@ -100,13 +100,14 @@ export function EventCard({
     }
   };
 
-  const formattedPrice =
-    retreat.price && retreat.price > 0
-      ? new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(retreat.price)
-      : "Gratuito";
+  const isFree = retreat.has_payment === false || !retreat.price || retreat.price === 0;
+
+  const formattedPrice = !isFree && retreat.price
+    ? new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(retreat.price)
+    : "Gratuito";
 
   return (
     <Card className="group flex flex-col justify-between rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 shadow-sm transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md overflow-hidden relative">
@@ -115,9 +116,11 @@ export function EventCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             {getStatusBadge(retreat.status)}
-            <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full">
-              {formattedPrice}
-            </span>
+            {!isFree && (
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-50 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-full">
+                {formattedPrice}
+              </span>
+            )}
           </div>
 
           <DropdownMenu>

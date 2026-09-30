@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EventCard, type RetreatWithForm } from "@/components/events/EventCard";
-import { CreateEditEventDialog } from "@/components/events/CreateEditEventDialog";
+import { CreateEditEventDialog, type FormOption } from "@/components/events/CreateEditEventDialog";
 import type { Database } from "@/lib/database.types";
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"];
@@ -16,11 +16,6 @@ type RetreatQueryResult = Retreat & {
   forms: { name: string } | null;
   registrations: { id: string }[] | null;
 };
-
-interface FormOption {
-  id: string;
-  name: string;
-}
 
 export default function ManageEvents() {
   const [retreats, setRetreats] = useState<RetreatWithForm[]>([]);
@@ -80,7 +75,22 @@ export default function ManageEvents() {
         .order("name", { ascending: true });
 
       if (formsError) throw formsError;
-      setForms(formsData || []);
+
+      const retreatsByForm = new Map(
+        rawList.filter((r) => r.form_id).map((r) => [r.form_id as string, r])
+      );
+
+      const mappedForms: FormOption[] = (formsData || []).map((f) => {
+        const conn = retreatsByForm.get(f.id);
+        return {
+          id: f.id,
+          name: f.name,
+          connectedRetreatId: conn?.id || null,
+          connectedRetreatTitle: conn?.title || null,
+        };
+      });
+
+      setForms(mappedForms);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao carregar retiros";
       toast.error(msg);
