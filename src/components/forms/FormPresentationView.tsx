@@ -70,9 +70,9 @@ export function FormPresentationView({
   const datesFormatted = formatDateRange(retreat?.start_date, retreat?.end_date);
 
   return (
-    <div className="flex flex-col w-full bg-card text-foreground">
+    <div className="flex flex-col w-full max-w-4xl mx-auto px-2 sm:px-4 bg-card text-foreground">
       {/* Hero Section */}
-      <div className="relative overflow-hidden w-full">
+      <div className="relative overflow-hidden w-full rounded-2xl border border-border/40">
         {presentation.bannerUrl ? (
           <div className="relative h-48 sm:h-64 w-full overflow-hidden bg-zinc-900">
             <img
@@ -188,7 +188,7 @@ export function FormPresentationView({
           <Button
             type="button"
             onClick={onStart}
-            className="w-full min-h-[48px] rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-md hover:bg-primary/90 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full min-h-[44px] h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-md hover:bg-primary/90 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>{ctaText}</span>
             <ArrowRight className="w-4 h-4" />
