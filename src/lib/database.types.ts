@@ -20,6 +20,7 @@ export type Database = {
           cpf: string | null
           created_at: string
           created_by: string | null
+          discount_percent: number
           form_id: string | null
           id: string
           is_used: boolean
@@ -34,6 +35,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string
           created_by?: string | null
+          discount_percent?: number
           form_id?: string | null
           id?: string
           is_used?: boolean
@@ -48,6 +50,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string
           created_by?: string | null
+          discount_percent?: number
           form_id?: string | null
           id?: string
           is_used?: boolean
