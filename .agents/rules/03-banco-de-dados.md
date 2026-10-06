@@ -6,7 +6,9 @@
 - `sectors`: Agrupamentos macro geográficos que contêm múltiplos Grupos Caseiros.
 - `fellowships`: Registra vínculos intencionais de companheirismo entre dois discípulos (`member_a_id`, `member_b_id`).
 - `posts`: Unifica notícias, pedidos de oração, avisos e diaconato através do ENUM `post_category`.
-- `media_resources`: Central de vídeos (YouTube) e PDFs de estudo (Catequese).
+- `media_resources`: Central de vídeos (YouTube), PDFs e textos/leituras em Markdown.
+- `studies`, `study_steps` & `user_study_progress`: Trilhas de aprendizado ordenadas (cursos) compostas por recursos e controle de conclusão por discípulo.
+- `study_notes`: Anotações individuais e formatadas dos discípulos por estudo (`study_id`) ou por recurso (`media_resource_id`), protegidas via RLS (`profile_id`).
 - `forms` & `form_submissions`: Sistema dinâmico de formulários. A tabela `forms` armazena o schema/JSON do template e `form_submissions` guarda as respostas dos usuários.
 - `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e controle de retiros.
 - `retreat_rooms`: Gestão de quartos/alocação de alojamentos customizáveis por retiro (`retreat_id`, `gender_type`, `capacity`).
