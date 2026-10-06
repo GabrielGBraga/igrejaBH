@@ -408,6 +408,29 @@ export function CreateEditEventDialog({
             </Field>
           </div>
 
+          <Field>
+            <FieldLabel htmlFor="registration_deadline">Prazo Limite para Inscrições</FieldLabel>
+            <Controller
+              name="registration_deadline"
+              control={control}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    id="registration_deadline"
+                    type="date"
+                    className="rounded-md min-h-[44px]"
+                  />
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    Opcional. Data final (até as 23:59) para recebimento de inscrições. Se deixado em branco, o prazo limite será a Data de Término do evento.
+                  </p>
+                  {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                </>
+              )}
+            />
+          </Field>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field>
               <FieldLabel htmlFor="status">Status *</FieldLabel>

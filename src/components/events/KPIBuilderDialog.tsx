@@ -757,11 +757,17 @@ export function KPIBuilderDialog({
                                   <SelectItem value="cartao" className="text-xs">
                                     Cartão de Crédito
                                   </SelectItem>
+                                  <SelectItem value="cupom" className="text-xs">
+                                    Cupom de Isenção / Desconto
+                                  </SelectItem>
                                   <SelectItem value="dinheiro" className="text-xs">
                                     Dinheiro
                                   </SelectItem>
                                   <SelectItem value="boleto" className="text-xs">
                                     Boleto Bancário
+                                  </SelectItem>
+                                  <SelectItem value="gratuito" className="text-xs">
+                                    Gratuito / Isento
                                   </SelectItem>
                                 </SelectGroup>
                               </SelectContent>

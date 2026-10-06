@@ -43,6 +43,7 @@ import {
 } from "@/lib/forms"
 import type { FormField } from "@/lib/forms"
 import type { Database } from "@/lib/database.types"
+import { formatDateBR } from "@/lib/utils"
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"]
 
@@ -1147,15 +1148,9 @@ export default function Events() {
                     <div className="flex justify-between border-b border-border/10 pb-1.5">
                       <span>Período:</span>
                       <span className="font-bold text-foreground">
-                        {retreat.start_date &&
-                          new Date(retreat.start_date).toLocaleDateString(
-                            "pt-BR"
-                          )}{" "}
+                        {retreat.start_date && formatDateBR(retreat.start_date)}{" "}
                         até{" "}
-                        {retreat.end_date &&
-                          new Date(retreat.end_date).toLocaleDateString(
-                            "pt-BR"
-                          )}
+                        {retreat.end_date && formatDateBR(retreat.end_date)}
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-border/10 pb-1.5">
@@ -1168,7 +1163,13 @@ export default function Events() {
                     </div>
                     {reg.payment_reference && (
                       <div className="flex justify-between text-[11px]">
-                        <span>Chave PIX Informada:</span>
+                        <span>
+                          {reg.payment_method === "cupom"
+                            ? "Cupom Utilizado:"
+                            : reg.payment_method === "pix"
+                            ? "Chave PIX Informada:"
+                            : "Comprovante / Referência:"}
+                        </span>
                         <span className="font-medium text-foreground select-all">
                           {reg.payment_reference}
                         </span>
@@ -1246,15 +1247,9 @@ export default function Events() {
                           <Clock className="h-3.5 w-3.5" /> Período:
                         </span>
                         <span className="font-bold text-foreground">
-                          {retreat.start_date &&
-                            new Date(retreat.start_date).toLocaleDateString(
-                              "pt-BR"
-                            )}{" "}
+                          {retreat.start_date && formatDateBR(retreat.start_date)}{" "}
                           até{" "}
-                          {retreat.end_date &&
-                            new Date(retreat.end_date).toLocaleDateString(
-                              "pt-BR"
-                            )}
+                          {retreat.end_date && formatDateBR(retreat.end_date)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">

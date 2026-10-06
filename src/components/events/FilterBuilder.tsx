@@ -69,8 +69,10 @@ const FIELD_OPTIONS: FilterFieldOption[] = [
     options: [
       { label: "PIX", value: "pix" },
       { label: "Cartão de Crédito", value: "cartao" },
-      { label: "Boleto Bancário", value: "boleto" },
+      { label: "Cupom de Isenção / Desconto", value: "cupom" },
       { label: "Dinheiro / Espécie", value: "dinheiro" },
+      { label: "Boleto Bancário", value: "boleto" },
+      { label: "Gratuito / Isento", value: "gratuito" },
     ],
   },
   {

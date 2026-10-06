@@ -38,6 +38,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { FormPresentationEditor } from "@/components/forms/FormPresentationEditor"
+import { parseEndOfDay } from "@/lib/utils"
 import {
   Card,
   CardContent,
@@ -1150,7 +1151,7 @@ export default function FormBuilder() {
                   const deadline = primaryRetreat.registration_deadline || primaryRetreat.end_date
                   isFormExpired = !!(
                     deadline &&
-                    new Date() > new Date(new Date(deadline).setHours(23, 59, 59, 999))
+                    new Date() > parseEndOfDay(deadline)
                   )
                   isFormFull = !!(
                     primaryRetreat.max_participants &&

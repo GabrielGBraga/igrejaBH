@@ -77,7 +77,7 @@ async function runTests() {
   console.log('\n🎟️ TEST SUITE 2: Validação Atômica de Cupons (validate_coupon)');
   const testCpf = '10382154052';
   const wrongCpf = '11144477735';
-  const testCode = 'ISENTO-8KSJ';
+  const testCode = 'ISENTO-YQ5E';
 
   try {
     // 2.1 Código Válido com CPF Correto
@@ -89,6 +89,7 @@ async function runTests() {
     });
     assert(!err1, 'RPC validate_coupon executada sem erro de rede', err1?.message);
     assert(validRes?.valid === true, 'Cupom ativo com CPF correspondente retorna valid: true', JSON.stringify(validRes));
+    assert(validRes?.discount_percent === 100, 'Cupom retorna discount_percent: 100 para isenção total', JSON.stringify(validRes));
 
     // 2.2 Código Válido com CPF Incorreto
     const { data: invalidCpfRes } = await supabase.rpc('validate_coupon', {
@@ -234,6 +235,21 @@ async function runTests() {
     'EventCouponsTab possui botões de ação e inputs com touch target acessível de 44px'
   );
 
+  assert(
+    couponsTabContent.includes('Percentual de Desconto') && couponsTabContent.includes('newDiscountPercent'),
+    'EventCouponsTab permite ao gestor definir o percentual de desconto no modal de criação'
+  );
+
+  assert(
+    couponsTabContent.includes('<Slider') && couponsTabContent.includes('min={1}') && couponsTabContent.includes('max={100}'),
+    'EventCouponsTab utiliza componente Slider para seleção de percentual de 1 a 100%'
+  );
+
+  assert(
+    formResponderContent.includes('discountPct') && formResponderContent.includes('originalPrice > checkoutPrice'),
+    'FormResponder calcula abatimento proporcional e exibe detalhamento do desconto no checkout'
+  );
+
   // 5.2 Não vazamento horizontal (overflow-x contido, flex/grid responsivos)
   assert(
     formResponderContent.includes('grid-cols-1') && formResponderContent.includes('md:grid-cols-2'),
@@ -248,6 +264,18 @@ async function runTests() {
   assert(
     formResponderContent.includes('couponValidation.checked && !couponValidation.valid'),
     'Banner de erro em destaque para cupom inválido/expirado com explicação clara ao usuário'
+  );
+
+  // 5.3 Validação de CPF restrita ao gerador e não ao formulário
+  assert(
+    couponsTabContent.includes('isValidCPF(cleanCpf)') && couponsTabContent.includes('isValidCPF(newCpf)'),
+    'EventCouponsTab valida matematicamente o CPF do beneficiário na criação do cupom'
+  );
+
+  assert(
+    !formResponderContent.includes('if (cleanCpf.length !== 11 || !isValidCPF(cleanCpf))') &&
+      formResponderContent.includes('validate_coupon'),
+    'FormResponder verifica o CPF exclusivamente contra a lista de cupons ativos sem bloquear por algoritmo no formulário'
   );
 
   // ----------------------------------------------------

@@ -20,6 +20,14 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Ticket,
+  QrCode,
+  CreditCard,
+  Banknote,
+  Receipt,
+  Gift,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import {
   Table,
@@ -196,7 +204,12 @@ export function EventDataTable({
       },
       {
         id: "payment_status",
-        accessorFn: (row) => (row.paid ? "pago" : "pendente"),
+        accessorFn: (row) => {
+          const method = (row.payment_method || "").toLowerCase();
+          if (method === "cupom") return row.paid ? "cupom_isento" : "cupom_pendente";
+          if (method === "gratuito") return "gratuito";
+          return row.paid ? "pago" : "pendente";
+        },
         header: ({ column }) => (
           <Button
             variant="ghost"
@@ -209,22 +222,86 @@ export function EventDataTable({
         ),
         cell: ({ row }) => {
           const reg = row.original;
+          const method = (reg.payment_method || "").toLowerCase();
+
+          // 1. Isenção total por Cupom
+          if (method === "cupom") {
+            return (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                    reg.paid
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30"
+                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                  }`}
+                >
+                  <Ticket className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                  {reg.paid ? "Isento (Cupom)" : "Cupom Pendente"}
+                </Badge>
+              </div>
+            );
+          }
+
+          // 2. Gratuito
+          if (method === "gratuito") {
+            return (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30 flex items-center gap-1"
+                >
+                  <Gift className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                  Gratuito
+                </Badge>
+              </div>
+            );
+          }
+
+          const isCard = method === "cartao" || method === "card" || method === "credit_card";
+          const isPix = method === "pix";
+          const isDinheiro = method === "dinheiro";
+          const isBoleto = method === "boleto";
+
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <Badge
                 variant="outline"
-                className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
                   reg.paid
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                    ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
                 }`}
               >
-                {reg.paid ? "Pago" : "Pendente"}
+                {reg.paid ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Pago
+                  </>
+                ) : (
+                  <>
+                    <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" /> Pendente
+                  </>
+                )}
               </Badge>
-              {reg.payment_method && (
-                <span className="text-[10px] uppercase font-semibold text-zinc-500">
-                  ({reg.payment_method})
+
+              {method && (
+                <span className="text-[10px] uppercase font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
+                  {isCard && <CreditCard className="w-2.5 h-2.5 text-blue-500" />}
+                  {isPix && <QrCode className="w-2.5 h-2.5 text-emerald-500" />}
+                  {isDinheiro && <Banknote className="w-2.5 h-2.5 text-amber-500" />}
+                  {isBoleto && <Receipt className="w-2.5 h-2.5 text-orange-500" />}
+                  {isCard ? "Cartão" : isPix ? "PIX" : isDinheiro ? "Dinheiro" : isBoleto ? "Boleto" : method}
                 </span>
+              )}
+
+              {reg.payment_reference?.includes("% OFF") && (
+                <Badge
+                  variant="outline"
+                  className="text-[9px] font-semibold bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-400/30 px-1 py-0 flex items-center gap-0.5"
+                >
+                  <Ticket className="w-2.5 h-2.5 text-purple-600" />
+                  {reg.payment_reference.match(/(\d+%\s*OFF)/)?.[1] || "Cupom"}
+                </Badge>
               )}
             </div>
           );
@@ -348,14 +425,20 @@ export function EventDataTable({
                           ? "text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400"
                           : "text-amber-600 hover:bg-amber-500/10 dark:text-amber-400"
                       }`}
-                      aria-label={reg.paid ? "Marcar como pendente" : "Confirmar pagamento"}
+                      aria-label={
+                        reg.payment_method === "cupom"
+                          ? reg.paid ? "Revogar isenção do cupom" : "Confirmar isenção do cupom"
+                          : reg.paid ? "Marcar como pendente" : "Confirmar pagamento"
+                      }
                     >
                       {reg.paid ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs">
-                      {reg.paid ? "Marcar como pendente" : "Confirmar pagamento"}
+                      {reg.payment_method === "cupom"
+                        ? reg.paid ? "Revogar isenção do cupom" : "Confirmar isenção do cupom"
+                        : reg.paid ? "Marcar como pendente" : "Confirmar pagamento"}
                     </p>
                   </TooltipContent>
                 </Tooltip>

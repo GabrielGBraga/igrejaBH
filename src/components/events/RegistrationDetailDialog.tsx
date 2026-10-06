@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -9,6 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   User, 
   Mail, 
@@ -17,7 +26,15 @@ import {
   Bed, 
   FileText, 
   CheckCircle2, 
-  XCircle
+  XCircle,
+  Ticket,
+  QrCode,
+  Banknote,
+  Receipt,
+  Gift,
+  Wallet,
+  Edit2,
+  Check
 } from "lucide-react";
 import type { Database } from "@/lib/database.types";
 
@@ -41,6 +58,10 @@ interface RegistrationDetailDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onTogglePayment: (reg: RegistrationWithDetails) => void;
+  onUpdatePayment?: (
+    regId: string,
+    updates: { paid: boolean; payment_method: string; payment_reference?: string | null }
+  ) => Promise<void>;
 }
 
 export function RegistrationDetailDialog({
@@ -48,7 +69,21 @@ export function RegistrationDetailDialog({
   isOpen,
   onClose,
   onTogglePayment,
+  onUpdatePayment,
 }: RegistrationDetailDialogProps) {
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [editMethod, setEditMethod] = useState("cupom");
+  const [editReference, setEditReference] = useState("");
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
+  useEffect(() => {
+    if (registration) {
+      setEditMethod(registration.payment_method || "pix");
+      setEditReference(registration.payment_reference || "");
+      setIsEditingPayment(false);
+    }
+  }, [registration]);
+
   if (!registration) return null;
 
   const profile = registration.profiles;
@@ -61,6 +96,83 @@ export function RegistrationDetailDialog({
   const cpf = profile?.cpf || guestData?.cpf || "Não informado";
   const roomName = registration.retreat_rooms?.name || registration.room_allocation || "Não alocado";
 
+  const rawMethod = (registration.payment_method || "").toLowerCase();
+  const isCoupon = rawMethod === "cupom";
+  const isGratuito = rawMethod === "gratuito";
+
+  const handleSavePayment = async () => {
+    if (!onUpdatePayment) return;
+    setIsSavingPayment(true);
+    try {
+      await onUpdatePayment(registration.id, {
+        paid: Boolean(registration.paid),
+        payment_method: editMethod,
+        payment_reference: editReference.trim() || null,
+      });
+      setIsEditingPayment(false);
+    } finally {
+      setIsSavingPayment(false);
+    }
+  };
+
+  const renderPaymentMethodDisplay = (method: string | null) => {
+    const m = (method || "").toLowerCase();
+    if (m === "cupom") {
+      return (
+        <span className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <Ticket className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+          Cupom de Isenção / Desconto
+        </span>
+      );
+    }
+    if (m === "cartao" || m === "card" || m === "credit_card") {
+      return (
+        <span className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <CreditCard className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+          Cartão de Crédito
+        </span>
+      );
+    }
+    if (m === "pix") {
+      return (
+        <span className="font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <QrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          PIX Instantâneo
+        </span>
+      );
+    }
+    if (m === "dinheiro") {
+      return (
+        <span className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <Banknote className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          Dinheiro / Em Espécie
+        </span>
+      );
+    }
+    if (m === "boleto") {
+      return (
+        <span className="font-bold text-orange-700 dark:text-orange-300 flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <Receipt className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+          Boleto Bancário
+        </span>
+      );
+    }
+    if (m === "gratuito") {
+      return (
+        <span className="font-bold text-teal-700 dark:text-teal-300 flex items-center gap-1.5 bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 rounded-lg text-xs">
+          <Gift className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+          Inscrição Gratuita
+        </span>
+      );
+    }
+    return (
+      <span className="font-medium text-foreground flex items-center gap-1.5 bg-muted/40 border border-border/40 px-2.5 py-1 rounded-lg text-xs">
+        <Wallet className="w-4 h-4 text-muted-foreground shrink-0" />
+        {method || "Não especificado (Pix)"}
+      </span>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl max-w-full rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -71,21 +183,37 @@ export function RegistrationDetailDialog({
               {fullName}
             </DialogTitle>
             <Badge 
-              variant={registration.paid ? "default" : "outline"}
-              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                registration.paid 
-                  ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30" 
-                  : "bg-amber-500/15 text-amber-500 border border-amber-500/30"
+              variant="outline"
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 ${
+                isCoupon
+                  ? (registration.paid 
+                      ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30" 
+                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                  : isGratuito
+                  ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30"
+                  : (registration.paid 
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30" 
+                      : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30")
               }`}
             >
-              {registration.paid ? (
-                <span className="flex items-center gap-1">
+              {isCoupon ? (
+                <>
+                  <Ticket className="w-3.5 h-3.5" />
+                  {registration.paid ? "Isenção Confirmada (Cupom)" : "Cupom Pendente"}
+                </>
+              ) : isGratuito ? (
+                <>
+                  <Gift className="w-3.5 h-3.5" />
+                  Inscrição Gratuita
+                </>
+              ) : registration.paid ? (
+                <>
                   <CheckCircle2 className="w-3.5 h-3.5" /> Pago
-                </span>
+                </>
               ) : (
-                <span className="flex items-center gap-1">
+                <>
                   <XCircle className="w-3.5 h-3.5" /> Pagamento Pendente
-                </span>
+                </>
               )}
             </Badge>
           </div>
@@ -137,15 +265,88 @@ export function RegistrationDetailDialog({
               </div>
               <div>
                 <span className="text-muted-foreground block font-semibold">Forma / Tipo de Pagamento</span>
-                <span className="font-bold text-foreground flex items-center gap-1.5 mt-0.5 capitalize">
-                  <CreditCard className="w-4 h-4 text-emerald-500" />
-                  {registration.payment_method || "Não especificado (Pix)"}
-                </span>
+                <div className="flex items-center justify-between gap-2 mt-1">
+                  {renderPaymentMethodDisplay(registration.payment_method)}
+                  {onUpdatePayment && !isEditingPayment && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingPayment(true)}
+                      className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground gap-1 cursor-pointer"
+                    >
+                      <Edit2 className="w-3 h-3" /> Alterar
+                    </Button>
+                  )}
+                </div>
               </div>
-              {registration.payment_reference && (
+
+              {/* Modo de Edição de Pagamento */}
+              {isEditingPayment && (
+                <div className="sm:col-span-2 space-y-3 bg-muted/40 p-3 rounded-xl border border-border mt-1">
+                  <div className="text-xs font-bold text-foreground">Alterar Forma e Comprovante de Pagamento</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Forma de Pagamento</label>
+                      <Select value={editMethod} onValueChange={setEditMethod}>
+                        <SelectTrigger className="min-h-[40px] h-10 text-xs bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cupom">Cupom de Isenção / Desconto</SelectItem>
+                          <SelectItem value="pix">PIX Instantâneo</SelectItem>
+                          <SelectItem value="cartao">Cartão de Crédito</SelectItem>
+                          <SelectItem value="dinheiro">Dinheiro / Espécie</SelectItem>
+                          <SelectItem value="boleto">Boleto Bancário</SelectItem>
+                          <SelectItem value="gratuito">Gratuito / Isento</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Referência / Código / Cupom</label>
+                      <Input
+                        value={editReference}
+                        onChange={(e) => setEditReference(e.target.value)}
+                        placeholder="Ex: Cupom: CODIGO ou Comprovante"
+                        className="min-h-[40px] h-10 text-xs bg-background"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      onClick={() => setIsEditingPayment(false)}
+                      className="h-8 text-xs cursor-pointer"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      size="sm"
+                      type="button"
+                      disabled={isSavingPayment}
+                      onClick={handleSavePayment}
+                      className="h-8 text-xs cursor-pointer gap-1"
+                    >
+                      <Check className="w-3 h-3" />
+                      {isSavingPayment ? "Salvando..." : "Salvar Alterações"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Referência / Comprovante Normal */}
+              {!isEditingPayment && registration.payment_reference && (
                 <div className="sm:col-span-2 mt-1">
-                  <span className="text-muted-foreground block font-semibold">Referência / Comprovante</span>
-                  <span className="font-mono text-[11px] text-foreground bg-muted/50 p-1.5 rounded block mt-0.5 break-all">
+                  <span className="text-muted-foreground block font-semibold">
+                    {isCoupon ? "Detalhes do Cupom / Isenção" : "Referência / Comprovante"}
+                  </span>
+                  <span className={`text-xs p-2 rounded-lg flex items-center gap-2 mt-0.5 break-all ${
+                    isCoupon
+                      ? "font-mono text-purple-700 dark:text-purple-300 bg-purple-500/10 border border-purple-500/20"
+                      : "font-mono text-foreground bg-muted/50 border border-border/30"
+                  }`}>
+                    {isCoupon && <Ticket className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />}
                     {registration.payment_reference}
                   </span>
                 </div>
@@ -203,11 +404,13 @@ export function RegistrationDetailDialog({
             type="button"
             variant={registration.paid ? "outline" : "default"}
             onClick={() => onTogglePayment(registration)}
-            className="cursor-pointer"
+            className="cursor-pointer min-h-[44px] sm:min-h-[36px]"
           >
-            {registration.paid ? "Marcar como Pendente" : "Confirmar Pagamento"}
+            {isCoupon
+              ? (registration.paid ? "Revogar Isenção (Pendente)" : "Confirmar Isenção (Cupom)")
+              : (registration.paid ? "Marcar como Pendente" : "Confirmar Pagamento")}
           </Button>
-          <Button type="button" variant="secondary" onClick={onClose} className="cursor-pointer">
+          <Button type="button" variant="secondary" onClick={onClose} className="cursor-pointer min-h-[44px] sm:min-h-[36px]">
             Fechar
           </Button>
         </DialogFooter>

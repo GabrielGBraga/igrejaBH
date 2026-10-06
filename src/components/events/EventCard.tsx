@@ -8,7 +8,8 @@ import {
   Edit, 
   Trash2, 
   CheckCircle2, 
-  FileText 
+  FileText,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Database } from "@/lib/database.types";
+import { parseLocalDate, formatDateBR } from "@/lib/utils";
 
 export type RetreatWithForm = Database["public"]["Tables"]["retreats"]["Row"] & {
   forms?: {
@@ -53,18 +55,24 @@ export function EventCard({
 
   const formatDateRange = (start?: string | null, end?: string | null) => {
     if (!start) return "Data a definir";
-    const startDate = new Date(start).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    const startObj = parseLocalDate(start);
+    const startDate = startObj
+      ? startObj.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "Data a definir";
     if (!end || end === start) return startDate;
-    const endDate = new Date(end).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-    return `${startDate} — ${endDate}`;
+    const endObj = parseLocalDate(end);
+    const endDate = endObj
+      ? endObj.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "";
+    return endDate ? `${startDate} — ${endDate}` : startDate;
   };
 
   const getStatusBadge = (status?: string | null) => {
@@ -199,6 +207,13 @@ export function EventCard({
             <div className="flex items-center gap-2 text-primary dark:text-primary/90">
               <FileText className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate font-medium">Ficha: {retreat.forms.name}</span>
+            </div>
+          )}
+
+          {retreat.registration_deadline && (
+            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium">
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Inscrições até: {formatDateBR(retreat.registration_deadline)}</span>
             </div>
           )}
         </div>

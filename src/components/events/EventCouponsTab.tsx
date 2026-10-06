@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   Clock,
   Info,
+  Sparkles,
+  Percent,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,8 +28,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
+import { isValidCPF } from "@/lib/forms";
 import type { Database } from "@/lib/database.types";
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"];
@@ -53,6 +57,7 @@ export function EventCouponsTab({
   // Dialog State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newCode, setNewCode] = useState("");
+  const [newDiscountPercent, setNewDiscountPercent] = useState<number>(100);
   const [newCpf, setNewCpf] = useState("");
   const [newNotes, setNewNotes] = useState("");
   const [creating, setCreating] = useState(false);
@@ -73,18 +78,20 @@ export function EventCouponsTab({
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
   };
 
-  // Random Code Generator (Format: ISENTO-XXXX)
-  const generateRandomCode = () => {
+  // Random Code Generator (Format: ISENTO-XXXX for 100%, DESC-XXXX for <100%)
+  const generateRandomCode = (discount: number = 100) => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let randomPart = "";
     for (let i = 0; i < 4; i++) {
       randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return `ISENTO-${randomPart}`;
+    const prefix = discount === 100 ? "ISENTO" : "DESC";
+    return `${prefix}-${randomPart}`;
   };
 
   const openCreateDialog = () => {
-    setNewCode(generateRandomCode());
+    setNewDiscountPercent(100);
+    setNewCode(generateRandomCode(100));
     setNewCpf("");
     setNewNotes("");
     setIsCreateOpen(true);
@@ -121,13 +128,18 @@ export function EventCouponsTab({
       return;
     }
 
+    if (!newDiscountPercent || newDiscountPercent < 1 || newDiscountPercent > 100) {
+      toast.error("O percentual de desconto deve ser entre 1% e 100%.");
+      return;
+    }
+
     const cleanCpf = newCpf.replace(/\D/g, "");
     if (!cleanCpf) {
       toast.error("Informe o CPF do beneficiário para vincular ao código.");
       return;
     }
-    if (cleanCpf.length !== 11) {
-      toast.error("O CPF deve conter exatamente 11 dígitos.");
+    if (cleanCpf.length !== 11 || !isValidCPF(cleanCpf)) {
+      toast.error("CPF do beneficiário inválido. Digite um número de CPF válido com dígitos verificadores corretos.");
       return;
     }
 
@@ -145,6 +157,7 @@ export function EventCouponsTab({
           form_id: formId || null,
           cpf: cleanCpf,
           notes: newNotes.trim() || null,
+          discount_percent: newDiscountPercent,
           is_used: false,
           created_by: user?.id || null,
         })
@@ -159,7 +172,8 @@ export function EventCouponsTab({
         throw error;
       }
 
-      toast.success(`Código ${data.code} vinculado ao CPF com sucesso!`);
+      const discountLabel = data.discount_percent === 100 ? "100% isenção" : `${data.discount_percent}% de desconto`;
+      toast.success(`Código ${data.code} (${discountLabel}) vinculado ao CPF com sucesso!`);
       setIsCreateOpen(false);
       fetchCoupons();
     } catch (err: any) {
@@ -362,6 +376,7 @@ export function EventCouponsTab({
                 <thead>
                   <tr className="border-b border-border/80 bg-muted/50 font-bold uppercase tracking-wider text-muted-foreground">
                     <th className="p-3.5">Código</th>
+                    <th className="p-3.5">Desconto</th>
                     <th className="p-3.5">CPF Vinculado</th>
                     <th className="p-3.5">Beneficiário / Nota</th>
                     <th className="p-3.5">Status</th>
@@ -395,6 +410,24 @@ export function EventCouponsTab({
                             )}
                           </button>
                         </div>
+                      </td>
+
+                      <td className="p-3.5">
+                        {(coupon.discount_percent ?? 100) === 100 ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold"
+                          >
+                            100% Isenção
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px] font-bold"
+                          >
+                            {coupon.discount_percent}% OFF
+                          </Badge>
+                        )}
                       </td>
 
                       <td className="p-3.5">
@@ -520,10 +553,25 @@ export function EventCouponsTab({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <code className="rounded bg-muted px-2 py-1 font-mono text-sm font-bold text-foreground tracking-wider">
                         {coupon.code}
                       </code>
+                      {(coupon.discount_percent ?? 100) === 100 ? (
+                        <Badge
+                          variant="outline"
+                          className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold"
+                        >
+                          100% Isenção
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px] font-bold"
+                        >
+                          {coupon.discount_percent}% OFF
+                        </Badge>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleCopyCode(coupon.code)}
@@ -635,76 +683,257 @@ export function EventCouponsTab({
 
       {/* CREATE COUPON DIALOG */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <Ticket className="w-5 h-5 text-primary" />
-              Gerar Código de Isenção
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              O código gerado é aleatório e de uso único. O usuário contemplado poderá utilizá-lo para se inscrever sem custos.
-            </DialogDescription>
+        <DialogContent className="sm:max-w-2xl max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="space-y-2 pb-2">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                <Ticket className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <DialogTitle className="text-lg md:text-xl font-bold">
+                    Gerar Código de Desconto / Isenção
+                  </DialogTitle>
+                  {retreat.title && (
+                    <Badge variant="outline" className="hidden sm:inline-flex text-xs font-normal">
+                      {retreat.title}
+                    </Badge>
+                  )}
+                </div>
+                <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+                  Crie um cupom exclusivo atrelado ao participante para abatimento percentual ou isenção integral da inscrição.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <Field>
-              <FieldLabel htmlFor="coupon-code">Código Único *</FieldLabel>
-              <div className="flex gap-2">
-                <Input
-                  id="coupon-code"
-                  value={newCode}
-                  onChange={(e) => setNewCode(e.target.value.toUpperCase())}
-                  placeholder="Ex: ISENTO-7F2A"
-                  className="font-mono text-sm font-bold tracking-wider min-h-[44px]"
+          <div className="space-y-5 py-3">
+            {/* SECTION 1: DISCOUNT PERCENTAGE & SLIDER */}
+            <Field className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <FieldLabel htmlFor="coupon-discount" className="text-sm font-semibold flex items-center gap-1">
+                  Percentual de Desconto (%) <span className="text-destructive">*</span>
+                </FieldLabel>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Input
+                    id="coupon-discount"
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={newDiscountPercent}
+                    onChange={(e) => {
+                      const val = Math.min(100, Math.max(1, Number(e.target.value) || 1));
+                      setNewDiscountPercent(val);
+                      if (newCode.startsWith("ISENTO-") || newCode.startsWith("DESC-")) {
+                        setNewCode(generateRandomCode(val));
+                      }
+                    }}
+                    className="w-20 text-center font-bold text-sm min-h-[44px] h-11"
+                  />
+                  <span className="text-sm font-bold text-muted-foreground">%</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <Slider
+                  value={[newDiscountPercent]}
+                  min={1}
+                  max={100}
+                  step={1}
+                  onValueChange={(vals) => {
+                    const val = vals[0] || 1;
+                    setNewDiscountPercent(val);
+                    if (newCode.startsWith("ISENTO-") || newCode.startsWith("DESC-")) {
+                      setNewCode(generateRandomCode(val));
+                    }
+                  }}
+                  className="w-full py-2 cursor-pointer min-h-[44px]"
+                  aria-label="Percentual de desconto"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setNewCode(generateRandomCode())}
-                  className="min-h-[44px] px-3 shrink-0 cursor-pointer"
-                  title="Gerar outro código aleatório"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
+
+                {/* Quick Preset Buttons */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                  {[
+                    { val: 10, label: "10%" },
+                    { val: 25, label: "25%" },
+                    { val: 50, label: "50% (Meia)" },
+                    { val: 75, label: "75%" },
+                    { val: 100, label: "100% (Isenção)" },
+                  ].map((preset) => {
+                    const isActive = newDiscountPercent === preset.val;
+                    return (
+                      <Button
+                        key={preset.val}
+                        type="button"
+                        variant={isActive ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setNewDiscountPercent(preset.val);
+                          if (newCode.startsWith("ISENTO-") || newCode.startsWith("DESC-")) {
+                            setNewCode(generateRandomCode(preset.val));
+                          }
+                        }}
+                        className={`min-h-[40px] text-xs font-semibold cursor-pointer transition-all ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground"
+                        } ${preset.val === 100 ? "col-span-2 sm:col-span-1" : ""}`}
+                      >
+                        {preset.label}
+                      </Button>
+                    );
+                  })}
+                </div>
               </div>
             </Field>
 
-            <Field>
-              <FieldLabel htmlFor="coupon-cpf">CPF do Beneficiário *</FieldLabel>
-              <Input
-                id="coupon-cpf"
-                value={newCpf}
-                onChange={(e) => setNewCpf(formatCpfInput(e.target.value))}
-                placeholder="000.000.000-00"
-                maxLength={14}
-                className="font-mono text-sm min-h-[44px]"
-              />
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Segurança dupla: o código de isenção só poderá ser resgatado na inscrição deste CPF.
-              </p>
-            </Field>
+            {/* SECTION 2: DYNAMIC PREVIEW BANNER */}
+            {newDiscountPercent === 100 ? (
+              <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-950 dark:text-emerald-200 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[11px] font-bold uppercase tracking-wider">
+                      Isenção Total (100%)
+                    </Badge>
+                    <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                      Inscrição Gratuita
+                    </span>
+                  </div>
+                  <p className="text-xs text-emerald-800 dark:text-emerald-200/90 leading-relaxed">
+                    O participante não passará pela etapa de pagamento via PIX/Cartão. Ao validar o código no formulário de inscrição, sua confirmação será imediata com custo <strong className="font-bold">R$ 0,00</strong>.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl border border-blue-500/20 bg-blue-500/10 text-foreground dark:text-blue-200 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Percent className="w-4 h-4" />
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-[11px] font-bold uppercase tracking-wider">
+                      Desconto Parcial ({newDiscountPercent}%)
+                    </Badge>
+                    {retreat.price && retreat.price > 0 && (
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        Preço base: R$ {retreat.price.toFixed(2).replace(".", ",")}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground dark:text-blue-200/90 leading-relaxed">
+                    {retreat.price && retreat.price > 0 ? (
+                      <>
+                        Aplicação de <strong>{newDiscountPercent}% de desconto</strong> sobre o valor do evento. O participante economizará{" "}
+                        <strong className="text-emerald-600 dark:text-emerald-400">
+                          R$ {((retreat.price * newDiscountPercent) / 100).toFixed(2).replace(".", ",")}
+                        </strong>{" "}
+                        e pagará apenas{" "}
+                        <strong className="text-foreground dark:text-white">
+                          R$ {(retreat.price - (retreat.price * newDiscountPercent) / 100).toFixed(2).replace(".", ",")}
+                        </strong>{" "}
+                        no checkout.
+                      </>
+                    ) : (
+                      <>
+                        O participante receberá um abatimento de <strong>{newDiscountPercent}%</strong> sobre o valor da inscrição na etapa de checkout do formulário.
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
 
-            <Field>
-              <FieldLabel htmlFor="coupon-notes">Beneficiário / Observações (Opcional)</FieldLabel>
+            {/* SECTION 3 & 4: 2-COLUMN GRID ON DESKTOP (Code + CPF) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Col 1: Código Único */}
+              <Field className="space-y-1.5">
+                <FieldLabel htmlFor="coupon-code" className="text-sm font-semibold flex items-center gap-1">
+                  Código Único <span className="text-destructive">*</span>
+                </FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    id="coupon-code"
+                    value={newCode}
+                    onChange={(e) => setNewCode(e.target.value.toUpperCase())}
+                    placeholder="Ex: ISENTO-7F2A"
+                    className="font-mono text-sm font-bold tracking-wider min-h-[44px] h-11 uppercase"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setNewCode(generateRandomCode(newDiscountPercent))}
+                    className="min-h-[44px] h-11 px-3 shrink-0 cursor-pointer"
+                    title="Gerar outro código aleatório"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Sensível a maiúsculas. Você pode personalizar ou sortear.
+                </p>
+              </Field>
+
+              {/* Col 2: CPF do Beneficiário */}
+              <Field className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <FieldLabel htmlFor="coupon-cpf" className="text-sm font-semibold flex items-center gap-1">
+                    CPF do Beneficiário <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                    Dupla Proteção
+                  </span>
+                </div>
+                <Input
+                  id="coupon-cpf"
+                  value={newCpf}
+                  onChange={(e) => setNewCpf(formatCpfInput(e.target.value))}
+                  placeholder="000.000.000-00"
+                  maxLength={14}
+                  className={`font-mono text-sm min-h-[44px] h-11 ${
+                    newCpf.replace(/\D/g, "").length === 11 && !isValidCPF(newCpf)
+                      ? "border-destructive focus-visible:ring-destructive"
+                      : ""
+                  }`}
+                />
+                {newCpf.replace(/\D/g, "").length === 11 && !isValidCPF(newCpf) ? (
+                  <p className="text-[11px] font-medium text-destructive">
+                    CPF inválido pelos dígitos verificadores. Digite um CPF verdadeiro.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">
+                    Segurança dupla: o código só poderá ser resgatado na inscrição deste CPF.
+                  </p>
+                )}
+              </Field>
+            </div>
+
+            {/* SECTION 5: NOTES / JUSTIFICATION */}
+            <Field className="space-y-1.5">
+              <FieldLabel htmlFor="coupon-notes" className="text-sm font-semibold">
+                Beneficiário / Observações Internas (Opcional)
+              </FieldLabel>
               <Input
                 id="coupon-notes"
                 value={newNotes}
                 onChange={(e) => setNewNotes(e.target.value)}
-                placeholder="Ex: Apoio diaconal para Maria, Voluntário de som..."
-                className="min-h-[44px]"
+                placeholder="Ex: Apoio diaconal para Maria, Voluntário de som, Equipe de cozinha..."
+                className="min-h-[44px] h-11"
               />
-              <p className="text-[11px] text-muted-foreground mt-1">
+              <p className="text-[11px] text-muted-foreground">
                 Essa nota é visível apenas para os administradores no painel.
               </p>
             </Field>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/50">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsCreateOpen(false)}
-              className="min-h-[44px] cursor-pointer"
+              className="min-h-[44px] h-11 cursor-pointer"
               disabled={creating}
             >
               Cancelar
@@ -713,7 +942,7 @@ export function EventCouponsTab({
               type="button"
               onClick={handleCreateCoupon}
               disabled={creating || !newCode.trim()}
-              className="min-h-[44px] cursor-pointer bg-primary text-primary-foreground font-semibold"
+              className="min-h-[44px] h-11 cursor-pointer bg-primary text-primary-foreground font-semibold"
             >
               {creating ? (
                 <>

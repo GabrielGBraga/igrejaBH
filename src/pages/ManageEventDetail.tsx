@@ -16,10 +16,12 @@ import {
   AlertTriangle,
   PieChart,
   Ticket,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
 import { calculateTotalPrice, type FormField } from "@/lib/forms";
+import { formatDateBR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -340,15 +342,19 @@ export default function ManageEventDetail() {
   // Toggle Payment Status
   const handleTogglePayment = async (reg: RegistrationWithDetails) => {
     const nextPaid = !reg.paid;
+    const isCoupon = (reg.payment_method || "").toLowerCase() === "cupom";
+    const defaultRef = isCoupon ? "Isenção confirmada pela liderança" : "Confirmado pela liderança";
+
     try {
+      const nextMethod = reg.payment_method || (nextPaid ? "pix" : null);
+      const nextRef = reg.payment_reference || (nextPaid ? defaultRef : null);
+
       const { error } = await supabase
         .from("registrations")
         .update({
           paid: nextPaid,
-          payment_method: nextPaid ? reg.payment_method || "pix" : null,
-          payment_reference: nextPaid
-            ? reg.payment_reference || "Confirmado pela liderança"
-            : null,
+          payment_method: nextMethod,
+          payment_reference: nextRef,
         })
         .eq("id", reg.id);
 
@@ -360,10 +366,8 @@ export default function ManageEventDetail() {
             ? {
                 ...item,
                 paid: nextPaid,
-                payment_method: nextPaid ? reg.payment_method || "pix" : null,
-                payment_reference: nextPaid
-                  ? reg.payment_reference || "Confirmado pela liderança"
-                  : null,
+                payment_method: nextMethod,
+                payment_reference: nextRef,
               }
             : item
         )
@@ -375,21 +379,76 @@ export default function ManageEventDetail() {
             ? {
                 ...prev,
                 paid: nextPaid,
-                payment_method: nextPaid ? reg.payment_method || "pix" : null,
-                payment_reference: nextPaid
-                  ? reg.payment_reference || "Confirmado pela liderança"
-                  : null,
+                payment_method: nextMethod,
+                payment_reference: nextRef,
               }
             : null
         );
       }
 
       toast.success(
-        `Inscrição marcada como ${nextPaid ? "paga" : "pendente"}!`
+        `Inscrição marcada como ${
+          nextPaid
+            ? isCoupon
+              ? "isenta (cupom validado)"
+              : "paga"
+            : "pendente"
+        }!`
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao atualizar pagamento";
       toast.error(msg);
+    }
+  };
+
+  // Update Payment Details directly (method and reference)
+  const handleUpdatePaymentDetails = async (
+    regId: string,
+    updates: { paid: boolean; payment_method: string; payment_reference?: string | null }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .update({
+          paid: updates.paid,
+          payment_method: updates.payment_method,
+          payment_reference: updates.payment_reference,
+        })
+        .eq("id", regId);
+
+      if (error) throw error;
+
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.id === regId
+            ? {
+                ...item,
+                paid: updates.paid,
+                payment_method: updates.payment_method,
+                payment_reference: updates.payment_reference ?? item.payment_reference,
+              }
+            : item
+        )
+      );
+
+      if (selectedRegistrationForDetail?.id === regId) {
+        setSelectedRegistrationForDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                paid: updates.paid,
+                payment_method: updates.payment_method,
+                payment_reference: updates.payment_reference ?? prev.payment_reference,
+              }
+            : null
+        );
+      }
+
+      toast.success("Dados de pagamento atualizados com sucesso!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar pagamento";
+      toast.error(msg);
+      throw err;
     }
   };
 
@@ -535,6 +594,22 @@ export default function ManageEventDetail() {
   // Helper to calculate price of a registration
   const getRegPrice = useCallback(
     (reg: RegistrationWithDetails): number => {
+      const method = (reg.payment_method || "").toLowerCase();
+
+      // 1. Isenção total por cupom ou evento gratuito = R$ 0,00
+      if (method === "cupom" || method === "gratuito") {
+        if (reg.payment_reference) {
+          const match = reg.payment_reference.match(/Desconto\s*\((\d+)%\)/i);
+          if (match) {
+            const pct = parseInt(match[1], 10);
+            if (pct === 100) return 0;
+            const base = retreat?.price || 0;
+            return Math.max(0, Math.round(base * (1 - pct / 100) * 100) / 100);
+          }
+        }
+        return 0;
+      }
+
       let price = retreat?.price || 0;
       if (retreat?.form_id && selectedFormTemplate) {
         const customResps = reg.custom_responses as Record<string, unknown> | null;
@@ -551,6 +626,16 @@ export default function ManageEventDetail() {
           );
         }
       }
+
+      // Check for partial coupon discount in reference (e.g. "... | Cupom: CODE (50% OFF)")
+      if (reg.payment_reference) {
+        const discountMatch = reg.payment_reference.match(/(\d+)%\s*OFF/i);
+        if (discountMatch) {
+          const pct = parseInt(discountMatch[1], 10);
+          price = Math.max(0, Math.round(price * (1 - pct / 100) * 100) / 100);
+        }
+      }
+
       return price;
     },
     [retreat?.price, retreat?.form_id, selectedFormTemplate]
@@ -865,14 +950,23 @@ export default function ManageEventDetail() {
               <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span>
                 {retreat.start_date
-                  ? new Date(retreat.start_date).toLocaleDateString("pt-BR")
+                  ? formatDateBR(retreat.start_date)
                   : "S/D"}{" "}
                 até{" "}
                 {retreat.end_date
-                  ? new Date(retreat.end_date).toLocaleDateString("pt-BR")
+                  ? formatDateBR(retreat.end_date)
                   : "S/D"}
               </span>
             </div>
+
+            {retreat.registration_deadline && (
+              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+                <Clock className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Inscrições até: {formatDateBR(retreat.registration_deadline)}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
@@ -1328,6 +1422,7 @@ export default function ManageEventDetail() {
         isOpen={!!selectedRegistrationForDetail}
         onClose={() => setSelectedRegistrationForDetail(null)}
         onTogglePayment={handleTogglePayment}
+        onUpdatePayment={handleUpdatePaymentDetails}
       />
 
       {/* Modal: Editar Evento */}
