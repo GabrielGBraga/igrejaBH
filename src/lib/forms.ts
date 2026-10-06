@@ -42,6 +42,23 @@ export interface FormField {
   priceModifiers?: Record<string, number>
 }
 
+export interface FormPresentationInfoItem {
+  id: string
+  title: string
+  description: string
+  icon?: string
+}
+
+export interface FormPresentationPage {
+  enabled: boolean
+  title?: string
+  subtitle?: string
+  bannerUrl?: string
+  description?: string
+  infoItems?: FormPresentationInfoItem[]
+  ctaButtonText?: string
+}
+
 export interface FormTemplate {
   id: string
   name: string
@@ -50,6 +67,7 @@ export interface FormTemplate {
   createdAt: string
   isPublic?: boolean
   isActive?: boolean
+  presentationPage?: FormPresentationPage
 }
 
 export interface FormSubmission {

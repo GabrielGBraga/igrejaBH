@@ -96,11 +96,19 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
         }
       }
     } else if (rule.field === "payment_method") {
-      const strVal = String(rule.value);
+      const strVal = String(rule.value).toLowerCase();
       if (rule.operator === "eq") {
-        query = query.eq("payment_method", strVal);
+        if (strVal === "cartao" || strVal === "card" || strVal === "credit_card") {
+          query = query.or("payment_method.eq.cartao,payment_method.eq.card,payment_method.eq.credit_card,payment_method.ilike.%cart%");
+        } else {
+          query = query.eq("payment_method", strVal);
+        }
       } else if (rule.operator === "neq") {
-        query = query.neq("payment_method", strVal);
+        if (strVal === "cartao" || strVal === "card" || strVal === "credit_card") {
+          query = query.not("payment_method", "in", "(cartao,card,credit_card)");
+        } else {
+          query = query.neq("payment_method", strVal);
+        }
       } else if (rule.operator === "ilike") {
         query = query.ilike("payment_method", `%${strVal}%`);
       }
@@ -154,6 +162,14 @@ function testRule(reg: RegistrationWithDetails, rule: FilterRule): boolean {
   if (rule.field === "payment_method") {
     const actual = (reg.payment_method || "").toLowerCase();
     const target = String(rule.value).toLowerCase();
+    const isTargetCard = target === "cartao" || target === "card" || target === "credit_card";
+    const isActualCard = actual === "cartao" || actual === "card" || actual === "credit_card";
+
+    if (isTargetCard) {
+      if (rule.operator === "eq") return isActualCard;
+      if (rule.operator === "neq") return !isActualCard;
+    }
+
     if (rule.operator === "eq") return actual === target;
     if (rule.operator === "neq") return actual !== target;
     if (rule.operator === "ilike") return actual.includes(target);

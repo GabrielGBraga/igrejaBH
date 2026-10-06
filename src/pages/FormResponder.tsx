@@ -10,6 +10,7 @@ import {
   CreditCard,
   QrCode,
   Lock,
+  Ticket,
 } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
@@ -28,9 +29,11 @@ import {
   fetchAddressFromCep,
   calculateTotalPrice,
 } from "@/lib/forms"
-import type { FormField, FormTemplate } from "@/lib/forms"
+import type { FormField, FormTemplate, FormPresentationPage } from "@/lib/forms"
+import { FormPresentationView } from "@/components/forms/FormPresentationView"
 import { Layout } from "@/components/layout/Layout"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { parseEndOfDay } from "@/lib/utils"
 import type { User } from "@supabase/supabase-js"
 
 export default function FormResponder() {
@@ -51,8 +54,26 @@ export default function FormResponder() {
   const [associatedRetreat, setAssociatedRetreat] = useState<any | null>(null)
   const [profileId, setProfileId] = useState<string | null>(null)
 
+  // Presentation page & coupon states
+  const [showPresentation, setShowPresentation] = useState(false)
+  const [couponCode, setCouponCode] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get("cupom") || params.get("coupon")
+    return code ? code.trim().toUpperCase() : null
+  })
+  const [couponCpf, setCouponCpf] = useState("")
+  const [couponCpfError, setCouponCpfError] = useState<string | null>(null)
+  const [couponValidation, setCouponValidation] = useState<{
+    checked: boolean
+    valid: boolean
+    requiresCpf?: boolean
+    discountPercent?: number
+    message?: string
+  }>({ checked: false, valid: false, discountPercent: 100 })
+
   // Integrated payment states
   const [showCheckout, setShowCheckout] = useState(false)
+  const [originalPrice, setOriginalPrice] = useState(0)
   const [checkoutPrice, setCheckoutPrice] = useState(0)
   const [paymentType, setPaymentType] = useState<"pix" | "card">("pix")
   const [cardNumber, setCardNumber] = useState("")
@@ -126,15 +147,66 @@ export default function FormResponder() {
 
       try {
         setLoading(true)
-        const { data: dbForm, error } = await supabase
+        const rawFormId = decodeURIComponent(formId).trim()
+        const hyphenatedId = rawFormId.replace(/\s+/g, "-")
+
+        // 1. Try exact match by id
+        let { data: dbForm, error: formError } = await supabase
           .from("forms")
           .select("*")
-          .eq("id", formId)
-          .single()
+          .eq("id", rawFormId)
+          .maybeSingle()
 
-        if (error) throw error
+        // 2. If not found, try hyphenated format (e.g. "form solteiros 2026" -> "form-solteiros-2026")
+        if (!dbForm && hyphenatedId !== rawFormId) {
+          const { data: hyphenMatch } = await supabase
+            .from("forms")
+            .select("*")
+            .eq("id", hyphenatedId)
+            .maybeSingle()
+          if (hyphenMatch) {
+            dbForm = hyphenMatch
+          }
+        }
+
+        // 3. If still not found, try matching by name
+        if (!dbForm) {
+          const { data: nameMatch } = await supabase
+            .from("forms")
+            .select("*")
+            .ilike("name", `%${rawFormId}%`)
+            .maybeSingle()
+          if (nameMatch) {
+            dbForm = nameMatch
+          }
+        }
+
+        // 4. If still not found, check if it's a retreat ID or retreat title
+        if (!dbForm) {
+          const { data: retreatMatch } = await supabase
+            .from("retreats")
+            .select("form_id")
+            .or(`id.eq.${rawFormId},title.ilike.%${rawFormId}%`)
+            .maybeSingle()
+
+          if (retreatMatch?.form_id) {
+            const { data: retreatForm } = await supabase
+              .from("forms")
+              .select("*")
+              .eq("id", retreatMatch.form_id)
+              .maybeSingle()
+            if (retreatForm) {
+              dbForm = retreatForm
+            }
+          }
+        }
+
+        if (!dbForm) {
+          throw formError || new Error("Formulário não encontrado")
+        }
 
         if (dbForm) {
+          const presentation = (dbForm.presentation_page as unknown as FormPresentationPage) || undefined
           setFormTemplate({
             id: dbForm.id,
             name: dbForm.name,
@@ -143,18 +215,37 @@ export default function FormResponder() {
             createdAt: dbForm.created_at,
             isPublic: dbForm.is_public,
             isActive: dbForm.is_active ?? true,
+            presentationPage: presentation,
           })
+
+          if (presentation?.enabled) {
+            setShowPresentation(true)
+          }
 
           // Check associated retreat for status, capacity and expiration date
           const { data: associatedRetreats, error: retreatError } = await supabase
             .from("retreats")
-            .select("id, title, status, end_date, max_participants, registration_deadline, price")
-            .eq("form_id", formId)
+            .select("id, title, status, start_date, end_date, max_participants, registration_deadline, price, has_payment, location_text, description, image_url")
+            .eq("form_id", dbForm.id)
 
           if (retreatError) throw retreatError
 
           if (associatedRetreats && associatedRetreats.length > 0) {
-            const retreat = associatedRetreats[0]
+            // Check if URL specifies a particular retreat
+            const urlParams = new URLSearchParams(window.location.search)
+            const requestedRetreatId = urlParams.get("retreat_id") || urlParams.get("eventId") || urlParams.get("retreatId")
+
+            let retreat = requestedRetreatId
+              ? associatedRetreats.find((r) => r.id === requestedRetreatId)
+              : undefined
+
+            if (!retreat) {
+              // Prioritize active retreats so a conflict doesn't lock out an active event
+              retreat = associatedRetreats.find((r) => r.status === "ativo") ||
+                        associatedRetreats.find((r) => r.status === "rascunho") ||
+                        associatedRetreats[0]
+            }
+
             setAssociatedRetreat(retreat)
             setAssociatedEventTitle(retreat.title)
 
@@ -164,19 +255,16 @@ export default function FormResponder() {
               setClosedReason("ended")
             } else {
               // Check date expiration
-              const today = new Date()
-              today.setHours(0, 0, 0, 0)
+              const now = new Date()
               if (retreat.registration_deadline) {
-                const limitDate = new Date(retreat.registration_deadline)
-                limitDate.setHours(23, 59, 59, 999)
-                if (today > limitDate) {
+                const limitDate = parseEndOfDay(retreat.registration_deadline)
+                if (now > limitDate) {
                   setClosedReason("expired")
                   return
                 }
               } else if (retreat.end_date) {
-                const limitDate = new Date(retreat.end_date)
-                limitDate.setHours(23, 59, 59, 999)
-                if (today > limitDate) {
+                const limitDate = parseEndOfDay(retreat.end_date)
+                if (now > limitDate) {
                   setClosedReason("expired")
                   return
                 }
@@ -203,8 +291,26 @@ export default function FormResponder() {
               }
             }
           } else {
-            setAssociatedRetreat(null)
-            setAssociatedEventTitle(null)
+            // Fallback: check if URL specified retreat_id or eventId directly
+            const urlParams = new URLSearchParams(window.location.search)
+            const directRetreatId = urlParams.get("retreat_id") || urlParams.get("eventId") || urlParams.get("retreatId")
+            if (directRetreatId) {
+              const { data: directRetreat } = await supabase
+                .from("retreats")
+                .select("id, title, status, start_date, end_date, max_participants, registration_deadline, price, has_payment, location_text, description, image_url")
+                .eq("id", directRetreatId)
+                .maybeSingle()
+              if (directRetreat) {
+                setAssociatedRetreat(directRetreat)
+                setAssociatedEventTitle(directRetreat.title)
+              } else {
+                setAssociatedRetreat(null)
+                setAssociatedEventTitle(null)
+              }
+            } else {
+              setAssociatedRetreat(null)
+              setAssociatedEventTitle(null)
+            }
             if (!dbForm.is_active) {
               setClosedReason("manual")
             } else {
@@ -230,6 +336,76 @@ export default function FormResponder() {
 
     loadTemplate()
   }, [formId])
+
+  // Sync coupon code from URL search params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get("cupom") || params.get("coupon")
+    if (code) {
+      setCouponCode(code.trim().toUpperCase())
+    }
+  }, [])
+
+  // Validate coupon when code is present
+  useEffect(() => {
+    if (!couponCode || !formTemplate) return
+    async function checkCoupon() {
+      try {
+        const { data, error } = await supabase.rpc("validate_coupon", {
+          p_code: couponCode!,
+          p_form_id: formTemplate!.id,
+          p_retreat_id: associatedRetreat?.id || undefined,
+        })
+        if (!error && data) {
+          const res = data as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number }
+          const discountPct = res.discount_percent ?? 100
+          setCouponValidation({
+            checked: true,
+            valid: res.valid,
+            requiresCpf: res.requires_cpf,
+            discountPercent: discountPct,
+            message: res.message,
+          })
+          if (res.valid) {
+            if (discountPct === 100) {
+              toast.success(
+                `Código de isenção ${couponCode} ativo! Conclua o formulário para garantir sua vaga gratuita.`,
+                {
+                  id: "coupon-active-toast",
+                  duration: 5000,
+                }
+              )
+            } else {
+              toast.success(
+                `Cupom ${couponCode} ativo com ${discountPct}% de desconto! Conclua o formulário para continuar ao checkout com o valor reduzido.`,
+                {
+                  id: "coupon-active-toast",
+                  duration: 5000,
+                }
+              )
+            }
+          } else {
+            toast.error(
+              res.message || "Código de desconto ou isenção inválido ou já utilizado.",
+              {
+                id: "coupon-error-toast",
+                duration: 5000,
+              }
+            )
+          }
+        } else if (error) {
+          setCouponValidation({
+            checked: true,
+            valid: false,
+            message: error.message,
+          })
+        }
+      } catch (e) {
+        console.error("Error validating coupon on load", e)
+      }
+    }
+    checkCoupon()
+  }, [couponCode, formTemplate?.id, associatedRetreat?.id])
 
   // Handle standard input updates
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -365,7 +541,7 @@ export default function FormResponder() {
   }
 
   // Submit response
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formTemplate) return
     const template = formTemplate
@@ -426,7 +602,7 @@ export default function FormResponder() {
                   "Telefone celular inválido. Digite um DDD válido e o dígito 9 antes do número."
               }
             } else if (field.validationPreset === "cpf") {
-              if (!isValidCPF(strVal)) {
+              if (!couponCode && !isValidCPF(strVal)) {
                 errors[field.id] =
                   "CPF inválido. Insira um número de CPF válido."
               }
@@ -477,26 +653,49 @@ export default function FormResponder() {
       }
     })
 
+    // Extract CPF, Email, Name and Gender values from current submission
+    let emailVal = ""
+    let cpfVal = ""
+    let nameVal = ""
+    let genderVal = ""
+    template.fields.forEach((field) => {
+      const val = formData[field.id]
+      if (val !== undefined && val !== null && String(val).trim() !== "") {
+        const label = field.label.toLowerCase()
+        const fid = field.id.toLowerCase()
+        if (field.validationPreset === "email" || label.includes("email") || label.includes("e-mail") || fid.includes("email")) {
+          emailVal = String(val).trim().toLowerCase()
+        } else if (field.validationPreset === "cpf" || label.includes("cpf") || fid.includes("cpf")) {
+          cpfVal = String(val).replace(/\D/g, "")
+        } else if (label.includes("nome") || fid.includes("name")) {
+          nameVal = String(val).trim()
+        } else if (label.includes("sexo") || label.includes("gênero") || label.includes("genero") || fid.includes("gender") || fid.includes("sexo")) {
+          genderVal = String(val).trim()
+        }
+      }
+    })
+
+    if (!cpfVal && couponCpf) {
+      cpfVal = couponCpf.replace(/\D/g, "")
+    }
+
+    // Validation if coupon is active (verified against active coupons list)
+    if (couponCode) {
+      setCouponCpfError(null)
+      const cleanCpf = (cpfVal || couponCpf).replace(/\D/g, "")
+
+      if (!cleanCpf) {
+        setCouponCpfError("Informe o CPF do beneficiário para liberar a isenção.")
+        toast.error("Por favor, informe o CPF do beneficiário para validar o código de isenção.")
+        return
+      }
+    }
+
     // Save submission to Supabase
     async function executeSubmission(paid: boolean, method: string, reference: string) {
       try {
         const submissionId = `sub-${Math.random().toString(36).substring(7)}`
         const submitToastId = toast.loading("Enviando sua resposta...")
-
-        // Extract CPF and Email values from current submission
-        let emailVal = ""
-        let cpfVal = ""
-        template.fields.forEach((field) => {
-          const val = formData[field.id]
-          if (val) {
-            const label = field.label.toLowerCase()
-            if (label.includes("email") || label.includes("e-mail")) {
-              emailVal = String(val).trim().toLowerCase()
-            } else if (label.includes("cpf")) {
-              cpfVal = String(val).replace(/\D/g, "")
-            }
-          }
-        })
 
         // Check for duplicates
         if (emailVal || cpfVal) {
@@ -611,17 +810,29 @@ export default function FormResponder() {
             const val = formData[field.id]
             if (val !== undefined && val !== null) {
               const label = field.label.toLowerCase()
-              if (label.includes("nome")) {
+              const fid = field.id.toLowerCase()
+              if (label.includes("nome") || fid.includes("name")) {
                 guestData.full_name = val
-              } else if (label.includes("email") || label.includes("e-mail")) {
+              } else if (label.includes("email") || label.includes("e-mail") || fid.includes("email")) {
                 guestData.email = val
-              } else if (label.includes("telefone") || label.includes("celular") || label.includes("fone") || label.includes("whatsapp")) {
+              } else if (label.includes("telefone") || label.includes("celular") || label.includes("fone") || label.includes("whatsapp") || fid.includes("phone")) {
                 guestData.phone = val
-              } else if (label.includes("cpf")) {
+              } else if (label.includes("sexo") || label.includes("gênero") || label.includes("genero") || fid.includes("gender") || fid.includes("sexo")) {
+                guestData.gender = val
+              } else if (label.includes("cpf") || fid.includes("cpf")) {
                 guestData.cpf = val
               }
             }
           })
+
+          if (!guestData.full_name && nameVal) guestData.full_name = nameVal
+          if (!guestData.email && emailVal) guestData.email = emailVal
+          if (!guestData.cpf && (cpfVal || couponCpf)) {
+            guestData.cpf = (cpfVal || couponCpf).replace(/\D/g, "")
+          }
+          if (!guestData.gender) {
+            guestData.gender = genderVal || "Não informado"
+          }
 
           const { error: regError } = await supabase.from("registrations").insert({
             retreat_id: associatedRetreat.id,
@@ -648,19 +859,143 @@ export default function FormResponder() {
       }
     }
 
-    const total = calculateTotalPrice(associatedRetreat?.price || 0, template.fields, filteredData)
+    const isFreeEvent = associatedRetreat
+      ? (associatedRetreat.has_payment === false || Number(associatedRetreat.price) === 0)
+      : true
+    const total = isFreeEvent
+      ? 0
+      : calculateTotalPrice(Number(associatedRetreat?.price) || 0, template.fields, filteredData)
 
-    if (total > 0 && associatedRetreat) {
+    // BRANCH 1: Beneficiary with coupon code
+    if (couponCode) {
+      const redeemToastId = toast.loading("Validando código...")
+      try {
+        let resolvedCpf = cpfVal || couponCpf.replace(/\D/g, "")
+        let resolvedName = nameVal
+        let resolvedEmail = emailVal
+        if ((!resolvedCpf || !resolvedName || !resolvedEmail) && user) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("cpf, full_name, email")
+            .eq("user_id", user.id)
+            .maybeSingle()
+          if (!resolvedCpf && prof?.cpf) resolvedCpf = prof.cpf.replace(/\D/g, "")
+          if (!resolvedName && prof?.full_name) resolvedName = prof.full_name
+          if (!resolvedEmail && prof?.email) resolvedEmail = prof.email
+        }
+
+        if (!resolvedCpf) {
+          toast.dismiss(redeemToastId)
+          toast.error("Por favor, preencha o CPF para validar o cupom.")
+          return
+        }
+
+        // Validate coupon with CPF first
+        const { data: rawValData, error: valErr } = await supabase.rpc("validate_coupon", {
+          p_code: couponCode,
+          p_cpf: resolvedCpf,
+          p_retreat_id: associatedRetreat?.id || undefined,
+          p_form_id: template.id || undefined,
+        })
+        const valData = rawValData as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number } | null
+
+        if (valErr || !valData?.valid) {
+          toast.dismiss(redeemToastId)
+          toast.error(valData?.message || "Código inválido ou CPF divergente.")
+          return
+        }
+
+        const discountPct = Number(valData.discount_percent ?? couponValidation.discountPercent ?? 100)
+
+        // 1.1 Full exemption (100% discount)
+        if (discountPct === 100) {
+          const { data: rawRedeemData, error: redeemError } = await supabase.rpc("redeem_coupon", {
+            p_code: couponCode,
+            p_cpf: resolvedCpf,
+            p_user_name: resolvedName || undefined,
+            p_user_email: resolvedEmail || undefined,
+            p_retreat_id: associatedRetreat?.id || undefined,
+            p_form_id: template.id || undefined,
+          })
+          const redeemData = rawRedeemData as { success: boolean; message?: string } | null
+
+          toast.dismiss(redeemToastId)
+
+          if (redeemError || !redeemData?.success) {
+            toast.error(redeemData?.message || "Erro ao resgatar código de isenção.")
+            return
+          }
+
+          toast.success("Código de isenção (100%) validado com sucesso!")
+          await executeSubmission(true, "cupom", `Isenção (100%) - Cupom: ${couponCode}`)
+          return
+        }
+
+        // 1.2 Partial discount (e.g. 50% discount)
+        toast.dismiss(redeemToastId)
+        const discountedTotal = Math.max(0, Math.round(total * (1 - discountPct / 100) * 100) / 100)
+
+        if (discountedTotal === 0) {
+          const { data: rawRedeemData, error: redeemError } = await supabase.rpc("redeem_coupon", {
+            p_code: couponCode,
+            p_cpf: resolvedCpf,
+            p_user_name: resolvedName || undefined,
+            p_user_email: resolvedEmail || undefined,
+            p_retreat_id: associatedRetreat?.id || undefined,
+            p_form_id: template.id || undefined,
+          })
+          const redeemData = rawRedeemData as { success: boolean; message?: string } | null
+          if (redeemError || !redeemData?.success) {
+            toast.error(redeemData?.message || "Erro ao resgatar código.")
+            return
+          }
+          toast.success("Desconto aplicado! Inscrição gratuita confirmada.")
+          await executeSubmission(true, "cupom", `Desconto (${discountPct}%) - Cupom: ${couponCode}`)
+          return
+        }
+
+        // Needs payment with discount
+        toast.success(`Desconto de ${discountPct}% aplicado! Prossiga com o pagamento do saldo.`)
+        setPendingSubmission({
+          execute: async (p: boolean, m: string, r: string) => {
+            // Redeem coupon on payment
+            await supabase.rpc("redeem_coupon", {
+              p_code: couponCode,
+              p_cpf: resolvedCpf,
+              p_user_name: resolvedName || undefined,
+              p_user_email: resolvedEmail || undefined,
+              p_retreat_id: associatedRetreat?.id || undefined,
+              p_form_id: template.id || undefined,
+            })
+            await executeSubmission(p, m, `${r} | Cupom: ${couponCode} (${discountPct}% OFF)`)
+          }
+        })
+        setOriginalPrice(total)
+        setCheckoutPrice(discountedTotal)
+        setShowCheckout(true)
+        return
+      } catch (err: any) {
+        toast.dismiss(redeemToastId)
+        toast.error("Falha ao processar código: " + err.message)
+        return
+      }
+    }
+
+    // BRANCH 2: Event requiring payment
+    if (associatedRetreat && !isFreeEvent && total > 0) {
       setPendingSubmission({
         execute: async (p: boolean, m: string, r: string) => {
           await executeSubmission(p, m, r)
         }
       })
+      setOriginalPrice(total)
       setCheckoutPrice(total)
       setShowCheckout(true)
-    } else {
-      executeSubmission(true, "gratuito", "Isento")
+      return
     }
+
+    // BRANCH 3: Free event or form without payment
+    await executeSubmission(true, "gratuito", isFreeEvent ? "Evento Gratuito" : "Gratuito")
   }
 
   const handleConfirmIntegratedPayment = async () => {
@@ -844,6 +1179,21 @@ export default function FormResponder() {
       ) : (
         /* FORM CONTAINER */
         <div className="space-y-10">
+          {formTemplate.presentationPage?.enabled && (
+            <div className="mb-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPresentation(true)}
+                className="h-8 gap-1.5 -ml-2 cursor-pointer text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Ver Apresentação do Evento
+              </Button>
+            </div>
+          )}
+
           {/* Header */}
           <div className="space-y-3 border-b border-border/40 pb-6">
             <div className="flex items-center gap-3">
@@ -865,6 +1215,71 @@ export default function FormResponder() {
               </p>
             )}
           </div>
+
+          {couponCode && (
+            couponValidation.checked && !couponValidation.valid ? (
+              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 sm:p-5 space-y-2 shadow-xs">
+                <div className="flex items-center gap-2 text-destructive font-bold text-sm">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Código Inválido ou Já Utilizado: {couponCode}</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {couponValidation.message || "Este código não é válido ou já foi utilizado para este evento."} A inscrição seguirá pelo fluxo normal.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 space-y-3 shadow-xs">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-sm">
+                  <Ticket className="h-4 w-4 shrink-0" />
+                  <span>
+                    {(couponValidation.discountPercent ?? 100) === 100
+                      ? `Código de Isenção Ativo: ${couponCode}`
+                      : `Cupom de Desconto Ativo: ${couponCode} (${couponValidation.discountPercent}% OFF)`}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {(couponValidation.discountPercent ?? 100) === 100 ? (
+                    <>
+                      Sua inscrição terá <strong>isenção de 100% no valor do evento</strong>. Para confirmar o benefício com segurança, o sistema validará o seu CPF na finalização.
+                    </>
+                  ) : (
+                    <>
+                      Sua inscrição terá <strong>{couponValidation.discountPercent}% de desconto</strong> sobre o valor do evento. O abatimento será aplicado na tela de pagamento.
+                    </>
+                  )}
+                </p>
+                {!formTemplate.fields.some(
+                  (f) => f.validationPreset === "cpf" || f.label.toLowerCase().includes("cpf")
+                ) && (
+                  <div className="space-y-1.5 pt-1">
+                    <label htmlFor="coupon-cpf-field" className="text-xs font-semibold text-foreground block">
+                      CPF do Beneficiário: <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      id="coupon-cpf-field"
+                      value={couponCpf}
+                      onChange={(e) => {
+                        setCouponCpf(formatValue(e.target.value, "cpf"))
+                        if (couponCpfError) setCouponCpfError(null)
+                      }}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      className={`max-w-xs min-h-[44px] h-11 text-sm bg-background ${
+                        couponCpfError ? "border-destructive focus-visible:ring-destructive" : "border-border"
+                      }`}
+                    />
+                    {couponCpfError ? (
+                      <p className="text-xs font-medium text-destructive">{couponCpfError}</p>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground">
+                        Insira o mesmo CPF informado pelo gestor na criação deste código para liberar a isenção.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-12">
             {(() => {
@@ -1079,12 +1494,37 @@ export default function FormResponder() {
 
             {/* Price Summary */}
             <div className="my-4 rounded-lg bg-muted/40 p-4 border border-border/30">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground font-medium">Valor Total:</span>
-                <span className="text-xl font-extrabold text-foreground">
-                  {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(checkoutPrice)}
-                </span>
-              </div>
+              {originalPrice > checkoutPrice ? (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-muted-foreground font-medium">Valor Original:</span>
+                    <span className="line-through text-muted-foreground font-semibold">
+                      {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(originalPrice)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span>
+                      Desconto do Cupom ({couponValidation.discountPercent ?? Math.round((1 - checkoutPrice / originalPrice) * 100)}% OFF):
+                    </span>
+                    <span>
+                      -{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(originalPrice - checkoutPrice)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border/40">
+                    <span className="text-xs text-foreground font-bold">Total com Desconto:</span>
+                    <span className="text-xl font-extrabold text-foreground">
+                      {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(checkoutPrice)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-muted-foreground font-medium">Valor Total:</span>
+                  <span className="text-xl font-extrabold text-foreground">
+                    {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(checkoutPrice)}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Payment Method Selector */}
@@ -1243,8 +1683,40 @@ export default function FormResponder() {
     </div>
   )
 
+  const presentationContent = formTemplate.presentationPage ? (
+    <div className="mx-auto max-w-4xl animate-in px-4 py-8 duration-500 fade-in slide-in-from-bottom-4">
+      {user && (
+        <div className="mb-6">
+          <Button
+            asChild
+            variant="ghost"
+            className="-ml-4 cursor-pointer text-muted-foreground hover:text-foreground"
+          >
+            <Link
+              to={canPost ? "/gestao/formularios" : "/"}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {canPost ? "Voltar para Formulários" : "Voltar para o Início"}
+            </Link>
+          </Button>
+        </div>
+      )}
+      <FormPresentationView
+        presentation={formTemplate.presentationPage}
+        retreat={associatedRetreat}
+        onStart={() => setShowPresentation(false)}
+      />
+    </div>
+  ) : null
+
+  const activeContent =
+    showPresentation && formTemplate.presentationPage?.enabled
+      ? presentationContent
+      : formContent
+
   if (user) {
-    return <Layout>{formContent}</Layout>
+    return <Layout>{activeContent}</Layout>
   }
 
   return (
@@ -1262,7 +1734,7 @@ export default function FormResponder() {
           <ThemeToggle />
         </div>
       </header>
-      <main className="py-4">{formContent}</main>
+      <main className="py-4">{activeContent}</main>
     </div>
   )
 }

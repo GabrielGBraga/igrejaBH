@@ -1656,6 +1656,181 @@ BEGIN
     true, now() - INTERVAL '10 days', true
   ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
 
+  -- 9D. Formulário 4: Inscrição de Retiro de Carnaval 2026
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  VALUES (
+    'form-carnaval-2026',
+    'Ficha de Inscrição Oficial - Retiro de Carnaval 2026',
+    'Ficha oficial de inscrição e dados logísticos para o Retiro de Carnaval 2026 — O Propósito Eterno.',
+    '[
+      {
+        "id": "mandatory_full_name",
+        "type": "text",
+        "label": "Nome Completo",
+        "placeholder": "Seu nome completo",
+        "required": true,
+        "helpText": "Nome do participante",
+        "options": []
+      },
+      {
+        "id": "mandatory_email",
+        "type": "text",
+        "label": "E-mail",
+        "placeholder": "exemplo@email.com",
+        "required": true,
+        "helpText": "E-mail para confirmação",
+        "validationPreset": "email",
+        "options": []
+      },
+      {
+        "id": "mandatory_phone",
+        "type": "text",
+        "label": "Telefone / WhatsApp",
+        "placeholder": "(31) 99999-9999",
+        "required": true,
+        "helpText": "Telefone com DDD",
+        "validationPreset": "phone",
+        "options": []
+      },
+      {
+        "id": "mandatory_gender",
+        "type": "select",
+        "label": "Sexo / Gênero",
+        "placeholder": "Selecione o sexo",
+        "required": true,
+        "helpText": "Para alocação de alojamentos",
+        "options": ["Masculino", "Feminino"]
+      },
+      {
+        "id": "mandatory_city_state",
+        "type": "text",
+        "label": "Cidade / Estado",
+        "placeholder": "Belo Horizonte / MG",
+        "required": true,
+        "helpText": "Cidade e UF de residência",
+        "options": []
+      },
+      {
+        "id": "mandatory_birth_date",
+        "type": "date",
+        "label": "Data de Nascimento / Idade",
+        "placeholder": "DD/MM/AAAA",
+        "required": true,
+        "helpText": "Data de nascimento",
+        "options": []
+      },
+      {
+        "id": "transporte",
+        "type": "radio",
+        "label": "Precisa de Transporte?",
+        "placeholder": "",
+        "required": false,
+        "helpText": "Ônibus executivo da igreja (+R$ 30,00)",
+        "options": ["Sim", "Não"],
+        "priceModifiers": { "Sim": 30, "Não": 0 }
+      },
+      {
+        "id": "restricoes_alimentares",
+        "type": "text",
+        "label": "Restrições Alimentares",
+        "placeholder": "Alergias, intolerância à lactose, etc.",
+        "required": false,
+        "helpText": "Logística da cozinha",
+        "options": []
+      }
+    ]'::jsonb,
+    true, '2026-01-10 10:00:00+00'::timestamptz, true
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+
+  -- 9E. Formulário 5: Inscrição de Encontro Metropolitano de Casais 2026
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  VALUES (
+    'form-casais-2026',
+    'Ficha de Inscrição - Encontro Metropolitano de Casais 2026',
+    'Ficha oficial com informações básicas do casal para o Encontro Metropolitano de Casais nas Casas.',
+    '[
+      {
+        "id": "mandatory_full_name",
+        "type": "text",
+        "label": "Nome Completo (Responsável)",
+        "placeholder": "Seu nome completo",
+        "required": true,
+        "helpText": "Nome do cônjuge responsável pelo preenchimento",
+        "options": []
+      },
+      {
+        "id": "mandatory_email",
+        "type": "text",
+        "label": "E-mail",
+        "placeholder": "exemplo@email.com",
+        "required": true,
+        "helpText": "E-mail para envio de confirmações",
+        "validationPreset": "email",
+        "options": []
+      },
+      {
+        "id": "mandatory_phone",
+        "type": "text",
+        "label": "Telefone / WhatsApp",
+        "placeholder": "(31) 99999-9999",
+        "required": true,
+        "helpText": "Telefone com DDD",
+        "validationPreset": "phone",
+        "options": []
+      },
+      {
+        "id": "mandatory_gender",
+        "type": "select",
+        "label": "Sexo / Gênero",
+        "placeholder": "Selecione o sexo",
+        "required": true,
+        "options": ["Masculino", "Feminino"]
+      },
+      {
+        "id": "mandatory_city_state",
+        "type": "text",
+        "label": "Cidade / Estado",
+        "placeholder": "Belo Horizonte / MG",
+        "required": true,
+        "options": []
+      },
+      {
+        "id": "mandatory_birth_date",
+        "type": "date",
+        "label": "Data de Nascimento / Idade",
+        "placeholder": "DD/MM/AAAA",
+        "required": true,
+        "options": []
+      },
+      {
+        "id": "nome_conjuge",
+        "type": "text",
+        "label": "Nome Completo do Cônjuge",
+        "placeholder": "Nome completo do esposo/esposa",
+        "required": true,
+        "helpText": "Para credenciamento e crachás do casal",
+        "options": []
+      },
+      {
+        "id": "tempo_casamento",
+        "type": "select",
+        "label": "Tempo de Casamento",
+        "placeholder": "Selecione o tempo",
+        "required": true,
+        "options": ["Menos de 2 anos", "2 a 5 anos", "6 a 10 anos", "11 a 20 anos", "Mais de 20 anos"]
+      },
+      {
+        "id": "restricoes_alimentares",
+        "type": "text",
+        "label": "Restrições Alimentares do Casal",
+        "placeholder": "Alergias, restrições médicas, etc.",
+        "required": false,
+        "options": []
+      }
+    ]'::jsonb,
+    true, now() - INTERVAL '3 days', true
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+
   -- Respostas de teste para o Censo de Dons (5 submissões)
   FOR i IN 1..5 LOOP
     INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
@@ -1691,9 +1866,9 @@ BEGIN
     'Sítio das Palmeiras, Santa Luzia, MG',
     150,
     'ativo',
-    '2026-09-30',
+    '2026-10-05',
     'form-solteiros-2026'
-  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status;
+  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status, form_id = EXCLUDED.form_id, registration_deadline = EXCLUDED.registration_deadline;
 
   -- Quartos do Evento Ativo
   INSERT INTO public.retreat_rooms (id, retreat_id, name, gender_type, capacity, notes) VALUES
@@ -1729,8 +1904,8 @@ BEGIN
     100,
     'encerrado',
     '2026-02-05',
-    'form-solteiros-2026'
-  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status;
+    'form-carnaval-2026'
+  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status, form_id = EXCLUDED.form_id, registration_deadline = EXCLUDED.registration_deadline;
 
   -- Quartos do Evento Encerrado
   INSERT INTO public.retreat_rooms (id, retreat_id, name, gender_type, capacity, notes) VALUES
@@ -1763,8 +1938,8 @@ BEGIN
     60,
     'rascunho',
     '2026-11-05',
-    'form-solteiros-2026'
-  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status;
+    'form-casais-2026'
+  ) ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, status = EXCLUDED.status, form_id = EXCLUDED.form_id, registration_deadline = EXCLUDED.registration_deadline;
 
   INSERT INTO public.retreat_rooms (retreat_id, name, gender_type, capacity, notes) VALUES
     (r_retreat_draft, 'Chalé Suíte das Flores 01', 'suite', 2, 'Casal'),
@@ -1969,7 +2144,7 @@ BEGIN
       INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
       VALUES (
         v_sub_cls_id,
-        'form-solteiros-2026',
+        'form-carnaval-2026',
         jsonb_build_object(
           'mandatory_full_name', 'Gabriel Góes Braga',
           'mandatory_email', 'ggoesbraga@gmail.com',
@@ -2028,7 +2203,7 @@ BEGIN
       INSERT INTO public.form_submissions (id, form_id, data, user_id, submitted_at)
       VALUES (
         v_sub_cls_id,
-        'form-solteiros-2026',
+        'form-carnaval-2026',
         jsonb_build_object(
           'mandatory_full_name', v_rec_cls.full_name,
           'mandatory_email', v_rec_cls.email,

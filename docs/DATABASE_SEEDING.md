@@ -11,8 +11,8 @@ O script de seeding é capaz de repopular o banco do zero em uma única execuç�
 - **528 discípulos/perfis** distribuídos por **24 Grupos Caseiros (GCs)** e **6 regiões/setores**.
 - **Mural de Avisos Comunitário** com 14 posts abrangendo todas as 6 categorias (`noticia`, `oracao`, `diaconato`, `obra`, `aviso`, `evento`), com datas e fotos de capa.
 - **Centro de Ensino e Catequese** com 3 trilhas estruturadas, 10 recursos multimídia (YouTube, PDFs, Markdown) e progresso ativo dos usuários.
-- **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 140+ inscrições vinculadas.
-- **Sistema de Formulários Dinâmicos** com 3 modelos (`form-solteiros-2026`, `form-censo-dons`, `form-apoio-diaconal`) e quase 150 submissões registradas.
+- **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 142 inscrições vinculadas.
+- **Sistema de Formulários Dinâmicos** com 5 modelos dedicados (`form-solteiros-2026`, `form-carnaval-2026`, `form-casais-2026`, `form-censo-dons`, `form-apoio-diaconal`) e 147 submissões registradas, garantindo que cada evento possua sua própria ficha de inscrição sem conflitos de dados ou estado.
 
 ---
 
@@ -86,11 +86,14 @@ O módulo de Ensinos (`public.studies`, `public.media_resources`, `public.study_
 
 ---
 
-## 6. Ciclo de Eventos, Alojamentos & Finanças
+## 6. Ciclo de Eventos, Alojamentos, Finanças & Fichas de Inscrição
 
-*   **Retiro Ativo (`Retiro de Solteiros e Jovens 2026`):** Inscrições abertas, 57 inscritos, 8 quartos (Chalés e Dormitórios), despesas operacionais parciais (sinal de locação, buffet, som).
-*   **Retiro Encerrado (`Retiro de Carnaval 2026 — O Propósito Eterno`):** Evento histórico concluído, 85 inscritos 100% quitados, 6 quartos 100% alocados, e 5 despesas fechadas com demonstrativo de superávit financeiro positivo (ideal para testar os dashboards de KPI e resultado líquido em `ManageEventDetail`).
-*   **Retiro em Rascunho (`Encontro Metropolitano de Casais nas Casas 2026`):** Evento em planejamento sem inscrições abertas, permitindo testar filtros de status no painel administrativo.
+Cada evento possui uma ficha de inscrição customizada exclusiva para evitar colisões de dados e de ciclo de vida (status ativo, encerrado ou rascunho):
+*   **Retiro Ativo (`Retiro de Solteiros e Jovens 2026`):** Inscrições abertas, 57 inscritos, 8 quartos (Chalés e Dormitórios), despesas operacionais parciais (sinal de locação, buffet, som). Vinculado exclusivamente ao formulário `form-solteiros-2026` (57 respostas registradas).
+*   **Retiro Encerrado (`Retiro de Carnaval 2026 — O Propósito Eterno`):** Evento histórico concluído, 85 inscritos 100% quitados, 6 quartos 100% alocados, e 5 despesas fechadas com demonstrativo de superávit financeiro positivo (ideal para testar os dashboards de KPI e resultado líquido em `ManageEventDetail`). Vinculado exclusivamente ao formulário `form-carnaval-2026` (85 respostas registradas).
+*   **Retiro em Rascunho (`Encontro Metropolitano de Casais nas Casas 2026`):** Evento em planejamento sem inscrições abertas, permitindo testar filtros de status no painel administrativo. Vinculado exclusivamente ao formulário `form-casais-2026` (0 respostas registradas).
+
+> **Garantia de Integridade (Banco e Aplicação):** A unicidade 1-para-1 é reforçada a nível físico no Supabase via índice único parcial (`idx_retreats_unique_form_id ON public.retreats(form_id) WHERE form_id IS NOT NULL`) e trigger explicativa em português (`check_retreat_form_uniqueness`), além de validações preventivas e bloqueio na UI em `CreateEditEventDialog`. Eventos com `form_id IS NULL` continuam usando a ficha padrão compartilhada.
 
 ---
 

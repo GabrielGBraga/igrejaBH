@@ -136,6 +136,8 @@ async function run() {
     console.log(`\n✅ Banco popular com sucesso em ${duration} segundos!`);
   } catch (err) {
     console.error('\n❌ Erro durante a execução do seeding:', err.message);
+    if (err.detail) console.error('Detail:', err.detail);
+    if (err.where) console.error('Where:', err.where);
     process.exit(1);
   } finally {
     await client.end();
