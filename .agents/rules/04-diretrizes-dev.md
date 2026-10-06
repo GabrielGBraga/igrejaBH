@@ -25,13 +25,18 @@
   - Alvos de toque acessíveis (mínimo de 44x44px nos seletores e botões de paginação/ações).
   - Contêiner com rolagem horizontal contida (`overflow-x-auto`) para telas estreitas.
 
-## 5. MCP e Servidores
+## 5. Editor de Texto Rico e Markdown (TextEditor & MarkdownUtils)
+- Para criação e edição de conteúdos em Markdown (textos informativos, apostilas e anotações pessoais de estudos/materiais), utilize o componente `TextEditor` (`src/components/TextEditor.tsx`) e utilitários em `src/lib/markdownUtils.ts`.
+- O `TextEditor` suporta tanto exibição modal (`inline={false}`) quanto embutida lado a lado (`inline={true}`), ideal para tomada de notas síncrona enquanto o discípulo consome materiais (vídeos, PDFs, leituras).
+- O editor serializa para Markdown limpo (compatível com citação bíblica `> !bible`, títulos H1-H4, listas e alinhamento) preservando o contraste e integridade do tema dark/light.
+
+## 6. MCP e Servidores
 - **Supabase MCP (`supabase-mcp-server`):** Ao ser instruído a alterar o banco de dados (backend), o agente deve propor a migração `.sql` ou utilizar os servidores MCP configurados, nunca alterar arquivos não relacionados.
 - **Accessibility MCP (`accessibility`):** O agente deve obrigatoriamente validar contrastes e conformidade WCAG AA/AAA (`are-colors-accessible`, `get-color-contrast`, `use-light-or-dark`) ao definir ou alterar cores no arquivo `src/constants/colors.ts` ou nos componentes de UI.
 - **Stitch MCP (`StitchMCP`):** O agente deve utilizar as ferramentas do Stitch (`generate_screen_from_text`, `generate_variants`, `upload_design_md`, `apply_design_system`) para prototipar telas novas, gerar variações de interface e manter o alinhamento com o design system antes de codificar telas complexas.
 - **Constantes de Cores (`src/constants/colors.ts`):** É regra estrita manter todas as cores do projeto registradas em `src/constants/colors.ts`. Qualquer cor nova em tempo de execução ou elemento visual DEVE ser adicionada e importada dessa constante.
 
-## 6. Manutenção do Contexto (Regra de Ouro do Agente)
+## 7. Manutenção do Contexto (Regra de Ouro do Agente)
 - O agente DEVE ser proativo quanto à integridade e atualização das regras desta pasta (`.agents/rules/`).
 - Sempre que uma ação durante o desenvolvimento alterar o contexto geral do projeto (exemplo: instalar uma nova biblioteca principal, criar uma nova tabela no Supabase ou alterar a arquitetura de pastas), o agente DEVE parar e emitir o seguinte aviso explícito ao usuário:
   👉 **"Atenção: A ação que acabamos de realizar mudou a arquitetura do projeto. Por favor, atualize os arquivos de regras na pasta `.agents/rules/` para que eu (e outros agentes) não percamos esse contexto no futuro."**

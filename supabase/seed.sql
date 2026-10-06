@@ -251,7 +251,8 @@ BEGIN
     public.media_resources,
     public.studies,
     public.study_steps,
-    public.user_study_progress 
+    public.user_study_progress,
+    public.study_notes
   CASCADE;
   
   DELETE FROM auth.users;
@@ -1421,6 +1422,29 @@ BEGIN
       ON CONFLICT DO NOTHING;
     END IF;
   END LOOP;
+
+  -- 8E. Anotações Individuais de Estudo e Materiais (Study Notes)
+  INSERT INTO public.study_notes (profile_id, study_id, media_resource_id, title, content, created_at, updated_at)
+  VALUES 
+    -- Anotação individual de Estudo (Trilha 1)
+    (gabriel_id, study_id1, NULL, 'Anotações: O Propósito Eterno de Deus', 
+     '# Reflexões sobre Romanos 8:28-29' || E'\n\n' ||
+     'O propósito eterno de Deus não começou na queda do homem, mas antes da fundação do mundo.' || E'\n\n' ||
+     '### Pontos Centrais:' || E'\n' ||
+     '- **Filhos à imagem de Jesus:** A redenção é o caminho para nos conformar ao caráter de Cristo.' || E'\n' ||
+     '- **Vida no Corpo:** Não caminhamos isoladamente; a revelação se aprofunda na comunhão diária.' || E'\n\n' ||
+     '> "Porque os que dantes conheceu, também os predestinou para serem conformes à imagem de seu Filho..." (Rm 8:29)',
+     now() - INTERVAL '12 days', now() - INTERVAL '4 days'),
+     
+    -- Anotação individual de Material (Vídeo 1 da Trilha 1)
+    (gabriel_id, NULL, m_res_id1, 'Anotações: Vídeo de Introdução ao Propósito', 
+     '# Anotações da Mensagem em Vídeo' || E'\n\n' ||
+     'Principais lições anotadas durante a exibição:' || E'\n' ||
+     '1. Diferença entre teocentrismo e antropocentrismo na fé.' || E'\n' ||
+     '2. A Igreja como expressão visível da família de Deus na cidade.' || E'\n' ||
+     '3. Prática: orar com meu companheiro de discipulado esta semana sobre o propósito eterno.',
+     now() - INTERVAL '14 days', now() - INTERVAL '6 days')
+  ON CONFLICT DO NOTHING;
 
   -- ==========================================================================
   -- 9. FORMULÁRIOS DINÂMICOS & CENSO DA VIDA COMUM (Tabela Forms)
