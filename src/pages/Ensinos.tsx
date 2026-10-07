@@ -73,6 +73,7 @@ export default function Ensinos() {
     const [editingStudy, setEditingStudy] = useState<Study | null>(null);
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
     const [activeStep, setActiveStep] = useState<StudyStep | null>(null);
+    const [isInitialNotesOpen, setIsInitialNotesOpen] = useState(false);
     const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
     const [editingTextResource, setEditingTextResource] = useState<MediaResource | null>(null);
 
@@ -210,6 +211,56 @@ export default function Ensinos() {
         }
         autoSyncYoutubeVideos();
     }, [youtubeVideos, resources, profile, canAddMaterial]);
+
+    // Helper to open media resource in lesson modal (compact, notes panel closed initially)
+    const handleOpenResource = (resource: MediaResource, studyId?: string) => {
+        setNoteTarget({
+            type: "resource",
+            id: resource.id,
+            title: resource.title,
+            studyId,
+            note: notes.find((n) => n.media_resource_id === resource.id) || null,
+        });
+        setIsInitialNotesOpen(false);
+        const foundStep = studyId
+            ? studySteps.find((s) => s.study_id === studyId && s.media_resource_id === resource.id)
+            : null;
+        setActiveStep(
+            foundStep || {
+                id: "",
+                study_id: studyId || "",
+                media_resource_id: resource.id,
+                sort_order: 0,
+                created_at: "",
+                media_resource: resource,
+            }
+        );
+    };
+
+    // Helper to open media resource in lesson modal directly with side-by-side notes panel open
+    const handleOpenResourceNote = (resource: MediaResource, studyId?: string) => {
+        setNoteTarget({
+            type: "resource",
+            id: resource.id,
+            title: resource.title,
+            studyId,
+            note: notes.find((n) => n.media_resource_id === resource.id) || null,
+        });
+        setIsInitialNotesOpen(true);
+        const foundStep = studyId
+            ? studySteps.find((s) => s.study_id === studyId && s.media_resource_id === resource.id)
+            : null;
+        setActiveStep(
+            foundStep || {
+                id: "",
+                study_id: studyId || "",
+                media_resource_id: resource.id,
+                sort_order: 0,
+                created_at: "",
+                media_resource: resource,
+            }
+        );
+    };
 
     // Add Media Resource Handler
     const handleAddResourceSubmit = async (values: ResourceFormValues, selectedFile: File | null) => {
@@ -886,32 +937,10 @@ export default function Ensinos() {
                                                         resource={video}
                                                         note={videoNote}
                                                         canAddMaterial={canAddMaterial}
-                                                        onClick={() => {
-                                                            setActiveStep({
-                                                                id: "",
-                                                                study_id: "",
-                                                                media_resource_id: video.id,
-                                                                sort_order: 0,
-                                                                created_at: "",
-                                                                media_resource: video,
-                                                            });
-                                                        }}
+                                                        onClick={() => handleOpenResource(video)}
                                                         onOpenNote={(e) => {
                                                             e.stopPropagation();
-                                                            setNoteTarget({
-                                                                type: "resource",
-                                                                id: video.id,
-                                                                title: video.title,
-                                                                note: videoNote || null,
-                                                            });
-                                                            setActiveStep({
-                                                                id: "",
-                                                                study_id: "",
-                                                                media_resource_id: video.id,
-                                                                sort_order: 0,
-                                                                created_at: "",
-                                                                media_resource: video,
-                                                            });
+                                                            handleOpenResourceNote(video);
                                                         }}
                                                         onDelete={(e) => handleDeleteResource(video.id, e)}
                                                     />
@@ -949,6 +978,7 @@ export default function Ensinos() {
                                                             category: "youtube",
                                                             created_at: video.publishedAt,
                                                         };
+                                                        setIsInitialNotesOpen(false);
                                                         setActiveStep({
                                                             id: "",
                                                             study_id: "",
@@ -995,32 +1025,10 @@ export default function Ensinos() {
                                                     resource={pdf}
                                                     note={pdfNote}
                                                     canAddMaterial={canAddMaterial}
-                                                    onClick={() => {
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: "",
-                                                            media_resource_id: pdf.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: pdf,
-                                                        });
-                                                    }}
+                                                    onClick={() => handleOpenResource(pdf)}
                                                     onOpenNote={(e) => {
                                                         e.stopPropagation();
-                                                        setNoteTarget({
-                                                            type: "resource",
-                                                            id: pdf.id,
-                                                            title: pdf.title,
-                                                            note: pdfNote || null,
-                                                        });
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: "",
-                                                            media_resource_id: pdf.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: pdf,
-                                                        });
+                                                        handleOpenResourceNote(pdf);
                                                     }}
                                                     onDelete={(e) => handleDeleteResource(pdf.id, e)}
                                                 />
@@ -1054,32 +1062,10 @@ export default function Ensinos() {
                                                     resource={txt}
                                                     note={txtNote}
                                                     canAddMaterial={canAddMaterial}
-                                                    onClick={() => {
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: "",
-                                                            media_resource_id: txt.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: txt,
-                                                        });
-                                                    }}
+                                                    onClick={() => handleOpenResource(txt)}
                                                     onOpenNote={(e) => {
                                                         e.stopPropagation();
-                                                        setNoteTarget({
-                                                            type: "resource",
-                                                            id: txt.id,
-                                                            title: txt.title,
-                                                            note: txtNote || null,
-                                                        });
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: "",
-                                                            media_resource_id: txt.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: txt,
-                                                        });
+                                                        handleOpenResourceNote(txt);
                                                     }}
                                                     onEdit={(e) => {
                                                         e.stopPropagation();
@@ -1177,21 +1163,7 @@ export default function Ensinos() {
                                                 note={item}
                                                 onEdit={() => {
                                                     if (item.resource) {
-                                                        setNoteTarget({
-                                                            type: "resource",
-                                                            id: item.resource.id,
-                                                            title: item.resource.title,
-                                                            studyId: item.study_id || undefined,
-                                                            note: item,
-                                                        });
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: item.study_id || "",
-                                                            media_resource_id: item.resource.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: item.resource,
-                                                        });
+                                                        handleOpenResourceNote(item.resource, item.study_id || undefined);
                                                     } else {
                                                         setNoteTarget({
                                                             type: "study",
@@ -1206,14 +1178,7 @@ export default function Ensinos() {
                                                 onDelete={() => handleDeleteNote(item.id)}
                                                 onOpenMaterial={() => {
                                                     if (item.resource) {
-                                                        setActiveStep({
-                                                            id: "",
-                                                            study_id: item.study_id || "",
-                                                            media_resource_id: item.resource.id,
-                                                            sort_order: 0,
-                                                            created_at: "",
-                                                            media_resource: item.resource,
-                                                        });
+                                                        handleOpenResource(item.resource, item.study_id || undefined);
                                                     } else if (item.study) {
                                                         setSelectedStudy(item.study);
                                                     }
@@ -1250,7 +1215,10 @@ export default function Ensinos() {
                 notes={notes}
                 canAddMaterial={canAddMaterial}
                 onClose={() => setSelectedStudy(null)}
-                onSelectStep={(step) => setActiveStep(step)}
+                onSelectStep={(step) => {
+                    setIsInitialNotesOpen(false);
+                    setActiveStep(step);
+                }}
                 onOpenStudyNote={(study) => {
                     const existing = notes.find((n) => n.study_id === study.id && !n.media_resource_id);
                     setNoteTarget({
@@ -1262,22 +1230,7 @@ export default function Ensinos() {
                     setIsNoteEditorOpen(true);
                 }}
                 onOpenStepNote={(resource, studyId) => {
-                    const existing = notes.find((n) => n.media_resource_id === resource.id);
-                    setNoteTarget({
-                        type: "resource",
-                        id: resource.id,
-                        title: resource.title,
-                        studyId,
-                        note: existing || null,
-                    });
-                    setActiveStep({
-                        id: "",
-                        study_id: studyId,
-                        media_resource_id: resource.id,
-                        sort_order: 0,
-                        created_at: "",
-                        media_resource: resource,
-                    });
+                    handleOpenResourceNote(resource, studyId);
                 }}
                 onEditStudy={(study) => {
                     setEditingStudy(study);
@@ -1291,17 +1244,21 @@ export default function Ensinos() {
                 step={activeStep}
                 allStudySteps={activeStep?.study_id ? studySteps.filter((s) => s.study_id === activeStep.study_id) : []}
                 studyTitle={activeStep?.study_id ? studies.find((s) => s.id === activeStep.study_id)?.title : undefined}
-                studyId={activeStep?.study_id}
+                initialNotesOpen={isInitialNotesOpen}
                 userProgress={userProgress}
                 existingNote={activeStep ? notes.find((n) => n.media_resource_id === activeStep.media_resource.id) : null}
                 canAddMaterial={canAddMaterial}
-                onClose={() => setActiveStep(null)}
+                onClose={() => {
+                    setActiveStep(null);
+                    setIsInitialNotesOpen(false);
+                }}
                 onToggleComplete={handleToggleCompleteStep}
                 onNavigateStep={(step) => setActiveStep(step)}
                 onSaveNote={handleSaveNote}
                 onDeleteNote={handleDeleteNote}
                 onEditTextResource={(res) => {
                     setActiveStep(null);
+                    setIsInitialNotesOpen(false);
                     setEditingTextResource(res);
                     setIsTextEditorOpen(true);
                 }}

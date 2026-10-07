@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
     CheckIcon, 
     CheckCircle2Icon,
@@ -16,7 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { TextEditor } from "@/components/TextEditor";
 import type { Database } from "@/lib/database.types";
@@ -32,7 +32,7 @@ interface StudyLessonModalProps {
     step: StudyStep | null;
     allStudySteps?: StudyStep[];
     studyTitle?: string;
-    studyId?: string;
+    initialNotesOpen?: boolean;
     userProgress: UserProgress[];
     existingNote?: StudyNote | null;
     canAddMaterial: boolean;
@@ -54,6 +54,7 @@ export function StudyLessonModal({
     step,
     allStudySteps = [],
     studyTitle,
+    initialNotesOpen = false,
     userProgress,
     existingNote,
     canAddMaterial,
@@ -64,9 +65,27 @@ export function StudyLessonModal({
     onDeleteNote,
     onEditTextResource,
 }: StudyLessonModalProps) {
-    const [isSideBySideNotesOpen, setIsSideBySideNotesOpen] = useState(false);
-    const [mobileTab, setMobileTab] = useState<"content" | "notes">("content");
+    const [isSideBySideNotesOpen, setIsSideBySideNotesOpen] = useState(initialNotesOpen);
+    const [mobileTab, setMobileTab] = useState<"content" | "notes">(initialNotesOpen ? "notes" : "content");
     const [isTogglingComplete, setIsTogglingComplete] = useState(false);
+    const prevOpenRef = useRef(false);
+
+    useEffect(() => {
+        const isOpen = Boolean(step);
+        if (isOpen && !prevOpenRef.current) {
+            // First opening of modal: respect initialNotesOpen
+            setIsSideBySideNotesOpen(initialNotesOpen);
+            setMobileTab(initialNotesOpen ? "notes" : "content");
+        } else if (isOpen && initialNotesOpen && !isSideBySideNotesOpen) {
+            // Explicit trigger to open notes from parent
+            setIsSideBySideNotesOpen(true);
+            setMobileTab("notes");
+        } else if (!isOpen) {
+            setIsSideBySideNotesOpen(false);
+            setMobileTab("content");
+        }
+        prevOpenRef.current = isOpen;
+    }, [step, initialNotesOpen, isSideBySideNotesOpen]);
 
     if (!step) return null;
 
@@ -168,12 +187,23 @@ export function StudyLessonModal({
 
     return (
         <Dialog open={Boolean(step)} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className={cn(
-                "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-200 overflow-hidden flex flex-col",
-                "w-[98vw] sm:max-w-6xl md:max-w-7xl max-w-[1550px] h-[94vh]"
-            )}>
+            <DialogContent
+                showCloseButton={false}
+                className={cn(
+                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col",
+                    isSideBySideNotesOpen
+                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl max-w-[1550px] h-[94vh]"
+                        : (resObj.type === "markdown"
+                            ? "sm:max-w-4xl w-[95vw] max-h-[90vh]"
+                            : "sm:max-w-3xl w-[95vw] max-h-[90vh]")
+                )}
+            >
+                <DialogDescription className="sr-only">
+                    Visualizador da ministração e anotações pessoais de estudo
+                </DialogDescription>
+
                 {/* Top Navigation Bar */}
-                <div className="p-4 sm:p-5 border-b border-border/50 shrink-0 bg-card/80 backdrop-blur-sm flex flex-col gap-3">
+                <div className="p-4 sm:p-5 pb-3 border-b border-border/50 shrink-0 bg-card/80 backdrop-blur-sm flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-3">
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
@@ -191,29 +221,44 @@ export function StudyLessonModal({
                                         <CheckIcon className="h-3 w-3 stroke-[3]" /> Concluída
                                     </Badge>
                                 )}
+                                {isSideBySideNotesOpen && (
+                                    <Badge variant="outline" className="hidden sm:inline-flex text-[10px] text-primary border-primary/30 bg-primary/5 font-semibold">
+                                        Modo Estudo com Anotações
+                                    </Badge>
+                                )}
                             </div>
-                            <h3 className="text-base sm:text-lg font-bold text-foreground truncate mt-1" title={resObj.title}>
+                            <DialogTitle className="text-base sm:text-lg font-bold text-foreground truncate mt-1" title={resObj.title}>
                                 {resObj.title}
-                            </h3>
+                            </DialogTitle>
                         </div>
 
                         {/* Top Action Buttons */}
                         <div className="flex items-center gap-2 shrink-0">
-                            {/* Desktop Notes Toggle */}
+                            {/* Notes Toggle Button */}
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setIsSideBySideNotesOpen(!isSideBySideNotesOpen)}
+                                onClick={() => {
+                                    const nextState = !isSideBySideNotesOpen;
+                                    setIsSideBySideNotesOpen(nextState);
+                                    if (nextState) setMobileTab("notes");
+                                    else setMobileTab("content");
+                                }}
                                 className={cn(
-                                    "hidden lg:flex min-h-[44px] gap-2 rounded-xl text-xs font-semibold px-3.5 cursor-pointer transition-all",
+                                    "min-h-[44px] gap-2 rounded-xl text-xs font-semibold px-3.5 cursor-pointer transition-all",
                                     isSideBySideNotesOpen || existingNote
-                                        ? "border-primary/40 bg-primary/10 text-primary"
+                                        ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-2xs"
                                         : "border-border/60 hover:bg-primary/5 hover:text-primary text-muted-foreground"
                                 )}
-                                title={isSideBySideNotesOpen ? "Ocultar anotações" : "Abrir painel de anotações"}
+                                title={isSideBySideNotesOpen ? "Ocultar anotações" : "Anotar neste material"}
                             >
                                 <StickyNoteIcon className="h-4 w-4" />
-                                <span>{isSideBySideNotesOpen ? "Ocultar Anotações" : (existingNote ? "Minhas Anotações" : "Anotar")}</span>
+                                <span className="hidden sm:inline">
+                                    {isSideBySideNotesOpen ? "Ocultar Anotações" : (existingNote ? "Minhas Anotações" : "Anotar")}
+                                </span>
+                                <span className="sm:hidden">
+                                    {isSideBySideNotesOpen ? "Ocultar" : "Anotar"}
+                                </span>
                             </Button>
 
                             <Button
@@ -228,59 +273,59 @@ export function StudyLessonModal({
                         </div>
                     </div>
 
-                    {/* Mobile Segmented Switcher (Visible on < lg screens) */}
-                    <div className="flex lg:hidden rounded-xl border border-border/60 bg-muted/30 p-1">
-                        <button
-                            onClick={() => setMobileTab("content")}
-                            className={cn(
-                                "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer",
-                                mobileTab === "content"
-                                    ? "bg-background text-foreground shadow-2xs"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            Conteúdo da Aula
-                        </button>
-                        <button
-                            onClick={() => setMobileTab("notes")}
-                            className={cn(
-                                "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
-                                mobileTab === "notes"
-                                    ? "bg-background text-foreground shadow-2xs"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            <StickyNoteIcon className="h-3.5 w-3.5" />
-                            <span>Minhas Anotações</span>
-                            {existingNote && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                            )}
-                        </button>
-                    </div>
+                    {/* Mobile Segmented Switcher (Visible on < lg screens only when notes are open) */}
+                    {isSideBySideNotesOpen && (
+                        <div className="flex lg:hidden rounded-xl border border-border/60 bg-muted/30 p-1">
+                            <button
+                                type="button"
+                                onClick={() => setMobileTab("content")}
+                                className={cn(
+                                    "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                                    mobileTab === "content"
+                                        ? "bg-background text-foreground shadow-2xs"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                Conteúdo da Aula
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMobileTab("notes")}
+                                className={cn(
+                                    "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                                    mobileTab === "notes"
+                                        ? "bg-background text-foreground shadow-2xs"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                <StickyNoteIcon className="h-3.5 w-3.5" />
+                                <span>Minhas Anotações</span>
+                                {existingNote && (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-1 min-h-0 overflow-hidden">
-                    <div className={cn(
-                        "h-full grid gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto",
-                        isSideBySideNotesOpen ? "grid-cols-1 lg:grid-cols-12" : "grid-cols-1"
-                    )}>
-                        {/* Media & Content Column */}
+                {isSideBySideNotesOpen ? (
+                    <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto lg:overflow-hidden">
+                        {/* Media Column (Left, 7 cols) */}
                         <div className={cn(
-                            "flex flex-col h-full min-h-0 space-y-4",
-                            isSideBySideNotesOpen ? "lg:col-span-7" : "w-full max-w-4xl mx-auto",
+                            "flex flex-col h-full min-h-0 overflow-y-auto pr-0 lg:pr-2 space-y-4 lg:col-span-7",
                             mobileTab === "notes" && "hidden lg:flex"
                         )}>
                             {renderMediaContent()}
 
                             {resObj.description && resObj.type !== "markdown" && (
-                                <div className="rounded-xl border border-border/40 bg-muted/15 p-3.5 sm:p-4 text-xs sm:text-sm text-muted-foreground">
+                                <div className="rounded-xl border border-border/40 bg-muted/15 p-3.5 sm:p-4 text-xs sm:text-sm text-muted-foreground shrink-0">
                                     <p className="font-bold text-foreground mb-1">Sobre esta ministração:</p>
                                     <p className="leading-relaxed">{resObj.description}</p>
                                 </div>
                             )}
 
-                            {/* Navigation & Completion Controls Bar */}
+                            {/* Controls Bar */}
                             <div className="mt-auto pt-3 border-t border-border/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
                                 <div className="flex items-center gap-2">
                                     {isStudyStep && hasPrevious && prevStep && (
@@ -306,6 +351,15 @@ export function StudyLessonModal({
                                             <span>Editar Texto</span>
                                         </Button>
                                     )}
+
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setIsSideBySideNotesOpen(false)}
+                                        className="min-h-[44px] rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                                    >
+                                        Ocultar Anotações
+                                    </Button>
                                 </div>
 
                                 <div className="flex items-center justify-end gap-2">
@@ -353,10 +407,9 @@ export function StudyLessonModal({
                             </div>
                         </div>
 
-                        {/* Side-by-Side Personal Notes Column */}
+                        {/* Notes Column (Right, 5 cols) */}
                         <div className={cn(
-                            "flex flex-col h-full min-h-[450px] lg:col-span-5",
-                            !isSideBySideNotesOpen && "hidden lg:hidden",
+                            "flex flex-col h-full min-h-[450px] lg:col-span-5 min-h-0",
                             mobileTab === "content" && "hidden lg:flex"
                         )}>
                             <TextEditor
@@ -383,7 +436,117 @@ export function StudyLessonModal({
                             />
                         </div>
                     </div>
-                </div>
+                ) : (
+                    /* Compact Single-Column Layout (Notes Closed) */
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                        {renderMediaContent()}
+
+                        {resObj.description && resObj.type !== "markdown" && (
+                            <div className="rounded-xl border border-border/40 bg-muted/15 p-3.5 sm:p-4 text-xs sm:text-sm text-muted-foreground">
+                                <p className="font-bold text-foreground mb-1">Sobre esta ministração:</p>
+                                <p className="leading-relaxed">{resObj.description}</p>
+                            </div>
+                        )}
+
+                        {/* Controls Bar */}
+                        <div className="pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={onClose}
+                                    className="rounded-xl px-4 min-h-[44px] text-xs font-medium cursor-pointer"
+                                >
+                                    Voltar
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsSideBySideNotesOpen(true);
+                                        setMobileTab("notes");
+                                    }}
+                                    className={cn(
+                                        "rounded-xl px-4 gap-2 text-xs font-semibold min-h-[44px] cursor-pointer transition-all",
+                                        existingNote
+                                            ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-2xs"
+                                            : "border-border/60 hover:bg-primary/5 hover:text-primary"
+                                    )}
+                                >
+                                    <StickyNoteIcon className="h-4 w-4" />
+                                    <span>{existingNote ? "Minhas Anotações" : "Fazer Anotações"}</span>
+                                </Button>
+
+                                {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onEditTextResource(resObj)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-600/20 hover:bg-amber-500/10 cursor-pointer"
+                                    >
+                                        <PencilIcon className="h-3.5 w-3.5" />
+                                        <span>Editar Texto</span>
+                                    </Button>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                {isStudyStep && hasPrevious && prevStep && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onNavigateStep(prevStep)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                                    >
+                                        <ChevronLeftIcon className="h-4 w-4" />
+                                        <span>Anterior</span>
+                                    </Button>
+                                )}
+
+                                {isStudyStep ? (
+                                    <Button
+                                        onClick={handleCompleteStep}
+                                        disabled={isTogglingComplete}
+                                        className={cn(
+                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all",
+                                            isStepCompleted
+                                                ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/15"
+                                                : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                        )}
+                                    >
+                                        {isStepCompleted ? (
+                                            <>
+                                                <CheckIcon className="h-4 w-4 stroke-[3]" />
+                                                Etapa Concluída
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2Icon className="h-4 w-4" />
+                                                Concluir Etapa
+                                            </>
+                                        )}
+                                    </Button>
+                                ) : (
+                                    <span className="text-xs text-muted-foreground italic">
+                                        Recurso individual do acervo
+                                    </span>
+                                )}
+
+                                {isStudyStep && hasNext && nextStep && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onNavigateStep(nextStep)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                                    >
+                                        <span>Próxima</span>
+                                        <ChevronRightIcon className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     );
