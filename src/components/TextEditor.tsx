@@ -16,9 +16,12 @@ import {
     Redo,
     Loader2,
     Save,
+    Trash2,
     AlignLeft,
     AlignCenter,
-    AlignJustify
+    AlignJustify,
+    X,
+    StickyNote
 } from "lucide-react";
 import { 
     Dialog, 
@@ -31,24 +34,53 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { markdownToHtml, htmlToMarkdown } from "@/lib/markdownUtils";
 
-interface TextEditorProps {
+export interface TextEditorProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (data: { title: string; description: string; markdownContent: string }) => Promise<void>;
+    onDelete?: () => Promise<void>;
     initialData?: {
         id?: string;
         title: string;
-        description: string;
+        description?: string;
         url?: string;
+        content?: string;
     } | null;
+    mode?: "resource" | "note";
+    modalTitle?: string;
+    modalDescription?: string;
+    hideDescription?: boolean;
+    titleLabel?: string;
+    titlePlaceholder?: string;
+    saveButtonText?: string;
+    inline?: boolean;
+    className?: string;
 }
 
-export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorProps) {
+export function TextEditor({ 
+    isOpen, 
+    onClose, 
+    onSave, 
+    onDelete,
+    initialData,
+    mode = "resource",
+    modalTitle,
+    modalDescription,
+    hideDescription = mode === "note",
+    titleLabel = mode === "note" ? "Título da Anotação*" : "Título do Texto*",
+    titlePlaceholder = mode === "note" ? "Ex: Anotações da Mensagem" : "Ex: Guia de Oração Semanal",
+    saveButtonText = mode === "note" ? "Salvar Anotações" : "Salvar Texto",
+    inline = false,
+    className,
+}: TextEditorProps) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [loadingContent, setLoadingContent] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const editorRef = useRef<HTMLDivElement>(null);
 
     // Reset fields or fetch content on open/change of initialData
@@ -59,7 +91,13 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
             setTitle(initialData.title);
             setDescription(initialData.description || "");
             
-            if (initialData.url) {
+            if (initialData.content !== undefined) {
+                // Direct markdown content provided (e.g. from database for study/material notes)
+                const html = markdownToHtml(initialData.content || "");
+                if (editorRef.current) {
+                    editorRef.current.innerHTML = html || "<p><br></p>";
+                }
+            } else if (initialData.url) {
                 setLoadingContent(true);
                 fetch(initialData.url)
                     .then(res => {
@@ -166,7 +204,8 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
     };
 
     const handleSave = async () => {
-        if (!title.trim()) {
+        const finalTitle = title.trim() || (mode === "note" ? (initialData?.title || "Minhas Anotações") : "");
+        if (!finalTitle) {
             toast.error("O título é obrigatório.");
             return;
         }
@@ -177,711 +216,468 @@ export function TextEditor({ isOpen, onClose, onSave, initialData }: TextEditorP
         try {
             setSaving(true);
             await onSave({
-                title: title.trim(),
+                title: finalTitle,
                 description: description.trim(),
                 markdownContent: markdown
             });
-            onClose();
-        } catch (err: any) {
-            console.error("Error saving text in editor:", err);
-            toast.error(err.message || "Erro ao salvar o texto.");
+            if (!inline) {
+                onClose();
+            }
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error saving text in editor:", error);
+            toast.error(error.message || (mode === "note" ? "Erro ao salvar anotações." : "Erro ao salvar o texto."));
         } finally {
             setSaving(false);
         }
     };
 
-    return (
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90vh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
-                <style>{`
-                    .prose-editor h1 { font-size: 1.5rem; font-weight: 800; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-                    .prose-editor h2 { font-size: 1.25rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-                    .prose-editor h3 { font-size: 1.125rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.25rem; }
-                    .prose-editor h4 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.7; margin-top: 0.75rem; margin-bottom: 0.25rem; }
-                    .prose-editor p { font-size: 0.875rem; line-height: 1.6; color: inherit; opacity: 0.9; margin-bottom: 0.75rem; }
-                    .prose-editor blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.8; background-color: color-mix(in srgb, var(--muted) 20%, transparent); border-radius: 0 0.375rem 0.375rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-                    .prose-editor blockquote .blockquote-badge {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 0.375rem;
-                        color: var(--primary);
-                        font-weight: 600;
-                        font-size: 0.75rem;
-                        margin-bottom: 0.5rem;
-                        user-select: none;
-                        font-style: normal;
-                    }
-                    .prose-editor blockquote .blockquote-badge svg {
-                        stroke: var(--primary);
-                    }
-                    .prose-editor ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
-                    .prose-editor ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
-                    .prose-editor li { font-size: 0.875rem; color: inherit; opacity: 0.9; margin-top: 0.25rem; }
-                    .prose-editor a { color: var(--primary); text-decoration: underline; font-weight: 500; }
-                    .prose-editor code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.25rem; border-radius: 0.25rem; border: 1px solid var(--border); }
-                    .prose-editor .editor-properties-block {
-                        background-color: var(--muted);
-                        border: 1px solid var(--border);
-                        border-radius: 0.75rem;
-                        padding: 1rem;
-                        margin-bottom: 1.5rem;
-                        font-family: monospace;
-                        font-size: 0.8rem;
-                        color: inherit;
-                        opacity: 0.95;
-                    }
-                    .prose-editor .editor-properties-block .properties-header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        border-bottom: 1px solid var(--border);
-                        padding-bottom: 0.5rem;
-                        margin-bottom: 0.5rem;
-                        color: var(--muted-foreground);
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        letter-spacing: 0.05em;
-                        font-size: 0.7rem;
-                        user-select: none;
-                    }
-                    .prose-editor .editor-properties-block .properties-body {
-                        outline: none;
-                        min-height: 20px;
-                        line-height: 1.5;
-                    }
-                    .prose-editor .editor-properties-block .yaml-line {
-                        margin-bottom: 0.25rem;
-                    }
-                    .prose-editor:empty::before {
-                        content: attr(placeholder);
-                        color: inherit;
-                        opacity: 0.4;
-                        cursor: text;
-                    }
-                `}</style>
+    const handleDelete = async () => {
+        if (!onDelete) return;
+        if (!confirm("Deseja realmente excluir esta anotação? Esta ação não pode ser desfeita.")) return;
+        try {
+            setDeleting(true);
+            await onDelete();
+            onClose();
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error deleting note in editor:", error);
+            toast.error(error.message || "Erro ao excluir anotação.");
+        } finally {
+            setDeleting(false);
+        }
+    };
 
-                <DialogHeader className="flex flex-row justify-between items-center pr-6 pb-2 border-b border-border/40">
-                    <div>
-                        <DialogTitle className="text-xl font-bold text-foreground">
-                            {initialData ? "Editar Texto" : "Escrever Novo Texto"}
-                        </DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">
-                            Escreva e formate seu texto. Ele será salvo automaticamente no formato Markdown.
-                        </DialogDescription>
-                    </div>
-                </DialogHeader>
+    const editorStyles = (
+        <style>{`
+            .prose-editor h1 { font-size: 1.5rem; font-weight: 800; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+            .prose-editor h2 { font-size: 1.25rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+            .prose-editor h3 { font-size: 1.125rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.25rem; }
+            .prose-editor h4 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.7; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+            .prose-editor p { font-size: 0.875rem; line-height: 1.6; color: inherit; opacity: 0.9; margin-bottom: 0.75rem; }
+            .prose-editor blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.8; background-color: color-mix(in srgb, var(--muted) 20%, transparent); border-radius: 0 0.375rem 0.375rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .prose-editor blockquote .blockquote-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.375rem;
+                color: var(--primary);
+                font-weight: 600;
+                font-size: 0.75rem;
+                margin-bottom: 0.5rem;
+                user-select: none;
+                font-style: normal;
+            }
+            .prose-editor blockquote .blockquote-badge svg {
+                stroke: var(--primary);
+            }
+            .prose-editor ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+            .prose-editor ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+            .prose-editor li { font-size: 0.875rem; color: inherit; opacity: 0.9; margin-top: 0.25rem; }
+            .prose-editor a { color: var(--primary); text-decoration: underline; font-weight: 500; }
+            .prose-editor code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.25rem; border-radius: 0.25rem; border: 1px solid var(--border); }
+            .prose-editor .editor-properties-block {
+                background-color: var(--muted);
+                border: 1px solid var(--border);
+                border-radius: 0.75rem;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                font-family: monospace;
+                font-size: 0.8rem;
+                color: inherit;
+                opacity: 0.95;
+            }
+            .prose-editor .editor-properties-block .properties-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+                color: var(--muted-foreground);
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-size: 0.7rem;
+                user-select: none;
+            }
+            .prose-editor .editor-properties-block .properties-body {
+                outline: none;
+                min-height: 20px;
+                line-height: 1.5;
+            }
+            .prose-editor .editor-properties-block .yaml-line {
+                margin-bottom: 0.25rem;
+            }
+            .prose-editor:empty::before {
+                content: attr(placeholder);
+                color: inherit;
+                opacity: 0.4;
+                cursor: text;
+            }
+        `}</style>
+    );
 
-                <div className="flex-1 flex flex-col gap-4 py-4 overflow-hidden relative">
-                    {loadingContent && (
-                        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-[100] flex flex-col justify-center items-center gap-3 rounded-2xl">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
-                        </div>
-                    )}
-                        {/* Title & Description Fields */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="md:col-span-1">
-                                <Field>
-                                    <FieldLabel htmlFor="editor-title" className="text-xs font-semibold">Título do Texto*</FieldLabel>
-                                    <Input 
-                                        id="editor-title" 
-                                        placeholder="Ex: Guia de Oração Semanal" 
-                                        value={title} 
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        className="rounded-md h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60"
-                                        maxLength={100}
-                                    />
-                                </Field>
-                            </div>
-                            <div className="md:col-span-2">
-                                <Field>
-                                    <FieldLabel htmlFor="editor-desc" className="text-xs font-semibold">Breve Descrição / Resumo</FieldLabel>
-                                    <Input 
-                                        id="editor-desc" 
-                                        placeholder="Sobre o que fala este texto?" 
-                                        value={description} 
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        className="rounded-md h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60"
-                                        maxLength={250}
-                                    />
-                                </Field>
-                            </div>
-                        </div>
-
-                        {/* Formatting Toolbar */}
-                        <div className="flex flex-wrap items-center gap-1 p-1 bg-muted/30 border border-border/60 rounded-xl">
-                            {/* Inline Formats */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("bold")}
-                                title="Negrito"
-                            >
-                                <Bold className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("italic")}
-                                title="Itálico"
-                            >
-                                <Italic className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("underline")}
-                                title="Sublinhado"
-                            >
-                                <Underline className="h-4 w-4" />
-                            </Button>
-
-                            <div className="h-4 w-[1px] bg-border mx-1" />
-
-                            {/* Headings */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<h1>")}
-                                title="Título 1"
-                            >
-                                <Heading1 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<h2>")}
-                                title="Título 2"
-                            >
-                                <Heading2 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<h3>")}
-                                title="Título 3"
-                            >
-                                <Heading3 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<h4>")}
-                                title="Subtítulo"
-                            >
-                                <Heading4 className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                className="h-8 px-2 text-xs font-semibold rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<p>")}
-                                title="Texto Normal"
-                            >
-                                Normal
-                            </Button>
-
-                            <div className="h-4 w-[1px] bg-border mx-1" />
-
-                            {/* Alignments */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("justifyLeft")}
-                                title="Alinhar à Esquerda"
-                            >
-                                <AlignLeft className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("justifyCenter")}
-                                title="Centralizar"
-                            >
-                                <AlignCenter className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("justifyFull")}
-                                title="Justificar"
-                            >
-                                <AlignJustify className="h-4 w-4" />
-                            </Button>
-
-                            <div className="h-4 w-[1px] bg-border mx-1" />
-
-                            {/* Blocks & Lists */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("formatBlock", "<blockquote>")}
-                                title="Citação"
-                            >
-                                <Quote className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("insertUnorderedList")}
-                                title="Lista com Marcadores"
-                            >
-                                <List className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("insertOrderedList")}
-                                title="Lista Numerada"
-                            >
-                                <ListOrdered className="h-4 w-4" />
-                            </Button>
-
-                            <div className="h-4 w-[1px] bg-border mx-1" />
-
-                            {/* Actions & Links */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={handleAddLink}
-                                title="Inserir Link"
-                            >
-                                <LinkIcon className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("removeFormat")}
-                                title="Limpar Formatação"
-                            >
-                                <Eraser className="h-4 w-4" />
-                            </Button>
-
-                            <div className="h-4 w-[1px] bg-border mx-1" />
-
-                            {/* Undo / Redo */}
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("undo")}
-                                title="Desfazer"
-                            >
-                                <Undo className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer"
-                                onClick={() => executeCommand("redo")}
-                                title="Refazer"
-                            >
-                                <Redo className="h-4 w-4" />
-                            </Button>
-                        </div>
-
-                        {/* Editor Workspace */}
-                        <div className="flex-1 flex flex-col min-h-0 relative">
-                            <div 
-                                ref={editorRef}
-                                contentEditable
-                                onPaste={handlePaste}
-                                className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-6 bg-card/60 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground dark:text-zinc-100 prose-editor scrollbar-thin"
-                                {...{ placeholder: "Escreva seu texto aqui..." } as any}
-                                style={{ outline: "none" }}
+    const editorBody = (
+        <div className="flex-1 flex flex-col gap-3 sm:gap-4 py-2 sm:py-3 overflow-hidden relative min-h-0">
+            {loadingContent && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-[100] flex flex-col justify-center items-center gap-3 rounded-2xl">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
+                </div>
+            )}
+            {/* Title & Description Fields */}
+            <div className={cn("grid gap-2 sm:gap-3 shrink-0", hideDescription ? "grid-cols-1" : "grid-cols-1 md:grid-cols-3")}>
+                <div className={hideDescription ? "w-full" : "md:col-span-1"}>
+                    <Field>
+                        <FieldLabel htmlFor="editor-title" className="text-xs font-semibold">{titleLabel}</FieldLabel>
+                        <Input 
+                            id="editor-title" 
+                            placeholder={titlePlaceholder} 
+                            value={title} 
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="rounded-md h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60 text-sm"
+                            maxLength={100}
+                        />
+                    </Field>
+                </div>
+                {!hideDescription && (
+                    <div className="md:col-span-2">
+                        <Field>
+                            <FieldLabel htmlFor="editor-desc" className="text-xs font-semibold">Breve Descrição / Resumo</FieldLabel>
+                            <Input 
+                                id="editor-desc" 
+                                placeholder="Sobre o que fala este texto?" 
+                                value={description} 
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="rounded-md h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60 text-sm"
+                                maxLength={250}
                             />
-                        </div>
+                        </Field>
                     </div>
+                )}
+            </div>
 
-                {/* Footer Controls */}
-                <div className="flex justify-end gap-2 pt-4 border-t border-border/40">
+            {/* Formatting Toolbar */}
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-muted/30 border border-border/60 rounded-xl shrink-0 overflow-x-auto scrollbar-none">
+                {/* Inline Formats */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("bold")}
+                    title="Negrito"
+                >
+                    <Bold className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("italic")}
+                    title="Itálico"
+                >
+                    <Italic className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("underline")}
+                    title="Sublinhado"
+                >
+                    <Underline className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+
+                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+                {/* Headings */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<h1>")}
+                    title="Título 1"
+                >
+                    <Heading1 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<h2>")}
+                    title="Título 2"
+                >
+                    <Heading2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<h3>")}
+                    title="Título 3"
+                >
+                    <Heading3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<h4>")}
+                    title="Subtítulo"
+                >
+                    <Heading4 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    className="h-7 sm:h-8 px-1.5 sm:px-2 text-xs font-semibold rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<p>")}
+                    title="Texto Normal"
+                >
+                    Normal
+                </Button>
+
+                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+                {/* Alignments */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("justifyLeft")}
+                    title="Alinhar à Esquerda"
+                >
+                    <AlignLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("justifyCenter")}
+                    title="Centralizar"
+                >
+                    <AlignCenter className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("justifyFull")}
+                    title="Justificar"
+                >
+                    <AlignJustify className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+
+                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+                {/* Blocks & Lists */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("formatBlock", "<blockquote>")}
+                    title="Citação"
+                >
+                    <Quote className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("insertUnorderedList")}
+                    title="Lista com Marcadores"
+                >
+                    <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("insertOrderedList")}
+                    title="Lista Numerada"
+                >
+                    <ListOrdered className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+
+                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+                {/* Actions & Links */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={handleAddLink}
+                    title="Inserir Link"
+                >
+                    <LinkIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("removeFormat")}
+                    title="Limpar Formatação"
+                >
+                    <Eraser className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+
+                <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+                {/* Undo / Redo */}
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("undo")}
+                    title="Desfazer"
+                >
+                    <Undo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    onClick={() => executeCommand("redo")}
+                    title="Refazer"
+                >
+                    <Redo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+            </div>
+
+            {/* Editor Workspace */}
+            <div className="flex-1 flex flex-col min-h-0 relative">
+                <div 
+                    ref={editorRef}
+                    contentEditable
+                    onPaste={handlePaste}
+                    className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-4 sm:p-5 bg-card/60 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground dark:text-zinc-100 prose-editor scrollbar-thin"
+                    data-placeholder="Escreva suas anotações aqui..."
+                    style={{ outline: "none" }}
+                />
+            </div>
+        </div>
+    );
+
+    const editorFooter = (
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-3 border-t border-border/40 shrink-0">
+            <div>
+                {onDelete && (
                     <Button 
                         type="button" 
                         variant="ghost" 
-                        onClick={onClose}
-                        className="rounded-full px-5 h-10 text-sm font-medium"
-                        disabled={saving}
+                        onClick={handleDelete}
+                        className="rounded-full px-4 min-h-[44px] h-11 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive gap-2 cursor-pointer w-full sm:w-auto"
+                        disabled={saving || deleting}
                     >
-                        Cancelar
+                        <Trash2 className="h-4 w-4" />
+                        <span>Excluir Anotação</span>
                     </Button>
-                    <Button 
-                        type="button" 
-                        onClick={handleSave}
-                        className="rounded-full px-6 h-10 text-sm font-semibold gap-2 shadow-md"
-                        disabled={saving || loadingContent}
+                )}
+            </div>
+            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
+                <Button 
+                    type="button" 
+                    variant="ghost" 
+                    onClick={onClose}
+                    className="rounded-full px-4 sm:px-5 min-h-[44px] h-11 text-sm font-medium cursor-pointer"
+                    disabled={saving || deleting}
+                >
+                    {inline ? "Ocultar" : "Cancelar"}
+                </Button>
+                <Button 
+                    type="button" 
+                    onClick={handleSave}
+                    className="rounded-full px-5 sm:px-6 min-h-[44px] h-11 text-sm font-semibold gap-2 shadow-md cursor-pointer flex-1 sm:flex-initial"
+                    disabled={saving || deleting || loadingContent}
+                >
+                    {saving ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Salvando...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="h-4 w-4" />
+                            {saveButtonText}
+                        </>
+                    )}
+                </Button>
+            </div>
+        </div>
+    );
+
+    if (inline) {
+        if (!isOpen) return null;
+        return (
+            <div className={cn("flex flex-col h-full bg-card/95 backdrop-blur-sm border border-border/70 rounded-2xl sm:rounded-3xl p-4 sm:p-5 overflow-hidden shadow-lg relative min-h-[450px]", className)}>
+                {editorStyles}
+                <div className="flex items-center justify-between pb-2.5 border-b border-border/40 shrink-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                            <StickyNote className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <h4 className="font-bold text-sm sm:text-base text-foreground truncate">
+                                {modalTitle || (mode === "note" ? "Minhas Anotações" : "Editor de Texto")}
+                            </h4>
+                            <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
+                                {modalDescription || (mode === "note" ? "Anotações salvas junto ao material." : "Escreva e formate seu texto.")}
+                            </p>
+                        </div>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={onClose}
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground shrink-0 cursor-pointer min-h-[44px] min-w-[44px]"
+                        title="Fechar anotações"
                     >
-                        {saving ? (
-                            <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Salvando...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="h-4 w-4" />
-                                Salvar Texto
-                            </>
-                        )}
+                        <X className="w-4 h-4" />
                     </Button>
                 </div>
+                {editorBody}
+                {editorFooter}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90vh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
+                {editorStyles}
+                <DialogHeader className="flex flex-row justify-between items-center pr-6 pb-2 border-b border-border/40 shrink-0">
+                    <div>
+                        <DialogTitle className="text-xl font-bold text-foreground">
+                            {modalTitle || (mode === "note" ? "Minhas Anotações" : (initialData ? "Editar Texto" : "Escrever Novo Texto"))}
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-muted-foreground">
+                            {modalDescription || (mode === "note" 
+                                ? "Suas anotações pessoais são privadas e salvas no formato Markdown." 
+                                : "Escreva e formate seu texto. Ele será salvo automaticamente no formato Markdown.")}
+                        </DialogDescription>
+                    </div>
+                </DialogHeader>
+                {editorBody}
+                {editorFooter}
             </DialogContent>
         </Dialog>
     );
-}
-
-/**
- * Bidirectional parsing helpers: Markdown <-> HTML
- */
-
-function escapeHtml(text: string): string {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function parseInlineMarkdownToHtml(text: string): string {
-    const tokenRegex = /(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g;
-    const parts = text.split(tokenRegex);
-    return parts.map(part => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-            return `<strong>${escapeHtml(part.slice(2, -2))}</strong>`;
-        }
-        if (part.startsWith("`") && part.endsWith("`")) {
-            return `<code class="px-1.5 py-0.5 rounded bg-muted font-mono text-xs border border-border">${escapeHtml(part.slice(1, -1))}</code>`;
-        }
-        if (part.startsWith("[") && part.includes("](")) {
-            const closeBracket = part.indexOf("]");
-            const label = part.slice(1, closeBracket);
-            const url = part.slice(closeBracket + 2, -1);
-            return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-medium">${escapeHtml(label)}</a>`;
-        }
-        return escapeHtml(part);
-    }).join("");
-}
-
-export function markdownToHtml(markdown: string): string {
-    let html = "";
-    let markdownBody = markdown;
-    let frontmatterContent = "";
-
-    // Normalize line endings
-    const normalizedMarkdown = markdown.replace(/\r\n/g, "\n");
-
-    // Check if markdown starts with YAML frontmatter
-    if (normalizedMarkdown.startsWith("---")) {
-        const secondDashIndex = normalizedMarkdown.indexOf("\n---", 3);
-        if (secondDashIndex !== -1) {
-            frontmatterContent = normalizedMarkdown.slice(0, secondDashIndex + 4);
-            markdownBody = normalizedMarkdown.slice(secondDashIndex + 4);
-        }
-    }
-
-    if (frontmatterContent) {
-        // Extract the raw lines of frontmatter between the dashes
-        const yamlLines = frontmatterContent.split("\n")
-            .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
-        
-        html += `<div class="editor-properties-block" contenteditable="false">`;
-        html += `<div class="properties-header">`;
-        html += `<span class="properties-title">Propriedades / Metadados</span>`;
-        html += `</div>`;
-        html += `<div class="properties-body" contenteditable="true">`;
-        
-        for (const line of yamlLines) {
-            html += `<div class="yaml-line">${escapeHtml(line)}</div>`;
-        }
-        
-        html += `</div>`;
-        html += `</div>`;
-    }
-
-    const lines = markdownBody.split("\n");
-    let insideList = false;
-    let listType = ""; // "ul" or "ol"
-    let insideCode = false;
-    let insideBlockquote = false;
-    let blockquoteHasContent = false;
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const trimmed = line.trim();
-
-        // Code block toggle
-        if (trimmed.startsWith("```")) {
-            if (insideCode) {
-                html += "</pre>";
-                insideCode = false;
-            } else {
-                html += "<pre>";
-                insideCode = true;
-            }
-            continue;
-        }
-
-        if (insideCode) {
-            html += escapeHtml(line) + "\n";
-            continue;
-        }
-
-        // Check for HTML aligned tags
-        const centerMatch = trimmed.match(/^<p align="center">(.*)<\/p>$/i);
-        const justifyMatch = trimmed.match(/^<p align="justify">(.*)<\/p>$/i);
-        const headingAlignMatch = trimmed.match(/^<h([1-4]) align="(center|justify)">(.*)<\/h\d>$/i);
-
-        if (centerMatch) {
-            html += `<p style="text-align: center;">${parseInlineMarkdownToHtml(centerMatch[1])}</p>`;
-            continue;
-        }
-        if (justifyMatch) {
-            html += `<p style="text-align: justify;">${parseInlineMarkdownToHtml(justifyMatch[1])}</p>`;
-            continue;
-        }
-        if (headingAlignMatch) {
-            const level = headingAlignMatch[1];
-            const align = headingAlignMatch[2];
-            const content = headingAlignMatch[3];
-            html += `<h${level} style="text-align: ${align};">${parseInlineMarkdownToHtml(content)}</h${level}>`;
-            continue;
-        }
-
-        // Blockquote item handling
-        const isQuote = trimmed.startsWith(">");
-
-        if (isQuote) {
-            if (insideList) {
-                html += `</${listType}>`;
-                insideList = false;
-            }
-            
-            const content = trimmed.startsWith("> ") 
-                ? trimmed.slice(2) 
-                : (trimmed === ">" ? "" : trimmed.slice(1));
-            
-            const contentTrimmed = content.trim();
-            const lowerContent = contentTrimmed.toLowerCase();
-            const isBibleMarker = lowerContent.startsWith("!bible") || lowerContent.startsWith("!bíblia");
-            
-            if (isBibleMarker) {
-                const markerLength = lowerContent.startsWith("!bible") ? 6 : 7;
-                if (!insideBlockquote) {
-                    html += "<blockquote>";
-                    insideBlockquote = true;
-                    blockquoteHasContent = false;
-                }
-                html += `<div class="blockquote-badge font-sans flex items-center gap-1 text-primary font-semibold text-xs mb-2 select-none" contenteditable="false">`;
-                html += `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
-                html += `<span>Bíblia</span>`;
-                html += `</div>`;
-                
-                const rest = contentTrimmed.slice(markerLength).trim();
-                if (rest) {
-                    html += parseInlineMarkdownToHtml(rest);
-                    blockquoteHasContent = true;
-                }
-                continue;
-            }
-
-            if (!insideBlockquote) {
-                html += "<blockquote>";
-                insideBlockquote = true;
-                blockquoteHasContent = false;
-            }
-
-            if (blockquoteHasContent) {
-                html += "<br />";
-            }
-            
-            html += parseInlineMarkdownToHtml(content);
-            blockquoteHasContent = true;
-            continue;
-        } else if (insideBlockquote) {
-            html += "</blockquote>";
-            insideBlockquote = false;
-        }
-
-        // List item handling
-        const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("* ");
-        const isNumbered = /^\d+\.\s/.test(trimmed);
-
-        if (isBullet || isNumbered) {
-            const currentListType = isBullet ? "ul" : "ol";
-            if (!insideList || listType !== currentListType) {
-                if (insideList) {
-                    html += `</${listType}>`;
-                }
-                html += `<${currentListType}>`;
-                insideList = true;
-                listType = currentListType;
-            }
-
-            const content = isBullet 
-                ? trimmed.slice(2) 
-                : trimmed.slice(trimmed.indexOf(".") + 1).trim();
-
-            html += `<li>${parseInlineMarkdownToHtml(content)}</li>`;
-            continue;
-        } else if (insideList) {
-            html += `</${listType}>`;
-            insideList = false;
-        }
-
-        // Headings
-        if (trimmed.startsWith("# ")) {
-            html += `<h1>${parseInlineMarkdownToHtml(trimmed.slice(2))}</h1>`;
-        } else if (trimmed.startsWith("## ")) {
-            html += `<h2>${parseInlineMarkdownToHtml(trimmed.slice(3))}</h2>`;
-        } else if (trimmed.startsWith("### ")) {
-            html += `<h3>${parseInlineMarkdownToHtml(trimmed.slice(4))}</h3>`;
-        } else if (trimmed.startsWith("#### ")) {
-            html += `<h4>${parseInlineMarkdownToHtml(trimmed.slice(5))}</h4>`;
-        } else if (trimmed === "---" || trimmed === "***") {
-            html += "<hr />";
-        } else if (trimmed === "") {
-            html += "<p><br></p>";
-        } else {
-            html += `<p>${parseInlineMarkdownToHtml(line)}</p>`;
-        }
-    }
-
-    if (insideList) {
-        html += `</${listType}>`;
-    }
-    if (insideBlockquote) {
-        html += "</blockquote>";
-    }
-
-    return html;
-}
-
-export function htmlToMarkdown(html: string): string {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html;
-    
-    const markdown = serializeElementToMarkdown(tempDiv);
-    return markdown.replace(/\n{3,}/g, "\n\n").trim();
-}
-
-function serializeElementToMarkdown(node: Node): string {
-    if (node.nodeType === Node.TEXT_NODE) {
-        return node.nodeValue || "";
-    }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-        return "";
-    }
-
-    const element = node as HTMLElement;
-    
-    if (element.classList.contains("blockquote-badge")) {
-        return "!bible\n";
-    }
-    
-    // Check alignment attributes or styles
-    const align = element.getAttribute("align") || element.style.textAlign;
-    let alignAttr = "";
-    if (align === "center" || align === "justify") {
-        alignAttr = ` align="${align}"`;
-    }
-
-    let childrenMarkdown = "";
-    for (let i = 0; i < element.childNodes.length; i++) {
-        childrenMarkdown += serializeElementToMarkdown(element.childNodes[i]);
-    }
-
-    switch (element.tagName) {
-        case "H1":
-            if (alignAttr) return `\n<h1${alignAttr}>${childrenMarkdown.trim()}</h1>\n`;
-            return `\n# ${childrenMarkdown.trim()}\n`;
-        case "H2":
-            if (alignAttr) return `\n<h2${alignAttr}>${childrenMarkdown.trim()}</h2>\n`;
-            return `\n## ${childrenMarkdown.trim()}\n`;
-        case "H3":
-            if (alignAttr) return `\n<h3${alignAttr}>${childrenMarkdown.trim()}</h3>\n`;
-            return `\n### ${childrenMarkdown.trim()}\n`;
-        case "H4":
-            if (alignAttr) return `\n<h4${alignAttr}>${childrenMarkdown.trim()}</h4>\n`;
-            return `\n#### ${childrenMarkdown.trim()}\n`;
-        case "P":
-            if (alignAttr) return `\n<p${alignAttr}>${childrenMarkdown.trim()}</p>\n`;
-            return `\n${childrenMarkdown.trim()}\n`;
-        case "STRONG":
-        case "B":
-            return `**${childrenMarkdown}**`;
-        case "EM":
-        case "I":
-            return `*${childrenMarkdown}*`;
-        case "U":
-            return `<u>${childrenMarkdown}</u>`;
-        case "A":
-            const href = element.getAttribute("href") || "";
-            return `[${childrenMarkdown}](${href})`;
-        case "BLOCKQUOTE":
-            return `\n> ${childrenMarkdown.trim().split("\n").join("\n> ")}\n`;
-        case "UL":
-            return `\n${childrenMarkdown.trim()}\n`;
-        case "OL":
-            return `\n${childrenMarkdown.trim()}\n`;
-        case "LI":
-            const parent = element.parentElement;
-            if (parent && parent.tagName === "OL") {
-                const items = Array.from(parent.children);
-                const index = items.indexOf(element) + 1;
-                return `${index}. ${childrenMarkdown.trim()}\n`;
-            }
-            return `- ${childrenMarkdown.trim()}\n`;
-        case "BR":
-            return "\n";
-        case "DIV":
-            if (element.classList.contains("editor-blockquote")) {
-                return `\n> ${childrenMarkdown.trim().split("\n").join("\n> ")}\n`;
-            }
-            if (element.classList.contains("editor-properties-block")) {
-                const bodyEl = element.querySelector(".properties-body") as HTMLElement;
-                if (bodyEl) {
-                    const linesText = bodyEl.innerText || bodyEl.textContent || "";
-                    const rawLines = linesText.split("\n").map(l => l.trimEnd());
-                    return `---\n${rawLines.join("\n")}\n---\n`;
-                }
-                return "";
-            }
-            if (alignAttr) {
-                return `\n<p${alignAttr}>${childrenMarkdown.trim()}</p>\n`;
-            }
-            return `\n${childrenMarkdown.trim()}\n`;
-        default:
-            return childrenMarkdown;
-    }
 }

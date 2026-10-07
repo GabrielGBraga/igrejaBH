@@ -33,6 +33,7 @@ type Retreat = Database["public"]["Tables"]["retreats"]["Row"];
 const retreatFormSchema = z.object({
   title: z.string().min(3, { message: "O título deve ter pelo menos 3 caracteres." }),
   description: z.string().default(""),
+  has_payment: z.boolean().default(false),
   price: z.coerce.number().min(0, { message: "O preço deve ser igual ou maior que zero." }),
   location_text: z.string().default(""),
   start_date: z
@@ -53,9 +54,11 @@ const retreatFormSchema = z.object({
 
 type RetreatFormValues = z.infer<typeof retreatFormSchema>;
 
-interface FormOption {
+export interface FormOption {
   id: string;
   name: string;
+  connectedRetreatId?: string | null;
+  connectedRetreatTitle?: string | null;
 }
 
 interface CreateEditEventDialogProps {
@@ -75,11 +78,12 @@ export function CreateEditEventDialog({
 }: CreateEditEventDialogProps) {
   const [submitting, setSubmitting] = useState(false);
 
-  const { control, handleSubmit, reset, setValue } = useForm<RetreatFormValues>({
+  const { control, handleSubmit, reset, setValue, watch } = useForm<RetreatFormValues>({
     resolver: zodResolver(retreatFormSchema) as Resolver<RetreatFormValues>,
     defaultValues: {
       title: "",
       description: "",
+      has_payment: false,
       price: 0,
       location_text: "",
       start_date: "",
@@ -91,10 +95,14 @@ export function CreateEditEventDialog({
     },
   });
 
+  const hasPayment = watch("has_payment");
+
   useEffect(() => {
     if (retreat) {
       setValue("title", retreat.title);
       setValue("description", retreat.description || "");
+      const isPaid = retreat.has_payment ?? ((retreat.price || 0) > 0);
+      setValue("has_payment", isPaid);
       setValue("price", retreat.price || 0);
       setValue("location_text", retreat.location_text || "");
       setValue("start_date", retreat.start_date || "");
@@ -112,6 +120,7 @@ export function CreateEditEventDialog({
       reset({
         title: "",
         description: "",
+        has_payment: false,
         price: 0,
         location_text: "",
         start_date: "",
@@ -129,7 +138,8 @@ export function CreateEditEventDialog({
     const payload = {
       title: data.title,
       description: data.description || null,
-      price: data.price,
+      has_payment: data.has_payment,
+      price: data.has_payment ? data.price : 0,
       location_text: data.location_text || null,
       start_date: data.start_date,
       end_date: data.end_date,
@@ -139,6 +149,23 @@ export function CreateEditEventDialog({
       registration_deadline:
         data.registration_deadline === "" ? null : data.registration_deadline,
     };
+
+    // Validação preventiva: exclusividade 1-para-1 de formulário por evento
+    if (payload.form_id) {
+      const alreadyLinked = forms.find(
+        (f) =>
+          f.id === payload.form_id &&
+          f.connectedRetreatId &&
+          f.connectedRetreatId !== retreat?.id
+      );
+      if (alreadyLinked) {
+        toast.error(
+          `Este formulário já está vinculado ao evento "${alreadyLinked.connectedRetreatTitle}". Cada evento deve possuir sua própria ficha de inscrição exclusiva.`
+        );
+        setSubmitting(false);
+        return;
+      }
+    }
 
     // Garantir campos obrigatórios no formulário selecionado
     if (payload.form_id) {
@@ -242,48 +269,87 @@ export function CreateEditEventDialog({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field>
-              <FieldLabel htmlFor="price">Preço por Pessoa (R$) *</FieldLabel>
+              <FieldLabel htmlFor="has_payment">Cobrança de Inscrição *</FieldLabel>
               <Controller
-                name="price"
+                name="has_payment"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <Input
-                      {...field}
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Ex: 150.00 (0 para Gratuito)"
-                      className="rounded-md min-h-[44px]"
-                    />
-                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
-                  </>
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(val) => {
+                      const isPaid = val === "pago";
+                      field.onChange(isPaid);
+                      if (!isPaid) setValue("price", 0);
+                    }}
+                    value={field.value ? "pago" : "gratuito"}
+                  >
+                    <SelectTrigger id="has_payment" className="w-full min-h-[44px]">
+                      <SelectValue placeholder="Selecione o tipo de evento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gratuito">
+                        Gratuito (Sem Cobrança)
+                      </SelectItem>
+                      <SelectItem value="pago">
+                        Pago (Com Cobrança)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               />
             </Field>
 
-            <Field>
-              <FieldLabel htmlFor="max_participants">Capacidade Máxima *</FieldLabel>
-              <Controller
-                name="max_participants"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <>
-                    <Input
-                      {...field}
-                      id="max_participants"
-                      type="number"
-                      min="1"
-                      placeholder="Ex: 120"
-                      className="rounded-md min-h-[44px]"
-                    />
-                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
-                  </>
-                )}
-              />
-            </Field>
+            {hasPayment ? (
+              <Field>
+                <FieldLabel htmlFor="price">Preço por Pessoa (R$) *</FieldLabel>
+                <Controller
+                  name="price"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <Input
+                        {...field}
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Ex: 150.00"
+                        className="rounded-md min-h-[44px]"
+                      />
+                      {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                    </>
+                  )}
+                />
+              </Field>
+            ) : (
+              <div className="flex flex-col justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs text-emerald-700 dark:text-emerald-400">
+                <span className="font-bold">Inscrição Gratuita</span>
+                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  Os inscritos não verão nenhuma etapa ou modal de pagamento.
+                </span>
+              </div>
+            )}
           </div>
+
+          <Field>
+            <FieldLabel htmlFor="max_participants">Capacidade Máxima *</FieldLabel>
+            <Controller
+              name="max_participants"
+              control={control}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input
+                    {...field}
+                    id="max_participants"
+                    type="number"
+                    min="1"
+                    placeholder="Ex: 120"
+                    className="rounded-md min-h-[44px]"
+                  />
+                  {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                </>
+              )}
+            />
+          </Field>
 
           <Field>
             <FieldLabel htmlFor="location_text">Local do Evento</FieldLabel>
@@ -342,6 +408,29 @@ export function CreateEditEventDialog({
             </Field>
           </div>
 
+          <Field>
+            <FieldLabel htmlFor="registration_deadline">Prazo Limite para Inscrições</FieldLabel>
+            <Controller
+              name="registration_deadline"
+              control={control}
+              render={({ field, fieldState }) => (
+                <>
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    id="registration_deadline"
+                    type="date"
+                    className="rounded-md min-h-[44px]"
+                  />
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    Opcional. Data final (até as 23:59) para recebimento de inscrições. Se deixado em branco, o prazo limite será a Data de Término do evento.
+                  </p>
+                  {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
+                </>
+              )}
+            />
+          </Field>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field>
               <FieldLabel htmlFor="status">Status *</FieldLabel>
@@ -364,7 +453,13 @@ export function CreateEditEventDialog({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="form_id">Ficha de Inscrição Customizada</FieldLabel>
+              <div className="flex flex-col gap-1">
+                <FieldLabel htmlFor="form_id">Ficha de Inscrição Customizada</FieldLabel>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Cada evento deve possuir uma ficha exclusiva. Para reaproveitar campos de um modelo existente, duplique-o na{" "}
+                  <span className="font-semibold text-zinc-700 dark:text-zinc-300">Gestão de Formulários</span>.
+                </p>
+              </div>
               <Controller
                 name="form_id"
                 control={control}
@@ -378,11 +473,25 @@ export function CreateEditEventDialog({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Nenhum (Formulário Padrão)</SelectItem>
-                      {forms.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>
-                          {f.name}
-                        </SelectItem>
-                      ))}
+                      {forms.map((f) => {
+                        const isLinkedToAnother = !!(
+                          f.connectedRetreatId &&
+                          f.connectedRetreatId !== retreat?.id
+                        );
+                        return (
+                          <SelectItem
+                            key={f.id}
+                            value={f.id}
+                            disabled={isLinkedToAnother}
+                            className={isLinkedToAnother ? "opacity-50 cursor-not-allowed" : ""}
+                          >
+                            {f.name}
+                            {isLinkedToAnother && f.connectedRetreatTitle
+                              ? ` (Já vinculado a: ${f.connectedRetreatTitle})`
+                              : ""}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 )}

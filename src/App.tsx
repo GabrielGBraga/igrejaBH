@@ -106,6 +106,7 @@ function App() {
         <Route path="/entrar" element={<SignIn />} />
         <Route path="/cadastro" element={<SignUp />} />
         <Route path="/formularios/responder/:formId" element={<FormResponder />} />
+        <Route path="/formularios/:formId" element={<FormResponder />} />
 
         {/* Protected Routes inside shared Layout */}
         <Route element={<AppLayout />}>

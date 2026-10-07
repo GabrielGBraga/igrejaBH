@@ -124,8 +124,17 @@ export function applyKpiCondition(
 
     if (field === "payment_method") {
       const m = (item.payment_method || "").toLowerCase();
-      if (operator === "eq") return m === String(value).toLowerCase();
-      if (operator === "neq") return m !== String(value).toLowerCase();
+      const val = String(value).toLowerCase();
+      const isTargetCard = val === "cartao" || val === "card" || val === "credit_card";
+      const isActualCard = m === "cartao" || m === "card" || m === "credit_card";
+
+      if (isTargetCard) {
+        if (operator === "eq") return isActualCard;
+        if (operator === "neq") return !isActualCard;
+      }
+
+      if (operator === "eq") return m === val;
+      if (operator === "neq") return m !== val;
     }
 
     return true;

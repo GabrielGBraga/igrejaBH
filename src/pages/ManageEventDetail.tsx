@@ -15,10 +15,13 @@ import {
   Loader2,
   AlertTriangle,
   PieChart,
+  Ticket,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
 import { calculateTotalPrice, type FormField } from "@/lib/forms";
+import { formatDateBR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -34,7 +37,7 @@ import { KPIBoard } from "@/components/events/KPIBoard";
 import { KPIBuilderDialog } from "@/components/events/KPIBuilderDialog";
 import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
-import { CreateEditEventDialog } from "@/components/events/CreateEditEventDialog";
+import { CreateEditEventDialog, type FormOption } from "@/components/events/CreateEditEventDialog";
 import {
   RegistrationDetailDialog,
   type RegistrationWithDetails,
@@ -43,6 +46,7 @@ import {
   RoomManagementTab,
   type RetreatRoom,
 } from "@/components/events/RoomManagementTab";
+import { EventCouponsTab } from "@/components/events/EventCouponsTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
@@ -63,11 +67,6 @@ type Retreat = Database["public"]["Tables"]["retreats"]["Row"] & {
     name: string;
   } | null;
 };
-
-interface FormOption {
-  id: string;
-  name: string;
-}
 
 interface FormTemplateShape {
   id: string;
@@ -100,7 +99,7 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    "registrations" | "rooms" | "finance" | "dashboard"
+    "registrations" | "rooms" | "finance" | "coupons" | "dashboard"
   >("registrations");
 
   // Dialog & Modal states
@@ -250,12 +249,29 @@ export default function ManageEventDetail() {
 
   const fetchForms = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("forms")
-        .select("id, name")
-        .order("name", { ascending: true });
-      if (error) throw error;
-      setForms(data || []);
+      const [{ data: formsData, error: formsError }, { data: retreatsData, error: retreatsError }] =
+        await Promise.all([
+          supabase.from("forms").select("id, name").order("name", { ascending: true }),
+          supabase.from("retreats").select("id, title, form_id"),
+        ]);
+      if (formsError) throw formsError;
+      if (retreatsError) throw retreatsError;
+
+      const retreatsByForm = new Map(
+        (retreatsData || []).filter((r) => r.form_id).map((r) => [r.form_id as string, r])
+      );
+
+      const mappedForms: FormOption[] = (formsData || []).map((f) => {
+        const conn = retreatsByForm.get(f.id);
+        return {
+          id: f.id,
+          name: f.name,
+          connectedRetreatId: conn?.id || null,
+          connectedRetreatTitle: conn?.title || null,
+        };
+      });
+
+      setForms(mappedForms);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro desconhecido";
       console.error("Erro ao buscar formulários:", msg);
@@ -326,15 +342,19 @@ export default function ManageEventDetail() {
   // Toggle Payment Status
   const handleTogglePayment = async (reg: RegistrationWithDetails) => {
     const nextPaid = !reg.paid;
+    const isCoupon = (reg.payment_method || "").toLowerCase() === "cupom";
+    const defaultRef = isCoupon ? "Isenção confirmada pela liderança" : "Confirmado pela liderança";
+
     try {
+      const nextMethod = reg.payment_method || (nextPaid ? "pix" : null);
+      const nextRef = reg.payment_reference || (nextPaid ? defaultRef : null);
+
       const { error } = await supabase
         .from("registrations")
         .update({
           paid: nextPaid,
-          payment_method: nextPaid ? reg.payment_method || "pix" : null,
-          payment_reference: nextPaid
-            ? reg.payment_reference || "Confirmado pela liderança"
-            : null,
+          payment_method: nextMethod,
+          payment_reference: nextRef,
         })
         .eq("id", reg.id);
 
@@ -346,10 +366,8 @@ export default function ManageEventDetail() {
             ? {
                 ...item,
                 paid: nextPaid,
-                payment_method: nextPaid ? reg.payment_method || "pix" : null,
-                payment_reference: nextPaid
-                  ? reg.payment_reference || "Confirmado pela liderança"
-                  : null,
+                payment_method: nextMethod,
+                payment_reference: nextRef,
               }
             : item
         )
@@ -361,21 +379,76 @@ export default function ManageEventDetail() {
             ? {
                 ...prev,
                 paid: nextPaid,
-                payment_method: nextPaid ? reg.payment_method || "pix" : null,
-                payment_reference: nextPaid
-                  ? reg.payment_reference || "Confirmado pela liderança"
-                  : null,
+                payment_method: nextMethod,
+                payment_reference: nextRef,
               }
             : null
         );
       }
 
       toast.success(
-        `Inscrição marcada como ${nextPaid ? "paga" : "pendente"}!`
+        `Inscrição marcada como ${
+          nextPaid
+            ? isCoupon
+              ? "isenta (cupom validado)"
+              : "paga"
+            : "pendente"
+        }!`
       );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao atualizar pagamento";
       toast.error(msg);
+    }
+  };
+
+  // Update Payment Details directly (method and reference)
+  const handleUpdatePaymentDetails = async (
+    regId: string,
+    updates: { paid: boolean; payment_method: string; payment_reference?: string | null }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .update({
+          paid: updates.paid,
+          payment_method: updates.payment_method,
+          payment_reference: updates.payment_reference,
+        })
+        .eq("id", regId);
+
+      if (error) throw error;
+
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.id === regId
+            ? {
+                ...item,
+                paid: updates.paid,
+                payment_method: updates.payment_method,
+                payment_reference: updates.payment_reference ?? item.payment_reference,
+              }
+            : item
+        )
+      );
+
+      if (selectedRegistrationForDetail?.id === regId) {
+        setSelectedRegistrationForDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                paid: updates.paid,
+                payment_method: updates.payment_method,
+                payment_reference: updates.payment_reference ?? prev.payment_reference,
+              }
+            : null
+        );
+      }
+
+      toast.success("Dados de pagamento atualizados com sucesso!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar pagamento";
+      toast.error(msg);
+      throw err;
     }
   };
 
@@ -518,51 +591,25 @@ export default function ManageEventDetail() {
     return "indefinido";
   };
 
-  // Export Data to JSON
-  const handleExportData = () => {
-    if (!retreat || registrations.length === 0) {
-      toast.error("Não há dados de inscrições para exportar.");
-      return;
-    }
-
-    const dataToExport = registrations.map((reg) => {
-      const guest = reg.guest_data as GuestDataShape | null;
-      return {
-        Participante:
-          reg.profiles?.full_name || guest?.full_name || "Desconhecido",
-        Email: reg.profiles?.email || guest?.email || "",
-        Telefone: reg.profiles?.phone || guest?.phone || "",
-        CPF: reg.profiles?.cpf || guest?.cpf || "",
-        Pago: reg.paid ? "Sim" : "Não",
-        MetodoPagamento: reg.payment_method || "",
-        ReferenciaPagamento: reg.payment_reference || "",
-        Alojamento:
-          reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
-        Observacoes: reg.notes || "",
-        RespostasCustomizadas: reg.custom_responses || {},
-        DataInscricao: reg.created_at,
-      };
-    });
-
-    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `inscricoes_${retreat.title
-      .toLowerCase()
-      .replace(/\s+/g, "_")}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast.success("Dados exportados com sucesso!");
-  };
-
   // Helper to calculate price of a registration
   const getRegPrice = useCallback(
     (reg: RegistrationWithDetails): number => {
+      const method = (reg.payment_method || "").toLowerCase();
+
+      // 1. Isenção total por cupom ou evento gratuito = R$ 0,00
+      if (method === "cupom" || method === "gratuito") {
+        if (reg.payment_reference) {
+          const match = reg.payment_reference.match(/Desconto\s*\((\d+)%\)/i);
+          if (match) {
+            const pct = parseInt(match[1], 10);
+            if (pct === 100) return 0;
+            const base = retreat?.price || 0;
+            return Math.max(0, Math.round(base * (1 - pct / 100) * 100) / 100);
+          }
+        }
+        return 0;
+      }
+
       let price = retreat?.price || 0;
       if (retreat?.form_id && selectedFormTemplate) {
         const customResps = reg.custom_responses as Record<string, unknown> | null;
@@ -579,10 +626,183 @@ export default function ManageEventDetail() {
           );
         }
       }
+
+      // Check for partial coupon discount in reference (e.g. "... | Cupom: CODE (50% OFF)")
+      if (reg.payment_reference) {
+        const discountMatch = reg.payment_reference.match(/(\d+)%\s*OFF/i);
+        if (discountMatch) {
+          const pct = parseInt(discountMatch[1], 10);
+          price = Math.max(0, Math.round(price * (1 - pct / 100) * 100) / 100);
+        }
+      }
+
       return price;
     },
     [retreat?.price, retreat?.form_id, selectedFormTemplate]
   );
+
+  // Helper function to escape CSV cell value according to RFC 4180
+  const escapeCsvCell = (val: unknown): string => {
+    if (val === null || val === undefined) return "";
+    const str = String(val).trim();
+    if (str.includes(";") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  // Export Data to CSV
+  const handleExportData = (filteredList?: RegistrationWithDetails[]) => {
+    if (!retreat || registrations.length === 0) {
+      toast.error("Não há dados de inscrições para exportar.");
+      return;
+    }
+
+    const dataToExport =
+      filteredList ??
+      (tableFilteredRegistrations.length > 0
+        ? tableFilteredRegistrations
+        : activeFilteredRegistrations.length > 0
+        ? activeFilteredRegistrations
+        : registrations);
+
+    if (dataToExport.length === 0) {
+      toast.error("Nenhuma inscrição encontrada para exportar com os filtros selecionados.");
+      return;
+    }
+
+    // 1. Collect all custom field labels dynamically
+    const customFieldKeys: string[] = [];
+    if (selectedFormTemplate?.fields) {
+      selectedFormTemplate.fields.forEach((field) => {
+        if (field.label && !customFieldKeys.includes(field.label)) {
+          customFieldKeys.push(field.label);
+        }
+      });
+    }
+
+    dataToExport.forEach((reg) => {
+      const cr = reg.custom_responses as Record<string, unknown> | null;
+      if (cr && typeof cr === "object") {
+        Object.keys(cr).forEach((key) => {
+          if (!customFieldKeys.includes(key)) {
+            customFieldKeys.push(key);
+          }
+        });
+      }
+    });
+
+    // 2. Base headers
+    const baseHeaders = [
+      "Participante",
+      "Email",
+      "Telefone",
+      "CPF",
+      "Gênero",
+      "Valor (R$)",
+      "Pago",
+      "Método de Pagamento",
+      "Referência de Pagamento",
+      "Alojamento",
+      "Observações",
+      "Data de Inscrição",
+    ];
+
+    const allHeaders = [...baseHeaders, ...customFieldKeys];
+
+    // 3. Generate CSV rows
+    const rows = dataToExport.map((reg) => {
+      const guest = reg.guest_data as GuestDataShape | null;
+      const rawGender = getParticipantGender(reg);
+      const genero =
+        rawGender === "masculino"
+          ? "Masculino"
+          : rawGender === "feminino"
+          ? "Feminino"
+          : "Não informado";
+
+      const price = getRegPrice(reg);
+      const valorStr = price.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      const dateStr = reg.created_at
+        ? new Date(reg.created_at).toLocaleString("pt-BR")
+        : "";
+
+      const cr = (reg.custom_responses as Record<string, unknown> | null) || {};
+
+      const customValues = customFieldKeys.map((key) => {
+        let val = cr[key];
+        // If not directly by label, check by field id from template
+        if (val === undefined && selectedFormTemplate?.fields) {
+          const fieldDef = selectedFormTemplate.fields.find((f) => f.label === key);
+          if (fieldDef && cr[fieldDef.id] !== undefined) {
+            val = cr[fieldDef.id];
+          }
+        }
+
+        if (val === null || val === undefined) return "";
+        if (Array.isArray(val)) return val.join(", ");
+        if (typeof val === "boolean") return val ? "Sim" : "Não";
+        if (typeof val === "object") return JSON.stringify(val);
+        return String(val);
+      });
+
+      return [
+        reg.profiles?.full_name || guest?.full_name || "Desconhecido",
+        reg.profiles?.email || guest?.email || "",
+        reg.profiles?.phone || guest?.phone || "",
+        reg.profiles?.cpf || guest?.cpf || "",
+        genero,
+        valorStr,
+        reg.paid ? "Sim" : "Não",
+        reg.payment_method || "",
+        reg.payment_reference || "",
+        reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
+        reg.notes || "",
+        dateStr,
+        ...customValues,
+      ];
+    });
+
+    // 4. Construct CSV with UTF-8 BOM (\uFEFF) for Excel pt-BR compatibility
+    const csvContent =
+      "\uFEFF" +
+      [
+        allHeaders.map(escapeCsvCell).join(";"),
+        ...rows.map((row) => row.map(escapeCsvCell).join(";")),
+      ].join("\r\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    const safeTitle = retreat.title
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "");
+
+    link.download = `inscricoes_${safeTitle || "evento"}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(
+      dataToExport.length === registrations.length
+        ? "Inscrições exportadas com sucesso (CSV)!"
+        : `${dataToExport.length} inscrição(ões) exportada(s) com sucesso (CSV)!`
+    );
+  };
 
   const totalBeds = useMemo(
     () => retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0),
@@ -730,14 +950,23 @@ export default function ManageEventDetail() {
               <Calendar className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span>
                 {retreat.start_date
-                  ? new Date(retreat.start_date).toLocaleDateString("pt-BR")
+                  ? formatDateBR(retreat.start_date)
                   : "S/D"}{" "}
                 até{" "}
                 {retreat.end_date
-                  ? new Date(retreat.end_date).toLocaleDateString("pt-BR")
+                  ? formatDateBR(retreat.end_date)
                   : "S/D"}
               </span>
             </div>
+
+            {retreat.registration_deadline && (
+              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+                <Clock className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Inscrições até: {formatDateBR(retreat.registration_deadline)}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
@@ -836,6 +1065,18 @@ export default function ManageEventDetail() {
         >
           <DollarSign className="w-4 h-4" />
           <span>Controle Financeiro</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("coupons")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "coupons"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <Ticket className="w-4 h-4" />
+          <span>Códigos de Isenção</span>
         </button>
 
         <button
@@ -1027,6 +1268,15 @@ export default function ManageEventDetail() {
         </div>
       )}
 
+      {/* Tab 5: Códigos de Isenção (Cupons Descartáveis) */}
+      {activeTab === "coupons" && retreat && (
+        <EventCouponsTab
+          retreat={retreat}
+          eventId={eventId!}
+          formId={retreat.form_id}
+        />
+      )}
+
       {/* Modal: Alocar Quarto para Inscrito Específico */}
       {selectedRegistrationForRoomModal && (
         <Dialog
@@ -1172,6 +1422,7 @@ export default function ManageEventDetail() {
         isOpen={!!selectedRegistrationForDetail}
         onClose={() => setSelectedRegistrationForDetail(null)}
         onTogglePayment={handleTogglePayment}
+        onUpdatePayment={handleUpdatePaymentDetails}
       />
 
       {/* Modal: Editar Evento */}

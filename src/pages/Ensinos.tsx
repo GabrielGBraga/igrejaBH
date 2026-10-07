@@ -19,7 +19,8 @@ import {
     EyeIcon,
     GraduationCapIcon,
     DownloadIcon,
-    PencilIcon
+    PencilIcon,
+    StickyNoteIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import supabase from "@/lib/supabase";
@@ -52,12 +53,13 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
+    CardFooter,
 } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchLatestVideos, type YouTubeVideo } from "@/lib/youtube";
 import type { Database } from "@/lib/database.types";
 
-type TabType = "estudos" | "videos" | "pdfs" | "textos";
+type TabType = "estudos" | "videos" | "pdfs" | "textos" | "anotacoes";
 
 type MediaResource = Database["public"]["Tables"]["media_resources"]["Row"];
 type Study = Database["public"]["Tables"]["studies"]["Row"];
@@ -65,6 +67,7 @@ type StudyStep = Database["public"]["Tables"]["study_steps"]["Row"] & {
     media_resource: MediaResource;
 };
 type UserProgress = Database["public"]["Tables"]["user_study_progress"]["Row"];
+type StudyNote = Database["public"]["Tables"]["study_notes"]["Row"];
 
 interface Profile {
     id: string;
@@ -91,7 +94,7 @@ type StudyFormValues = z.infer<typeof studySchema>;
 
 // Extract YouTube ID helper
 const getYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
 };
@@ -107,6 +110,7 @@ export default function Ensinos() {
     const [studies, setStudies] = useState<Study[]>([]);
     const [studySteps, setStudySteps] = useState<StudyStep[]>([]);
     const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
+    const [notes, setNotes] = useState<StudyNote[]>([]);
     const [loadingData, setLoadingData] = useState(true);
 
     // Youtube fallback
@@ -120,6 +124,18 @@ export default function Ensinos() {
     const [activeStep, setActiveStep] = useState<StudyStep | null>(null);
     const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
     const [editingTextResource, setEditingTextResource] = useState<MediaResource | null>(null);
+
+    // Note Modal control states
+    const [noteTarget, setNoteTarget] = useState<{
+        type: "study" | "resource";
+        id: string;
+        title: string;
+        studyId?: string;
+        note?: StudyNote | null;
+    } | null>(null);
+    const [isNoteEditorOpen, setIsNoteEditorOpen] = useState(false);
+    const [isSideBySideNotesOpen, setIsSideBySideNotesOpen] = useState(false);
+    const [notesFilter, setNotesFilter] = useState<"todos" | "estudos" | "videos" | "pdfs" | "textos">("todos");
 
     // File upload state
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -218,7 +234,7 @@ export default function Ensinos() {
                 .order("sort_order", { ascending: true });
             
             // Cast to typed StudyStep
-            setStudySteps((stepsData as any) || []);
+            setStudySteps((stepsData as unknown as StudyStep[]) || []);
 
             // 4. Fetch User Progress
             const { data: progData } = await supabase
@@ -226,6 +242,14 @@ export default function Ensinos() {
                 .select("*")
                 .eq("profile_id", profileId);
             setUserProgress(progData || []);
+
+            // 5. Fetch User Study Notes
+            const { data: notesData } = await supabase
+                .from("study_notes")
+                .select("*")
+                .eq("profile_id", profileId)
+                .order("updated_at", { ascending: false });
+            setNotes(notesData || []);
 
         } catch (err) {
             console.error("Error loading learning data:", err);
@@ -253,11 +277,20 @@ export default function Ensinos() {
     // Automatically sync new YouTube videos to database when an admin visits the page
     useEffect(() => {
         async function autoSyncYoutubeVideos() {
-            if (!profile || !canAddMaterial || uniqueYoutubeVideos.length === 0 || isSyncingRef.current) return;
+            if (!profile || !canAddMaterial || youtubeVideos.length === 0 || isSyncingRef.current) return;
             
+            const dbIds = new Set(
+                resources
+                    .filter(r => r.type === "video")
+                    .map(v => getYouTubeId(v.url))
+                    .filter((id): id is string => id !== null)
+            );
+            const toSync = youtubeVideos.filter(yt => !dbIds.has(yt.id));
+            if (toSync.length === 0) return;
+
             isSyncingRef.current = true;
             try {
-                const videosToInsert = uniqueYoutubeVideos.map(video => ({
+                const videosToInsert = toSync.map(video => ({
                     title: video.title,
                     description: video.description || null,
                     type: "video" as const,
@@ -388,9 +421,10 @@ export default function Ensinos() {
             if (fileInputRef.current) fileInputRef.current.value = "";
             await loadDatabaseData(profile.id);
 
-        } catch (err: any) {
-            console.error("Error creating resource:", err);
-            toast.error(err.message || "Erro ao salvar recurso.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error creating resource:", error);
+            toast.error(error.message || "Erro ao salvar recurso.");
         } finally {
             setUploadingFile(false);
         }
@@ -562,9 +596,10 @@ export default function Ensinos() {
             setSelectedResourcesForStudy([]);
             await loadDatabaseData(profile.id);
 
-        } catch (err: any) {
-            console.error("Error saving study:", err);
-            toast.error(err.message || "Erro ao salvar estudo.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error saving study:", error);
+            toast.error(error.message || "Erro ao salvar estudo.");
         } finally {
             setLoadingData(false);
         }
@@ -607,9 +642,10 @@ export default function Ensinos() {
             
             toast.success("Estudo removido.");
             await loadDatabaseData(profile.id);
-        } catch (err: any) {
-            console.error("Error deleting study:", err);
-            toast.error(err.message || "Erro ao deletar estudo.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error deleting study:", error);
+            toast.error(error.message || "Erro ao deletar estudo.");
         } finally {
             setLoadingData(false);
         }
@@ -650,9 +686,10 @@ export default function Ensinos() {
 
             toast.success("Recurso excluído.");
             await loadDatabaseData(profile.id);
-        } catch (err: any) {
-            console.error("Error deleting resource:", err);
-            toast.error(err.message || "Erro ao deletar recurso.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error deleting resource:", error);
+            toast.error(error.message || "Erro ao deletar recurso.");
         } finally {
             setLoadingData(false);
         }
@@ -679,9 +716,10 @@ export default function Ensinos() {
 
             toast.success("Vídeo adicionado ao acervo com sucesso!");
             await loadDatabaseData(profile.id);
-        } catch (err: any) {
-            console.error("Error importing youtube video:", err);
-            toast.error(err.message || "Erro ao adicionar vídeo ao acervo.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error importing youtube video:", error);
+            toast.error(error.message || "Erro ao adicionar vídeo ao acervo.");
         } finally {
             setLoadingData(false);
         }
@@ -736,9 +774,10 @@ export default function Ensinos() {
                 }
             }
 
-        } catch (err: any) {
-            console.error("Error toggling step progress:", err);
-            toast.error("Erro ao atualizar progresso.");
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error toggling step progress:", error);
+            toast.error(error.message || "Erro ao atualizar progresso.");
         }
     };
 
@@ -773,13 +812,226 @@ export default function Ensinos() {
         return { total, completed, percent };
     };
 
+    // Helper to get study note
+    const getStudyNote = (studyId: string) => {
+        return notes.find(n => n.study_id === studyId && !n.media_resource_id);
+    };
 
+    // Helper to get resource note
+    const getResourceNote = (resourceId: string) => {
+        return notes.find(n => n.media_resource_id === resourceId);
+    };
+
+    // Open note editor for a study
+    const handleOpenStudyNote = (study: Study, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        const existingNote = getStudyNote(study.id);
+        setNoteTarget({
+            type: "study",
+            id: study.id,
+            title: study.title,
+            note: existingNote || null,
+        });
+        setIsNoteEditorOpen(true);
+    };
+
+    // Open note editor for a media resource (opens side-by-side viewer)
+    const handleOpenResourceNote = (resource: MediaResource, studyId?: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        const existingNote = getResourceNote(resource.id);
+        setNoteTarget({
+            type: "resource",
+            id: resource.id,
+            title: resource.title,
+            studyId,
+            note: existingNote || null,
+        });
+        setActiveStep({
+            id: "",
+            study_id: studyId || "",
+            media_resource_id: resource.id,
+            sort_order: 0,
+            created_at: "",
+            media_resource: resource,
+        });
+        setIsSideBySideNotesOpen(true);
+    };
+
+    // Save note handler
+    const handleSaveNote = async (data: { title: string; description: string; markdownContent: string }) => {
+        if (!profile || !noteTarget) return;
+
+        try {
+            const existingNote = noteTarget.note;
+            if (existingNote) {
+                const { data: updated, error } = await supabase
+                    .from("study_notes")
+                    .update({
+                        title: data.title,
+                        content: data.markdownContent,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq("id", existingNote.id)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                if (updated) {
+                    setNoteTarget(prev => prev ? { ...prev, note: updated } : null);
+                }
+            } else {
+                const isUuidStr = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+                const mediaResId = (noteTarget.type === "resource" && isUuidStr(noteTarget.id)) ? noteTarget.id : null;
+                const { data: inserted, error } = await supabase
+                    .from("study_notes")
+                    .insert({
+                        profile_id: profile.id,
+                        study_id: noteTarget.type === "study" ? noteTarget.id : (noteTarget.studyId || null),
+                        media_resource_id: mediaResId,
+                        title: data.title || `Anotações: ${noteTarget.title}`,
+                        content: data.markdownContent,
+                        updated_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                if (inserted) {
+                    setNoteTarget(prev => prev ? { ...prev, note: inserted } : null);
+                }
+            }
+
+            toast.success("Anotação salva com sucesso!");
+            await loadDatabaseData(profile.id);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error saving note:", error);
+            toast.error(error.message || "Erro ao salvar anotação.");
+            throw error;
+        }
+    };
+
+    // Delete note handler
+    const handleDeleteNote = async (noteId?: string) => {
+        const idToDelete = noteId || noteTarget?.note?.id;
+        if (!profile || !idToDelete) return;
+
+        try {
+            const { error } = await supabase
+                .from("study_notes")
+                .delete()
+                .eq("id", idToDelete);
+
+            if (error) throw error;
+
+            toast.success("Anotação excluída com sucesso.");
+            setIsNoteEditorOpen(false);
+            setNoteTarget(prev => prev ? { ...prev, note: null } : null);
+            await loadDatabaseData(profile.id);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error("Error deleting note:", error);
+            toast.error(error.message || "Erro ao excluir anotação.");
+            throw error;
+        }
+    };
+
+    // Enriched notes for notes tab
+    const enrichedNotes = notes.map(note => {
+        const study = note.study_id ? studies.find(s => s.id === note.study_id) : null;
+        const resource = note.media_resource_id ? resources.find(r => r.id === note.media_resource_id) : null;
+        let typeLabel: "Estudo" | "Vídeo" | "PDF" | "Texto" = "Estudo";
+        if (resource) {
+            typeLabel = resource.type === "video" ? "Vídeo" : resource.type === "pdf" ? "PDF" : "Texto";
+        }
+        const targetTitle = study ? study.title : resource ? resource.title : note.title;
+        return {
+            ...note,
+            study,
+            resource,
+            typeLabel,
+            targetTitle,
+        };
+    });
+
+    const filteredNotes = enrichedNotes.filter(item => {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+            item.title.toLowerCase().includes(query) ||
+            item.content.toLowerCase().includes(query) ||
+            item.targetTitle.toLowerCase().includes(query);
+        
+        if (!matchesSearch) return false;
+
+        if (notesFilter === "todos") return true;
+        if (notesFilter === "estudos") return !item.media_resource_id;
+        if (notesFilter === "videos") return item.resource?.type === "video";
+        if (notesFilter === "pdfs") return item.resource?.type === "pdf";
+        if (notesFilter === "textos") return item.resource?.type === "markdown";
+        return true;
+    });
+
+    // Helper to open note editor from enriched note card
+    const handleEditEnrichedNote = (item: typeof enrichedNotes[0]) => {
+        if (item.resource) {
+            setNoteTarget({
+                type: "resource",
+                id: item.resource.id,
+                title: item.resource.title,
+                studyId: item.study_id || undefined,
+                note: item,
+            });
+            setActiveStep({
+                id: "",
+                study_id: item.study_id || "",
+                media_resource_id: item.resource.id,
+                sort_order: 0,
+                created_at: "",
+                media_resource: item.resource,
+            });
+            setIsSideBySideNotesOpen(true);
+        } else {
+            setNoteTarget({
+                type: "study",
+                id: item.study_id || "",
+                title: item.targetTitle,
+                studyId: item.study_id || undefined,
+                note: item,
+            });
+            setIsNoteEditorOpen(true);
+        }
+    };
+
+    // Helper to open study or resource viewer from enriched note card
+    const handleOpenReferencedItem = (item: typeof enrichedNotes[0]) => {
+        if (item.resource) {
+            setNoteTarget({
+                type: "resource",
+                id: item.resource.id,
+                title: item.resource.title,
+                studyId: item.study_id || undefined,
+                note: item,
+            });
+            setActiveStep({
+                id: "",
+                study_id: item.study_id || "",
+                media_resource_id: item.resource.id,
+                sort_order: 0,
+                created_at: "",
+                media_resource: item.resource,
+            });
+            setIsSideBySideNotesOpen(true);
+        } else if (item.study) {
+            setSelectedStudy(item.study);
+        }
+    };
 
     const tabs = [
         { id: "estudos", label: "Estudos", icon: GraduationCapIcon },
         { id: "videos", label: "Vídeos", icon: YoutubeIcon },
         { id: "pdfs", label: "PDFs", icon: FileTextIcon },
         { id: "textos", label: "Textos/MD", icon: BookOpenIcon },
+        { id: "anotacoes", label: "Minhas Anotações", icon: StickyNoteIcon },
     ];
 
     if (loading) {
@@ -847,12 +1099,12 @@ export default function Ensinos() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <h3 className="font-semibold text-lg text-foreground">Progresso Geral em Estudos</h3>
-                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão dos cursos disponíveis.</p>
+                                <p className="text-xs text-muted-foreground">Estatísticas de conclusão dos estudos disponíveis.</p>
                             </div>
                             <div className="flex items-center gap-4 w-full md:max-w-md">
                                 <div className="flex-1 space-y-1">
                                     <div className="flex justify-between text-xs font-semibold">
-                                        <span className="text-primary">{completedCourses} de {totalCourses} {totalCourses === 1 ? 'curso' : 'cursos'} concluídos</span>
+                                        <span className="text-primary">{completedCourses} de {totalCourses} {totalCourses === 1 ? 'estudo' : 'estudos'} concluídos</span>
                                         <span className="text-foreground">{overallCoursesPercent}%</span>
                                     </div>
                                     <Progress value={overallCoursesPercent} className="h-3 bg-muted/60" />
@@ -889,7 +1141,7 @@ export default function Ensinos() {
                     <div className="relative w-full md:max-w-xs group">
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
-                            placeholder={`Buscar ${activeTab === 'estudos' ? 'estudos' : 'recursos'}...`}
+                            placeholder={`Buscar ${activeTab === 'estudos' ? 'estudos' : activeTab === 'anotacoes' ? 'anotações' : 'recursos'}...`}
                             className="pl-10 bg-card/30 backdrop-blur-sm border-border/50 rounded-xl focus:border-primary/50 transition-all focus:ring-2 focus:ring-primary/20"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -912,6 +1164,7 @@ export default function Ensinos() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredStudies.map((study) => {
                                                 const { total, completed, percent } = getStudyProgressData(study.id);
+                                                const studyNote = getStudyNote(study.id);
                                                 return (
                                                     <Card 
                                                         key={study.id} 
@@ -923,28 +1176,44 @@ export default function Ensinos() {
                                                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                                                     <BookOpenIcon className="h-5 w-5 text-primary" />
                                                                 </div>
-                                                                {canAddMaterial && (
-                                                                    <div className="flex gap-1">
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            onClick={(e) => handleEditStudy(study, e)}
-                                                                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
-                                                                            title="Editar Estudo"
-                                                                        >
-                                                                            <PencilIcon className="h-4 w-4" />
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            onClick={(e) => handleDeleteStudy(study.id, e)}
-                                                                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                                                                            title="Excluir Estudo"
-                                                                        >
-                                                                            <Trash2Icon className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </div>
-                                                                )}
+                                                                <div className="flex items-center gap-1">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => handleOpenStudyNote(study, e)}
+                                                                        className={cn(
+                                                                            "h-8 w-8 rounded-full cursor-pointer",
+                                                                            studyNote 
+                                                                                ? "text-primary bg-primary/10 hover:bg-primary/20" 
+                                                                                : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                        )}
+                                                                        title={studyNote ? "Editar Anotações do Estudo" : "Anotar neste Estudo"}
+                                                                    >
+                                                                        <StickyNoteIcon className="h-4 w-4" />
+                                                                    </Button>
+                                                                    {canAddMaterial && (
+                                                                        <>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={(e) => handleEditStudy(study, e)}
+                                                                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
+                                                                                title="Editar Estudo"
+                                                                            >
+                                                                                <PencilIcon className="h-4 w-4" />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={(e) => handleDeleteStudy(study.id, e)}
+                                                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                                                                title="Excluir Estudo"
+                                                                            >
+                                                                                <Trash2Icon className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                             <CardTitle className="text-lg text-foreground group-hover:text-primary transition-colors mt-3">
                                                                 {study.title}
@@ -957,7 +1226,14 @@ export default function Ensinos() {
                                                             <div className="space-y-1">
                                                                 <div className="flex justify-between text-xs">
                                                                     <span className="text-muted-foreground">{completed} de {total} etapas</span>
-                                                                    <span className="font-semibold text-foreground">{percent}%</span>
+                                                                    <div className="flex items-center gap-2">
+                                                                        {studyNote && (
+                                                                            <span className="text-[10px] font-semibold text-primary flex items-center gap-0.5">
+                                                                                <StickyNoteIcon className="h-3 w-3" /> Anotado
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="font-semibold text-foreground">{percent}%</span>
+                                                                    </div>
                                                                 </div>
                                                                 <Progress value={percent} className="h-2" />
                                                             </div>
@@ -1027,17 +1303,33 @@ export default function Ensinos() {
                                                                         <CardTitle className="text-base text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors" title={video.title}>
                                                                             {video.title}
                                                                         </CardTitle>
-                                                                        {canAddMaterial && (
+                                                                        <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-2">
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="icon"
-                                                                                onClick={(e) => handleDeleteResource(video.id, e)}
-                                                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full shrink-0 -mt-1 -mr-2"
-                                                                                title="Excluir Recurso"
+                                                                                onClick={(e) => handleOpenResourceNote(video, undefined, e)}
+                                                                                className={cn(
+                                                                                    "h-8 w-8 rounded-full cursor-pointer",
+                                                                                    getResourceNote(video.id)
+                                                                                        ? "text-primary bg-primary/10 hover:bg-primary/20"
+                                                                                        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                                )}
+                                                                                title={getResourceNote(video.id) ? "Ver Anotações deste Vídeo" : "Anotar neste Vídeo"}
                                                                             >
-                                                                                <Trash2Icon className="h-4 w-4" />
+                                                                                <StickyNoteIcon className="h-4 w-4" />
                                                                             </Button>
-                                                                        )}
+                                                                            {canAddMaterial && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={(e) => handleDeleteResource(video.id, e)}
+                                                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                                                                    title="Excluir Recurso"
+                                                                                >
+                                                                                    <Trash2Icon className="h-4 w-4" />
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                     {video.description && (
                                                                         <CardDescription className="line-clamp-2 text-xs pt-1">
@@ -1142,46 +1434,71 @@ export default function Ensinos() {
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {tabPDFs.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 gap-6">
-                                            {tabPDFs.map((pdf) => (
-                                                <Card key={pdf.id} className="flex flex-col border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl group rounded-2xl overflow-hidden relative">
-                                                    <CardHeader className="flex-1 p-6">
-                                                        <div className="flex justify-between items-start gap-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                                                                <FileTextIcon className="h-6 w-6 text-red-500" />
+                                            {tabPDFs.map((pdf) => {
+                                                const pdfNote = getResourceNote(pdf.id);
+                                                return (
+                                                    <Card key={pdf.id} className="flex flex-col border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl group rounded-2xl overflow-hidden relative">
+                                                        <CardHeader className="flex-1 p-6">
+                                                            <div className="flex justify-between items-start gap-4">
+                                                                <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                                                    <FileTextIcon className="h-6 w-6 text-red-500" />
+                                                                </div>
+                                                                <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-2">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => handleOpenResourceNote(pdf, undefined, e)}
+                                                                        className={cn(
+                                                                            "min-h-[44px] min-w-[44px] rounded-full cursor-pointer",
+                                                                            pdfNote
+                                                                                ? "text-primary bg-primary/10 hover:bg-primary/20"
+                                                                                : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                        )}
+                                                                        title={pdfNote ? "Ver Anotações deste PDF" : "Anotar neste PDF"}
+                                                                    >
+                                                                        <StickyNoteIcon className="h-4 w-4" />
+                                                                    </Button>
+                                                                    {canAddMaterial && (
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            onClick={(e) => handleDeleteResource(pdf.id, e)}
+                                                                            className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
+                                                                            title="Excluir PDF"
+                                                                        >
+                                                                            <Trash2Icon className="h-4 w-4" />
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            {canAddMaterial && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    onClick={(e) => handleDeleteResource(pdf.id, e)}
-                                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                                                                    title="Excluir PDF"
-                                                                >
-                                                                    <Trash2Icon className="h-4 w-4" />
-                                                                </Button>
+                                                            <CardTitle className="text-base text-foreground group-hover:text-primary transition-colors leading-tight">
+                                                                {pdf.title}
+                                                            </CardTitle>
+                                                            {pdf.description && (
+                                                                <CardDescription className="line-clamp-2 text-xs pt-1">
+                                                                    {pdf.description}
+                                                                </CardDescription>
                                                             )}
-                                                        </div>
-                                                        <CardTitle className="text-base text-foreground group-hover:text-primary transition-colors leading-tight">
-                                                            {pdf.title}
-                                                        </CardTitle>
-                                                        {pdf.description && (
-                                                            <CardDescription className="line-clamp-2 text-xs pt-1">
-                                                                {pdf.description}
-                                                            </CardDescription>
-                                                        )}
-                                                    </CardHeader>
-                                                    <CardContent className="p-6 pt-0 space-y-2">
-                                                        <Button 
-                                                            variant="outline" 
-                                                            className="w-full gap-2 border-border/50 rounded-xl hover:bg-primary hover:text-primary-foreground transition-all"
-                                                            onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: pdf.id, sort_order: 0, created_at: "", media_resource: pdf })}
-                                                        >
-                                                            <EyeIcon className="h-4 w-4" />
-                                                            Visualizar
-                                                        </Button>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
+                                                        </CardHeader>
+                                                        <CardContent className="p-6 pt-0 space-y-2 mt-auto">
+                                                            {pdfNote && (
+                                                                <div className="text-[10px] font-semibold text-primary flex items-center gap-1 mb-1">
+                                                                    <StickyNoteIcon className="h-3 w-3" />
+                                                                    <span>Possui anotações pessoais</span>
+                                                                </div>
+                                                            )}
+                                                            <Button 
+                                                                variant="outline" 
+                                                                className="w-full gap-2 border-border/50 rounded-xl hover:bg-primary hover:text-primary-foreground transition-all min-h-[44px]"
+                                                                onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: pdf.id, sort_order: 0, created_at: "", media_resource: pdf })}
+                                                            >
+                                                                <EyeIcon className="h-4 w-4" />
+                                                                Visualizar
+                                                            </Button>
+                                                        </CardContent>
+                                                    </Card>
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl">
@@ -1202,60 +1519,88 @@ export default function Ensinos() {
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {tabTextos.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {tabTextos.map((texto) => (
-                                                <Card 
-                                                    key={texto.id} 
-                                                    onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: texto.id, sort_order: 0, created_at: "", media_resource: texto })}
-                                                    className="border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl cursor-pointer group rounded-2xl overflow-hidden relative flex flex-col"
-                                                >
-                                                    <CardHeader className="p-6 flex-1">
-                                                        <div className="flex justify-between items-start gap-4">
-                                                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                                                                <BookOpenIcon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                                                            </div>
-                                                            {canAddMaterial && (
-                                                                <div className="flex items-center gap-1">
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            setEditingTextResource(texto);
-                                                                            setIsTextEditorOpen(true);
-                                                                        }}
-                                                                        className="h-8 w-8 text-muted-foreground hover:text-amber-600 hover:bg-amber-500/10 rounded-full"
-                                                                        title="Editar Texto"
-                                                                    >
-                                                                        <PencilIcon className="h-4 w-4" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={(e) => handleDeleteResource(texto.id, e)}
-                                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                                                                        title="Excluir Texto"
-                                                                    >
-                                                                        <Trash2Icon className="h-4 w-4" />
-                                                                    </Button>
+                                            {tabTextos.map((texto) => {
+                                                const textoNote = getResourceNote(texto.id);
+                                                return (
+                                                    <Card 
+                                                        key={texto.id} 
+                                                        onClick={() => setActiveStep({ id: "", study_id: "", media_resource_id: texto.id, sort_order: 0, created_at: "", media_resource: texto })}
+                                                        className="border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl cursor-pointer group rounded-2xl overflow-hidden relative flex flex-col"
+                                                    >
+                                                        <CardHeader className="p-6 flex-1">
+                                                            <div className="flex justify-between items-start gap-4">
+                                                                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                                                    <BookOpenIcon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                                                                 </div>
+                                                                <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-2">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={(e) => handleOpenResourceNote(texto, undefined, e)}
+                                                                        className={cn(
+                                                                            "min-h-[44px] min-w-[44px] rounded-full cursor-pointer",
+                                                                            textoNote
+                                                                                ? "text-primary bg-primary/10 hover:bg-primary/20"
+                                                                                : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                        )}
+                                                                        title={textoNote ? "Ver Anotações deste Texto" : "Anotar neste Texto"}
+                                                                    >
+                                                                        <StickyNoteIcon className="h-4 w-4" />
+                                                                    </Button>
+                                                                    {canAddMaterial && (
+                                                                        <>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setEditingTextResource(texto);
+                                                                                    setIsTextEditorOpen(true);
+                                                                                }}
+                                                                                className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-amber-600 hover:bg-amber-500/10 rounded-full cursor-pointer"
+                                                                                title="Editar Texto"
+                                                                            >
+                                                                                <PencilIcon className="h-4 w-4" />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={(e) => handleDeleteResource(texto.id, e)}
+                                                                                className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full cursor-pointer"
+                                                                                title="Excluir Texto"
+                                                                            >
+                                                                                <Trash2Icon className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <CardTitle className="text-base text-foreground group-hover:text-primary transition-colors leading-tight">
+                                                                {texto.title}
+                                                            </CardTitle>
+                                                            {texto.description && (
+                                                                <CardDescription className="line-clamp-3 text-xs pt-1">
+                                                                    {texto.description}
+                                                                </CardDescription>
                                                             )}
-                                                        </div>
-                                                        <CardTitle className="text-base text-foreground group-hover:text-primary transition-colors leading-tight">
-                                                            {texto.title}
-                                                        </CardTitle>
-                                                        {texto.description && (
-                                                            <CardDescription className="line-clamp-3 text-xs pt-1">
-                                                                {texto.description}
-                                                            </CardDescription>
-                                                        )}
-                                                    </CardHeader>
-                                                    <CardContent className="p-6 pt-0 mt-auto">
-                                                        <div className="text-xs font-semibold text-primary group-hover:underline flex items-center gap-1">
-                                                            Ler Texto <ChevronRightIcon className="h-3 w-3" />
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
+                                                        </CardHeader>
+                                                        <CardContent className="p-6 pt-0 mt-auto">
+                                                            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    {textoNote && (
+                                                                        <span className="text-[10px] font-semibold text-primary flex items-center gap-0.5">
+                                                                            <StickyNoteIcon className="h-3 w-3" /> Anotado
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-xs font-semibold text-primary group-hover:underline flex items-center gap-1">
+                                                                    Ler Texto <ChevronRightIcon className="h-3 w-3" />
+                                                                </div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl">
@@ -1266,6 +1611,208 @@ export default function Ensinos() {
                                             <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
                                                 Textos informativos, devocionais ou arquivos em Markdown (.md) aparecerão aqui.
                                             </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB: MINHAS ANOTAÇÕES */}
+                            {activeTab === "anotacoes" && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                                    {/* Sub-filters for Notes */}
+                                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                                        {(
+                                            [
+                                                { id: "todos", label: "Todas", count: notes.length },
+                                                { 
+                                                    id: "estudos", 
+                                                    label: "Estudos", 
+                                                    count: notes.filter(n => n.study_id && !n.media_resource_id).length 
+                                                },
+                                                { 
+                                                    id: "videos", 
+                                                    label: "Vídeos", 
+                                                    count: notes.filter(n => {
+                                                        const r = resources.find(res => res.id === n.media_resource_id);
+                                                        return r?.type === "video";
+                                                    }).length 
+                                                },
+                                                { 
+                                                    id: "pdfs", 
+                                                    label: "PDFs", 
+                                                    count: notes.filter(n => {
+                                                        const r = resources.find(res => res.id === n.media_resource_id);
+                                                        return r?.type === "pdf";
+                                                    }).length 
+                                                },
+                                                { 
+                                                    id: "textos", 
+                                                    label: "Textos", 
+                                                    count: notes.filter(n => {
+                                                        const r = resources.find(res => res.id === n.media_resource_id);
+                                                        return r?.type === "markdown";
+                                                    }).length 
+                                                },
+                                            ] as const
+                                        ).map((filter) => (
+                                            <button
+                                                key={filter.id}
+                                                onClick={() => setNotesFilter(filter.id)}
+                                                className={cn(
+                                                    "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap min-h-[44px] cursor-pointer",
+                                                    notesFilter === filter.id
+                                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                                        : "bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                                                )}
+                                            >
+                                                <span>{filter.label}</span>
+                                                <span className={cn(
+                                                    "px-1.5 py-0.5 rounded-full text-[10px]",
+                                                    notesFilter === filter.id
+                                                        ? "bg-primary-foreground/20 text-primary-foreground"
+                                                        : "bg-muted text-muted-foreground"
+                                                )}>
+                                                    {filter.count}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {filteredNotes.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {filteredNotes.map((item) => {
+                                                const dateVal = item.updated_at || item.created_at || Date.now();
+                                                const updatedAt = new Date(dateVal).toLocaleDateString("pt-BR", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric"
+                                                });
+
+                                                // Clean preview excerpt removing Markdown tokens
+                                                const cleanPreview = item.content
+                                                    .replace(/#+\s/g, "")
+                                                    .replace(/[*_`>~-]/g, "")
+                                                    .slice(0, 160)
+                                                    .trim();
+
+                                                return (
+                                                    <Card 
+                                                        key={item.id} 
+                                                        className="border-border/50 bg-card/30 backdrop-blur-sm hover:border-primary/30 transition-all hover:shadow-xl rounded-2xl flex flex-col justify-between overflow-hidden"
+                                                    >
+                                                        <CardHeader className="p-6 pb-3">
+                                                            <div className="flex justify-between items-start gap-3 mb-2">
+                                                                <Badge 
+                                                                    variant="outline" 
+                                                                    className={cn(
+                                                                        "gap-1 font-semibold text-xs py-1 px-2.5 rounded-full",
+                                                                        item.typeLabel === "Estudo" && "border-primary/30 text-primary bg-primary/5",
+                                                                        item.typeLabel === "Vídeo" && "border-destructive/30 text-destructive bg-destructive/5",
+                                                                        item.typeLabel === "PDF" && "border-red-500/30 text-red-500 bg-red-500/5",
+                                                                        item.typeLabel === "Texto" && "border-amber-500/30 text-amber-600 dark:text-amber-500 bg-amber-500/5"
+                                                                    )}
+                                                                >
+                                                                    {item.typeLabel === "Estudo" && <GraduationCapIcon className="h-3.5 w-3.5" />}
+                                                                    {item.typeLabel === "Vídeo" && <YoutubeIcon className="h-3.5 w-3.5" />}
+                                                                    {item.typeLabel === "PDF" && <FileTextIcon className="h-3.5 w-3.5" />}
+                                                                    {item.typeLabel === "Texto" && <BookOpenIcon className="h-3.5 w-3.5" />}
+                                                                    <span>{item.typeLabel}</span>
+                                                                </Badge>
+
+                                                                <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-2">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => handleEditEnrichedNote(item)}
+                                                                        className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full cursor-pointer"
+                                                                        title="Editar Anotação"
+                                                                    >
+                                                                        <PencilIcon className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => handleDeleteNote(item.id)}
+                                                                        className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full cursor-pointer"
+                                                                        title="Excluir Anotação"
+                                                                    >
+                                                                        <Trash2Icon className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+
+                                                            <CardTitle className="text-base text-foreground font-semibold leading-snug">
+                                                                {item.title}
+                                                            </CardTitle>
+
+                                                            <div className="text-xs text-muted-foreground pt-1 flex items-center gap-1 truncate" title={item.targetTitle}>
+                                                                <span className="font-medium text-foreground/80">Referente a:</span>
+                                                                <span className="truncate">{item.targetTitle}</span>
+                                                            </div>
+                                                        </CardHeader>
+
+                                                        <CardContent className="px-6 py-2">
+                                                            <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-xs text-muted-foreground line-clamp-3 font-sans leading-relaxed min-h-[64px]">
+                                                                {cleanPreview || <span className="italic text-muted-foreground/60">Anotação vazia</span>}
+                                                            </div>
+                                                        </CardContent>
+
+                                                        <CardFooter className="p-6 pt-3 border-t border-border/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                                                            <span className="text-[11px] text-muted-foreground">
+                                                                Atualizado em {updatedAt}
+                                                            </span>
+                                                            <div className="flex items-center gap-2">
+                                                                {(item.resource || item.study) && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        onClick={() => handleOpenReferencedItem(item)}
+                                                                        className="min-h-[44px] text-xs gap-1 rounded-xl cursor-pointer hover:bg-primary/5 hover:text-primary"
+                                                                    >
+                                                                        <EyeIcon className="h-3.5 w-3.5" />
+                                                                        <span>Ver Material</span>
+                                                                    </Button>
+                                                                )}
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => handleEditEnrichedNote(item)}
+                                                                    className="min-h-[44px] text-xs gap-1.5 rounded-xl cursor-pointer border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
+                                                                >
+                                                                    <StickyNoteIcon className="h-3.5 w-3.5" />
+                                                                    <span>Editar</span>
+                                                                </Button>
+                                                            </div>
+                                                        </CardFooter>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/50 rounded-3xl p-6">
+                                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <StickyNoteIcon className="h-8 w-8 text-primary" />
+                                            </div>
+                                            <h3 className="text-lg font-medium text-foreground">
+                                                {searchQuery ? "Nenhuma anotação encontrada" : "Você ainda não possui anotações"}
+                                            </h3>
+                                            <p className="text-muted-foreground mt-2 max-w-md mx-auto text-sm leading-relaxed">
+                                                {searchQuery
+                                                    ? "Nenhuma anotação corresponde aos termos buscados ou filtro selecionado."
+                                                    : "Suas reflexões e notas pessoais sobre estudos, vídeos, apostilas e leituras aparecerão organizadas aqui. Para começar, clique no ícone de anotação em qualquer material."}
+                                            </p>
+                                            {searchQuery && (
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setSearchQuery("");
+                                                        setNotesFilter("todos");
+                                                    }}
+                                                    className="mt-4 rounded-full min-h-[44px] px-6"
+                                                >
+                                                    Limpar busca
+                                                </Button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1483,8 +2030,9 @@ export default function Ensinos() {
                                                         
                                                         setSelectedResourcesForStudy(prev => [...prev, newRes]);
                                                         toast.success("Vídeo do YouTube adicionado à trilha!");
-                                                    } catch (err: any) {
-                                                        console.error("Error importing video inside study:", err);
+                                                    } catch (err: unknown) {
+                                                        const error = err as Error;
+                                                        console.error("Error importing video inside study:", error);
                                                         toast.error("Erro ao importar vídeo do YouTube.");
                                                     } finally {
                                                         setLoadingData(false);
@@ -1728,20 +2276,39 @@ export default function Ensinos() {
                                             {selectedStudy.description || "Sem descrição disponível."}
                                         </DialogDescription>
                                     </div>
-                                    {canAddMaterial && (
+                                    <div className="flex items-center gap-2 shrink-0">
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={(e) => {
-                                                handleEditStudy(selectedStudy, e);
-                                                setSelectedStudy(null);
-                                            }}
-                                            className="rounded-xl gap-2 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary h-9"
+                                            onClick={() => handleOpenStudyNote(selectedStudy)}
+                                            className={cn(
+                                                "rounded-xl gap-2 shrink-0 border-border min-h-[44px] px-3.5 cursor-pointer transition-all",
+                                                getStudyNote(selectedStudy.id)
+                                                    ? "border-primary/40 bg-primary/10 text-primary font-medium"
+                                                    : "hover:bg-primary/5 hover:text-primary"
+                                            )}
+                                            title="Minhas anotações sobre este estudo"
                                         >
-                                            <PencilIcon className="h-3.5 w-3.5" />
-                                            <span>Editar</span>
+                                            <StickyNoteIcon className="h-4 w-4" />
+                                            <span className="hidden sm:inline">
+                                                {getStudyNote(selectedStudy.id) ? "Minhas Anotações" : "Anotar"}
+                                            </span>
                                         </Button>
-                                    )}
+                                        {canAddMaterial && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    handleEditStudy(selectedStudy, e);
+                                                    setSelectedStudy(null);
+                                                }}
+                                                className="rounded-xl gap-2 shrink-0 border-primary/20 text-primary hover:bg-primary/5 hover:text-primary min-h-[44px] px-3.5"
+                                            >
+                                                <PencilIcon className="h-3.5 w-3.5" />
+                                                <span>Editar</span>
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             </DialogHeader>
 
@@ -1763,6 +2330,7 @@ export default function Ensinos() {
                                             const isStepCompleted = userProgress.some(p => p.step_id === step.id);
                                             // Ordered condition: unlocked if first step OR previous step is completed
                                             const isUnlocked = index === 0 || userProgress.some(p => p.step_id === steps[index - 1].id);
+                                            const stepNote = getResourceNote(step.media_resource.id);
 
                                             return (
                                                 <div 
@@ -1809,14 +2377,34 @@ export default function Ensinos() {
                                                     </div>
                                                     
                                                     {isUnlocked && (
-                                                        <Button 
-                                                            variant="ghost" 
-                                                            size="sm"
-                                                            className="h-8 rounded-xl gap-1 hover:bg-primary hover:text-white"
-                                                        >
-                                                            <span>Acessar</span>
-                                                            <ChevronRightIcon className="h-3.5 w-3.5" />
-                                                        </Button>
+                                                        <div className="flex items-center gap-1 shrink-0">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleOpenResourceNote(step.media_resource, selectedStudy.id);
+                                                                }}
+                                                                className={cn(
+                                                                    "min-h-[44px] min-w-[44px] rounded-xl cursor-pointer",
+                                                                    stepNote
+                                                                        ? "text-primary bg-primary/10 hover:bg-primary/20"
+                                                                        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                                )}
+                                                                title={stepNote ? "Ver anotações deste material" : "Anotar neste material"}
+                                                            >
+                                                                <StickyNoteIcon className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button 
+                                                                variant="ghost" 
+                                                                size="sm"
+                                                                className="min-h-[44px] rounded-xl gap-1 hover:bg-primary hover:text-white"
+                                                            >
+                                                                <span>Acessar</span>
+                                                                <ChevronRightIcon className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             );
@@ -1838,172 +2426,353 @@ export default function Ensinos() {
                 })()}
             </Dialog>
 
-            {/* DIALOG: VISUALIZAR ETAPA (MEDIA VIEWER E CONCLUSÃO) */}
-            <Dialog open={!!activeStep} onOpenChange={(open) => !open && setActiveStep(null)}>
+            {/* DIALOG: VISUALIZAR ETAPA (MEDIA VIEWER E CONCLUSÃO COM ANOTAÇÕES LADO A LADO) */}
+            <Dialog 
+                open={!!activeStep} 
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setActiveStep(null);
+                        setIsSideBySideNotesOpen(false);
+                    }
+                }}
+            >
                 {activeStep && (() => {
                     const resObj = activeStep.media_resource;
                     const isStepCompleted = userProgress.some(p => p.step_id === activeStep.id);
                     const isStudyStep = !!activeStep.id; // False if opened from general media tabs (mocked id)
 
+                    const renderMediaContent = () => (
+                        <div className="bg-muted/30 border border-border/50 rounded-2xl overflow-hidden flex flex-col justify-center min-h-[260px] sm:min-h-[300px]">
+                            {/* Video Rendering */}
+                            {resObj.type === "video" && (() => {
+                                const ytId = getYouTubeId(resObj.url);
+                                if (ytId) {
+                                    return (
+                                        <div className="aspect-video w-full bg-black/95">
+                                            <iframe 
+                                                width="100%" 
+                                                height="100%" 
+                                                src={`https://www.youtube.com/embed/${ytId}?autoplay=1`} 
+                                                title={resObj.title} 
+                                                frameBorder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowFullScreen
+                                                className="w-full h-full"
+                                            ></iframe>
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                                        <YoutubeIcon className="h-10 w-10 sm:h-12 sm:w-12 text-destructive mb-3 animate-pulse" />
+                                        <h5 className="font-semibold text-sm sm:text-base mb-2">Vídeo Externo</h5>
+                                        <p className="text-xs text-muted-foreground max-w-sm mb-4">Este vídeo não possui formato do YouTube compatível com player interno.</p>
+                                        <a href={resObj.url} target="_blank" rel="noopener noreferrer">
+                                            <Button className="rounded-full gap-2 min-h-[44px]">
+                                                <PlayIcon className="h-4 w-4" />
+                                                Abrir no YouTube
+                                            </Button>
+                                        </a>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* PDF Rendering */}
+                            {resObj.type === "pdf" && (
+                                <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center min-h-[280px] sm:min-h-[320px]">
+                                    <FileTextIcon className="h-12 w-12 sm:h-16 sm:w-16 text-red-500 mb-3 sm:mb-4" />
+                                    <h5 className="font-bold text-base sm:text-lg mb-2">Documento PDF Pronto para Leitura</h5>
+                                    <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mb-5 sm:mb-6">
+                                        Abra a apostila ou guia de estudos para acompanhar simultaneamente com suas anotações.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+                                        <a href={resObj.url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                                            <Button className="rounded-full gap-2 w-full px-5 min-h-[44px] shadow-md">
+                                                <EyeIcon className="h-4 w-4" />
+                                                Visualizar PDF
+                                            </Button>
+                                        </a>
+                                        <a href={resObj.url} download className="w-full sm:w-auto">
+                                            <Button variant="outline" className="rounded-full gap-2 w-full px-5 min-h-[44px] border-border/60">
+                                                <DownloadIcon className="h-4 w-4" />
+                                                Baixar Arquivo
+                                            </Button>
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Markdown Rendering */}
+                            {resObj.type === "markdown" && (
+                                <div className="p-4 sm:p-6 max-h-[500px] overflow-y-auto">
+                                    <MarkdownViewer url={resObj.url} />
+                                </div>
+                            )}
+                        </div>
+                    );
+
                     return (
                         <DialogContent className={cn(
-                            "bg-card border-border shadow-2xl rounded-3xl max-h-[90vh] overflow-y-auto p-0",
-                            resObj.type === "markdown" ? "sm:max-w-4xl w-[95vw]" : "sm:max-w-3xl w-[95vw]"
+                            "bg-card border-border shadow-2xl rounded-3xl p-0 transition-all duration-200",
+                            isSideBySideNotesOpen 
+                                ? "w-[98vw] sm:max-w-6xl md:max-w-7xl max-w-[1550px] h-[94vh] flex flex-col overflow-hidden" 
+                                : (resObj.type === "markdown" ? "sm:max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto" : "sm:max-w-3xl w-[95vw] max-h-[90vh] overflow-y-auto")
                         )}>
-                            <DialogHeader className="p-6 pb-2 border-b border-border/50 flex flex-row items-start justify-between">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
+                            <DialogHeader className="p-4 sm:p-6 pb-3 border-b border-border/50 flex flex-row items-start justify-between gap-3 shrink-0">
+                                <div className="space-y-1 flex-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <Badge variant="secondary" className="font-bold uppercase tracking-wider text-[10px] px-2 py-0.5">
                                             {resObj.type === 'video' ? 'Vídeo' : resObj.type === 'pdf' ? 'Apostila PDF' : 'Leitura'}
                                         </Badge>
+                                        {isSideBySideNotesOpen && (
+                                            <Badge variant="outline" className="text-[10px] text-primary border-primary/30 bg-primary/5 font-semibold">
+                                                Modo Estudo com Anotações
+                                            </Badge>
+                                        )}
                                     </div>
-                                    <DialogTitle className="text-lg font-bold text-foreground pr-8">
+                                    <DialogTitle className="text-base sm:text-lg font-bold text-foreground truncate" title={resObj.title}>
                                         {resObj.title}
                                     </DialogTitle>
                                 </div>
+                                <div className="shrink-0 flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (isSideBySideNotesOpen) {
+                                                setIsSideBySideNotesOpen(false);
+                                            } else {
+                                                const existingNote = getResourceNote(resObj.id);
+                                                setNoteTarget({
+                                                    type: "resource",
+                                                    id: resObj.id,
+                                                    title: resObj.title,
+                                                    studyId: isStudyStep ? activeStep.study_id : undefined,
+                                                    note: existingNote || null,
+                                                });
+                                                setIsSideBySideNotesOpen(true);
+                                            }
+                                        }}
+                                        className={cn(
+                                            "rounded-xl gap-2 min-h-[44px] px-3 sm:px-3.5 cursor-pointer transition-all text-xs sm:text-sm",
+                                            isSideBySideNotesOpen || getResourceNote(resObj.id)
+                                                ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-xs"
+                                                : "hover:bg-primary/5 hover:text-primary"
+                                        )}
+                                        title={isSideBySideNotesOpen ? "Ocultar anotações" : "Anotar neste material"}
+                                    >
+                                        <StickyNoteIcon className="h-4 w-4" />
+                                        <span className="hidden sm:inline">
+                                            {isSideBySideNotesOpen 
+                                                ? "Ocultar Anotações" 
+                                                : (getResourceNote(resObj.id) ? "Minhas Anotações" : "Anotar")}
+                                        </span>
+                                        <span className="sm:hidden">
+                                            {isSideBySideNotesOpen ? "Ocultar" : "Anotar"}
+                                        </span>
+                                    </Button>
+                                </div>
                             </DialogHeader>
 
-                            <div className="p-6">
-                                {/* RESOURCE RENDERING SECTION */}
-                                <div className="bg-muted/30 border border-border/50 rounded-2xl overflow-hidden mb-6 flex flex-col justify-center min-h-[300px]">
-                                    
-                                    {/* Video Rendering */}
-                                    {resObj.type === "video" && (() => {
-                                        const ytId = getYouTubeId(resObj.url);
-                                        if (ytId) {
-                                            return (
-                                                <div className="aspect-video w-full">
-                                                    <iframe 
-                                                        width="100%" 
-                                                        height="100%" 
-                                                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1`} 
-                                                        title={resObj.title} 
-                                                        frameBorder="0" 
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                        allowFullScreen
-                                                        className="w-full h-full"
-                                                    ></iframe>
-                                                </div>
-                                            );
-                                        }
-                                        return (
-                                            <div className="flex flex-col items-center justify-center p-8 text-center">
-                                                <YoutubeIcon className="h-12 w-12 text-destructive mb-3 animate-pulse" />
-                                                <h5 className="font-semibold mb-2">Vídeo Externo</h5>
-                                                <p className="text-xs text-muted-foreground max-w-sm mb-4">Este vídeo não possui formato do YouTube compatível com player interno.</p>
-                                                <a href={resObj.url} target="_blank" rel="noopener noreferrer">
-                                                    <Button className="rounded-full gap-2">
-                                                        <PlayIcon className="h-4 w-4" />
-                                                        Abrir no YouTube
-                                                    </Button>
-                                                </a>
+                            {isSideBySideNotesOpen ? (
+                                <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto lg:overflow-hidden">
+                                    {/* Left Column: Resource Player / Viewer */}
+                                    <div className="flex flex-col h-full min-h-0 overflow-y-auto pr-0 lg:pr-2 space-y-4">
+                                        {renderMediaContent()}
+
+                                        {resObj.description && resObj.type !== "markdown" && (
+                                            <div className="bg-muted/10 border border-border/30 p-3.5 sm:p-4 rounded-xl text-xs sm:text-sm text-muted-foreground shrink-0">
+                                                <p className="font-semibold text-foreground mb-1">Sobre este material:</p>
+                                                {resObj.description}
                                             </div>
-                                        );
-                                    })()}
+                                        )}
 
-                                    {/* PDF Rendering */}
-                                    {resObj.type === "pdf" && (
-                                        <div className="flex flex-col items-center justify-center p-8 text-center min-h-[350px]">
-                                            <FileTextIcon className="h-16 w-16 text-red-500 mb-4" />
-                                            <h5 className="font-bold text-lg mb-2">Documento PDF Pronto para Leitura</h5>
-                                            <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                                                Clique no botão abaixo para abrir a apostila ou guia de estudos em uma nova aba do navegador para melhor visualização.
-                                            </p>
-                                            <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
-                                                <a href={resObj.url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                                                    <Button className="rounded-full gap-2 w-full px-6 shadow-md">
-                                                        <EyeIcon className="h-4 w-4" />
-                                                        Visualizar PDF
+                                        {/* Action buttons */}
+                                        <div className="mt-auto pt-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                                            <div className="flex items-center gap-2">
+                                                <Button 
+                                                    type="button" 
+                                                    variant="ghost" 
+                                                    onClick={() => {
+                                                        setActiveStep(null);
+                                                        setIsSideBySideNotesOpen(false);
+                                                    }}
+                                                    className="rounded-full px-5 min-h-[44px]"
+                                                >
+                                                    Voltar
+                                                </Button>
+                                                {canAddMaterial && resObj.type === "markdown" && (
+                                                    <Button
+                                                        onClick={() => {
+                                                            setActiveStep(null);
+                                                            setIsSideBySideNotesOpen(false);
+                                                            setEditingTextResource(resObj);
+                                                            setIsTextEditorOpen(true);
+                                                        }}
+                                                        variant="outline"
+                                                        className="rounded-full px-4 gap-2 text-amber-600 border-amber-600/20 hover:bg-amber-500/10 min-h-[44px] text-xs cursor-pointer"
+                                                    >
+                                                        <PencilIcon className="h-3.5 w-3.5" />
+                                                        Editar Texto Original
                                                     </Button>
-                                                </a>
-                                                <a href={resObj.url} download className="w-full sm:w-auto">
-                                                    <Button variant="outline" className="rounded-full gap-2 w-full px-6 border-border/60">
-                                                        <DownloadIcon className="h-4 w-4" />
-                                                        Baixar Arquivo
-                                                    </Button>
-                                                </a>
+                                                )}
                                             </div>
-                                        </div>
-                                    )}
 
-                                    {/* Markdown Rendering */}
-                                    {resObj.type === "markdown" && (
-                                        <div className="p-6">
-                                            <MarkdownViewer url={resObj.url} />
+                                            {isStudyStep ? (
+                                                <Button
+                                                    onClick={() => {
+                                                        handleToggleCompleteStep(activeStep);
+                                                        setActiveStep(null);
+                                                        setIsSideBySideNotesOpen(false);
+                                                    }}
+                                                    className={cn(
+                                                        "rounded-full px-6 gap-2 font-semibold shadow-md min-h-[44px]",
+                                                        isStepCompleted 
+                                                            ? "bg-green-500 hover:bg-green-600 text-white shadow-green-500/10" 
+                                                            : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                                    )}
+                                                >
+                                                    {isStepCompleted ? (
+                                                        <>
+                                                            <CheckIcon className="h-4 w-4" />
+                                                            Etapa Concluída
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <CheckCircle2Icon className="h-4 w-4" />
+                                                            Concluir Etapa
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            ) : (
+                                                <span className="text-xs text-muted-foreground italic">Recurso individual</span>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-
-                                {resObj.description && resObj.type !== "markdown" && (
-                                    <div className="bg-muted/10 border border-border/30 p-4 rounded-xl mb-6 text-sm text-muted-foreground">
-                                        <p className="font-medium text-foreground mb-1">Sobre esta etapa:</p>
-                                        {resObj.description}
                                     </div>
-                                )}
 
-                                {/* Completion control for studies */}
-                                <div className="flex justify-between items-center pt-2">
-                                    <div className="flex items-center gap-2">
-                                        <Button 
-                                            type="button" 
-                                            variant="ghost" 
-                                            onClick={() => setActiveStep(null)}
-                                            className="rounded-full px-5"
-                                        >
-                                            Voltar
-                                        </Button>
-                                        {canAddMaterial && resObj.type === "markdown" && (
+                                    {/* Right Column: Embedded Note Editor */}
+                                    <div className="h-[520px] lg:h-full min-h-[450px] flex flex-col min-h-0">
+                                        <TextEditor
+                                            inline={true}
+                                            isOpen={true}
+                                            mode="note"
+                                            modalTitle={`Anotações: ${resObj.title}`}
+                                            modalDescription="Suas reflexões e notas pessoais sobre este estudo."
+                                            initialData={noteTarget?.note ? {
+                                                id: noteTarget.note.id,
+                                                title: noteTarget.note.title,
+                                                content: noteTarget.note.content
+                                            } : {
+                                                title: `Anotações: ${resObj.title}`,
+                                                content: ""
+                                            }}
+                                            onClose={() => setIsSideBySideNotesOpen(false)}
+                                            onSave={handleSaveNote}
+                                            onDelete={noteTarget?.note ? () => handleDeleteNote(noteTarget.note?.id) : undefined}
+                                            className="h-full"
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-4 sm:p-6 overflow-y-auto">
+                                    <div className="mb-6">
+                                        {renderMediaContent()}
+                                    </div>
+
+                                    {resObj.description && resObj.type !== "markdown" && (
+                                        <div className="bg-muted/10 border border-border/30 p-4 rounded-xl mb-6 text-sm text-muted-foreground">
+                                            <p className="font-medium text-foreground mb-1">Sobre esta etapa:</p>
+                                            {resObj.description}
+                                        </div>
+                                    )}
+
+                                    {/* Completion control for studies and note actions */}
+                                    <div className="flex flex-wrap justify-between items-center gap-3 pt-2">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Button 
+                                                type="button" 
+                                                variant="ghost" 
+                                                onClick={() => setActiveStep(null)}
+                                                className="rounded-full px-5 min-h-[44px]"
+                                            >
+                                                Voltar
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => {
+                                                    const existingNote = getResourceNote(resObj.id);
+                                                    setNoteTarget({
+                                                        type: "resource",
+                                                        id: resObj.id,
+                                                        title: resObj.title,
+                                                        studyId: isStudyStep ? activeStep.study_id : undefined,
+                                                        note: existingNote || null,
+                                                    });
+                                                    setIsSideBySideNotesOpen(true);
+                                                }}
+                                                className={cn(
+                                                    "rounded-full px-4 gap-2 text-xs min-h-[44px] cursor-pointer",
+                                                    getResourceNote(resObj.id)
+                                                        ? "border-primary/40 bg-primary/10 text-primary font-medium"
+                                                        : "hover:bg-primary/5 hover:text-primary"
+                                                )}
+                                            >
+                                                <StickyNoteIcon className="h-3.5 w-3.5" />
+                                                <span>{getResourceNote(resObj.id) ? "Minhas Anotações" : "Fazer Anotações"}</span>
+                                            </Button>
+                                            {canAddMaterial && resObj.type === "markdown" && (
+                                                <Button
+                                                    onClick={() => {
+                                                        setActiveStep(null);
+                                                        setEditingTextResource(resObj);
+                                                        setIsTextEditorOpen(true);
+                                                    }}
+                                                    variant="outline"
+                                                    className="rounded-full px-4 gap-2 text-amber-600 border-amber-600/20 hover:bg-amber-500/10 min-h-[44px] text-xs cursor-pointer"
+                                                >
+                                                    <PencilIcon className="h-3.5 w-3.5" />
+                                                    Editar Texto Original
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        {isStudyStep ? (
                                             <Button
                                                 onClick={() => {
+                                                    handleToggleCompleteStep(activeStep);
                                                     setActiveStep(null);
-                                                    setEditingTextResource(resObj);
-                                                    setIsTextEditorOpen(true);
                                                 }}
-                                                variant="outline"
-                                                className="rounded-full px-4 gap-2 text-amber-600 border-amber-600/20 hover:bg-amber-500/10 h-9 text-xs"
+                                                className={cn(
+                                                    "rounded-full px-6 gap-2 font-semibold shadow-md min-h-[44px]",
+                                                    isStepCompleted 
+                                                        ? "bg-green-500 hover:bg-green-600 text-white shadow-green-500/10" 
+                                                        : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                                )}
                                             >
-                                                <PencilIcon className="h-3.5 w-3.5" />
-                                                Editar Texto
+                                                {isStepCompleted ? (
+                                                    <>
+                                                        <CheckIcon className="h-4 w-4" />
+                                                        Etapa Concluída
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <CheckCircle2Icon className="h-4 w-4" />
+                                                        Concluir Etapa
+                                                    </>
+                                                )}
                                             </Button>
+                                        ) : (
+                                            <span className="text-xs text-muted-foreground italic">Recurso individual</span>
                                         )}
                                     </div>
-
-                                    {isStudyStep ? (
-                                        <Button
-                                            onClick={() => {
-                                                handleToggleCompleteStep(activeStep);
-                                                setActiveStep(null); // Close viewer after completion toggled
-                                            }}
-                                            className={cn(
-                                                "rounded-full px-6 gap-2 font-semibold shadow-md",
-                                                isStepCompleted 
-                                                    ? "bg-green-500 hover:bg-green-600 text-white shadow-green-500/10" 
-                                                    : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                                            )}
-                                        >
-                                            {isStepCompleted ? (
-                                                <>
-                                                    <CheckIcon className="h-4 w-4" />
-                                                    Etapa Concluída
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <CheckCircle2Icon className="h-4 w-4" />
-                                                    Concluir Etapa
-                                                </>
-                                            )}
-                                        </Button>
-                                    ) : (
-                                        <span className="text-xs text-muted-foreground italic">Recurso individual</span>
-                                    )}
                                 </div>
-                            </div>
+                            )}
                         </DialogContent>
                     );
                 })()}
             </Dialog>
 
-            {/* TEXT EDITOR MODAL */}
+            {/* TEXT RESOURCE EDITOR MODAL */}
             <TextEditor
                 isOpen={isTextEditorOpen}
                 onClose={() => {
@@ -2017,6 +2786,25 @@ export default function Ensinos() {
                     description: editingTextResource.description || "",
                     url: editingTextResource.url
                 } : null}
+            />
+
+            {/* STUDY & MATERIAL NOTE EDITOR MODAL */}
+            <TextEditor
+                isOpen={isNoteEditorOpen}
+                mode="note"
+                modalTitle={noteTarget ? `Anotações: ${noteTarget.title}` : "Minhas Anotações"}
+                modalDescription="Suas reflexões e notas pessoais sobre este estudo. Visível apenas para você."
+                initialData={noteTarget ? {
+                    id: noteTarget.note?.id,
+                    title: noteTarget.note?.title || `Anotações: ${noteTarget.title}`,
+                    content: noteTarget.note?.content || ""
+                } : null}
+                onClose={() => {
+                    setIsNoteEditorOpen(false);
+                    setNoteTarget(null);
+                }}
+                onSave={handleSaveNote}
+                onDelete={noteTarget?.note ? () => handleDeleteNote(noteTarget.note?.id) : undefined}
             />
         </div>
     );

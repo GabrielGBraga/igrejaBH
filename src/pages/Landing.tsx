@@ -34,10 +34,12 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { ChurchAvatar } from "@/components/ui/church-avatar"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
+import { VisitorWelcomeDialog } from "@/components/landing/VisitorWelcomeDialog"
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false)
 
   const navLinks = [
     { name: "A Visão", href: "#visao" },
@@ -112,21 +114,10 @@ export default function Landing() {
             <ThemeToggle />
             <Button
               asChild
-              variant="ghost"
-              size="sm"
-              className="min-h-[44px] px-4 font-medium"
-            >
-              <Link to="/entrar">Entrar</Link>
-            </Button>
-            <Button
-              asChild
               size="sm"
               className="min-h-[44px] px-4 font-medium shadow-xs"
             >
-              <Link to="/cadastro">
-                <KeyRound className="mr-2 h-4 w-4" />
-                Caminhe Conosco
-              </Link>
+              <Link to="/entrar">Entrar</Link>
             </Button>
           </div>
 
@@ -180,21 +171,22 @@ export default function Landing() {
                   <div className="flex flex-col gap-3 pt-2">
                     <Button
                       asChild
-                      variant="outline"
                       className="min-h-[44px] w-full justify-center text-sm font-medium"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Link to="/entrar">Entrar no Portal</Link>
                     </Button>
                     <Button
-                      asChild
-                      className="min-h-[44px] w-full justify-center text-sm font-medium"
-                      onClick={() => setMobileMenuOpen(false)}
+                      type="button"
+                      variant="outline"
+                      className="min-h-[44px] w-full justify-center text-sm font-medium gap-2"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setIsWelcomeOpen(true)
+                      }}
                     >
-                      <Link to="/cadastro">
-                        <KeyRound className="mr-2 h-4 w-4" />
-                        Caminhe Conosco
-                      </Link>
+                      <HeartHandshake className="h-4 w-4 text-primary" />
+                      Quero Conhecer um Grupo Caseiro
                     </Button>
                   </div>
                 </div>
@@ -243,27 +235,26 @@ export default function Landing() {
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               asChild
               size="lg"
-              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold shadow-md sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-8 text-base font-semibold shadow-md sm:w-auto"
             >
-              <Link to="/cadastro">
-                Caminhe Conosco
+              <Link to="/entrar">
+                Acessar o Portal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               size="lg"
-              className="btn-tactile min-h-[48px] w-full px-6 text-base font-semibold sm:w-auto"
+              onClick={() => setIsWelcomeOpen(true)}
+              className="btn-tactile min-h-[48px] w-full gap-2 border-primary/30 px-6 text-base font-semibold hover:bg-primary/5 sm:w-auto"
             >
-              <Link to="/entrar">
-                <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
-                Acessar o Portal
-              </Link>
+              <HeartHandshake className="h-4 w-4 text-primary" />
+              Quero Conhecer um Grupo Caseiro
             </Button>
           </div>
 
@@ -584,8 +575,8 @@ export default function Landing() {
                 <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
                   Diferente de redes sociais abertas ou sistemas burocráticos,
                   este portal é um instrumento dedicado ao cuidado dos irmãos,
-                  pedidos de oração, avisos das regiões, acompanhamento do
-                  discipulado e apoio mútuo nas necessidades materiais.
+                  pedidos de oração, avisos internos, acompanhamento do
+                  discipulado e apoio mútuo entre as famílias dessa parte da Igreja em Belo Horizonte.
                 </p>
               </div>
             </div>
@@ -599,11 +590,14 @@ export default function Landing() {
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   Se você já se reúne com os irmãos, seu discipulador ou os
                   responsáveis pelo seu Grupo Caseiro já realizaram seu pré-cadastro.
-                  Basta clicar abaixo para definir sua senha de acesso ao portal.
+                  Acesse o portal para entrar ou ative sua conta para definir sua senha.
                 </p>
-                <div className="pt-2">
+                <div className="flex flex-col gap-2 pt-2 sm:flex-row">
                   <Button asChild size="sm" className="min-h-[44px] w-full sm:w-auto">
-                    <Link to="/cadastro">Caminhe Conosco / Ativar Acesso</Link>
+                    <Link to="/entrar">Acessar o Portal</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto">
+                    <Link to="/cadastro">Ativar Acesso</Link>
                   </Button>
                 </div>
               </div>
@@ -618,7 +612,16 @@ export default function Landing() {
                   conhecer a dinâmica dos lares, ouvir o testemunho de transformação
                   do Evangelho ou iniciar um discipulado bíblico, venha nos visitar.
                 </p>
-                <div className="pt-2">
+                <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    onClick={() => setIsWelcomeOpen(true)}
+                    size="sm"
+                    className="btn-tactile min-h-[44px] w-full gap-1.5 font-semibold sm:w-auto"
+                  >
+                    <HeartHandshake className="h-4 w-4" />
+                    Quero ser Acolhido(a)
+                  </Button>
                   <Button
                     asChild
                     variant="outline"
@@ -705,23 +708,22 @@ export default function Landing() {
             <Button
               asChild
               size="lg"
-              className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
+              className="btn-tactile min-h-[48px] w-full px-8 text-sm font-semibold sm:w-auto"
             >
-              <Link to="/cadastro">
-                Caminhe Conosco
+              <Link to="/entrar">
+                Acessar o Portal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               size="lg"
-              className="min-h-[48px] w-full px-6 text-sm font-semibold sm:w-auto"
+              onClick={() => setIsWelcomeOpen(true)}
+              className="min-h-[48px] w-full gap-2 border-primary/30 px-6 text-sm font-semibold sm:w-auto hover:bg-primary/5"
             >
-              <Link to="/entrar">
-                <KeyRound className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
-                Acessar o Portal
-              </Link>
+              <HeartHandshake className="h-4 w-4 text-primary" />
+              Quero Conhecer um Grupo Caseiro
             </Button>
           </div>
         </div>
@@ -765,7 +767,7 @@ export default function Landing() {
               to="/cadastro"
               className="transition-colors hover:text-foreground"
             >
-              Caminhe Conosco
+              Ativar Acesso
             </Link>
           </div>
         </div>
@@ -774,6 +776,9 @@ export default function Landing() {
           © {new Date().getFullYear()} Discípulos de Cristo em Belo Horizonte • Parte do Corpo Único do Senhor na cidade.
         </div>
       </footer>
+
+      {/* Modal de Acolhimento a Visitantes */}
+      <VisitorWelcomeDialog open={isWelcomeOpen} onOpenChange={setIsWelcomeOpen} />
     </div>
   )
 }
