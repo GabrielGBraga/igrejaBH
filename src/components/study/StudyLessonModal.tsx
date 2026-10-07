@@ -110,13 +110,13 @@ export function StudyLessonModal({
     };
 
     const renderMediaContent = () => (
-        <div className="bg-muted/20 border border-border/50 rounded-2xl overflow-hidden flex flex-col justify-center min-h-[260px] sm:min-h-[340px]">
+        <div className="bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col justify-center shrink-0">
             {/* Video Rendering */}
             {resObj.type === "video" && (() => {
                 const ytId = getYouTubeId(resObj.url);
                 if (ytId) {
                     return (
-                        <div className="aspect-video w-full bg-black/95">
+                        <div className="aspect-video w-full bg-black/95 rounded-2xl overflow-hidden shadow-sm">
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -125,7 +125,7 @@ export function StudyLessonModal({
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
-                                className="w-full h-full"
+                                className="w-full h-full border-0 block"
                             />
                         </div>
                     );
@@ -178,7 +178,7 @@ export function StudyLessonModal({
 
             {/* Markdown Rendering */}
             {resObj.type === "markdown" && (
-                <div className="p-4 sm:p-6 max-h-[520px] overflow-y-auto">
+                <div className="p-4 sm:p-6 max-h-[520px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [&::-webkit-scrollbar-track]:bg-transparent">
                     <MarkdownViewer url={resObj.url} />
                 </div>
             )}
@@ -192,10 +192,8 @@ export function StudyLessonModal({
                 className={cn(
                     "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col",
                     isSideBySideNotesOpen
-                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl max-w-[1550px] h-[94vh]"
-                        : (resObj.type === "markdown"
-                            ? "sm:max-w-4xl w-[95vw] max-h-[90vh]"
-                            : "sm:max-w-3xl w-[95vw] max-h-[90vh]")
+                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[94vh]"
+                        : "w-[95vw] sm:max-w-4xl lg:max-w-5xl xl:max-w-5xl max-h-[92vh]"
                 )}
             >
                 <DialogDescription className="sr-only">
@@ -203,7 +201,7 @@ export function StudyLessonModal({
                 </DialogDescription>
 
                 {/* Top Navigation Bar */}
-                <div className="p-4 sm:p-5 pb-3 border-b border-border/50 shrink-0 bg-card/80 backdrop-blur-sm flex flex-col gap-3">
+                <div className="p-4 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/80 backdrop-blur-sm flex flex-col gap-2.5">
                     <div className="flex items-center justify-between gap-3">
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
@@ -227,14 +225,14 @@ export function StudyLessonModal({
                                     </Badge>
                                 )}
                             </div>
-                            <DialogTitle className="text-base sm:text-lg font-bold text-foreground truncate mt-1" title={resObj.title}>
+                            <DialogTitle className="text-base sm:text-lg lg:text-xl font-bold text-foreground truncate mt-1 tracking-tight" title={resObj.title}>
                                 {resObj.title}
                             </DialogTitle>
                         </div>
 
                         {/* Top Action Buttons */}
                         <div className="flex items-center gap-2 shrink-0">
-                            {/* Notes Toggle Button */}
+                            {/* The SINGLE Notes Toggle Button */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -308,108 +306,110 @@ export function StudyLessonModal({
                     )}
                 </div>
 
-                {/* Main Content Area */}
-                {isSideBySideNotesOpen ? (
-                    <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto lg:overflow-hidden">
-                        {/* Media Column (Left, 7 cols) */}
-                        <div className={cn(
-                            "flex flex-col h-full min-h-0 overflow-y-auto pr-0 lg:pr-2 space-y-4 lg:col-span-7",
-                            mobileTab === "notes" && "hidden lg:flex"
-                        )}>
-                            {renderMediaContent()}
+                {/* Main Content Area - Single persistent Flex Row */}
+                <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6 overflow-hidden">
+                    {/* Media Column (Left) - PERSISTENT IN DOM, NEVER REMOUNTED */}
+                    <div className={cn(
+                        "flex flex-col h-full min-h-0 overflow-y-auto space-y-4 transition-all duration-300 pr-0 lg:pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [&::-webkit-scrollbar-track]:bg-transparent",
+                        isSideBySideNotesOpen ? "lg:w-[58%] xl:w-[60%] shrink-0" : "w-full",
+                        isSideBySideNotesOpen && mobileTab === "notes" && "hidden lg:flex"
+                    )}>
+                        {renderMediaContent()}
 
-                            {resObj.description && resObj.type !== "markdown" && (
-                                <div className="rounded-xl border border-border/40 bg-muted/15 p-3.5 sm:p-4 text-xs sm:text-sm text-muted-foreground shrink-0">
-                                    <p className="font-bold text-foreground mb-1">Sobre esta ministração:</p>
-                                    <p className="leading-relaxed">{resObj.description}</p>
-                                </div>
-                            )}
+                        {resObj.description && resObj.type !== "markdown" && (
+                            <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 sm:p-5 text-xs sm:text-sm text-muted-foreground shrink-0">
+                                <p className="font-bold text-foreground mb-1 text-xs uppercase tracking-wider text-muted-foreground/80">Sobre esta ministração</p>
+                                <p className="leading-relaxed text-foreground/90">{resObj.description}</p>
+                            </div>
+                        )}
 
-                            {/* Controls Bar */}
-                            <div className="mt-auto pt-3 border-t border-border/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
-                                <div className="flex items-center gap-2">
-                                    {isStudyStep && hasPrevious && prevStep && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => onNavigateStep(prevStep)}
-                                            className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                        >
-                                            <ChevronLeftIcon className="h-4 w-4" />
-                                            <span>Anterior</span>
-                                        </Button>
-                                    )}
-
-                                    {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => onEditTextResource(resObj)}
-                                            className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-600/20 hover:bg-amber-500/10 cursor-pointer"
-                                        >
-                                            <PencilIcon className="h-3.5 w-3.5" />
-                                            <span>Editar Texto</span>
-                                        </Button>
-                                    )}
-
+                        {/* Controls Bar */}
+                        <div className="mt-auto pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                            <div className="flex items-center gap-2">
+                                {isStudyStep && hasPrevious && prevStep ? (
                                     <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onNavigateStep(prevStep)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                                    >
+                                        <ChevronLeftIcon className="h-4 w-4" />
+                                        <span>Anterior</span>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        type="button"
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => setIsSideBySideNotesOpen(false)}
-                                        className="min-h-[44px] rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                                        onClick={onClose}
+                                        className="min-h-[44px] rounded-xl px-4 text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground"
                                     >
-                                        Ocultar Anotações
+                                        Voltar
                                     </Button>
-                                </div>
+                                )}
 
-                                <div className="flex items-center justify-end gap-2">
-                                    {isStudyStep ? (
-                                        <Button
-                                            onClick={handleCompleteStep}
-                                            disabled={isTogglingComplete}
-                                            className={cn(
-                                                "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all flex-1 sm:flex-none",
-                                                isStepCompleted
-                                                    ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/15"
-                                                    : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                                            )}
-                                        >
-                                            {isStepCompleted ? (
-                                                <>
-                                                    <CheckIcon className="h-4 w-4 stroke-[3]" />
-                                                    Etapa Concluída
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <CheckCircle2Icon className="h-4 w-4" />
-                                                    Concluir Etapa
-                                                </>
-                                            )}
-                                        </Button>
-                                    ) : (
-                                        <span className="text-xs text-muted-foreground italic">
-                                            Recurso individual do acervo
-                                        </span>
-                                    )}
+                                {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onEditTextResource(resObj)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-600/20 hover:bg-amber-500/10 cursor-pointer"
+                                    >
+                                        <PencilIcon className="h-3.5 w-3.5" />
+                                        <span>Editar Texto</span>
+                                    </Button>
+                                )}
+                            </div>
 
-                                    {isStudyStep && hasNext && nextStep && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => onNavigateStep(nextStep)}
-                                            className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                        >
-                                            <span>Próxima</span>
-                                            <ChevronRightIcon className="h-4 w-4" />
-                                        </Button>
-                                    )}
-                                </div>
+                            <div className="flex items-center gap-2">
+                                {isStudyStep ? (
+                                    <Button
+                                        onClick={handleCompleteStep}
+                                        disabled={isTogglingComplete}
+                                        className={cn(
+                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all",
+                                            isStepCompleted
+                                                ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/15"
+                                                : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                        )}
+                                    >
+                                        {isStepCompleted ? (
+                                            <>
+                                                <CheckIcon className="h-4 w-4 stroke-[3]" />
+                                                Etapa Concluída
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2Icon className="h-4 w-4" />
+                                                Concluir Etapa
+                                            </>
+                                        )}
+                                    </Button>
+                                ) : (
+                                    <span className="text-xs text-muted-foreground italic px-2">
+                                        Recurso individual do acervo
+                                    </span>
+                                )}
+
+                                {isStudyStep && hasNext && nextStep && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => onNavigateStep(nextStep)}
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                                    >
+                                        <span>Próxima</span>
+                                        <ChevronRightIcon className="h-4 w-4" />
+                                    </Button>
+                                )}
                             </div>
                         </div>
+                    </div>
 
-                        {/* Notes Column (Right, 5 cols) */}
+                    {/* Notes Column (Right) */}
+                    {isSideBySideNotesOpen && (
                         <div className={cn(
-                            "flex flex-col h-full min-h-[450px] lg:col-span-5 min-h-0",
+                            "flex flex-col h-full min-h-[450px] lg:w-[42%] xl:w-[40%] min-h-0 animate-in fade-in duration-300",
                             mobileTab === "content" && "hidden lg:flex"
                         )}>
                             <TextEditor
@@ -435,118 +435,8 @@ export function StudyLessonModal({
                                 className="h-full"
                             />
                         </div>
-                    </div>
-                ) : (
-                    /* Compact Single-Column Layout (Notes Closed) */
-                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                        {renderMediaContent()}
-
-                        {resObj.description && resObj.type !== "markdown" && (
-                            <div className="rounded-xl border border-border/40 bg-muted/15 p-3.5 sm:p-4 text-xs sm:text-sm text-muted-foreground">
-                                <p className="font-bold text-foreground mb-1">Sobre esta ministração:</p>
-                                <p className="leading-relaxed">{resObj.description}</p>
-                            </div>
-                        )}
-
-                        {/* Controls Bar */}
-                        <div className="pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={onClose}
-                                    className="rounded-xl px-4 min-h-[44px] text-xs font-medium cursor-pointer"
-                                >
-                                    Voltar
-                                </Button>
-
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setIsSideBySideNotesOpen(true);
-                                        setMobileTab("notes");
-                                    }}
-                                    className={cn(
-                                        "rounded-xl px-4 gap-2 text-xs font-semibold min-h-[44px] cursor-pointer transition-all",
-                                        existingNote
-                                            ? "border-primary/40 bg-primary/10 text-primary font-semibold shadow-2xs"
-                                            : "border-border/60 hover:bg-primary/5 hover:text-primary"
-                                    )}
-                                >
-                                    <StickyNoteIcon className="h-4 w-4" />
-                                    <span>{existingNote ? "Minhas Anotações" : "Fazer Anotações"}</span>
-                                </Button>
-
-                                {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onEditTextResource(resObj)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-600/20 hover:bg-amber-500/10 cursor-pointer"
-                                    >
-                                        <PencilIcon className="h-3.5 w-3.5" />
-                                        <span>Editar Texto</span>
-                                    </Button>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                {isStudyStep && hasPrevious && prevStep && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onNavigateStep(prevStep)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                    >
-                                        <ChevronLeftIcon className="h-4 w-4" />
-                                        <span>Anterior</span>
-                                    </Button>
-                                )}
-
-                                {isStudyStep ? (
-                                    <Button
-                                        onClick={handleCompleteStep}
-                                        disabled={isTogglingComplete}
-                                        className={cn(
-                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all",
-                                            isStepCompleted
-                                                ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/15"
-                                                : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                                        )}
-                                    >
-                                        {isStepCompleted ? (
-                                            <>
-                                                <CheckIcon className="h-4 w-4 stroke-[3]" />
-                                                Etapa Concluída
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2Icon className="h-4 w-4" />
-                                                Concluir Etapa
-                                            </>
-                                        )}
-                                    </Button>
-                                ) : (
-                                    <span className="text-xs text-muted-foreground italic">
-                                        Recurso individual do acervo
-                                    </span>
-                                )}
-
-                                {isStudyStep && hasNext && nextStep && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onNavigateStep(nextStep)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                    >
-                                        <span>Próxima</span>
-                                        <ChevronRightIcon className="h-4 w-4" />
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </DialogContent>
         </Dialog>
     );
