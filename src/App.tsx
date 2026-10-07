@@ -14,7 +14,6 @@ import Events from "./pages/Events.tsx";
 import ManageEvents from "./pages/ManageEvents.tsx";
 import ManageEventDetail from "./pages/ManageEventDetail.tsx";
 import Messages from "./pages/Messages.tsx";
-import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import FormBuilder from "./pages/FormBuilder.tsx";
 import FormResponder from "./pages/FormResponder.tsx";
@@ -116,7 +115,6 @@ function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/eventos" element={<Events />} />
           <Route path="/mensagens" element={<Messages />} />
-          <Route path="/ajustes" element={<Settings />} />
 
           <Route path="/grupos-caseiros" element={
             <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>

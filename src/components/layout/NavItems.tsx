@@ -3,7 +3,6 @@ import {
   Users,
   BookOpen,
   Calendar,
-  Settings,
   ClipboardList,
   type LucideIcon,
 } from "lucide-react";
@@ -23,5 +22,4 @@ export const navItems: NavItem[] = [
   { name: "Gestão de Eventos", href: "/manage-events", icon: Calendar, requireManagement: true },
   { name: "Gestão de Membros", href: "/gestao/vinculados", icon: Users, requireManagement: true },
   { name: "Formulários", href: "/gestao/formularios", icon: ClipboardList, requireCanPost: true },
-  { name: "Ajustes", href: "/ajustes", icon: Settings },
 ];

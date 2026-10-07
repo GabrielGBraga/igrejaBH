@@ -1,5 +1,11 @@
 import { Link, useLocation } from "react-router-dom"
-import { LogOutIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import {
+  LogOutIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Sun,
+  Moon,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
@@ -14,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { navItems } from "./NavItems"
+import { useTheme } from "@/components/theme-provider"
 
 interface UserProfile {
   id: string
@@ -23,6 +30,12 @@ interface UserProfile {
 
 export function Sidebar() {
   const location = useLocation()
+  const { setTheme } = useTheme()
+
+  const toggleTheme = () => {
+    const isDark = document.documentElement.classList.contains("dark")
+    setTheme(isDark ? "light" : "dark")
+  }
   const [isAdmin, setIsAdmin] = useState(false)
   const [isManagement, setIsManagement] = useState(false)
   const [canPost, setCanPost] = useState(false)
@@ -205,17 +218,59 @@ export function Sidebar() {
 
         <div
           className={cn(
-            "mt-auto space-y-4 border-t border-border p-4",
+            "mt-auto space-y-3 border-t border-border p-4",
             isCollapsed ? "flex flex-col items-center" : ""
           )}
         >
+          {/* Botão de alternar tema (Claro / Escuro) acima do avatar do perfil */}
+          {isCollapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label="Alternar tema claro e escuro"
+                  className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-muted-foreground transition-all hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Sun className="h-5 w-5 scale-100 rotate-0 text-foreground transition-transform duration-300 dark:scale-0 dark:-rotate-90 motion-reduce:transition-none motion-reduce:transform-none" />
+                  <Moon className="absolute h-5 w-5 scale-0 rotate-90 text-foreground transition-transform duration-300 dark:scale-100 dark:rotate-0 motion-reduce:transition-none motion-reduce:transform-none" />
+                  <span className="sr-only">Alternar tema</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={10}>
+                Alternar tema
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Alternar tema claro e escuro"
+              className="flex w-full min-h-[44px] cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
+                  <Sun className="h-5 w-5 scale-100 rotate-0 text-foreground transition-transform duration-300 dark:scale-0 dark:-rotate-90 motion-reduce:transition-none motion-reduce:transform-none" />
+                  <Moon className="absolute h-5 w-5 scale-0 rotate-90 text-foreground transition-transform duration-300 dark:scale-100 dark:rotate-0 motion-reduce:transition-none motion-reduce:transform-none" />
+                </div>
+                <span className="truncate">Alternar tema</span>
+              </div>
+              <span className="rounded-md bg-muted/80 px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:hidden">
+                Claro
+              </span>
+              <span className="hidden rounded-md bg-muted/80 px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:inline">
+                Escuro
+              </span>
+            </button>
+          )}
+
           {profile &&
             (() => {
               const content = (
                 <Link
                   to="/perfil"
                   className={cn(
-                    "flex w-full items-center rounded-xl transition-all hover:bg-primary/10",
+                    "flex w-full min-h-[44px] items-center rounded-xl transition-all hover:bg-primary/10",
                     isCollapsed ? "justify-center p-2" : "gap-3 p-2",
                     location.pathname === "/perfil" &&
                       "border border-primary/20 bg-primary/10"
@@ -257,7 +312,7 @@ export function Sidebar() {
               <button
                 onClick={handleLogout}
                 className={cn(
-                  "flex w-full items-center rounded-xl text-sm font-bold text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive",
+                  "flex w-full min-h-[44px] items-center rounded-xl text-sm font-bold text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive cursor-pointer",
                   isCollapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5"
                 )}
               >
