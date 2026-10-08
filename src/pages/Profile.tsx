@@ -48,7 +48,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { CardSelector, CardSelectorItem } from "@/components/ui/card-selector"
 import { toast } from "sonner"
 import { format, differenceInYears } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -1428,14 +1428,14 @@ export default function Profile() {
         open={isEditingSocioEconomic}
         onOpenChange={setIsEditingSocioEconomic}
       >
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-md">
+        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Informações Socioeconômicas</DialogTitle>
             <DialogDescription>
               Atualize seus dados profissionais e socioeconômicos.
             </DialogDescription>
           </DialogHeader>
-          <div className="no-scrollbar max-h-[60vh] space-y-8 overflow-y-auto px-4 py-4">
+          <div className="no-scrollbar max-h-[65vh] space-y-6 overflow-y-auto px-1 py-3 sm:px-3">
             <Field>
               <FieldLabel className="text-base font-semibold text-foreground/90">
                 Sua Profissão
@@ -1450,48 +1450,41 @@ export default function Profile() {
               />
             </Field>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <FieldLabel className="text-base font-semibold text-foreground/90">
                 Qual sua escolaridade?
               </FieldLabel>
-              <RadioGroup
+              <CardSelector
                 value={editForm.education_level || ""}
                 onValueChange={(val) =>
                   setEditForm({ ...editForm, education_level: val })
                 }
-                className="mt-2 grid grid-cols-1 gap-2"
+                columns={1}
               >
                 {[
-                  "Fundamental",
+                  "Fundamental Incompleto",
+                  "Fundamental Completo",
                   "Médio Incompleto",
                   "Médio Completo",
                   "Superior Incompleto",
                   "Superior Completo",
                   "Pós-graduação",
                 ].map((opt) => (
-                  <div key={opt} className="flex items-center space-x-2">
-                    <RadioGroupItem value={opt} id={`edu-${opt}`} />
-                    <FieldLabel
-                      htmlFor={`edu-${opt}`}
-                      className="cursor-pointer font-normal"
-                    >
-                      {opt}
-                    </FieldLabel>
-                  </div>
+                  <CardSelectorItem key={opt} value={opt} label={opt} />
                 ))}
-              </RadioGroup>
+              </CardSelector>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <FieldLabel className="text-base font-semibold text-foreground/90">
                 Como é seu vínculo empregatício?
               </FieldLabel>
-              <RadioGroup
+              <CardSelector
                 value={editForm.employment_status || ""}
                 onValueChange={(val) =>
                   setEditForm({ ...editForm, employment_status: val })
                 }
-                className="mt-2 grid grid-cols-1 gap-2"
+                columns={1}
               >
                 {[
                   "CLT",
@@ -1501,118 +1494,86 @@ export default function Profile() {
                   "Aposentado",
                   "Estudante",
                 ].map((opt) => (
-                  <div key={opt} className="flex items-center space-x-2">
-                    <RadioGroupItem value={opt} id={`emp-${opt}`} />
-                    <FieldLabel
-                      htmlFor={`emp-${opt}`}
-                      className="cursor-pointer font-normal"
-                    >
-                      {opt}
-                    </FieldLabel>
-                  </div>
+                  <CardSelectorItem key={opt} value={opt} label={opt} />
                 ))}
-              </RadioGroup>
+              </CardSelector>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div className="space-y-4">
-                <FieldLabel className="text-base font-semibold text-foreground/90">
-                  Situação de Moradia
-                </FieldLabel>
-                <RadioGroup
-                  value={editForm.housing_status || ""}
-                  onValueChange={(val) =>
-                    setEditForm({ ...editForm, housing_status: val })
-                  }
-                  className="mt-2 grid grid-cols-1 gap-2"
-                >
-                  {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map(
-                    (opt) => (
-                      <div key={opt} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt} id={`hou-${opt}`} />
-                        <FieldLabel
-                          htmlFor={`hou-${opt}`}
-                          className="cursor-pointer font-normal"
-                        >
-                          {opt}
-                        </FieldLabel>
-                      </div>
-                    )
-                  )}
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-4">
-                <FieldLabel className="text-base font-semibold text-foreground/90">
-                  Renda Familiar
-                </FieldLabel>
-                <RadioGroup
-                  value={editForm.household_income || ""}
-                  onValueChange={(val) =>
-                    setEditForm({ ...editForm, household_income: val })
-                  }
-                  className="mt-2 grid grid-cols-1 gap-2"
-                >
-                  {["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM"].map(
-                    (opt) => (
-                      <div key={opt} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt} id={`inc-${opt}`} />
-                        <FieldLabel
-                          htmlFor={`inc-${opt}`}
-                          className="cursor-pointer font-normal"
-                        >
-                          {opt}
-                        </FieldLabel>
-                      </div>
-                    )
-                  )}
-                </RadioGroup>
-              </div>
+            <div className="space-y-3">
+              <FieldLabel className="text-base font-semibold text-foreground/90">
+                Situação de Moradia
+              </FieldLabel>
+              <CardSelector
+                value={editForm.housing_status || ""}
+                onValueChange={(val) =>
+                  setEditForm({ ...editForm, housing_status: val })
+                }
+                columns={1}
+              >
+                {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map(
+                  (opt) => (
+                    <CardSelectorItem key={opt} value={opt} label={opt} />
+                  )
+                )}
+              </CardSelector>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div className="space-y-4">
-                <FieldLabel className="text-base font-semibold text-foreground/90">
-                  Número de Dependentes
-                </FieldLabel>
-                <Input
-                  type="number"
-                  min="0"
-                  value={editForm.dependents_count || 0}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      dependents_count: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="h-14 rounded-2xl border-border/50 bg-muted/30 text-center text-lg font-semibold shadow-sm focus-visible:ring-primary/20"
-                />
-              </div>
+            <div className="space-y-3">
+              <FieldLabel className="text-base font-semibold text-foreground/90">
+                Renda Familiar
+              </FieldLabel>
+              <CardSelector
+                value={editForm.household_income || ""}
+                onValueChange={(val) =>
+                  setEditForm({ ...editForm, household_income: val })
+                }
+                columns={1}
+              >
+                {[
+                  "Até 1 SM",
+                  "1 a 3 SM",
+                  "3 a 5 SM",
+                  "Acima de 5 SM",
+                  "Prefiro não informar",
+                ].map((opt) => (
+                  <CardSelectorItem key={opt} value={opt} label={opt} />
+                ))}
+              </CardSelector>
+            </div>
 
-              <div className="space-y-4">
-                <FieldLabel className="text-base font-semibold text-foreground/90">
-                  Categoria CNH
-                </FieldLabel>
-                <RadioGroup
-                  value={editForm.drivers_license || ""}
-                  onValueChange={(val) =>
-                    setEditForm({ ...editForm, drivers_license: val })
-                  }
-                  className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2"
-                >
-                  {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
-                    <div key={opt} className="flex items-center space-x-2">
-                      <RadioGroupItem value={opt} id={`cnh-${opt}`} />
-                      <FieldLabel
-                        htmlFor={`cnh-${opt}`}
-                        className="cursor-pointer font-normal"
-                      >
-                        {opt}
-                      </FieldLabel>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
+            <div className="space-y-3">
+              <FieldLabel className="text-base font-semibold text-foreground/90">
+                Número de Dependentes
+              </FieldLabel>
+              <Input
+                type="number"
+                min="0"
+                value={editForm.dependents_count || 0}
+                onChange={(e) =>
+                  setEditForm({
+                    ...editForm,
+                    dependents_count: parseInt(e.target.value) || 0,
+                  })
+                }
+                className="h-12 rounded-2xl border-border/50 bg-muted/30 text-center text-lg font-semibold shadow-sm focus-visible:ring-primary/20"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <FieldLabel className="text-base font-semibold text-foreground/90">
+                Categoria CNH
+              </FieldLabel>
+              <CardSelector
+                value={editForm.drivers_license || ""}
+                onValueChange={(val) =>
+                  setEditForm({ ...editForm, drivers_license: val })
+                }
+                columns={2}
+              >
+                {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
+                  <CardSelectorItem key={opt} value={opt} label={opt} />
+                ))}
+              </CardSelector>
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">

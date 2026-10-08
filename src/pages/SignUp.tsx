@@ -27,7 +27,7 @@ import { useState, useRef, useEffect } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CardSelector, CardSelectorItem } from "@/components/ui/card-selector";
 import { 
     Dialog, 
     DialogContent, 
@@ -600,20 +600,15 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Gênero*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 gap-2 mt-2"
+                                            columns={2}
+                                            className="mt-2"
                                         >
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="masculino" id="g-masc" />
-                                                <FieldLabel htmlFor="g-masc" className="font-normal cursor-pointer">Masculino</FieldLabel>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="feminino" id="g-fem" />
-                                                <FieldLabel htmlFor="g-fem" className="font-normal cursor-pointer">Feminino</FieldLabel>
-                                            </div>
-                                        </RadioGroup>
+                                            <CardSelectorItem value="masculino" label="Masculino" />
+                                            <CardSelectorItem value="feminino" label="Feminino" />
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -624,28 +619,17 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Estado Civil*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2"
+                                            columns={2}
+                                            className="mt-2"
                                         >
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="solteiro" id="ms-solt" />
-                                                <FieldLabel htmlFor="ms-solt" className="font-normal cursor-pointer">Solteiro</FieldLabel>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="casado" id="ms-casa" />
-                                                <FieldLabel htmlFor="ms-casa" className="font-normal cursor-pointer">Casado</FieldLabel>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="divorciado" id="ms-divo" />
-                                                <FieldLabel htmlFor="ms-divo" className="font-normal cursor-pointer">Divorciado</FieldLabel>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="viuvo" id="ms-viuv" />
-                                                <FieldLabel htmlFor="ms-viuv" className="font-normal cursor-pointer">Viúvo</FieldLabel>
-                                            </div>
-                                        </RadioGroup>
+                                            <CardSelectorItem value="solteiro" label="Solteiro" />
+                                            <CardSelectorItem value="casado" label="Casado" />
+                                            <CardSelectorItem value="divorciado" label="Divorciado" />
+                                            <CardSelectorItem value="viuvo" label="Viúvo" />
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -776,18 +760,16 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Escolaridade*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 gap-2 mt-2"
+                                            columns={1}
+                                            className="mt-2"
                                         >
                                             {["Fundamental Incompleto", "Fundamental Completo", "Médio Incompleto", "Médio Completo", "Superior Incompleto", "Superior Completo", "Pós-graduação"].map((opt) => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`edu-${opt}`} />
-                                                    <FieldLabel htmlFor={`edu-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
-                                                </div>
+                                                <CardSelectorItem key={opt} value={opt} label={opt} />
                                             ))}
-                                        </RadioGroup>
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -799,18 +781,16 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Vínculo Empregatício*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 gap-2 mt-2"
+                                            columns={1}
+                                            className="mt-2 sm:grid-cols-2"
                                         >
                                             {["CLT", "Autônomo/PJ", "Desempregado", "Aposentado", "Estudante", "Empreendedor"].map((opt) => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`emp-${opt}`} />
-                                                    <FieldLabel htmlFor={`emp-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
-                                                </div>
+                                                <CardSelectorItem key={opt} value={opt} label={opt} />
                                             ))}
-                                        </RadioGroup>
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -822,18 +802,16 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Renda Familiar*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 gap-2 mt-2"
+                                            columns={1}
+                                            className="mt-2 sm:grid-cols-2"
                                         >
                                             {["Até 1 SM", "1 a 3 SM", "3 a 5 SM", "Acima de 5 SM", "Prefiro não informar"].map((opt) => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`inc-${opt}`} />
-                                                    <FieldLabel htmlFor={`inc-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
-                                                </div>
+                                                <CardSelectorItem key={opt} value={opt} label={opt} />
                                             ))}
-                                        </RadioGroup>
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -845,18 +823,16 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>Situação de Moradia*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 gap-2 mt-2"
+                                            columns={1}
+                                            className="mt-2 sm:grid-cols-2"
                                         >
                                             {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map((opt) => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`hou-${opt}`} />
-                                                    <FieldLabel htmlFor={`hou-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
-                                                </div>
+                                                <CardSelectorItem key={opt} value={opt} label={opt} />
                                             ))}
-                                        </RadioGroup>
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
@@ -868,18 +844,16 @@ export default function SignUp() {
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
                                         <FieldLabel>CNH*</FieldLabel>
-                                        <RadioGroup 
+                                        <CardSelector 
                                             value={field.value} 
                                             onValueChange={field.onChange}
-                                            className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2"
+                                            columns={2}
+                                            className="mt-2 sm:grid-cols-4"
                                         >
                                             {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`cnh-${opt}`} />
-                                                    <FieldLabel htmlFor={`cnh-${opt}`} className="font-normal cursor-pointer">{opt}</FieldLabel>
-                                                </div>
+                                                <CardSelectorItem key={opt} value={opt} label={opt} />
                                             ))}
-                                        </RadioGroup>
+                                        </CardSelector>
                                         <FieldError errors={[fieldState.error]} />
                                     </Field>
                                 )}
