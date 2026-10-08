@@ -428,6 +428,7 @@ export function StudyLessonModal({
                             mobileTab === "content" && "hidden lg:flex"
                         )}>
                             <TextEditor
+                                key={`lesson-note-${resObj.id}`}
                                 inline={true}
                                 isOpen={true}
                                 mode="note"

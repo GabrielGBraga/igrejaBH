@@ -125,9 +125,11 @@ export default function Ensinos() {
         fetchProfileAndData();
     }, []);
 
-    async function loadDatabaseData(profileId: string) {
+    async function loadDatabaseData(profileId: string, isSilent = false) {
         try {
-            setLoadingData(true);
+            if (!isSilent) {
+                setLoadingData(true);
+            }
 
             // 1. Fetch Media Resources
             const { data: resData } = await supabase
@@ -168,7 +170,9 @@ export default function Ensinos() {
             console.error("Error loading learning data:", err);
             toast.error("Erro ao carregar dados do servidor.");
         } finally {
-            setLoadingData(false);
+            if (!isSilent) {
+                setLoadingData(false);
+            }
         }
     }
 
@@ -211,6 +215,22 @@ export default function Ensinos() {
         }
         autoSyncYoutubeVideos();
     }, [youtubeVideos, resources, profile, canAddMaterial]);
+
+    // Helper to keep noteTarget in sync with any active step/lesson
+    const syncNoteTargetForStep = (step: StudyStep | null) => {
+        if (!step) {
+            setNoteTarget(null);
+            return;
+        }
+        const existing = notes.find((n) => n.media_resource_id === step.media_resource.id) || null;
+        setNoteTarget({
+            type: "resource",
+            id: step.media_resource.id,
+            title: step.media_resource.title,
+            studyId: step.study_id || undefined,
+            note: existing,
+        });
+    };
 
     // Helper to open media resource in lesson modal (compact, notes panel closed initially)
     const handleOpenResource = (resource: MediaResource, studyId?: string) => {
@@ -619,55 +639,133 @@ export default function Ensinos() {
         }
     };
 
-    // Save Note Handler
-    const handleSaveNote = async (data: { title: string; description: string; markdownContent: string }) => {
-        if (!profile || !noteTarget) return;
+    // Unified robust note saving helper
+    interface SaveNoteParams {
+        type: "study" | "resource";
+        targetId: string;
+        studyId?: string | null;
+        title: string;
+        content: string;
+        existingNoteId?: string;
+    }
+
+    const saveNoteToDb = async ({
+        type,
+        targetId,
+        studyId,
+        title,
+        content,
+        existingNoteId,
+    }: SaveNoteParams) => {
+        if (!profile) {
+            toast.error("Usuário não autenticado.");
+            return;
+        }
 
         try {
-            const existingNote = noteTarget.note;
-            if (existingNote) {
-                const { data: updated, error } = await supabase
-                    .from("study_notes")
-                    .update({
-                        title: data.title,
-                        content: data.markdownContent,
-                        updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", existingNote.id)
-                    .select()
-                    .single();
+            const isUuid = (v?: string | null) =>
+                Boolean(v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
 
-                if (error) throw error;
-                if (updated) {
-                    setNoteTarget((prev) => (prev ? { ...prev, note: updated } : null));
-                }
-            } else {
-                const isUuidStr = (v?: string) =>
-                    Boolean(v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
-                const mediaResId =
-                    noteTarget.type === "resource" && isUuidStr(noteTarget.id) ? noteTarget.id : null;
+            const validStudyId = isUuid(studyId) ? studyId : (type === "study" && isUuid(targetId) ? targetId : null);
+            const validMediaId = type === "resource" && isUuid(targetId) ? targetId : null;
 
-                const { data: inserted, error } = await supabase
-                    .from("study_notes")
-                    .insert({
-                        profile_id: profile.id,
-                        study_id: noteTarget.type === "study" ? noteTarget.id : (noteTarget.studyId || null),
-                        media_resource_id: mediaResId,
-                        title: data.title || `Anotações: ${noteTarget.title}`,
-                        content: data.markdownContent,
-                        updated_at: new Date().toISOString(),
-                    })
-                    .select()
-                    .single();
-
-                if (error) throw error;
-                if (inserted) {
-                    setNoteTarget((prev) => (prev ? { ...prev, note: inserted } : null));
+            // 1. Identify existing note:
+            let existing = existingNoteId ? notes.find((n) => n.id === existingNoteId) : null;
+            if (!existing) {
+                if (validMediaId) {
+                    existing = notes.find((n) => n.media_resource_id === validMediaId) || null;
+                } else if (validStudyId && !validMediaId) {
+                    existing = notes.find((n) => n.study_id === validStudyId && !n.media_resource_id) || null;
                 }
             }
 
+            let savedNote: StudyNote | null = null;
+
+            if (existing) {
+                // UPDATE
+                const { data: updated, error: updateError } = await supabase
+                    .from("study_notes")
+                    .update({
+                        title: title.trim(),
+                        content,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", existing.id)
+                    .select()
+                    .single();
+
+                if (updateError) throw updateError;
+                savedNote = updated;
+            } else {
+                // INSERT (with fallback to UPDATE if unique constraint code 23505 occurs)
+                const { data: inserted, error: insertError } = await supabase
+                    .from("study_notes")
+                    .insert({
+                        profile_id: profile.id,
+                        study_id: validStudyId,
+                        media_resource_id: validMediaId,
+                        title: title.trim(),
+                        content,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    if (insertError.code === "23505") {
+                        let query = supabase.from("study_notes").select("*").eq("profile_id", profile.id);
+                        if (validMediaId) {
+                            query = query.eq("media_resource_id", validMediaId);
+                        } else if (validStudyId) {
+                            query = query.eq("study_id", validStudyId).is("media_resource_id", null);
+                        }
+                        const { data: conflictingRow } = await query.maybeSingle();
+                        if (conflictingRow) {
+                            const { data: updated, error: fallbackError } = await supabase
+                                .from("study_notes")
+                                .update({
+                                    title: title.trim(),
+                                    content,
+                                    updated_at: new Date().toISOString(),
+                                })
+                                .eq("id", conflictingRow.id)
+                                .select()
+                                .single();
+                            if (fallbackError) throw fallbackError;
+                            savedNote = updated;
+                        } else {
+                            throw insertError;
+                        }
+                    } else {
+                        throw insertError;
+                    }
+                } else {
+                    savedNote = inserted;
+                }
+            }
+
+            if (!savedNote) {
+                throw new Error("Não foi possível salvar a anotação.");
+            }
+
+            // Immediately update notes in local React state for instantaneous UI sync
+            setNotes((prevNotes) => {
+                const index = prevNotes.findIndex((n) => n.id === savedNote!.id);
+                if (index >= 0) {
+                    const copy = [...prevNotes];
+                    copy[index] = savedNote!;
+                    return copy;
+                }
+                return [savedNote!, ...prevNotes];
+            });
+
+            // Keep noteTarget in sync if currently active
+            setNoteTarget((prev) => (prev ? { ...prev, note: savedNote } : null));
+
             toast.success("Anotação salva com sucesso!");
-            await loadDatabaseData(profile.id);
+
+            // Silently synchronize state from server in background
+            await loadDatabaseData(profile.id, true);
         } catch (err: unknown) {
             const error = err as Error;
             console.error("Error saving note:", error);
@@ -676,9 +774,48 @@ export default function Ensinos() {
         }
     };
 
+    // Save Note from Lesson Studio (activeStep)
+    const handleSaveLessonNote = async (data: { title: string; description: string; markdownContent: string }) => {
+        if (!profile || !activeStep) {
+            toast.error("Nenhuma aula selecionada para salvar anotação.");
+            return;
+        }
+
+        const existing = notes.find((n) => n.media_resource_id === activeStep.media_resource.id);
+
+        await saveNoteToDb({
+            type: "resource",
+            targetId: activeStep.media_resource.id,
+            studyId: activeStep.study_id || null,
+            title: data.title || `Anotações: ${activeStep.media_resource.title}`,
+            content: data.markdownContent,
+            existingNoteId: existing?.id,
+        });
+    };
+
+    // Save Note from General Note Editor Modal (#10)
+    const handleSaveGeneralNote = async (data: { title: string; description: string; markdownContent: string }) => {
+        if (!profile || !noteTarget) {
+            toast.error("Nenhum estudo ou material selecionado para salvar anotação.");
+            return;
+        }
+
+        await saveNoteToDb({
+            type: noteTarget.type,
+            targetId: noteTarget.id,
+            studyId: noteTarget.type === "study" ? noteTarget.id : (noteTarget.studyId || null),
+            title: data.title || `Anotações: ${noteTarget.title}`,
+            content: data.markdownContent,
+            existingNoteId: noteTarget.note?.id,
+        });
+    };
+
     // Delete Note Handler
     const handleDeleteNote = async (noteId?: string) => {
-        const idToDelete = noteId || noteTarget?.note?.id;
+        const idToDelete =
+            noteId ||
+            noteTarget?.note?.id ||
+            (activeStep ? notes.find((n) => n.media_resource_id === activeStep.media_resource.id)?.id : undefined);
         if (!profile || !idToDelete) return;
 
         try {
@@ -688,7 +825,8 @@ export default function Ensinos() {
             toast.success("Anotação excluída com sucesso.");
             setIsNoteEditorOpen(false);
             setNoteTarget((prev) => (prev ? { ...prev, note: null } : null));
-            await loadDatabaseData(profile.id);
+            setNotes((prev) => prev.filter((n) => n.id !== idToDelete));
+            await loadDatabaseData(profile.id, true);
         } catch (err: unknown) {
             const error = err as Error;
             console.error("Error deleting note:", error);
@@ -775,7 +913,14 @@ export default function Ensinos() {
         if (resource) {
             typeLabel = resource.type === "video" ? "Vídeo" : resource.type === "pdf" ? "PDF" : "Texto";
         }
-        const targetTitle = study ? study.title : resource ? resource.title : note.title;
+        let targetTitle = note.title;
+        if (study && resource) {
+            targetTitle = `${study.title} • ${resource.title}`;
+        } else if (study) {
+            targetTitle = study.title;
+        } else if (resource) {
+            targetTitle = resource.title;
+        }
         return {
             ...note,
             study,
@@ -1167,7 +1312,7 @@ export default function Ensinos() {
                                                     } else {
                                                         setNoteTarget({
                                                             type: "study",
-                                                            id: item.study_id || "",
+                                                            id: item.study_id || item.id,
                                                             title: item.targetTitle,
                                                             studyId: item.study_id || undefined,
                                                             note: item,
@@ -1218,6 +1363,7 @@ export default function Ensinos() {
                 onSelectStep={(step) => {
                     setIsInitialNotesOpen(false);
                     setActiveStep(step);
+                    syncNoteTargetForStep(step);
                 }}
                 onOpenStudyNote={(study) => {
                     const existing = notes.find((n) => n.study_id === study.id && !n.media_resource_id);
@@ -1246,15 +1392,19 @@ export default function Ensinos() {
                 studyTitle={activeStep?.study_id ? studies.find((s) => s.id === activeStep.study_id)?.title : undefined}
                 initialNotesOpen={isInitialNotesOpen}
                 userProgress={userProgress}
-                existingNote={activeStep ? notes.find((n) => n.media_resource_id === activeStep.media_resource.id) : null}
+                existingNote={activeStep ? (notes.find((n) => n.media_resource_id === activeStep.media_resource.id) || null) : null}
                 canAddMaterial={canAddMaterial}
                 onClose={() => {
                     setActiveStep(null);
                     setIsInitialNotesOpen(false);
+                    setNoteTarget(null);
                 }}
                 onToggleComplete={handleToggleCompleteStep}
-                onNavigateStep={(step) => setActiveStep(step)}
-                onSaveNote={handleSaveNote}
+                onNavigateStep={(step) => {
+                    setActiveStep(step);
+                    syncNoteTargetForStep(step);
+                }}
+                onSaveNote={handleSaveLessonNote}
                 onDeleteNote={handleDeleteNote}
                 onEditTextResource={(res) => {
                     setActiveStep(null);
@@ -1295,6 +1445,7 @@ export default function Ensinos() {
 
             {/* 9. MODAL: EDITOR DE TEXTO ORIGINAL (MARKDOWN) */}
             <TextEditor
+                key={editingTextResource ? `resource-text-${editingTextResource.id}` : "resource-text-closed"}
                 isOpen={isTextEditorOpen}
                 onClose={() => {
                     setIsTextEditorOpen(false);
@@ -1315,6 +1466,7 @@ export default function Ensinos() {
 
             {/* 10. MODAL: ANOTAÇÕES DE ESTUDO GERAL */}
             <TextEditor
+                key={noteTarget ? `study-note-${noteTarget.type}-${noteTarget.id}-${noteTarget.note?.id || "new"}` : "study-note-closed"}
                 isOpen={isNoteEditorOpen}
                 mode="note"
                 modalTitle={noteTarget ? `Anotações: ${noteTarget.title}` : "Minhas Anotações"}
@@ -1332,7 +1484,7 @@ export default function Ensinos() {
                     setIsNoteEditorOpen(false);
                     setNoteTarget(null);
                 }}
-                onSave={handleSaveNote}
+                onSave={handleSaveGeneralNote}
                 onDelete={noteTarget?.note ? () => handleDeleteNote(noteTarget.note?.id) : undefined}
             />
         </div>
