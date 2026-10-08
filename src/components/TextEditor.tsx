@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
     Bold, 
     Italic, 
@@ -6,7 +6,7 @@ import {
     Heading1, 
     Heading2, 
     Heading3, 
-    Heading4,
+    Heading4, 
     Quote, 
     List, 
     ListOrdered, 
@@ -81,22 +81,53 @@ export function TextEditor({
     const [loadingContent, setLoadingContent] = useState(false);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const editorRef = useRef<HTMLDivElement>(null);
+    
+    const editorRef = useRef<HTMLDivElement | null>(null);
+    const [editorElement, setEditorElement] = useState<HTMLDivElement | null>(null);
+    const loadedContentKeyRef = useRef<string | null>(null);
+
+    const dataIdentity = initialData
+        ? `${initialData.id || "new"}::${initialData.title || ""}::${initialData.url || ""}::${initialData.content ?? ""}`
+        : "empty";
+
+    // Callback ref to capture DOM element mounting inside Radix Dialog portals or inline
+    const setEditorRef = useCallback((node: HTMLDivElement | null) => {
+        editorRef.current = node;
+        setEditorElement(node);
+        if (node && initialData?.content !== undefined && loadedContentKeyRef.current !== dataIdentity) {
+            const html = markdownToHtml(initialData.content || "");
+            node.innerHTML = html || "<p><br></p>";
+            loadedContentKeyRef.current = dataIdentity;
+        }
+    }, [initialData?.content, dataIdentity]);
 
     // Reset fields or fetch content on open/change of initialData
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) {
+            loadedContentKeyRef.current = null;
+            return;
+        }
+
+        // When opening or switching to a new dataIdentity, sync title and description
+        if (loadedContentKeyRef.current !== dataIdentity) {
+            setTitle(initialData?.title || "");
+            setDescription(initialData?.description || "");
+        }
+
+        if (!editorElement) {
+            return;
+        }
+
+        if (loadedContentKeyRef.current === dataIdentity) {
+            return;
+        }
 
         if (initialData) {
-            setTitle(initialData.title);
-            setDescription(initialData.description || "");
-            
             if (initialData.content !== undefined) {
                 // Direct markdown content provided (e.g. from database for study/material notes)
                 const html = markdownToHtml(initialData.content || "");
-                if (editorRef.current) {
-                    editorRef.current.innerHTML = html || "<p><br></p>";
-                }
+                editorElement.innerHTML = html || "<p><br></p>";
+                loadedContentKeyRef.current = dataIdentity;
             } else if (initialData.url) {
                 setLoadingContent(true);
                 fetch(initialData.url)
@@ -109,6 +140,7 @@ export function TextEditor({
                         if (editorRef.current) {
                             editorRef.current.innerHTML = html;
                         }
+                        loadedContentKeyRef.current = dataIdentity;
                     })
                     .catch(err => {
                         console.error("Error loading markdown:", err);
@@ -121,18 +153,14 @@ export function TextEditor({
                         setLoadingContent(false);
                     });
             } else {
-                if (editorRef.current) {
-                    editorRef.current.innerHTML = "<p><br></p>";
-                }
+                editorElement.innerHTML = "<p><br></p>";
+                loadedContentKeyRef.current = dataIdentity;
             }
         } else {
-            setTitle("");
-            setDescription("");
-            if (editorRef.current) {
-                editorRef.current.innerHTML = "<p><br></p>";
-            }
+            editorElement.innerHTML = "<p><br></p>";
+            loadedContentKeyRef.current = dataIdentity;
         }
-    }, [isOpen, initialData]);
+    }, [isOpen, editorElement, dataIdentity, initialData]);
 
     const executeCommand = (command: string, value: string = "") => {
         document.execCommand(command, false, value);
@@ -220,6 +248,7 @@ export function TextEditor({
                 description: description.trim(),
                 markdownContent: markdown
             });
+            loadedContentKeyRef.current = `${initialData?.id || "new"}::${finalTitle}::${initialData?.url || ""}::${markdown}`;
             if (!inline) {
                 onClose();
             }
@@ -564,7 +593,7 @@ export function TextEditor({
             {/* Editor Workspace */}
             <div className="flex-1 flex flex-col min-h-0 relative">
                 <div 
-                    ref={editorRef}
+                    ref={setEditorRef}
                     contentEditable
                     onPaste={handlePaste}
                     className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-4 sm:p-5 bg-card/60 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground dark:text-zinc-100 prose-editor scrollbar-thin"

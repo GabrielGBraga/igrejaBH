@@ -42,6 +42,7 @@ interface StudyLessonModalProps {
     onSaveNote: (data: { title: string; description: string; markdownContent: string }) => Promise<void>;
     onDeleteNote?: (noteId?: string) => Promise<void>;
     onEditTextResource?: (resource: MediaResource) => void;
+    onNotesOpenChange?: (open: boolean) => void;
 }
 
 const getYouTubeId = (url: string) => {
@@ -64,11 +65,32 @@ export function StudyLessonModal({
     onSaveNote,
     onDeleteNote,
     onEditTextResource,
+    onNotesOpenChange,
 }: StudyLessonModalProps) {
     const [isSideBySideNotesOpen, setIsSideBySideNotesOpen] = useState(initialNotesOpen);
     const [mobileTab, setMobileTab] = useState<"content" | "notes">(initialNotesOpen ? "notes" : "content");
     const [isTogglingComplete, setIsTogglingComplete] = useState(false);
     const prevOpenRef = useRef(false);
+    const prevInitialNotesOpenRef = useRef(initialNotesOpen);
+
+    const handleCloseNotes = () => {
+        setIsSideBySideNotesOpen(false);
+        setMobileTab("content");
+        prevInitialNotesOpenRef.current = false;
+        onNotesOpenChange?.(false);
+    };
+
+    const handleToggleNotes = () => {
+        const nextState = !isSideBySideNotesOpen;
+        setIsSideBySideNotesOpen(nextState);
+        if (nextState) {
+            setMobileTab("notes");
+        } else {
+            setMobileTab("content");
+        }
+        prevInitialNotesOpenRef.current = nextState;
+        onNotesOpenChange?.(nextState);
+    };
 
     useEffect(() => {
         const isOpen = Boolean(step);
@@ -76,16 +98,20 @@ export function StudyLessonModal({
             // First opening of modal: respect initialNotesOpen
             setIsSideBySideNotesOpen(initialNotesOpen);
             setMobileTab(initialNotesOpen ? "notes" : "content");
-        } else if (isOpen && initialNotesOpen && !isSideBySideNotesOpen) {
-            // Explicit trigger to open notes from parent
-            setIsSideBySideNotesOpen(true);
-            setMobileTab("notes");
-        } else if (!isOpen) {
+            prevInitialNotesOpenRef.current = initialNotesOpen;
+        } else if (isOpen && initialNotesOpen !== prevInitialNotesOpenRef.current) {
+            // Explicit trigger to open or close notes from parent prop update
+            setIsSideBySideNotesOpen(initialNotesOpen);
+            setMobileTab(initialNotesOpen ? "notes" : "content");
+            prevInitialNotesOpenRef.current = initialNotesOpen;
+        } else if (!isOpen && prevOpenRef.current) {
+            // Modal closed
             setIsSideBySideNotesOpen(false);
             setMobileTab("content");
+            prevInitialNotesOpenRef.current = false;
         }
         prevOpenRef.current = isOpen;
-    }, [step, initialNotesOpen, isSideBySideNotesOpen]);
+    }, [step, initialNotesOpen]);
 
     if (!step) return null;
 
@@ -109,14 +135,13 @@ export function StudyLessonModal({
         }
     };
 
-    const renderMediaContent = () => (
-        <div className="bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col justify-center shrink-0">
-            {/* Video Rendering */}
-            {resObj.type === "video" && (() => {
-                const ytId = getYouTubeId(resObj.url);
-                if (ytId) {
-                    return (
-                        <div className="aspect-video w-full bg-black/95 rounded-2xl overflow-hidden shadow-sm">
+    const renderMediaContent = () => {
+        if (resObj.type === "video") {
+            const ytId = getYouTubeId(resObj.url);
+            if (ytId) {
+                return (
+                    <div className="w-full shrink-0 flex justify-center">
+                        <div className="aspect-video w-full max-h-[58vh] max-w-[calc(58vh*16/9)] bg-black/95 rounded-2xl overflow-hidden shadow-sm border border-border/40">
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -128,28 +153,29 @@ export function StudyLessonModal({
                                 className="w-full h-full border-0 block"
                             />
                         </div>
-                    );
-                }
-                return (
-                    <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center">
-                        <YoutubeIcon className="h-10 w-10 sm:h-12 sm:w-12 text-destructive mb-3" />
-                        <h5 className="font-semibold text-sm sm:text-base mb-1">Vídeo Externo</h5>
-                        <p className="text-xs text-muted-foreground max-w-sm mb-4">
-                            Este vídeo está hospedado externamente.
-                        </p>
-                        <a href={resObj.url} target="_blank" rel="noopener noreferrer">
-                            <Button className="rounded-xl gap-2 min-h-[44px]">
-                                <PlayIcon className="h-4 w-4" />
-                                Abrir no YouTube
-                            </Button>
-                        </a>
                     </div>
                 );
-            })()}
+            }
+            return (
+                <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 text-center">
+                    <YoutubeIcon className="h-10 w-10 sm:h-12 sm:w-12 text-destructive mb-3" />
+                    <h5 className="font-semibold text-sm sm:text-base mb-1">Vídeo Externo</h5>
+                    <p className="text-xs text-muted-foreground max-w-sm mb-4">
+                        Este vídeo está hospedado externamente.
+                    </p>
+                    <a href={resObj.url} target="_blank" rel="noopener noreferrer">
+                        <Button className="rounded-xl gap-2 min-h-[44px]">
+                            <PlayIcon className="h-4 w-4" />
+                            Abrir no YouTube
+                        </Button>
+                    </a>
+                </div>
+            );
+        }
 
-            {/* PDF Rendering */}
-            {resObj.type === "pdf" && (
-                <div className="flex flex-col items-center justify-center p-6 sm:p-10 text-center min-h-[280px]">
+        if (resObj.type === "pdf") {
+            return (
+                <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 sm:p-10 text-center min-h-[280px]">
                     <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-3">
                         <FileTextIcon className="h-8 w-8 text-red-500" />
                     </div>
@@ -174,26 +200,31 @@ export function StudyLessonModal({
                         </a>
                     </div>
                 </div>
-            )}
+            );
+        }
 
-            {/* Markdown Rendering */}
-            {resObj.type === "markdown" && (
-                <div className="p-4 sm:p-6 max-h-[520px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [&::-webkit-scrollbar-track]:bg-transparent">
-                    <MarkdownViewer url={resObj.url} />
+        if (resObj.type === "markdown") {
+            return (
+                <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden">
+                    <div className="p-4 sm:p-6 max-h-[520px] overflow-y-auto custom-scrollbar">
+                        <MarkdownViewer url={resObj.url} />
+                    </div>
                 </div>
-            )}
-        </div>
-    );
+            );
+        }
+
+        return null;
+    };
 
     return (
         <Dialog open={Boolean(step)} onOpenChange={(open) => !open && onClose()}>
             <DialogContent
                 showCloseButton={false}
                 className={cn(
-                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out overflow-hidden flex flex-col",
+                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out flex flex-col",
                     isSideBySideNotesOpen
-                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[94vh]"
-                        : "w-[95vw] sm:max-w-4xl lg:max-w-5xl xl:max-w-5xl max-h-[92vh]"
+                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[94vh] max-h-[94vh] overflow-y-auto lg:overflow-hidden custom-scrollbar"
+                        : "w-[95vw] sm:max-w-4xl lg:max-w-5xl max-h-[92vh] overflow-y-auto custom-scrollbar"
                 )}
             >
                 <DialogDescription className="sr-only">
@@ -201,7 +232,7 @@ export function StudyLessonModal({
                 </DialogDescription>
 
                 {/* Top Navigation Bar */}
-                <div className="p-4 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/80 backdrop-blur-sm flex flex-col gap-2.5">
+                <div className="p-4 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/95 backdrop-blur-md sticky top-0 z-20 flex flex-col gap-2.5 rounded-t-3xl">
                     <div className="flex items-center justify-between gap-3">
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
@@ -236,12 +267,7 @@ export function StudyLessonModal({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                    const nextState = !isSideBySideNotesOpen;
-                                    setIsSideBySideNotesOpen(nextState);
-                                    if (nextState) setMobileTab("notes");
-                                    else setMobileTab("content");
-                                }}
+                                onClick={handleToggleNotes}
                                 className={cn(
                                     "min-h-[44px] gap-2 rounded-xl text-xs font-semibold px-3.5 cursor-pointer transition-all",
                                     isSideBySideNotesOpen || existingNote
@@ -278,7 +304,7 @@ export function StudyLessonModal({
                                 type="button"
                                 onClick={() => setMobileTab("content")}
                                 className={cn(
-                                    "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                                    "flex-1 min-h-[44px] rounded-lg text-xs font-semibold transition-all cursor-pointer",
                                     mobileTab === "content"
                                         ? "bg-background text-foreground shadow-2xs"
                                         : "text-muted-foreground hover:text-foreground"
@@ -290,7 +316,7 @@ export function StudyLessonModal({
                                 type="button"
                                 onClick={() => setMobileTab("notes")}
                                 className={cn(
-                                    "flex-1 min-h-[38px] rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                                    "flex-1 min-h-[44px] rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
                                     mobileTab === "notes"
                                         ? "bg-background text-foreground shadow-2xs"
                                         : "text-muted-foreground hover:text-foreground"
@@ -306,12 +332,19 @@ export function StudyLessonModal({
                     )}
                 </div>
 
-                {/* Main Content Area - Single persistent Flex Row */}
-                <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6 overflow-hidden">
+                {/* Main Content Area */}
+                <div className={cn(
+                    "p-4 sm:p-6",
+                    isSideBySideNotesOpen
+                        ? "flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:overflow-hidden"
+                        : "flex flex-col gap-4 sm:gap-6"
+                )}>
                     {/* Media Column (Left) - PERSISTENT IN DOM, NEVER REMOUNTED */}
                     <div className={cn(
-                        "flex flex-col h-full min-h-0 overflow-y-auto space-y-4 transition-all duration-300 pr-0 lg:pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border/60 [&::-webkit-scrollbar-track]:bg-transparent",
-                        isSideBySideNotesOpen ? "lg:w-[58%] xl:w-[60%] shrink-0" : "w-full",
+                        "flex flex-col space-y-4 transition-all duration-300",
+                        isSideBySideNotesOpen
+                            ? "h-full min-h-0 overflow-y-auto custom-scrollbar pr-0 lg:pr-1 lg:w-[58%] xl:w-[60%] shrink-0"
+                            : "w-full",
                         isSideBySideNotesOpen && mobileTab === "notes" && "hidden lg:flex"
                     )}>
                         {renderMediaContent()}
@@ -324,7 +357,10 @@ export function StudyLessonModal({
                         )}
 
                         {/* Controls Bar */}
-                        <div className="mt-auto pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                        <div className={cn(
+                            "pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 shrink-0",
+                            isSideBySideNotesOpen && "mt-auto"
+                        )}>
                             <div className="flex items-center gap-2">
                                 {isStudyStep && hasPrevious && prevStep ? (
                                     <Button
@@ -413,6 +449,7 @@ export function StudyLessonModal({
                             mobileTab === "content" && "hidden lg:flex"
                         )}>
                             <TextEditor
+                                key={`lesson-note-${resObj.id}`}
                                 inline={true}
                                 isOpen={true}
                                 mode="note"
@@ -426,10 +463,7 @@ export function StudyLessonModal({
                                     title: `Anotações: ${resObj.title}`,
                                     content: "",
                                 }}
-                                onClose={() => {
-                                    setIsSideBySideNotesOpen(false);
-                                    setMobileTab("content");
-                                }}
+                                onClose={handleCloseNotes}
                                 onSave={onSaveNote}
                                 onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
                                 className="h-full"
