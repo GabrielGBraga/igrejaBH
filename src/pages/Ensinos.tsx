@@ -1391,6 +1391,7 @@ export default function Ensinos() {
                 allStudySteps={activeStep?.study_id ? studySteps.filter((s) => s.study_id === activeStep.study_id) : []}
                 studyTitle={activeStep?.study_id ? studies.find((s) => s.id === activeStep.study_id)?.title : undefined}
                 initialNotesOpen={isInitialNotesOpen}
+                onNotesOpenChange={setIsInitialNotesOpen}
                 userProgress={userProgress}
                 existingNote={activeStep ? (notes.find((n) => n.media_resource_id === activeStep.media_resource.id) || null) : null}
                 canAddMaterial={canAddMaterial}

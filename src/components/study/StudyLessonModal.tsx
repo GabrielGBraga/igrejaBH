@@ -42,6 +42,7 @@ interface StudyLessonModalProps {
     onSaveNote: (data: { title: string; description: string; markdownContent: string }) => Promise<void>;
     onDeleteNote?: (noteId?: string) => Promise<void>;
     onEditTextResource?: (resource: MediaResource) => void;
+    onNotesOpenChange?: (open: boolean) => void;
 }
 
 const getYouTubeId = (url: string) => {
@@ -64,11 +65,32 @@ export function StudyLessonModal({
     onSaveNote,
     onDeleteNote,
     onEditTextResource,
+    onNotesOpenChange,
 }: StudyLessonModalProps) {
     const [isSideBySideNotesOpen, setIsSideBySideNotesOpen] = useState(initialNotesOpen);
     const [mobileTab, setMobileTab] = useState<"content" | "notes">(initialNotesOpen ? "notes" : "content");
     const [isTogglingComplete, setIsTogglingComplete] = useState(false);
     const prevOpenRef = useRef(false);
+    const prevInitialNotesOpenRef = useRef(initialNotesOpen);
+
+    const handleCloseNotes = () => {
+        setIsSideBySideNotesOpen(false);
+        setMobileTab("content");
+        prevInitialNotesOpenRef.current = false;
+        onNotesOpenChange?.(false);
+    };
+
+    const handleToggleNotes = () => {
+        const nextState = !isSideBySideNotesOpen;
+        setIsSideBySideNotesOpen(nextState);
+        if (nextState) {
+            setMobileTab("notes");
+        } else {
+            setMobileTab("content");
+        }
+        prevInitialNotesOpenRef.current = nextState;
+        onNotesOpenChange?.(nextState);
+    };
 
     useEffect(() => {
         const isOpen = Boolean(step);
@@ -76,16 +98,20 @@ export function StudyLessonModal({
             // First opening of modal: respect initialNotesOpen
             setIsSideBySideNotesOpen(initialNotesOpen);
             setMobileTab(initialNotesOpen ? "notes" : "content");
-        } else if (isOpen && initialNotesOpen && !isSideBySideNotesOpen) {
-            // Explicit trigger to open notes from parent
-            setIsSideBySideNotesOpen(true);
-            setMobileTab("notes");
-        } else if (!isOpen) {
+            prevInitialNotesOpenRef.current = initialNotesOpen;
+        } else if (isOpen && initialNotesOpen !== prevInitialNotesOpenRef.current) {
+            // Explicit trigger to open or close notes from parent prop update
+            setIsSideBySideNotesOpen(initialNotesOpen);
+            setMobileTab(initialNotesOpen ? "notes" : "content");
+            prevInitialNotesOpenRef.current = initialNotesOpen;
+        } else if (!isOpen && prevOpenRef.current) {
+            // Modal closed
             setIsSideBySideNotesOpen(false);
             setMobileTab("content");
+            prevInitialNotesOpenRef.current = false;
         }
         prevOpenRef.current = isOpen;
-    }, [step, initialNotesOpen, isSideBySideNotesOpen]);
+    }, [step, initialNotesOpen]);
 
     if (!step) return null;
 
@@ -241,12 +267,7 @@ export function StudyLessonModal({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                    const nextState = !isSideBySideNotesOpen;
-                                    setIsSideBySideNotesOpen(nextState);
-                                    if (nextState) setMobileTab("notes");
-                                    else setMobileTab("content");
-                                }}
+                                onClick={handleToggleNotes}
                                 className={cn(
                                     "min-h-[44px] gap-2 rounded-xl text-xs font-semibold px-3.5 cursor-pointer transition-all",
                                     isSideBySideNotesOpen || existingNote
@@ -442,10 +463,7 @@ export function StudyLessonModal({
                                     title: `Anotações: ${resObj.title}`,
                                     content: "",
                                 }}
-                                onClose={() => {
-                                    setIsSideBySideNotesOpen(false);
-                                    setMobileTab("content");
-                                }}
+                                onClose={handleCloseNotes}
                                 onSave={onSaveNote}
                                 onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
                                 className="h-full"
