@@ -13,6 +13,8 @@
 - `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e controle de retiros.
 - `retreat_rooms`: Gestão de quartos/alocação de alojamentos customizáveis por retiro (`retreat_id`, `gender_type`, `capacity`).
 - `retreat_expenses`: Lançamento e controle de despesas/gastos por retiro para cálculo de resultado líquido (`retreat_id`, `category`, `amount`, `expense_date`).
+- `event_coupons`: Códigos e cupons descartáveis para isenção e desconto em retiros (`retreat_id`, `code`, `cpf`, `discount_percent`).
+- `event_waitlist`: Lista de espera automática por evento/retiro após esgotamento de vagas (`retreat_id`, `full_name`, `phone`, `email`, `travel_mode`, `status`).
 
 ## 2. Tratamento de Dados Sensíveis
 - Dados como `cpf`, `household_income` (renda familiar), etc., só podem ser manipulados se o agente for instruído a criar interfaces administrativas de Diaconato.
