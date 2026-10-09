@@ -229,6 +229,36 @@ export const THEME_CLASSES = {
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:text-amber-400",
   badgeDestructive:
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-600 border border-red-500/20 dark:text-red-400",
+  badgeInfo:
+    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20 dark:text-blue-400",
+  badgePriority:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-700 border border-purple-500/25 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30",
+} as const;
+
+export const WAITLIST_STATUS_CONFIG = {
+  aguardando: {
+    label: "Aguardando",
+    className: THEME_CLASSES.badgeWarning,
+    color: STATUS_COLORS.warning,
+  },
+  chamado: {
+    label: "Chamado",
+    className: THEME_CLASSES.badgeInfo,
+    color: STATUS_COLORS.info,
+  },
+  inscrito: {
+    label: "Inscrito",
+    className: THEME_CLASSES.badgeSuccess,
+    color: STATUS_COLORS.success,
+  },
+  desistiu: {
+    label: "Desistiu",
+    className: THEME_CLASSES.badgeNeutral,
+    color: {
+      light: PALETTE.zinc[500],
+      dark: PALETTE.zinc[400],
+    },
+  },
 } as const;
 
 // ==========================================
