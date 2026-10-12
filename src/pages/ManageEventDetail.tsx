@@ -47,6 +47,7 @@ import {
   type RetreatRoom,
 } from "@/components/events/RoomManagementTab";
 import { EventCouponsTab } from "@/components/events/EventCouponsTab";
+import { EventWaitlistTab } from "@/components/events/EventWaitlistTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
@@ -99,8 +100,9 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    "registrations" | "rooms" | "finance" | "coupons" | "dashboard"
+    "registrations" | "rooms" | "finance" | "coupons" | "waitlist" | "dashboard"
   >("registrations");
+  const [waitlistCount, setWaitlistCount] = useState<number>(0);
 
   // Dialog & Modal states
   const [isEditEventOpen, setIsEditEventOpen] = useState(false);
@@ -285,7 +287,7 @@ export default function ManageEventDetail() {
         .from("registrations")
         .select(`
           *,
-          profiles (
+          profiles:profiles!registrations_profile_id_fkey (
             full_name,
             email,
             phone,
@@ -302,9 +304,15 @@ export default function ManageEventDetail() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setRegistrations(data || []);
+      setRegistrations((data as unknown as RegistrationWithDetails[]) || []);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erro ao carregar inscrições";
+      console.error("Erro ao carregar inscrições:", err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Erro ao carregar inscrições";
       toast.error(msg);
     } finally {
       setLoadingRegistrations(false);
@@ -330,14 +338,31 @@ export default function ManageEventDetail() {
     }
   }, []);
 
+  const fetchWaitlistCount = useCallback(async (id: string) => {
+    try {
+      const { count, error } = await supabase
+        .from("event_waitlist")
+        .select("id", { count: "exact", head: true })
+        .eq("retreat_id", id)
+        .eq("status", "aguardando");
+
+      if (!error && count !== null) {
+        setWaitlistCount(count);
+      }
+    } catch (err: unknown) {
+      console.warn("Erro ao buscar contagem da lista de espera:", err);
+    }
+  }, []);
+
   useEffect(() => {
     if (eventId) {
       fetchRetreatDetails(eventId);
       fetchRegistrations(eventId);
       fetchRetreatRooms(eventId);
       fetchForms();
+      fetchWaitlistCount(eventId);
     }
-  }, [eventId, fetchRetreatDetails, fetchRegistrations, fetchRetreatRooms, fetchForms]);
+  }, [eventId, fetchRetreatDetails, fetchRegistrations, fetchRetreatRooms, fetchForms, fetchWaitlistCount]);
 
   // Toggle Payment Status
   const handleTogglePayment = async (reg: RegistrationWithDetails) => {
@@ -1080,6 +1105,18 @@ export default function ManageEventDetail() {
         </button>
 
         <button
+          onClick={() => setActiveTab("waitlist")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "waitlist"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Lista de Espera {waitlistCount > 0 ? `(${waitlistCount})` : ""}</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("dashboard")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "dashboard"
@@ -1274,6 +1311,16 @@ export default function ManageEventDetail() {
           retreat={retreat}
           eventId={eventId!}
           formId={retreat.form_id}
+        />
+      )}
+
+      {/* Tab 6: Lista de Espera */}
+      {activeTab === "waitlist" && retreat && (
+        <EventWaitlistTab
+          retreat={retreat}
+          eventId={eventId!}
+          formId={retreat.form_id}
+          onWaitlistCountChange={setWaitlistCount}
         />
       )}
 

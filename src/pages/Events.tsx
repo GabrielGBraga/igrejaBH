@@ -44,6 +44,8 @@ import {
 import type { FormField } from "@/lib/forms"
 import type { Database } from "@/lib/database.types"
 import { formatDateBR } from "@/lib/utils"
+import { EventWaitlistForm } from "@/components/events/EventWaitlistForm"
+import { EventWaitlistDialog } from "@/components/events/EventWaitlistDialog"
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"]
 
@@ -64,6 +66,9 @@ export default function Events() {
   const [retreats, setRetreats] = useState<Retreat[]>([])
   const [myRegistrations, setMyRegistrations] = useState<Registration[]>([])
   const [userProfile, setUserProfile] = useState<Profile | null>(null)
+  const [registrationCounts, setRegistrationCounts] = useState<Record<string, number>>({})
+  const [userWaitlistRetreatIds, setUserWaitlistRetreatIds] = useState<string[]>([])
+  const [waitlistDialogRetreat, setWaitlistDialogRetreat] = useState<Retreat | null>(null)
 
   // Loading states
   const [loading, setLoading] = useState(true)
@@ -156,6 +161,40 @@ export default function Events() {
         .order("start_date", { ascending: true })
       if (eventsErr) throw eventsErr
       setRetreats(eventsData || [])
+
+      // 2.1 Fetch registration counts to verify capacity
+      const activeIds = (eventsData || []).map((r) => r.id)
+      if (activeIds.length > 0) {
+        const { data: countList } = await supabase
+          .from("registrations")
+          .select("retreat_id")
+          .in("retreat_id", activeIds)
+
+        const countsMap: Record<string, number> = {}
+        countList?.forEach((row) => {
+          if (row.retreat_id) {
+            countsMap[row.retreat_id] = (countsMap[row.retreat_id] || 0) + 1
+          }
+        })
+        setRegistrationCounts(countsMap)
+
+        // 2.2 Check user's own waitlist entries
+        if (profile?.email) {
+          const { data: userWaitlist } = await supabase
+            .from("event_waitlist")
+            .select("retreat_id, status")
+            .eq("email", profile.email.toLowerCase().trim())
+            .in("retreat_id", activeIds)
+
+          if (userWaitlist) {
+            setUserWaitlistRetreatIds(
+              userWaitlist
+                .filter((w) => w.status === "aguardando" || w.status === "chamado")
+                .map((w) => w.retreat_id)
+            )
+          }
+        }
+      }
 
       // 3. Fetch user's own registrations
       if (profile) {
@@ -455,8 +494,51 @@ export default function Events() {
     )
   }
 
-  // Active registration view (stepper)
+  // Active registration view (stepper or waitlist)
   if (registeringRetreat) {
+    const regCount = registrationCounts[registeringRetreat.id] || 0
+    const isRetreatFull =
+      !!registeringRetreat.max_participants &&
+      regCount >= registeringRetreat.max_participants
+
+    if (isRetreatFull) {
+      return (
+        <div className="mx-auto max-w-2xl space-y-6 px-4 py-6 pb-24">
+          <div className="flex items-center justify-between border-b border-border/50 pb-4">
+            <button
+              onClick={() => setRegisteringRetreat(null)}
+              className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground min-h-[44px]"
+            >
+              <ArrowLeft className="h-4 w-4" /> Voltar para Encontros
+            </button>
+            <div className="text-right">
+              <h2 className="text-lg font-extrabold text-foreground">
+                {registeringRetreat.title}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Lista de Espera
+              </p>
+            </div>
+          </div>
+
+          <EventWaitlistForm
+            retreat={registeringRetreat}
+            initialData={{
+              fullName: guestData.fullName,
+              email: guestData.email,
+              phone: guestData.phone,
+              cpf: guestData.cpf,
+              cityState: guestData.cityState,
+            }}
+            onCancel={() => setRegisteringRetreat(null)}
+            onSuccess={() => {
+              fetchInitialData()
+            }}
+          />
+        </div>
+      )
+    }
+
     return (
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 pb-24">
         {/* Stepper Header */}
@@ -1211,6 +1293,10 @@ export default function Events() {
               const hasRegistered = myRegistrations.some(
                 (reg) => reg.retreat_id === retreat.id
               )
+              const regCount = registrationCounts[retreat.id] || 0
+              const isRetreatFull =
+                !!retreat.max_participants && regCount >= retreat.max_participants
+              const isOnWaitlist = userWaitlistRetreatIds.includes(retreat.id)
 
               return (
                 <Card
@@ -1218,12 +1304,19 @@ export default function Events() {
                   className="flex flex-col overflow-hidden rounded-2xl border-border/50 bg-card/25 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-lg"
                 >
                   {retreat.image_url && (
-                    <div className="h-40 w-full shrink-0 overflow-hidden border-b border-border/10">
+                    <div className="relative h-40 w-full shrink-0 overflow-hidden border-b border-border/10">
                       <img
                         src={retreat.image_url}
                         alt={retreat.title}
                         className="h-full w-full object-cover"
                       />
+                      {isRetreatFull && (
+                        <div className="absolute top-2.5 right-2.5">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/90 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-zinc-950 shadow-sm backdrop-blur-xs">
+                            <Clock className="h-3 w-3" /> Esgotado
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                   <CardHeader className="p-5 pb-3">
@@ -1269,14 +1362,30 @@ export default function Events() {
                     {hasRegistered ? (
                       <Button
                         disabled
-                        className="mt-3 w-full rounded-xl bg-emerald-500/10 font-semibold text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-400"
+                        className="mt-3 min-h-[44px] w-full rounded-xl bg-emerald-500/10 font-semibold text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-400"
                       >
                         Inscrito <CheckCircle2 className="ml-1.5 h-4 w-4" />
                       </Button>
+                    ) : isRetreatFull ? (
+                      isOnWaitlist ? (
+                        <Button
+                          disabled
+                          className="mt-3 min-h-[44px] w-full rounded-xl bg-amber-500/10 font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                        >
+                          Na Lista de Espera <Clock className="ml-1.5 h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => setWaitlistDialogRetreat(retreat)}
+                          className="mt-3 min-h-[44px] w-full cursor-pointer rounded-xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
+                        >
+                          Entrar na Lista de Espera <Clock className="ml-1.5 h-4 w-4" />
+                        </Button>
+                      )
                     ) : (
                       <Button
                         onClick={() => setRegisteringRetreat(retreat)}
-                        className="mt-3 w-full cursor-pointer rounded-xl font-bold"
+                        className="mt-3 min-h-[44px] w-full cursor-pointer rounded-xl font-bold"
                       >
                         Inscrever-se
                       </Button>
@@ -1288,6 +1397,27 @@ export default function Events() {
           </div>
         )}
       </div>
+
+      {/* Modal Dialog para Inscrição na Lista de Espera */}
+      <EventWaitlistDialog
+        retreat={waitlistDialogRetreat}
+        isOpen={!!waitlistDialogRetreat}
+        onClose={() => setWaitlistDialogRetreat(null)}
+        userProfile={
+          userProfile
+            ? {
+                fullName: userProfile.full_name,
+                email: userProfile.email || "",
+                phone: userProfile.phone || "",
+                cpf: userProfile.cpf || "",
+              }
+            : null
+        }
+        onSuccess={() => {
+          fetchInitialData()
+          setWaitlistDialogRetreat(null)
+        }}
+      />
     </div>
   )
 }

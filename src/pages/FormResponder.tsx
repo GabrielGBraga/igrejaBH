@@ -31,6 +31,7 @@ import {
 } from "@/lib/forms"
 import type { FormField, FormTemplate, FormPresentationPage } from "@/lib/forms"
 import { FormPresentationView } from "@/components/forms/FormPresentationView"
+import { EventWaitlistForm } from "@/components/events/EventWaitlistForm"
 import { Layout } from "@/components/layout/Layout"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { parseEndOfDay } from "@/lib/utils"
@@ -277,7 +278,13 @@ export default function FormResponder() {
                 .eq("retreat_id", retreat.id)
 
               if (!countError && count !== null && retreat.max_participants) {
-                if (count >= retreat.max_participants) {
+                const searchParams = new URLSearchParams(window.location.search)
+                const hasBypass =
+                  searchParams.get("waitlist_id") ||
+                  searchParams.get("cupom") ||
+                  searchParams.get("coupon") ||
+                  searchParams.get("convite")
+                if (count >= retreat.max_participants && !hasBypass) {
                   setClosedReason("full")
                   return
                 }
@@ -707,7 +714,7 @@ export default function FormResponder() {
                 id,
                 guest_data,
                 custom_responses,
-                profiles (
+                profiles:profiles!registrations_profile_id_fkey (
                   email,
                   cpf
                 )
@@ -846,6 +853,20 @@ export default function FormResponder() {
           })
 
           if (regError) throw regError
+
+          // Se o participante veio com link de chamada da lista de espera, marcar como inscrito
+          const urlParams = new URLSearchParams(window.location.search)
+          const waitlistId = urlParams.get("waitlist_id")
+          if (waitlistId) {
+            try {
+              await supabase
+                .from("event_waitlist")
+                .update({ status: "inscrito" })
+                .eq("id", waitlistId)
+            } catch (waitlistErr) {
+              console.warn("Não foi possível atualizar status na lista de espera:", waitlistErr)
+            }
+          }
         }
 
         toast.dismiss(submitToastId)
@@ -1061,6 +1082,32 @@ export default function FormResponder() {
     let description = "Este formulário não está aceitando respostas no momento."
     let iconColor = "text-amber-500"
     let iconBg = "bg-amber-500/10"
+
+    if (closedReason === "full" && associatedRetreat) {
+      return (
+        <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="mb-6">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="gap-2 -ml-2 text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar para a página anterior
+            </Button>
+          </div>
+          <EventWaitlistForm
+            retreat={associatedRetreat}
+            initialData={{
+              fullName: user?.user_metadata?.full_name || "",
+              email: user?.email || "",
+            }}
+            onCancel={() => navigate(-1)}
+          />
+        </div>
+      )
+    }
 
     if (closedReason === "draft") {
       title = "Formulário em Rascunho"
