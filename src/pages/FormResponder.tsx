@@ -271,11 +271,12 @@ export default function FormResponder() {
                 }
               }
 
-              // Check capacity
+              // Check capacity (counting only active registrations: 'confirmado' and 'presente')
               const { count, error: countError } = await supabase
                 .from("registrations")
                 .select("id", { count: "exact", head: true })
                 .eq("retreat_id", retreat.id)
+                .in("status", ["confirmado", "presente"])
 
               if (!countError && count !== null && retreat.max_participants) {
                 const searchParams = new URLSearchParams(window.location.search)
@@ -707,11 +708,12 @@ export default function FormResponder() {
         // Check for duplicates
         if (emailVal || cpfVal) {
           if (associatedRetreat) {
-            // Event registration check
+            // Event registration check (only check active registrations, ignoring cancelled ones)
             const { data: existingRegs } = await supabase
               .from("registrations")
               .select(`
                 id,
+                status,
                 guest_data,
                 custom_responses,
                 profiles:profiles!registrations_profile_id_fkey (
@@ -720,6 +722,7 @@ export default function FormResponder() {
                 )
               `)
               .eq("retreat_id", associatedRetreat.id)
+              .in("status", ["confirmado", "presente"])
 
             if (existingRegs) {
               const isDuplicate = existingRegs.some((reg: any) => {
@@ -850,6 +853,7 @@ export default function FormResponder() {
             payment_reference: reference,
             paid: paid,
             form_submission_id: submissionId,
+            status: "confirmado",
           })
 
           if (regError) throw regError

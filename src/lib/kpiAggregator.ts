@@ -137,6 +137,12 @@ export function applyKpiCondition(
       if (operator === "neq") return m !== val;
     }
 
+    if (field === "status") {
+      const s = item.status || "confirmado";
+      if (operator === "eq") return s === value;
+      if (operator === "neq") return s !== value;
+    }
+
     return true;
   });
 }
@@ -175,12 +181,14 @@ export function computeKpiCard(
     computedValue = count;
 
     if (config.id === "kpi-registrations") {
-      const rate = baseValue > 0 ? Math.min(100, Math.round((count / baseValue) * 100)) : 0;
+      const activeCount = filteredSubset.filter((r) => r.status !== "cancelado").length;
+      const rate = baseValue > 0 ? Math.min(100, Math.round((activeCount / baseValue) * 100)) : 0;
       progress = rate;
       badgeText = `${rate}% Lotação`;
       badgeVariant = rate >= 90 ? "warning" : "outline";
       secondaryValue = `/ ${baseValue} vagas`;
-      description = `${Math.max(0, baseValue - count)} vagas disponíveis`;
+      description = `${Math.max(0, baseValue - activeCount)} vagas disponíveis`;
+      computedValue = activeCount;
     } else if (config.id === "kpi-payments") {
       const rate = totalInFilter > 0 ? Math.min(100, Math.round((count / totalInFilter) * 100)) : 0;
       badgeText = `${rate}% Quitados`;

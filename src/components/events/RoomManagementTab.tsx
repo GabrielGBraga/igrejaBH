@@ -204,8 +204,10 @@ export function RoomManagementTab({
     return "indefinido";
   };
 
-  // Unassigned registrations overall
-  const unassignedRegistrations = registrations.filter(r => !r.room_id && !r.room_allocation);
+  // Unassigned registrations overall (excluding cancelled registrations)
+  const unassignedRegistrations = registrations.filter(
+    (r) => !r.room_id && !r.room_allocation && (r.status || "confirmado") !== "cancelado"
+  );
 
   const genderBadgeColor = (type: string | null) => {
     switch (type) {
@@ -325,7 +327,9 @@ export function RoomManagementTab({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {rooms.map((room) => {
                 const occupantRegs = registrations.filter(
-                  r => r.room_id === room.id || r.room_allocation === room.name
+                  (r) =>
+                    (r.status || "confirmado") !== "cancelado" &&
+                    (r.room_id === room.id || r.room_allocation === room.name)
                 );
                 const count = occupantRegs.length;
                 const isFull = count >= room.capacity;
@@ -448,7 +452,7 @@ export function RoomManagementTab({
                 </Badge>
               </div>
               <DialogDescription className="text-xs text-muted-foreground mt-1">
-                Capacidade: {registrations.filter(r => r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name).length} / {selectedRoomForAllocation.capacity} vagas ocupadas.
+                Capacidade: {registrations.filter(r => (r.status || "confirmado") !== "cancelado" && (r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name)).length} / {selectedRoomForAllocation.capacity} vagas ocupadas.
               </DialogDescription>
             </DialogHeader>
 
@@ -458,11 +462,11 @@ export function RoomManagementTab({
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <UserCheck className="w-4 h-4 text-emerald-500" /> Integrantes Atualmente no Quarto
                 </h4>
-                {registrations.filter(r => r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name).length === 0 ? (
+                {registrations.filter(r => (r.status || "confirmado") !== "cancelado" && (r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name)).length === 0 ? (
                   <p className="text-xs italic text-muted-foreground bg-muted/20 p-3 rounded-xl">Nenhum participante alocado neste quarto ainda.</p>
                 ) : (
                   <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-                    {registrations.filter(r => r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name).map(reg => {
+                    {registrations.filter(r => (r.status || "confirmado") !== "cancelado" && (r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name)).map(reg => {
                       const name = reg.profiles?.full_name || (reg.guest_data as any)?.full_name || "Sem nome";
                       const phone = reg.profiles?.phone || (reg.guest_data as any)?.phone || "S/T";
                       return (

@@ -543,6 +543,86 @@ export default function ManageEventDetail() {
     }
   };
 
+  // Update Registration Status (confirmado, presente, cancelado) with spot validation
+  const handleUpdateRegistrationStatus = async (
+    reg: RegistrationWithDetails,
+    newStatus: "confirmado" | "presente" | "cancelado",
+    cancellationReason?: string
+  ) => {
+    // If reverting from 'cancelado' to 'confirmado' or 'presente', verify spot availability
+    if (reg.status === "cancelado" && newStatus !== "cancelado") {
+      const activeCount = registrations.filter(
+        (r) => r.id !== reg.id && (r.status || "confirmado") !== "cancelado"
+      ).length;
+      const max = retreat?.max_participants || 0;
+      if (max > 0 && activeCount >= max) {
+        toast.error(
+          `Não é possível reverter cancelamento: o evento já atingiu a lotação máxima de ${max} participantes.`
+        );
+        return;
+      }
+    }
+
+    try {
+      const updates: {
+        status: "confirmado" | "presente" | "cancelado";
+        cancellation_reason?: string | null;
+        cancelled_at?: string | null;
+      } = {
+        status: newStatus,
+      };
+
+      if (newStatus === "cancelado") {
+        updates.cancellation_reason = cancellationReason?.trim() || null;
+        updates.cancelled_at = new Date().toISOString();
+      } else if (reg.status === "cancelado") {
+        // Clear cancellation reason and timestamp when reactivating
+        updates.cancellation_reason = null;
+        updates.cancelled_at = null;
+      }
+
+      const { error } = await supabase
+        .from("registrations")
+        .update(updates)
+        .eq("id", reg.id);
+
+      if (error) throw error;
+
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.id === reg.id
+            ? {
+                ...item,
+                ...updates,
+              }
+            : item
+        )
+      );
+
+      if (selectedRegistrationForDetail?.id === reg.id) {
+        setSelectedRegistrationForDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                ...updates,
+              }
+            : null
+        );
+      }
+
+      const statusLabels: Record<string, string> = {
+        confirmado: "confirmada",
+        presente: "marcada como presente (check-in)",
+        cancelado: "cancelada e vaga liberada",
+      };
+      toast.success(`Inscrição ${statusLabels[newStatus] || "atualizada"} com sucesso!`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar status da inscrição";
+      toast.error(msg);
+      throw err;
+    }
+  };
+
   // Assign Room to a Specific Registration
   const handleAssignRoom = async (regId: string, roomId: string | null) => {
     try {
@@ -786,6 +866,7 @@ export default function ManageEventDetail() {
     // 2. Base headers
     const baseHeaders = [
       "Participante",
+      "Status",
       "Email",
       "Telefone",
       "CPF",
@@ -796,6 +877,7 @@ export default function ManageEventDetail() {
       "Referência de Pagamento",
       "Alojamento",
       "Observações",
+      "Motivo de Cancelamento",
       "Data de Inscrição",
     ];
 
@@ -822,6 +904,13 @@ export default function ManageEventDetail() {
         ? new Date(reg.created_at).toLocaleString("pt-BR")
         : "";
 
+      const statusLabel =
+        reg.status === "presente"
+          ? "Presente"
+          : reg.status === "cancelado"
+          ? "Cancelado"
+          : "Confirmado";
+
       const cr = (reg.custom_responses as Record<string, unknown> | null) || {};
 
       const customValues = customFieldKeys.map((key) => {
@@ -843,6 +932,7 @@ export default function ManageEventDetail() {
 
       return [
         reg.profiles?.full_name || guest?.full_name || "Desconhecido",
+        statusLabel,
         reg.profiles?.email || guest?.email || "",
         reg.profiles?.phone || guest?.phone || "",
         reg.profiles?.cpf || guest?.cpf || "",
@@ -853,6 +943,7 @@ export default function ManageEventDetail() {
         reg.payment_reference || "",
         reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
         reg.notes || "",
+        reg.cancellation_reason || "",
         dateStr,
         ...customValues,
       ];
@@ -895,6 +986,17 @@ export default function ManageEventDetail() {
     );
   };
 
+  const activeRegistrationsCount = useMemo(() => {
+    return registrations.filter(
+      (r) => (r.status || "confirmado") !== "cancelado"
+    ).length;
+  }, [registrations]);
+
+  const availableSpots = useMemo(() => {
+    if (!retreat?.max_participants) return 999999;
+    return Math.max(0, retreat.max_participants - activeRegistrationsCount);
+  }, [retreat?.max_participants, activeRegistrationsCount]);
+
   const totalBeds = useMemo(
     () => retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0),
     [retreatRooms]
@@ -903,7 +1005,7 @@ export default function ManageEventDetail() {
   // Dynamic Context Meta for KPI Builder
   const contextMeta: ContextMeta = useMemo(() => {
     return {
-      rawTotalCount: registrations.length,
+      rawTotalCount: activeRegistrationsCount,
       basePrice: retreat?.price || 0,
       maxParticipants: retreat?.max_participants || 100,
       totalBeds,
@@ -911,7 +1013,7 @@ export default function ManageEventDetail() {
       calculatePrice: getRegPrice,
     };
   }, [
-    registrations.length,
+    activeRegistrationsCount,
     retreat?.price,
     retreat?.max_participants,
     totalBeds,
@@ -925,12 +1027,18 @@ export default function ManageEventDetail() {
   }, [tableFilteredRegistrations, kpiConfigs, contextMeta]);
 
   // Financial & Metrics calculations for secondary tabs based on active filtered dataset
-  const totalRegistered = tableFilteredRegistrations.length;
+  const activeAttendees = useMemo(() => {
+    return tableFilteredRegistrations.filter(
+      (r) => (r.status || "confirmado") !== "cancelado"
+    );
+  }, [tableFilteredRegistrations]);
+
+  const totalRegistered = activeAttendees.length;
 
   let totalRevenueConfirmed = 0;
   let totalRevenueEstimated = 0;
 
-  tableFilteredRegistrations.forEach((reg) => {
+  activeAttendees.forEach((reg) => {
     const price = getRegPrice(reg);
     totalRevenueEstimated += price;
     if (reg.paid) {
@@ -938,17 +1046,17 @@ export default function ManageEventDetail() {
     }
   });
 
-  const allocatedBedsCount = tableFilteredRegistrations.filter(
+  const allocatedBedsCount = activeAttendees.filter(
     (r) =>
       r.room_id ||
       (r.room_allocation && r.room_allocation !== "Não alocado")
   ).length;
   const unallocatedCount = totalRegistered - allocatedBedsCount;
 
-  const maleCount = tableFilteredRegistrations.filter(
+  const maleCount = activeAttendees.filter(
     (r) => getParticipantGender(r) === "masculino"
   ).length;
-  const femaleCount = tableFilteredRegistrations.filter(
+  const femaleCount = activeAttendees.filter(
     (r) => getParticipantGender(r) === "feminino"
   ).length;
   const malePct =
@@ -1227,6 +1335,7 @@ export default function ManageEventDetail() {
             onTogglePayment={handleTogglePayment}
             onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
             onDeleteRegistration={handleDeleteRegistration}
+            onUpdateStatus={handleUpdateRegistrationStatus}
             onExportData={handleExportData}
             onPrint={() => setIsPrintDialogOpen(true)}
             onFilteredDataChange={setTableFilteredRegistrations}
@@ -1325,7 +1434,8 @@ export default function ManageEventDetail() {
                   retreatRooms.map((room) => {
                     const occupants = registrations.filter(
                       (r) =>
-                        r.room_id === room.id || r.room_allocation === room.name
+                        (r.status || "confirmado") !== "cancelado" &&
+                        (r.room_id === room.id || r.room_allocation === room.name)
                     ).length;
                     const roomPct = Math.min(
                       100,
@@ -1459,7 +1569,8 @@ export default function ManageEventDetail() {
                   {eligibleRoomsForParticipant.map((room) => {
                     const occupantsCount = registrations.filter(
                       (r) =>
-                        r.room_id === room.id || r.room_allocation === room.name
+                        (r.status || "confirmado") !== "cancelado" &&
+                        (r.room_id === room.id || r.room_allocation === room.name)
                     ).length;
                     const isFull = occupantsCount >= room.capacity;
                     const isCurrentRoom =
@@ -1547,6 +1658,8 @@ export default function ManageEventDetail() {
         onClose={() => setSelectedRegistrationForDetail(null)}
         onTogglePayment={handleTogglePayment}
         onUpdatePayment={handleUpdatePaymentDetails}
+        onUpdateStatus={handleUpdateRegistrationStatus}
+        availableSpots={availableSpots}
       />
 
       {/* Modal: Editar Evento */}
