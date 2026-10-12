@@ -80,6 +80,56 @@ export type Database = {
           },
         ]
       }
+      event_waitlist: {
+        Row: {
+          city_state: string | null
+          cpf: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          retreat_id: string
+          status: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode: string | null
+        }
+        Insert: {
+          city_state?: string | null
+          cpf?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          retreat_id: string
+          status?: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode?: string | null
+        }
+        Update: {
+          city_state?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          retreat_id?: string
+          status?: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_waitlist_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fellowships: {
         Row: {
           created_at: string | null
@@ -474,6 +524,8 @@ export type Database = {
       }
       registrations: {
         Row: {
+          cancellation_reason: string | null
+          cancelled_at: string | null
           created_at: string | null
           custom_responses: Json | null
           form_submission_id: string | null
@@ -488,8 +540,11 @@ export type Database = {
           room_allocation: string | null
           room_id: string | null
           service_team: string | null
+          status: "confirmado" | "presente" | "cancelado"
         }
         Insert: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -504,8 +559,11 @@ export type Database = {
           room_allocation?: string | null
           room_id?: string | null
           service_team?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Update: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -520,6 +578,7 @@ export type Database = {
           room_allocation?: string | null
           room_id?: string | null
           service_team?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Relationships: [
           {
@@ -527,6 +586,13 @@ export type Database = {
             columns: ["form_submission_id"]
             isOneToOne: false
             referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {

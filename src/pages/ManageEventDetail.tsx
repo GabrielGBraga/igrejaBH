@@ -18,6 +18,7 @@ import {
   Ticket,
   Clock,
   HeartHandshake,
+  Printer,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -39,6 +40,7 @@ import { KPIBuilderDialog } from "@/components/events/KPIBuilderDialog";
 import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
 import { CreateEditEventDialog, type FormOption } from "@/components/events/CreateEditEventDialog";
+import { EventPrintListsDialog } from "@/components/events/EventPrintListsDialog";
 import {
   RegistrationDetailDialog,
   type RegistrationWithDetails,
@@ -48,6 +50,7 @@ import {
   type RetreatRoom,
 } from "@/components/events/RoomManagementTab";
 import { EventCouponsTab } from "@/components/events/EventCouponsTab";
+import { EventWaitlistTab } from "@/components/events/EventWaitlistTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
@@ -102,11 +105,20 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    "registrations" | "rooms" | "teams" | "finance" | "coupons" | "dashboard"
+    | "registrations"
+    | "rooms"
+    | "teams"
+    | "finance"
+    | "coupons"
+    | "waitlist"
+    | "dashboard"
   >("registrations");
+  const [waitlistCount, setWaitlistCount] = useState<number>(0);
 
   // Dialog & Modal states
   const [isEditEventOpen, setIsEditEventOpen] = useState(false);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [homeGroupsMap, setHomeGroupsMap] = useState<Map<string, string>>(new Map());
   const [selectedRegistrationForDetail, setSelectedRegistrationForDetail] =
     useState<RegistrationWithDetails | null>(null);
   const [selectedRegistrationForRoomModal, setSelectedRegistrationForRoomModal] =
@@ -281,6 +293,26 @@ export default function ManageEventDetail() {
     }
   }, []);
 
+  const fetchHomeGroups = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("home_groups")
+        .select("id, location_text");
+      if (error) throw error;
+      if (data) {
+        const map = new Map<string, string>();
+        data.forEach((hg) => {
+          if (hg.location_text) {
+            map.set(hg.id, hg.location_text);
+          }
+        });
+        setHomeGroupsMap(map);
+      }
+    } catch (e) {
+      console.warn("Erro ao buscar grupos caseiros:", e);
+    }
+  }, []);
+
   const fetchRegistrations = useCallback(async (id: string) => {
     setLoadingRegistrations(true);
     try {
@@ -288,11 +320,17 @@ export default function ManageEventDetail() {
         .from("registrations")
         .select(`
           *,
-          profiles (
+          profiles:profiles!registrations_profile_id_fkey (
             full_name,
             email,
             phone,
-            cpf
+            cpf,
+            address_city,
+            home_group_id,
+            home_groups (
+              id,
+              location_text
+            )
           ),
           retreat_rooms (
             id,
@@ -304,10 +342,43 @@ export default function ManageEventDetail() {
         .eq("retreat_id", id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setRegistrations(data || []);
+      if (error) {
+        // Fallback resiliente caso nested home_groups não seja suportado diretamente
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("registrations")
+          .select(`
+            *,
+            profiles:profiles!registrations_profile_id_fkey (
+              full_name,
+              email,
+              phone,
+              cpf,
+              address_city,
+              home_group_id
+            ),
+            retreat_rooms (
+              id,
+              name,
+              gender_type,
+              capacity
+            )
+          `)
+          .eq("retreat_id", id)
+          .order("created_at", { ascending: false });
+
+        if (fallbackError) throw fallbackError;
+        setRegistrations((fallbackData as unknown as RegistrationWithDetails[]) || []);
+      } else {
+        setRegistrations((data as unknown as RegistrationWithDetails[]) || []);
+      }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erro ao carregar inscrições";
+      console.error("Erro ao carregar inscrições:", err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Erro ao carregar inscrições";
       toast.error(msg);
     } finally {
       setLoadingRegistrations(false);
@@ -333,14 +404,40 @@ export default function ManageEventDetail() {
     }
   }, []);
 
+  const fetchWaitlistCount = useCallback(async (id: string) => {
+    try {
+      const { count, error } = await supabase
+        .from("event_waitlist")
+        .select("id", { count: "exact", head: true })
+        .eq("retreat_id", id)
+        .eq("status", "aguardando");
+
+      if (!error && count !== null) {
+        setWaitlistCount(count);
+      }
+    } catch (err: unknown) {
+      console.warn("Erro ao buscar contagem da lista de espera:", err);
+    }
+  }, []);
+
   useEffect(() => {
     if (eventId) {
       fetchRetreatDetails(eventId);
       fetchRegistrations(eventId);
       fetchRetreatRooms(eventId);
       fetchForms();
+      fetchHomeGroups();
+      fetchWaitlistCount(eventId);
     }
-  }, [eventId, fetchRetreatDetails, fetchRegistrations, fetchRetreatRooms, fetchForms]);
+  }, [
+    eventId,
+    fetchRetreatDetails,
+    fetchRegistrations,
+    fetchRetreatRooms,
+    fetchForms,
+    fetchHomeGroups,
+    fetchWaitlistCount,
+  ]);
 
   // Toggle Payment Status
   const handleTogglePayment = async (reg: RegistrationWithDetails) => {
@@ -450,6 +547,86 @@ export default function ManageEventDetail() {
       toast.success("Dados de pagamento atualizados com sucesso!");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao atualizar pagamento";
+      toast.error(msg);
+      throw err;
+    }
+  };
+
+  // Update Registration Status (confirmado, presente, cancelado) with spot validation
+  const handleUpdateRegistrationStatus = async (
+    reg: RegistrationWithDetails,
+    newStatus: "confirmado" | "presente" | "cancelado",
+    cancellationReason?: string
+  ) => {
+    // If reverting from 'cancelado' to 'confirmado' or 'presente', verify spot availability
+    if (reg.status === "cancelado" && newStatus !== "cancelado") {
+      const activeCount = registrations.filter(
+        (r) => r.id !== reg.id && (r.status || "confirmado") !== "cancelado"
+      ).length;
+      const max = retreat?.max_participants || 0;
+      if (max > 0 && activeCount >= max) {
+        toast.error(
+          `Não é possível reverter cancelamento: o evento já atingiu a lotação máxima de ${max} participantes.`
+        );
+        return;
+      }
+    }
+
+    try {
+      const updates: {
+        status: "confirmado" | "presente" | "cancelado";
+        cancellation_reason?: string | null;
+        cancelled_at?: string | null;
+      } = {
+        status: newStatus,
+      };
+
+      if (newStatus === "cancelado") {
+        updates.cancellation_reason = cancellationReason?.trim() || null;
+        updates.cancelled_at = new Date().toISOString();
+      } else if (reg.status === "cancelado") {
+        // Clear cancellation reason and timestamp when reactivating
+        updates.cancellation_reason = null;
+        updates.cancelled_at = null;
+      }
+
+      const { error } = await supabase
+        .from("registrations")
+        .update(updates)
+        .eq("id", reg.id);
+
+      if (error) throw error;
+
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.id === reg.id
+            ? {
+                ...item,
+                ...updates,
+              }
+            : item
+        )
+      );
+
+      if (selectedRegistrationForDetail?.id === reg.id) {
+        setSelectedRegistrationForDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                ...updates,
+              }
+            : null
+        );
+      }
+
+      const statusLabels: Record<string, string> = {
+        confirmado: "confirmada",
+        presente: "marcada como presente (check-in)",
+        cancelado: "cancelada e vaga liberada",
+      };
+      toast.success(`Inscrição ${statusLabels[newStatus] || "atualizada"} com sucesso!`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar status da inscrição";
       toast.error(msg);
       throw err;
     }
@@ -738,6 +915,7 @@ export default function ManageEventDetail() {
     // 2. Base headers
     const baseHeaders = [
       "Participante",
+      "Status",
       "Email",
       "Telefone",
       "CPF",
@@ -749,6 +927,7 @@ export default function ManageEventDetail() {
       "Alojamento",
       "Equipe de Serviço",
       "Observações",
+      "Motivo de Cancelamento",
       "Data de Inscrição",
     ];
 
@@ -775,6 +954,13 @@ export default function ManageEventDetail() {
         ? new Date(reg.created_at).toLocaleString("pt-BR")
         : "";
 
+      const statusLabel =
+        reg.status === "presente"
+          ? "Presente"
+          : reg.status === "cancelado"
+          ? "Cancelado"
+          : "Confirmado";
+
       const teamDef = getServiceTeam(reg.service_team);
       const equipeServico = teamDef ? teamDef.label : (reg.service_team || "Sem Equipe");
 
@@ -799,6 +985,7 @@ export default function ManageEventDetail() {
 
       return [
         reg.profiles?.full_name || guest?.full_name || "Desconhecido",
+        statusLabel,
         reg.profiles?.email || guest?.email || "",
         reg.profiles?.phone || guest?.phone || "",
         reg.profiles?.cpf || guest?.cpf || "",
@@ -810,6 +997,7 @@ export default function ManageEventDetail() {
         reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
         equipeServico,
         reg.notes || "",
+        reg.cancellation_reason || "",
         dateStr,
         ...customValues,
       ];
@@ -852,6 +1040,17 @@ export default function ManageEventDetail() {
     );
   };
 
+  const activeRegistrationsCount = useMemo(() => {
+    return registrations.filter(
+      (r) => (r.status || "confirmado") !== "cancelado"
+    ).length;
+  }, [registrations]);
+
+  const availableSpots = useMemo(() => {
+    if (!retreat?.max_participants) return 999999;
+    return Math.max(0, retreat.max_participants - activeRegistrationsCount);
+  }, [retreat?.max_participants, activeRegistrationsCount]);
+
   const totalBeds = useMemo(
     () => retreatRooms.reduce((acc, r) => acc + (r.capacity || 0), 0),
     [retreatRooms]
@@ -860,7 +1059,7 @@ export default function ManageEventDetail() {
   // Dynamic Context Meta for KPI Builder
   const contextMeta: ContextMeta = useMemo(() => {
     return {
-      rawTotalCount: registrations.length,
+      rawTotalCount: activeRegistrationsCount,
       basePrice: retreat?.price || 0,
       maxParticipants: retreat?.max_participants || 100,
       totalBeds,
@@ -868,7 +1067,7 @@ export default function ManageEventDetail() {
       calculatePrice: getRegPrice,
     };
   }, [
-    registrations.length,
+    activeRegistrationsCount,
     retreat?.price,
     retreat?.max_participants,
     totalBeds,
@@ -882,12 +1081,18 @@ export default function ManageEventDetail() {
   }, [tableFilteredRegistrations, kpiConfigs, contextMeta]);
 
   // Financial & Metrics calculations for secondary tabs based on active filtered dataset
-  const totalRegistered = tableFilteredRegistrations.length;
+  const activeAttendees = useMemo(() => {
+    return tableFilteredRegistrations.filter(
+      (r) => (r.status || "confirmado") !== "cancelado"
+    );
+  }, [tableFilteredRegistrations]);
+
+  const totalRegistered = activeAttendees.length;
 
   let totalRevenueConfirmed = 0;
   let totalRevenueEstimated = 0;
 
-  tableFilteredRegistrations.forEach((reg) => {
+  activeAttendees.forEach((reg) => {
     const price = getRegPrice(reg);
     totalRevenueEstimated += price;
     if (reg.paid) {
@@ -895,17 +1100,17 @@ export default function ManageEventDetail() {
     }
   });
 
-  const allocatedBedsCount = tableFilteredRegistrations.filter(
+  const allocatedBedsCount = activeAttendees.filter(
     (r) =>
       r.room_id ||
       (r.room_allocation && r.room_allocation !== "Não alocado")
   ).length;
   const unallocatedCount = totalRegistered - allocatedBedsCount;
 
-  const maleCount = tableFilteredRegistrations.filter(
+  const maleCount = activeAttendees.filter(
     (r) => getParticipantGender(r) === "masculino"
   ).length;
-  const femaleCount = tableFilteredRegistrations.filter(
+  const femaleCount = activeAttendees.filter(
     (r) => getParticipantGender(r) === "feminino"
   ).length;
   const malePct =
@@ -1052,6 +1257,15 @@ export default function ManageEventDetail() {
 
           <Button
             variant="outline"
+            onClick={() => setIsPrintDialogOpen(true)}
+            className="min-h-[44px] h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Printer className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
+            <span>Imprimir / PDF</span>
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={() => setIsEditEventOpen(true)}
             className="min-h-[44px] h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
           >
@@ -1144,6 +1358,18 @@ export default function ManageEventDetail() {
         </button>
 
         <button
+          onClick={() => setActiveTab("waitlist")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "waitlist"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Lista de Espera {waitlistCount > 0 ? `(${waitlistCount})` : ""}</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("dashboard")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "dashboard"
@@ -1179,7 +1405,9 @@ export default function ManageEventDetail() {
             onTogglePayment={handleTogglePayment}
             onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
             onDeleteRegistration={handleDeleteRegistration}
+            onUpdateStatus={handleUpdateRegistrationStatus}
             onExportData={handleExportData}
+            onPrint={() => setIsPrintDialogOpen(true)}
             onFilteredDataChange={setTableFilteredRegistrations}
           />
         </div>
@@ -1190,6 +1418,7 @@ export default function ManageEventDetail() {
         <RoomManagementTab
           retreatId={retreat.id}
           registrations={registrations}
+          onPrint={() => setIsPrintDialogOpen(true)}
           onRefreshRegistrations={() => {
             fetchRegistrations(retreat.id);
             fetchRetreatRooms(retreat.id);
@@ -1286,7 +1515,8 @@ export default function ManageEventDetail() {
                   retreatRooms.map((room) => {
                     const occupants = registrations.filter(
                       (r) =>
-                        r.room_id === room.id || r.room_allocation === room.name
+                        (r.status || "confirmado") !== "cancelado" &&
+                        (r.room_id === room.id || r.room_allocation === room.name)
                     ).length;
                     const roomPct = Math.min(
                       100,
@@ -1352,6 +1582,16 @@ export default function ManageEventDetail() {
         />
       )}
 
+      {/* Tab 6: Lista de Espera */}
+      {activeTab === "waitlist" && retreat && (
+        <EventWaitlistTab
+          retreat={retreat}
+          eventId={eventId!}
+          formId={retreat.form_id}
+          onWaitlistCountChange={setWaitlistCount}
+        />
+      )}
+
       {/* Modal: Alocar Quarto para Inscrito Específico */}
       {selectedRegistrationForRoomModal && (
         <Dialog
@@ -1410,7 +1650,8 @@ export default function ManageEventDetail() {
                   {eligibleRoomsForParticipant.map((room) => {
                     const occupantsCount = registrations.filter(
                       (r) =>
-                        r.room_id === room.id || r.room_allocation === room.name
+                        (r.status || "confirmado") !== "cancelado" &&
+                        (r.room_id === room.id || r.room_allocation === room.name)
                     ).length;
                     const isFull = occupantsCount >= room.capacity;
                     const isCurrentRoom =
@@ -1499,6 +1740,8 @@ export default function ManageEventDetail() {
         onTogglePayment={handleTogglePayment}
         onUpdatePayment={handleUpdatePaymentDetails}
         onUpdateServiceTeam={handleUpdateServiceTeam}
+        onUpdateStatus={handleUpdateRegistrationStatus}
+        availableSpots={availableSpots}
       />
 
       {/* Modal: Editar Evento */}
@@ -1521,6 +1764,16 @@ export default function ManageEventDetail() {
         onResetDefaults={handleResetKpiConfigs}
         data={tableFilteredRegistrations}
         meta={contextMeta}
+      />
+
+      {/* Modal: Impressão e PDF de Listas de Presença, Quartos e Cozinha */}
+      <EventPrintListsDialog
+        isOpen={isPrintDialogOpen}
+        onClose={() => setIsPrintDialogOpen(false)}
+        retreat={retreat}
+        registrations={registrations}
+        retreatRooms={retreatRooms}
+        homeGroupsMap={homeGroupsMap}
       />
     </div>
   );

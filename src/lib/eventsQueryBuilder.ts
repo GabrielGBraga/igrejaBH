@@ -57,7 +57,7 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
     .from("registrations")
     .select(`
       *,
-      profiles (
+      profiles:profiles!registrations_profile_id_fkey (
         full_name,
         email,
         phone,
@@ -138,6 +138,16 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
         query = query.gte("created_at", dateVal);
       } else if (rule.operator === "lte") {
         query = query.lte("created_at", dateVal);
+      }
+    } else if (rule.field === "status") {
+      const strVal = String(rule.value).toLowerCase() as
+        | "confirmado"
+        | "presente"
+        | "cancelado";
+      if (rule.operator === "eq") {
+        query = query.eq("status", strVal);
+      } else if (rule.operator === "neq") {
+        query = query.neq("status", strVal);
       }
     } else if (rule.field === "notes") {
       const strVal = String(rule.value);
@@ -236,6 +246,15 @@ function testRule(reg: RegistrationWithDetails, rule: FilterRule): boolean {
     if (isNaN(targetDate)) return true;
     if (rule.operator === "gte") return regDate >= targetDate;
     if (rule.operator === "lte") return regDate <= targetDate;
+    return true;
+  }
+
+  // 7. Registration Status
+  if (rule.field === "status") {
+    const actual = (reg.status || "confirmado").toLowerCase();
+    const target = String(rule.value).toLowerCase();
+    if (rule.operator === "eq") return actual === target;
+    if (rule.operator === "neq") return actual !== target;
     return true;
   }
 

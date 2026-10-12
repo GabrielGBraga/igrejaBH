@@ -14,7 +14,7 @@ type Retreat = Database["public"]["Tables"]["retreats"]["Row"];
 
 type RetreatQueryResult = Retreat & {
   forms: { name: string } | null;
-  registrations: { id: string }[] | null;
+  registrations: { id: string; status?: string | null }[] | null;
 };
 
 export default function ManageEvents() {
@@ -47,7 +47,8 @@ export default function ManageEvents() {
             name
           ),
           registrations (
-            id
+            id,
+            status
           )
         `)
         .order("start_date", { ascending: true });
@@ -57,7 +58,10 @@ export default function ManageEvents() {
       const rawList = (retreatsData as unknown as RetreatQueryResult[]) || [];
       const counts: Record<string, number> = {};
       const formattedRetreats: RetreatWithForm[] = rawList.map((r) => {
-        const count = r.registrations?.length || 0;
+        const activeRegistrations = (r.registrations || []).filter(
+          (reg) => (reg.status || "confirmado") !== "cancelado"
+        );
+        const count = activeRegistrations.length;
         counts[r.id] = count;
         return {
           ...r,
