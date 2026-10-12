@@ -9,7 +9,8 @@ import {
   UserCheck,
   Loader2,
   Users,
-  Search
+  Search,
+  Printer,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogDescription,
+  DialogDescription, 
   DialogFooter
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -35,12 +36,14 @@ interface RoomManagementTabProps {
   retreatId: string;
   registrations: RegistrationWithDetails[];
   onRefreshRegistrations: () => void;
+  onPrint?: () => void;
 }
 
 export function RoomManagementTab({
   retreatId,
   registrations,
   onRefreshRegistrations,
+  onPrint,
 }: RoomManagementTabProps) {
   const [rooms, setRooms] = useState<RetreatRoom[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
@@ -258,12 +261,24 @@ export function RoomManagementTab({
             Cadastre os quartos deste evento e distribua os discípulos por gênero ou suíte.
           </p>
         </div>
-        <Button 
-          onClick={handleOpenCreateRoom}
-          className="rounded-xl flex items-center gap-2 self-start sm:self-auto cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> Novo Quarto
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {onPrint && (
+            <Button
+              variant="outline"
+              onClick={onPrint}
+              className="min-h-[44px] h-10 px-4 rounded-xl flex items-center gap-2 cursor-pointer border-border text-xs font-semibold"
+            >
+              <Printer className="w-4 h-4 text-muted-foreground" />
+              <span>Imprimir Folhas de Porta</span>
+            </Button>
+          )}
+          <Button 
+            onClick={handleOpenCreateRoom}
+            className="min-h-[44px] h-10 px-4 rounded-xl flex items-center gap-2 cursor-pointer text-xs font-bold"
+          >
+            <Plus className="w-4 h-4" /> Novo Quarto
+          </Button>
+        </div>
       </div>
 
       {loadingRooms ? (
