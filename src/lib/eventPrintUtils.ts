@@ -9,6 +9,10 @@ interface GuestDataShape {
   gender?: string;
   city_state?: string;
   cityState?: string;
+  city?: string;
+  state?: string;
+  address_city?: string;
+  address_state?: string;
   home_group?: string;
   dietary_restrictions?: string;
   medical_notes?: string;
@@ -21,6 +25,54 @@ export interface DietaryInfo {
 }
 
 export type PrintReportType = "presence" | "rooms" | "kitchen" | "all";
+
+/**
+ * Capitaliza palavras, respeitando preposições em português.
+ */
+function capitalizeCity(text: string): string {
+  const lowercaseWords = new Set(["de", "do", "da", "dos", "das", "e"]);
+  return text
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .map((word, idx) => {
+      if (idx > 0 && lowercaseWords.has(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+/**
+ * Normaliza uma string de cidade e estado para o formato padrão "Cidade / UF".
+ * Exemplos:
+ * "Belo Horizonte, MG" -> "Belo Horizonte / MG"
+ * "contagem - mg" -> "Contagem / MG"
+ * "Belo Horizonte/MG" -> "Belo Horizonte / MG"
+ */
+export function normalizeCityState(raw: string): string {
+  if (!raw || !raw.trim()) return "Belo Horizonte / MG";
+
+  const cleaned = raw.trim();
+
+  let parts: string[] = [];
+  if (cleaned.includes("/")) {
+    parts = cleaned.split("/").map((p) => p.trim());
+  } else if (cleaned.includes("-")) {
+    parts = cleaned.split("-").map((p) => p.trim());
+  } else if (cleaned.includes(",")) {
+    parts = cleaned.split(",").map((p) => p.trim());
+  }
+
+  if (parts.length >= 2) {
+    const cityPart = capitalizeCity(parts[0]);
+    let statePart = parts[1].toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
+    if (!statePart) statePart = "MG";
+    return `${cityPart} / ${statePart}`;
+  }
+
+  const cityPart = capitalizeCity(cleaned);
+  return `${cityPart} / MG`;
+}
 
 /**
  * Obtém o nome completo do discípulo/participante a partir de perfis, dados de convidado ou respostas customizadas.
@@ -79,73 +131,91 @@ export function getParticipantPhone(reg: RegistrationWithDetails): string {
 }
 
 /**
- * Identifica o Grupo Caseiro e/ou Cidade do participante para a folha de presença.
+ * Identifica a Cidade / Estado (UF) do participante para a folha de presença e relatórios.
+ * Prioriza dados do perfil (address_city e address_state), ficha de convidado (city_state)
+ * ou respostas do formulário de inscrição.
  */
-export function getParticipantGcOrCity(
-  reg: RegistrationWithDetails,
-  homeGroupsMap?: Map<string, string>
-): string {
-  let gc: string | null = null;
+export function getParticipantCityState(reg: RegistrationWithDetails): string {
   let city: string | null = null;
+  let state: string | null = null;
 
-  // 1. Perfil relacional
-  if (reg.profiles?.home_groups?.location_text?.trim()) {
-    gc = reg.profiles.home_groups.location_text.trim();
-  } else if (reg.profiles?.home_group_id && homeGroupsMap?.has(reg.profiles.home_group_id)) {
-    gc = homeGroupsMap.get(reg.profiles.home_group_id)?.trim() || null;
-  }
-
+  // 1. Perfil cadastrado
   if (reg.profiles?.address_city?.trim()) {
     city = reg.profiles.address_city.trim();
   }
+  if (reg.profiles?.address_state?.trim()) {
+    state = reg.profiles.address_state.trim().toUpperCase();
+  }
 
-  // 2. Dados de convidado
+  // 2. Dados de convidado (guest_data)
   const guest = reg.guest_data as GuestDataShape | null;
   if (guest) {
-    if (!city && guest.city_state && typeof guest.city_state === "string") {
-      city = guest.city_state.trim();
+    const guestCityState = guest.city_state || guest.cityState;
+    if (typeof guestCityState === "string" && guestCityState.trim()) {
+      return normalizeCityState(guestCityState.trim());
     }
-    if (!city && guest.cityState && typeof guest.cityState === "string") {
-      city = guest.cityState.trim();
+    if (!city && guest.city && typeof guest.city === "string" && guest.city.trim()) {
+      city = guest.city.trim();
     }
-    if (!gc && guest.home_group && typeof guest.home_group === "string") {
-      gc = guest.home_group.trim();
+    if (!city && guest.address_city && typeof guest.address_city === "string" && guest.address_city.trim()) {
+      city = guest.address_city.trim();
+    }
+    if (!state && guest.state && typeof guest.state === "string" && guest.state.trim()) {
+      state = guest.state.trim().toUpperCase();
+    }
+    if (!state && guest.address_state && typeof guest.address_state === "string" && guest.address_state.trim()) {
+      state = guest.address_state.trim().toUpperCase();
     }
   }
 
-  // 3. Respostas do formulário
+  // 3. Respostas do formulário (custom_responses)
   const cr = reg.custom_responses as Record<string, unknown> | null;
   if (cr) {
     for (const [k, v] of Object.entries(cr)) {
+      if (typeof v !== "string" || !v.trim()) continue;
       const kLower = k.toLowerCase();
+
       if (
-        !gc &&
-        (kLower.includes("grupo caseiro") ||
-          kLower === "gc" ||
-          kLower.includes("oikos")) &&
-        typeof v === "string" &&
-        v.trim()
+        kLower === "mandatory_city_state" ||
+        kLower.includes("cidade / estado") ||
+        kLower.includes("cidade/estado") ||
+        kLower.includes("cidade_estado")
       ) {
-        gc = v.trim();
+        return normalizeCityState(v.trim());
       }
-      if (
-        !city &&
-        (kLower.includes("cidade") || kLower === "mandatory_city_state") &&
-        typeof v === "string" &&
-        v.trim()
-      ) {
+      if (!city && (kLower.includes("cidade") || kLower.includes("município") || kLower.includes("municipio"))) {
         city = v.trim();
+      }
+      if (!state && (kLower === "estado" || kLower === "uf" || kLower.includes("estado"))) {
+        state = v.trim().toUpperCase();
       }
     }
   }
 
-  if (gc && city) {
-    if (gc.toLowerCase().includes(city.toLowerCase())) return gc;
-    return `${gc} • ${city}`;
+  // Combina cidade e estado encontrados
+  if (city) {
+    if (city.includes("/") || city.includes("-") || city.includes(",")) {
+      return normalizeCityState(city);
+    }
+    const finalState = state && state.length === 2 ? state : "MG";
+    return `${capitalizeCity(city)} / ${finalState}`;
   }
-  if (gc) return gc;
-  if (city) return city;
+
+  if (state && state.length === 2) {
+    return `Belo Horizonte / ${state}`;
+  }
+
   return "Belo Horizonte / MG";
+}
+
+/**
+ * Alias retrocompatível com a assinatura anterior.
+ */
+export function getParticipantGcOrCity(
+  reg: RegistrationWithDetails,
+  _homeGroupsMap?: Map<string, string>
+): string {
+  return getParticipantCityState(reg);
 }
 
 /**

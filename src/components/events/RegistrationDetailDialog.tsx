@@ -60,6 +60,7 @@ export type RegistrationWithDetails = Database["public"]["Tables"]["registration
     phone: string | null;
     cpf: string | null;
     address_city?: string | null;
+    address_state?: string | null;
     home_group_id?: string | null;
     home_groups?: {
       id?: string;

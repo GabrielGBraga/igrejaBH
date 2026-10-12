@@ -323,18 +323,31 @@
     color: #000000 !important;
     font-size: 10pt !important;
     line-height: 1.3 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100% !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Oculta layout da aplicação, navegação, sidebar, modais, toasts e controles */
+  /* Oculta estritamente qualquer elemento do body que não seja o contêiner de impressão */
+  body > *:not(#event-print-container) {
+    display: none !important;
+  }
+
+  /* Ocultação explícita de layout da aplicação, navegação, sidebar, modais Radix, overlays, toasts e controles */
   #root,
   aside,
   nav,
   header,
   footer,
   [data-sonner-toaster],
-  [data-radix-portal]:not(.event-print-portal),
+  [data-radix-portal],
+  [data-slot="dialog-portal"],
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"],
+  [role="dialog"],
+  [aria-modal="true"],
   .no-print,
   [data-no-print] {
     display: none !important;
@@ -356,6 +369,11 @@
   .print-page-break {
     page-break-after: always !important;
     break-after: page !important;
+  }
+
+  .print-page-break:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 
   /* Evita quebras de página no meio de linhas de tabelas ou blocos */

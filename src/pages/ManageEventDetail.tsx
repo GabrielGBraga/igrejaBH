@@ -329,6 +329,7 @@ export default function ManageEventDetail() {
             phone,
             cpf,
             address_city,
+            address_state,
             home_group_id,
             home_groups (
               id,
@@ -357,6 +358,7 @@ export default function ManageEventDetail() {
               phone,
               cpf,
               address_city,
+              address_state,
               home_group_id
             ),
             retreat_rooms (

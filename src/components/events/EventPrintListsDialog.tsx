@@ -30,7 +30,7 @@ import type { RetreatRoom } from "./RoomManagementTab";
 import {
   getParticipantName,
   getParticipantPhone,
-  getParticipantGcOrCity,
+  getParticipantCityState,
   getParticipantRoom,
   getParticipantDietaryInfo,
   type PrintReportType,
@@ -118,7 +118,6 @@ function OfficialPrintHeader({
 function PresenceListDocument({
   retreat,
   registrations,
-  homeGroupsMap,
   sortBy,
 }: {
   retreat: {
@@ -128,8 +127,7 @@ function PresenceListDocument({
     location_text?: string | null;
   };
   registrations: RegistrationWithDetails[];
-  homeGroupsMap?: Map<string, string>;
-  sortBy: "name" | "room" | "gc";
+  sortBy: "name" | "room" | "city";
 }) {
   const dates = retreat.start_date
     ? `${formatDateBR(retreat.start_date)} a ${
@@ -157,18 +155,18 @@ function PresenceListDocument({
         }
         return roomA.localeCompare(roomB, "pt-BR");
       });
-    } else if (sortBy === "gc") {
+    } else if (sortBy === "city") {
       list.sort((a, b) => {
-        const gcA = getParticipantGcOrCity(a, homeGroupsMap);
-        const gcB = getParticipantGcOrCity(b, homeGroupsMap);
-        if (gcA === gcB) {
+        const cityA = getParticipantCityState(a);
+        const cityB = getParticipantCityState(b);
+        if (cityA === cityB) {
           return getParticipantName(a).localeCompare(getParticipantName(b), "pt-BR");
         }
-        return gcA.localeCompare(gcB, "pt-BR");
+        return cityA.localeCompare(cityB, "pt-BR");
       });
     }
     return list;
-  }, [registrations, sortBy, homeGroupsMap]);
+  }, [registrations, sortBy]);
 
   return (
     <div className="text-black bg-white">
@@ -180,14 +178,14 @@ function PresenceListDocument({
         extraMeta={`Total de Discípulos: ${sortedRegistrations.length}`}
       />
 
-      <div className="w-full overflow-hidden">
+      <div className="w-full">
         <table className="w-full border-collapse text-left text-[11px]">
           <thead>
             <tr className="border-b-2 border-black bg-zinc-100 text-black font-extrabold uppercase text-[10px] tracking-wider">
               <th className="py-2 px-1.5 text-center w-8 border border-zinc-400">Nº</th>
               <th className="py-2 px-2 border border-zinc-400">Nome do Discípulo</th>
               <th className="py-2 px-2 w-28 border border-zinc-400">Telefone</th>
-              <th className="py-2 px-2 w-40 border border-zinc-400">Grupo Caseiro / Cidade</th>
+              <th className="py-2 px-2 w-36 border border-zinc-400">Cidade / Estado</th>
               <th className="py-2 px-2 w-32 border border-zinc-400">Quarto Alocado</th>
               <th className="py-2 px-2 w-36 text-center border border-zinc-400">Visto / Assinatura</th>
             </tr>
@@ -196,7 +194,7 @@ function PresenceListDocument({
             {sortedRegistrations.map((reg, index) => {
               const name = getParticipantName(reg);
               const phone = getParticipantPhone(reg);
-              const gc = getParticipantGcOrCity(reg, homeGroupsMap);
+              const cityState = getParticipantCityState(reg);
               const room = getParticipantRoom(reg);
 
               return (
@@ -213,8 +211,8 @@ function PresenceListDocument({
                   <td className="py-1.5 px-2 text-zinc-800 border-r border-zinc-300 whitespace-nowrap text-[10px]">
                     {phone}
                   </td>
-                  <td className="py-1.5 px-2 text-zinc-800 border-r border-zinc-300 text-[10px] truncate max-w-[150px]">
-                    {gc}
+                  <td className="py-1.5 px-2 text-zinc-800 border-r border-zinc-300 text-[10px] break-words">
+                    {cityState}
                   </td>
                   <td className="py-1.5 px-2 font-semibold text-black border-r border-zinc-300 text-[10px]">
                     {room}
@@ -266,7 +264,6 @@ function RoomSheetsDocument({
   retreat,
   rooms,
   registrations,
-  homeGroupsMap,
   includeEmptyRooms,
   includeUnallocatedSheet,
 }: {
@@ -278,7 +275,6 @@ function RoomSheetsDocument({
   };
   rooms: RetreatRoom[];
   registrations: RegistrationWithDetails[];
-  homeGroupsMap?: Map<string, string>;
   includeEmptyRooms: boolean;
   includeUnallocatedSheet: boolean;
 }) {
@@ -411,7 +407,7 @@ function RoomSheetsDocument({
                 {occupants.map((occ, idx) => {
                   const name = getParticipantName(occ);
                   const phone = getParticipantPhone(occ);
-                  const gc = getParticipantGcOrCity(occ, homeGroupsMap);
+                  const cityState = getParticipantCityState(occ);
 
                   return (
                     <div
@@ -427,7 +423,7 @@ function RoomSheetsDocument({
                             {name}
                           </p>
                           <p className="text-[10px] text-zinc-700 truncate">
-                            {gc}
+                            {cityState}
                           </p>
                         </div>
                       </div>
@@ -524,7 +520,7 @@ function RoomSheetsDocument({
                 <th className="py-2 px-1.5 text-center w-8 border border-zinc-400">Nº</th>
                 <th className="py-2 px-2 border border-zinc-400">Nome do Discípulo</th>
                 <th className="py-2 px-2 w-28 border border-zinc-400">Telefone</th>
-                <th className="py-2 px-2 w-40 border border-zinc-400">Grupo Caseiro / Cidade</th>
+                <th className="py-2 px-2 w-36 border border-zinc-400">Cidade / Estado</th>
                 <th className="py-2 px-2 w-40 border border-zinc-400 text-center">Quarto Atribuído Manualmente</th>
               </tr>
             </thead>
@@ -540,8 +536,8 @@ function RoomSheetsDocument({
                   <td className="py-2 px-2 text-zinc-800 border-r border-zinc-300 text-[10px]">
                     {getParticipantPhone(occ)}
                   </td>
-                  <td className="py-2 px-2 text-zinc-800 border-r border-zinc-300 text-[10px]">
-                    {getParticipantGcOrCity(occ, homeGroupsMap)}
+                  <td className="py-2 px-2 text-zinc-800 border-r border-zinc-300 text-[10px] break-words">
+                    {getParticipantCityState(occ)}
                   </td>
                   <td className="py-2 px-2 border-r border-zinc-300">
                     <div className="w-full border-b border-dashed border-zinc-400 h-5" />
@@ -562,7 +558,6 @@ function RoomSheetsDocument({
 function KitchenReportDocument({
   retreat,
   registrations,
-  homeGroupsMap,
 }: {
   retreat: {
     title: string;
@@ -571,7 +566,6 @@ function KitchenReportDocument({
     location_text?: string | null;
   };
   registrations: RegistrationWithDetails[];
-  homeGroupsMap?: Map<string, string>;
 }) {
   const dates = retreat.start_date
     ? `${formatDateBR(retreat.start_date)} a ${
@@ -804,7 +798,7 @@ function KitchenReportDocument({
                     <td className="py-2 px-2 text-zinc-700 border-r border-zinc-300 text-[10px] whitespace-nowrap">
                       <div>{phone}</div>
                       <div className="text-[9px] text-zinc-500 truncate max-w-[120px]">
-                        {getParticipantGcOrCity(reg, homeGroupsMap)}
+                        {getParticipantCityState(reg)}
                       </div>
                     </td>
                     <td className="py-2 px-2 border-r border-zinc-300">
@@ -869,7 +863,6 @@ function AllReportsDocument({
   retreat,
   rooms,
   registrations,
-  homeGroupsMap,
   sortBy,
   includeEmptyRooms,
   includeUnallocatedSheet,
@@ -882,8 +875,7 @@ function AllReportsDocument({
   };
   rooms: RetreatRoom[];
   registrations: RegistrationWithDetails[];
-  homeGroupsMap?: Map<string, string>;
-  sortBy: "name" | "room" | "gc";
+  sortBy: "name" | "room" | "city";
   includeEmptyRooms: boolean;
   includeUnallocatedSheet: boolean;
 }) {
@@ -894,7 +886,6 @@ function AllReportsDocument({
         <PresenceListDocument
           retreat={retreat}
           registrations={registrations}
-          homeGroupsMap={homeGroupsMap}
           sortBy={sortBy}
         />
       </div>
@@ -905,7 +896,6 @@ function AllReportsDocument({
           retreat={retreat}
           rooms={rooms}
           registrations={registrations}
-          homeGroupsMap={homeGroupsMap}
           includeEmptyRooms={includeEmptyRooms}
           includeUnallocatedSheet={includeUnallocatedSheet}
         />
@@ -916,7 +906,6 @@ function AllReportsDocument({
         <KitchenReportDocument
           retreat={retreat}
           registrations={registrations}
-          homeGroupsMap={homeGroupsMap}
         />
       </div>
     </div>
@@ -949,13 +938,14 @@ export function EventPrintListsDialog({
   retreat,
   registrations,
   retreatRooms,
-  homeGroupsMap,
+  homeGroupsMap: _homeGroupsMap,
 }: EventPrintListsDialogProps) {
   const [activeReport, setActiveReport] = useState<PrintReportType>("presence");
   const [paymentFilter, setPaymentFilter] = useState<"all" | "paid">("all");
-  const [sortBy, setSortBy] = useState<"name" | "room" | "gc">("name");
+  const [sortBy, setSortBy] = useState<"name" | "room" | "city">("name");
   const [includeEmptyRooms, setIncludeEmptyRooms] = useState(true);
   const [includeUnallocatedSheet, setIncludeUnallocatedSheet] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
 
   // Filtro de pagantes
   const filteredRegistrations = useMemo(() => {
@@ -965,8 +955,32 @@ export function EventPrintListsDialog({
     return registrations;
   }, [registrations, paymentFilter]);
 
+  // Contadores para os cartões de abas
+  const participantsCount = filteredRegistrations.length;
+  const roomsCount = retreatRooms.length;
+  const dietaryCount = useMemo(() => {
+    return filteredRegistrations.filter((r) => getParticipantDietaryInfo(r).hasRestriction).length;
+  }, [filteredRegistrations]);
+
   const handleTriggerPrint = () => {
-    window.print();
+    const previousTitle = document.title;
+    const sanitizedTitle = (retreat.title || "Evento")
+      .replace(/[^a-zA-Z0-9À-ÿ\s_-]/g, "")
+      .trim()
+      .replace(/\s+/g, "_");
+
+    let reportName = "Lista_Presenca";
+    if (activeReport === "rooms") reportName = "Folhas_Quartos";
+    else if (activeReport === "kitchen") reportName = "Relatorio_Cozinha";
+    else if (activeReport === "all") reportName = "Pacote_Completo";
+
+    document.title = `${reportName}_${sanitizedTitle}`;
+
+    try {
+      window.print();
+    } finally {
+      document.title = previousTitle;
+    }
   };
 
   // Renderizador do documento atual de acordo com a aba selecionada
@@ -977,7 +991,6 @@ export function EventPrintListsDialog({
           <PresenceListDocument
             retreat={retreat}
             registrations={filteredRegistrations}
-            homeGroupsMap={homeGroupsMap}
             sortBy={sortBy}
           />
         );
@@ -987,7 +1000,6 @@ export function EventPrintListsDialog({
             retreat={retreat}
             rooms={retreatRooms}
             registrations={filteredRegistrations}
-            homeGroupsMap={homeGroupsMap}
             includeEmptyRooms={includeEmptyRooms}
             includeUnallocatedSheet={includeUnallocatedSheet}
           />
@@ -997,7 +1009,6 @@ export function EventPrintListsDialog({
           <KitchenReportDocument
             retreat={retreat}
             registrations={filteredRegistrations}
-            homeGroupsMap={homeGroupsMap}
           />
         );
       case "all":
@@ -1006,7 +1017,6 @@ export function EventPrintListsDialog({
             retreat={retreat}
             rooms={retreatRooms}
             registrations={filteredRegistrations}
-            homeGroupsMap={homeGroupsMap}
             sortBy={sortBy}
             includeEmptyRooms={includeEmptyRooms}
             includeUnallocatedSheet={includeUnallocatedSheet}
@@ -1017,28 +1027,37 @@ export function EventPrintListsDialog({
 
   return (
     <>
-      {/* 1. Modal Interativo de Visualização e Configurações */}
+      {/* 1. Modal Interativo Ampliado de Visualização e Configurações */}
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
-          className="w-[95vw] max-w-5xl max-h-[92vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl"
+          className="w-[96vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-6xl xl:max-w-7xl h-[92vh] max-h-[94vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl no-print"
         >
           <DialogHeader className="shrink-0 pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <DialogTitle className="text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
-                  <Printer className="w-5 h-5 text-primary" />
-                  <span>Impressão & Relatórios PDF para Sítio</span>
-                </DialogTitle>
-                <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Gere folhas A4 formatadas em preto e branco para operação 100% offline em zonas rurais.
-                </DialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
+                  <Printer className="w-5 h-5 text-zinc-900 dark:text-zinc-100" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <DialogTitle className="text-lg sm:text-xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
+                      Impressão & Relatórios PDF para Sítio
+                    </DialogTitle>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">
+                      Formato Oficial A4
+                    </span>
+                  </div>
+                  <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    Gere documentos formatados em preto e branco para operação física e 100% offline em zonas rurais.
+                  </DialogDescription>
+                </div>
               </div>
 
               {/* Botão Principal de Disparo de Impressão */}
               <div className="flex items-center gap-2 shrink-0">
                 <Button
                   onClick={handleTriggerPrint}
-                  className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md"
+                  className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02]"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Imprimir / Salvar PDF</span>
@@ -1046,157 +1065,286 @@ export function EventPrintListsDialog({
               </div>
             </div>
 
-            {/* Abas dos 3 Relatórios + Pacote Completo (Touch Target >= 44x44px) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3">
+            {/* Abas Espaçosas dos 4 Relatórios com Badges Informativos (Touch Target >= 44x44px) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3">
+              {/* Aba 1: Lista de Presença */}
               <button
                 type="button"
                 onClick={() => setActiveReport("presence")}
-                className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`min-h-[48px] p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
                   activeReport === "presence"
-                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-sm"
-                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-md ring-1 ring-zinc-900 dark:ring-zinc-100"
+                    : "bg-zinc-50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
-                <Users className="w-4 h-4 shrink-0" />
-                <span className="truncate">Lista de Presença</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      activeReport === "presence"
+                        ? "bg-white/10 dark:bg-zinc-900/10 text-zinc-50 dark:text-zinc-900"
+                        : "bg-zinc-200/60 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold truncate">Lista de Presença & Portaria</p>
+                    <p
+                      className={`text-[10px] truncate ${
+                        activeReport === "presence"
+                          ? "text-zinc-300 dark:text-zinc-600"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                    >
+                      {participantsCount} {participantsCount === 1 ? "discípulo" : "discípulos"}
+                    </p>
+                  </div>
+                </div>
               </button>
 
+              {/* Aba 2: Folhas de Quarto */}
               <button
                 type="button"
                 onClick={() => setActiveReport("rooms")}
-                className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`min-h-[48px] p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
                   activeReport === "rooms"
-                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-sm"
-                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-md ring-1 ring-zinc-900 dark:ring-zinc-100"
+                    : "bg-zinc-50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
-                <Bed className="w-4 h-4 shrink-0" />
-                <span className="truncate">Folhas de Quarto</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      activeReport === "rooms"
+                        ? "bg-white/10 dark:bg-zinc-900/10 text-zinc-50 dark:text-zinc-900"
+                        : "bg-zinc-200/60 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
+                    }`}
+                  >
+                    <Bed className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold truncate">Folhas de Quarto (Alojamento)</p>
+                    <p
+                      className={`text-[10px] truncate ${
+                        activeReport === "rooms"
+                          ? "text-zinc-300 dark:text-zinc-600"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                    >
+                      {roomsCount} {roomsCount === 1 ? "dormitório" : "dormitórios"}
+                    </p>
+                  </div>
+                </div>
               </button>
 
+              {/* Aba 3: Relatório da Cozinha */}
               <button
                 type="button"
                 onClick={() => setActiveReport("kitchen")}
-                className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`min-h-[48px] p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
                   activeReport === "kitchen"
-                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-sm"
-                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-md ring-1 ring-zinc-900 dark:ring-zinc-100"
+                    : "bg-zinc-50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
-                <UtensilsCrossed className="w-4 h-4 shrink-0" />
-                <span className="truncate">Relatório Cozinha</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      activeReport === "kitchen"
+                        ? "bg-white/10 dark:bg-zinc-900/10 text-zinc-50 dark:text-zinc-900"
+                        : "bg-zinc-200/60 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
+                    }`}
+                  >
+                    <UtensilsCrossed className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold truncate">Relatório da Cozinha & Dietas</p>
+                    <p
+                      className={`text-[10px] truncate ${
+                        activeReport === "kitchen"
+                          ? "text-zinc-300 dark:text-zinc-600"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                    >
+                      {dietaryCount} {dietaryCount === 1 ? "com restrição" : "com restrições"}
+                    </p>
+                  </div>
+                </div>
               </button>
 
+              {/* Aba 4: Pacote Completo */}
               <button
                 type="button"
                 onClick={() => setActiveReport("all")}
-                className={`min-h-[44px] p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`min-h-[48px] p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
                   activeReport === "all"
-                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-sm"
-                    : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    ? "bg-zinc-900 text-zinc-50 border-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:border-zinc-50 shadow-md ring-1 ring-zinc-900 dark:ring-zinc-100"
+                    : "bg-zinc-50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
-                <Layers className="w-4 h-4 shrink-0" />
-                <span className="truncate">Pacote Completo</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      activeReport === "all"
+                        ? "bg-white/10 dark:bg-zinc-900/10 text-zinc-50 dark:text-zinc-900"
+                        : "bg-zinc-200/60 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
+                    }`}
+                  >
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold truncate">Pacote Completo</p>
+                    <p
+                      className={`text-[10px] truncate ${
+                        activeReport === "all"
+                          ? "text-zinc-300 dark:text-zinc-600"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                    >
+                      Todos os 3 relatórios unificados
+                    </p>
+                  </div>
+                </div>
               </button>
             </div>
 
-            {/* Barra de Opções e Filtros de Impressão */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
-              {/* Filtro de Pagamento */}
-              <div className="w-[180px]">
-                <Select
-                  value={paymentFilter}
-                  onValueChange={(val: "all" | "paid") => setPaymentFilter(val)}
-                >
-                  <SelectTrigger className="min-h-[44px] h-10 text-xs rounded-lg">
-                    <SelectValue placeholder="Status de Pagamento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      Todos os Inscritos ({registrations.length})
-                    </SelectItem>
-                    <SelectItem value="paid">
-                      Apenas Confirmados / Pagos (
-                      {registrations.filter((r) => r.paid).length})
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Ordenação para Lista de Presença */}
-              {(activeReport === "presence" || activeReport === "all") && (
-                <div className="w-[200px]">
+            {/* Barra de Opções, Filtros e Controle de Zoom */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 text-xs">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Filtro de Pagamento */}
+                <div className="w-[190px]">
                   <Select
-                    value={sortBy}
-                    onValueChange={(val: "name" | "room" | "gc") => setSortBy(val)}
+                    value={paymentFilter}
+                    onValueChange={(val: "all" | "paid") => setPaymentFilter(val)}
                   >
-                    <SelectTrigger className="min-h-[44px] h-10 text-xs rounded-lg">
-                      <SelectValue placeholder="Ordenar por" />
+                    <SelectTrigger className="min-h-[44px] h-10 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700">
+                      <SelectValue placeholder="Status de Pagamento" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="name">Ordem Alfabética (A-Z)</SelectItem>
-                      <SelectItem value="room">Agrupado por Quarto</SelectItem>
-                      <SelectItem value="gc">Por Grupo Caseiro / Cidade</SelectItem>
+                      <SelectItem value="all">
+                        Todos os Inscritos ({registrations.length})
+                      </SelectItem>
+                      <SelectItem value="paid">
+                        Apenas Confirmados / Pagos (
+                        {registrations.filter((r) => r.paid).length})
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
 
-              {/* Opções de Quartos */}
-              {(activeReport === "rooms" || activeReport === "all") && (
-                <div className="flex items-center gap-4 text-xs text-zinc-600 dark:text-zinc-300">
-                  <label className="flex items-center gap-2 cursor-pointer select-none min-h-[44px]">
-                    <input
-                      type="checkbox"
-                      checked={includeEmptyRooms}
-                      onChange={(e) => setIncludeEmptyRooms(e.target.checked)}
-                      className="w-4 h-4 rounded text-primary focus:ring-primary"
-                    />
-                    <span>Incluir quartos vazios</span>
-                  </label>
+                {/* Ordenação para Lista de Presença */}
+                {(activeReport === "presence" || activeReport === "all") && (
+                  <div className="w-[210px]">
+                    <Select
+                      value={sortBy}
+                      onValueChange={(val: "name" | "room" | "city") => setSortBy(val)}
+                    >
+                      <SelectTrigger className="min-h-[44px] h-10 text-xs rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700">
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name">Ordem Alfabética (A-Z)</SelectItem>
+                        <SelectItem value="room">Agrupado por Quarto</SelectItem>
+                        <SelectItem value="city">Por Cidade / Estado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                  <label className="flex items-center gap-2 cursor-pointer select-none min-h-[44px]">
-                    <input
-                      type="checkbox"
-                      checked={includeUnallocatedSheet}
-                      onChange={(e) => setIncludeUnallocatedSheet(e.target.checked)}
-                      className="w-4 h-4 rounded text-primary focus:ring-primary"
-                    />
-                    <span>Folha de pendentes de alojamento</span>
-                  </label>
-                </div>
-              )}
+                {/* Opções de Quartos */}
+                {(activeReport === "rooms" || activeReport === "all") && (
+                  <div className="flex items-center gap-4 text-xs text-zinc-600 dark:text-zinc-300">
+                    <label className="flex items-center gap-2 cursor-pointer select-none min-h-[44px]">
+                      <input
+                        type="checkbox"
+                        checked={includeEmptyRooms}
+                        onChange={(e) => setIncludeEmptyRooms(e.target.checked)}
+                        className="w-4 h-4 rounded text-zinc-900 dark:text-zinc-100 focus:ring-zinc-900"
+                      />
+                      <span className="font-medium">Incluir quartos vazios</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer select-none min-h-[44px]">
+                      <input
+                        type="checkbox"
+                        checked={includeUnallocatedSheet}
+                        onChange={(e) => setIncludeUnallocatedSheet(e.target.checked)}
+                        className="w-4 h-4 rounded text-zinc-900 dark:text-zinc-100 focus:ring-zinc-900"
+                      />
+                      <span className="font-medium">Folha de pendentes</span>
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Controles de Zoom do Preview */}
+              <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800/70 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 px-2">
+                  Zoom Preview:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.max(60, z - 15))}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                  title="Diminuir Zoom"
+                >
+                  -
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(100)}
+                  className="px-2.5 h-8 rounded-lg flex items-center justify-center text-xs font-bold hover:bg-white dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition-colors cursor-pointer"
+                  title="Restaurar 100%"
+                >
+                  {zoomLevel}%
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.min(140, z + 15))}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm hover:bg-white dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                  title="Aumentar Zoom"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </DialogHeader>
 
-          {/* Área de Pré-Visualização Interativa do Documento A4 */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-100 dark:bg-zinc-950 rounded-xl my-2 border border-zinc-200 dark:border-zinc-800">
-            <div className="mx-auto max-w-[210mm] bg-white text-black p-6 sm:p-10 rounded-xl shadow-lg border border-zinc-300">
+          {/* Área Espaçosa de Pré-Visualização Interativa do Documento A4 */}
+          <div className="flex-1 overflow-auto p-4 sm:p-8 bg-zinc-200/60 dark:bg-zinc-950/80 rounded-xl my-2 border border-zinc-200 dark:border-zinc-800 flex justify-center items-start">
+            <div
+              style={{
+                transform: `scale(${zoomLevel / 100})`,
+                transformOrigin: "top center",
+                transition: "transform 0.15s ease-out",
+              }}
+              className="mx-auto max-w-[210mm] w-full bg-white text-black p-6 sm:p-10 rounded-sm shadow-2xl border border-zinc-300"
+            >
               {renderDocumentContent()}
             </div>
           </div>
 
-          <div className="shrink-0 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3">
+          {/* Rodapé com Dicas de PDF e Botões de Ação */}
+          <div className="shrink-0 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              💡 Dica: Ao abrir o diálogo de impressão do navegador, selecione <strong>"Salvar como PDF"</strong> para gerar o arquivo digital ou selecione sua impressora física para impressão imediata.
+              💡 <strong>Como salvar um PDF perfeito:</strong> Na janela de impressão, selecione o destino <strong>"Salvar como PDF"</strong>. Para remover a URL e data nos rodapés, desmarque a caixa <strong>"Cabeçalhos e rodapés"</strong> nas opções do navegador.
             </p>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="min-h-[44px] h-11 px-4 rounded-xl text-xs font-semibold cursor-pointer"
+                className="min-h-[44px] h-11 px-4 rounded-xl text-xs font-semibold cursor-pointer border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 Fechar
               </Button>
 
               <Button
                 onClick={handleTriggerPrint}
-                className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm"
+                className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02]"
               >
                 <Printer className="w-4 h-4" />
-                <span>Imprimir / PDF</span>
+                <span>Imprimir / Salvar PDF</span>
               </Button>
             </div>
           </div>
