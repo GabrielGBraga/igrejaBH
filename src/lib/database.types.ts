@@ -471,6 +471,8 @@ export type Database = {
       }
       registrations: {
         Row: {
+          cancellation_reason: string | null
+          cancelled_at: string | null
           created_at: string | null
           custom_responses: Json | null
           form_submission_id: string | null
@@ -484,8 +486,11 @@ export type Database = {
           retreat_id: string | null
           room_allocation: string | null
           room_id: string | null
+          status: "confirmado" | "presente" | "cancelado"
         }
         Insert: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -499,8 +504,11 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Update: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -514,6 +522,7 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Relationships: [
           {

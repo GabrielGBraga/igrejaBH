@@ -14,6 +14,8 @@ import {
   CreditCard,
   Smartphone,
   QrCode,
+  AlertTriangle,
+  XCircle,
 } from "lucide-react"
 import {
   Card,
@@ -27,6 +29,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -105,6 +115,42 @@ export default function Events() {
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardCvv, setCardCvv] = useState("")
   const [cardName, setCardName] = useState("")
+
+  // Cancellation Dialog States
+  const [cancellingRegistration, setCancellingRegistration] = useState<Registration | null>(null)
+  const [cancellationReason, setCancellationReason] = useState("")
+  const [isSubmittingCancellation, setIsSubmittingCancellation] = useState(false)
+
+  const handleOpenCancelDialog = (reg: Registration) => {
+    setCancellingRegistration(reg)
+    setCancellationReason("")
+  }
+
+  const handleConfirmCancellation = async () => {
+    if (!cancellingRegistration) return
+    setIsSubmittingCancellation(true)
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .update({
+          status: "cancelado",
+          cancellation_reason: cancellationReason.trim() || null,
+          cancelled_at: new Date().toISOString(),
+        })
+        .eq("id", cancellingRegistration.id)
+
+      if (error) throw error
+
+      toast.success("Sua inscrição foi cancelada e a vaga foi liberada com sucesso.")
+      setCancellingRegistration(null)
+      setCancellationReason("")
+      fetchInitialData()
+    } catch (err: any) {
+      toast.error("Erro ao cancelar inscrição: " + (err.message || "Erro desconhecido"))
+    } finally {
+      setIsSubmittingCancellation(false)
+    }
+  }
 
   useEffect(() => {
     fetchInitialData()
@@ -409,6 +455,7 @@ export default function Events() {
           notes: notes.trim() || null,
           paid: paid,
           form_submission_id: formSubmissionId,
+          status: "confirmado" as const,
         }
 
         const { error } = await supabase.from("registrations").insert([payload])
@@ -1116,10 +1163,33 @@ export default function Events() {
               const retreat = reg.retreats
               if (!retreat) return null
 
+              const isCancelled = reg.status === "cancelado"
+              const isPresent = reg.status === "presente"
+
+              let statusBadgeText = "Aguardando Pagamento"
+              let statusBadgeClass = "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400"
+
+              if (isCancelled) {
+                statusBadgeText = "Cancelada"
+                statusBadgeClass = "border-red-500/30 bg-red-500/15 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
+              } else if (isPresent) {
+                statusBadgeText = "Presente"
+                statusBadgeClass = "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400"
+              } else if (reg.paid) {
+                statusBadgeText = "Confirmada"
+                statusBadgeClass = "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
+              }
+
+              const cardBorderClass = isCancelled
+                ? "border-red-500/20 bg-red-500/[0.02] dark:border-red-500/10 dark:bg-red-500/[0.01]"
+                : isPresent
+                ? "border-blue-500/20 bg-blue-500/[0.02] dark:border-blue-500/10 dark:bg-blue-500/[0.01]"
+                : "border-emerald-500/20 bg-emerald-500/[0.02] dark:border-emerald-500/10 dark:bg-emerald-500/[0.01]"
+
               return (
                 <Card
                   key={reg.id}
-                  className="flex flex-col overflow-hidden rounded-2xl border-emerald-500/20 bg-emerald-500/[0.02] shadow-sm dark:border-emerald-500/10 dark:bg-emerald-500/[0.01]"
+                  className={`flex flex-col overflow-hidden rounded-2xl shadow-sm ${cardBorderClass}`}
                 >
                   <CardHeader className="p-5 pb-3">
                     <div className="flex items-start justify-between gap-4">
@@ -1134,13 +1204,9 @@ export default function Events() {
                       </div>
                       <Badge
                         variant="outline"
-                        className={`font-bold uppercase ${
-                          reg.paid
-                            ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-500 dark:border-emerald-500/20 dark:bg-emerald-500/5"
-                            : "border-amber-500/30 bg-amber-500/15 text-amber-500 dark:border-amber-500/20 dark:bg-amber-500/5"
-                        }`}
+                        className={`font-bold uppercase text-[10px] tracking-wider ${statusBadgeClass}`}
                       >
-                        {reg.paid ? "Confirmada" : "Aguardando PIX"}
+                        {statusBadgeText}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -1153,14 +1219,16 @@ export default function Events() {
                         {retreat.end_date && formatDateBR(retreat.end_date)}
                       </span>
                     </div>
-                    <div className="flex justify-between border-b border-border/10 pb-1.5">
-                      <span>Alojamento Alocado:</span>
-                      <span
-                        className={`font-bold ${reg.room_allocation ? "text-primary" : "text-muted-foreground italic"}`}
-                      >
-                        {reg.room_allocation || "Pendente de alocação"}
-                      </span>
-                    </div>
+                    {!isCancelled && (
+                      <div className="flex justify-between border-b border-border/10 pb-1.5">
+                        <span>Alojamento Alocado:</span>
+                        <span
+                          className={`font-bold ${reg.room_allocation ? "text-primary" : "text-muted-foreground italic"}`}
+                        >
+                          {reg.room_allocation || "Pendente de alocação"}
+                        </span>
+                      </div>
+                    )}
                     {reg.payment_reference && (
                       <div className="flex justify-between text-[11px]">
                         <span>
@@ -1175,12 +1243,50 @@ export default function Events() {
                         </span>
                       </div>
                     )}
+                    {isCancelled && reg.cancellation_reason && (
+                      <div className="flex justify-between text-[11px] text-red-600/90 dark:text-red-400 border-t border-border/10 pt-1.5">
+                        <span>Motivo do cancelamento:</span>
+                        <span className="font-medium italic text-right max-w-[200px]">
+                          {reg.cancellation_reason}
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
-                  <CardFooter className="flex items-center gap-1.5 bg-emerald-500/[0.04] p-5 pt-2 text-[10px] font-bold text-emerald-600 dark:bg-emerald-500/[0.02] dark:text-emerald-400/90">
-                    <Info className="h-3.5 w-3.5" />
-                    {reg.paid
-                      ? "Tudo pronto! Seu alojamento e comprovante foram confirmados pelo diaconato."
-                      : "Aguardando a liderança verificar o pagamento no sistema. Isso pode levar até 24h."}
+                  <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-5 pt-3 border-t border-border/10 bg-muted/10">
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                      {isCancelled ? (
+                        <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+                          <XCircle className="h-4 w-4 shrink-0" />
+                          <span>Inscrição cancelada. Sua vaga foi liberada para outro irmão.</span>
+                        </div>
+                      ) : isPresent ? (
+                        <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <span>Presença confirmada no evento! Tenha uma excelente comunhão.</span>
+                        </div>
+                      ) : reg.paid ? (
+                        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <span>Tudo pronto! Seu comprovante foi confirmado pelo diaconato.</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                          <Info className="h-4 w-4 shrink-0" />
+                          <span>Aguardando a liderança verificar o pagamento no sistema.</span>
+                        </div>
+                      )}
+                    </div>
+                    {!isCancelled && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenCancelDialog(reg)}
+                        className="min-h-[44px] h-9 px-3 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-500/10 dark:text-red-400 cursor-pointer self-end sm:self-auto shrink-0"
+                      >
+                        Cancelar Inscrição
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               )
@@ -1209,7 +1315,7 @@ export default function Events() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {retreats.map((retreat) => {
               const hasRegistered = myRegistrations.some(
-                (reg) => reg.retreat_id === retreat.id
+                (reg) => reg.retreat_id === retreat.id && (reg.status || "confirmado") !== "cancelado"
               )
 
               return (
@@ -1269,14 +1375,14 @@ export default function Events() {
                     {hasRegistered ? (
                       <Button
                         disabled
-                        className="mt-3 w-full rounded-xl bg-emerald-500/10 font-semibold text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-400"
+                        className="mt-3 w-full rounded-xl bg-emerald-500/10 font-semibold text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-400 min-h-[44px]"
                       >
                         Inscrito <CheckCircle2 className="ml-1.5 h-4 w-4" />
                       </Button>
                     ) : (
                       <Button
                         onClick={() => setRegisteringRetreat(retreat)}
-                        className="mt-3 w-full cursor-pointer rounded-xl font-bold"
+                        className="mt-3 w-full cursor-pointer rounded-xl font-bold min-h-[44px]"
                       >
                         Inscrever-se
                       </Button>
@@ -1288,6 +1394,75 @@ export default function Events() {
           </div>
         )}
       </div>
+
+      {/* Dialog: Confirmar Cancelamento da Inscrição pelo Discípulo */}
+      <Dialog
+        open={!!cancellingRegistration}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCancellingRegistration(null)
+            setCancellationReason("")
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md max-w-full rounded-2xl border border-border bg-card p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+              Cancelar Inscrição
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Você está prestes a cancelar sua inscrição no evento{" "}
+              <strong>{cancellingRegistration?.retreats?.title}</strong>. Sua vaga será
+              imediatamente liberada para que outro irmão possa participar. Seus dados e comprovantes
+              permanecerão arquivados com segurança no histórico.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <Field>
+              <FieldLabel htmlFor="cancel-reason" className="text-xs font-semibold">
+                Motivo do cancelamento (opcional)
+              </FieldLabel>
+              <Textarea
+                id="cancel-reason"
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                placeholder="Ex: Imprevisto no trabalho, viagem familiar, etc..."
+                className="min-h-[80px] text-xs resize-none"
+                disabled={isSubmittingCancellation}
+              />
+            </Field>
+          </div>
+
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setCancellingRegistration(null)
+                setCancellationReason("")
+              }}
+              disabled={isSubmittingCancellation}
+              className="min-h-[44px] cursor-pointer"
+            >
+              Voltar / Manter Inscrição
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmCancellation}
+              disabled={isSubmittingCancellation}
+              className="min-h-[44px] cursor-pointer font-bold"
+            >
+              {isSubmittingCancellation && (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              )}
+              Confirmar Cancelamento
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -229,6 +229,12 @@ export const THEME_CLASSES = {
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:text-amber-400",
   badgeDestructive:
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-600 border border-red-500/20 dark:text-red-400",
+  badgeRegistrationConfirmed:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 dark:text-emerald-400",
+  badgeRegistrationPresent:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-500/15 text-blue-700 border border-blue-500/30 dark:text-blue-400",
+  badgeRegistrationCancelled:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-red-500/15 text-red-700 border border-red-500/30 dark:text-red-400",
 } as const;
 
 // ==========================================

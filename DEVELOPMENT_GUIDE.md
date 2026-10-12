@@ -34,9 +34,17 @@ Este documento serve como um guia estrutural para o desenvolvimento do portal. A
 *   **`/formularios/responder/:formId`:** Interface amigável e step-by-step (`FormResponder.tsx`) para preenchimento dos formulários dinâmicos.
 
 ## 6. Eventos e Retiros
-**Objetivo:** Gerenciar logística.
-*   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto e pagamento.
-*   **`/gestao/eventos` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx`) com controle de lotação de alojamentos, alocação de quartos e conciliação financeira do retiro.
+**Objetivo:** Gerenciar logística, inscrições, alojamentos e finanças de encontros e retiros comunitários.
+*   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos (`Events.tsx`).
+    *   **"Minhas Inscrições":** Exibe o status atualizado da inscrição (`Confirmada`, `Presente`, `Cancelada`, `Aguardando Pagamento`).
+    *   **Cancelamento Amigável:** Permite que o próprio discípulo solicite o cancelamento de sua inscrição através de modal com motivo opcional, liberando imediatamente a vaga para outro irmão enquanto preserva dados e histórico financeiro.
+    *   **Re-inscrição:** Caso o participante tenha cancelado e ainda existam vagas abertas no evento, o botão "Inscrever-se" volta a ficar disponível.
+*   **`/gestao/eventos` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx` e `ManageEventDetail.tsx`).
+    *   Controle de lotação em tempo real (`max_participants`), calculando apenas inscrições ativas (`confirmado` e `presente`).
+    *   Gestão tabular (`EventDataTable.tsx`) com filtros por status e ação rápida de check-in (presença).
+    *   Modal de detalhes (`RegistrationDetailDialog.tsx`) para cancelamento com motivo ou reversão de cancelamento (com trava de segurança caso o evento esteja lotado).
+    *   Divisão de quartos (`RoomManagementTab.tsx`) e exportação para Excel/CSV com status e motivos de cancelamento.
+    *   *Documentação detalhada:* Consulte [docs/EVENT_REGISTRATIONS.md](file:///C:/Users/ggoes/.gemini/antigravity/worktrees/igrejaBH/event_registration_status_history/docs/EVENT_REGISTRATIONS.md).
 
 ## 7. Módulo Educacional
 **Objetivo:** Nivelamento e ensino.
