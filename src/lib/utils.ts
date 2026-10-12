@@ -5,4 +5,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export { parseLocalDate, parseEndOfDay, formatDateBR } from "./dateUtils"
+export { parseLocalDate, parseEndOfDay, formatDateBR, formatTimeBR, formatDateTimeBR } from "./dateUtils"

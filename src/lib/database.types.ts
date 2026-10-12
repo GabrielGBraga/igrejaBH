@@ -471,6 +471,8 @@ export type Database = {
       }
       registrations: {
         Row: {
+          checked_in_at: string | null
+          checked_in_by: string | null
           created_at: string | null
           custom_responses: Json | null
           form_submission_id: string | null
@@ -486,6 +488,8 @@ export type Database = {
           room_id: string | null
         }
         Insert: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -501,6 +505,8 @@ export type Database = {
           room_id?: string | null
         }
         Update: {
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -516,6 +522,13 @@ export type Database = {
           room_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "registrations_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "registrations_form_submission_id_fkey"
             columns: ["form_submission_id"]

@@ -37,7 +37,7 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - O header principal deve SEMPRE conter o `ThemeToggle` e o `UserAvatar`.
 - **Fluxo de Gestão de Eventos (Arquitetura de Duas Páginas):** A gestão de eventos e retiros segue arquitetura dedicada de duas páginas:
   - `/manage-events`: Dashboard em grid responsivo (`EventCard`) com filtros em pílula por status (`ativo`, `rascunho`, `encerrado`), busca em tempo real e criação via modal (`CreateEditEventDialog`). Redirecionamentos legados a partir de `/gestao/eventos`.
-  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`) e métricas analíticas. NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
+  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), sistema de check-in e credenciamento ágil para portaria (`EventCheckInTab` com placar ao vivo, busca instantânea por nome/CPF, cards mobile-first e alvos de toque 44px+), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`) e métricas analíticas. NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
 
 ## 4. Ferramentas MCP de UI/UX (Stitch & Acessibilidade)
 

@@ -34,7 +34,8 @@ import {
   Gift,
   Wallet,
   Edit2,
-  Check
+  Check,
+  Clock,
 } from "lucide-react";
 import type { Database } from "@/lib/database.types";
 
@@ -213,6 +214,28 @@ export function RegistrationDetailDialog({
               ) : (
                 <>
                   <XCircle className="w-3.5 h-3.5" /> Pagamento Pendente
+                </>
+              )}
+            </Badge>
+
+            {/* Status do Check-in */}
+            <Badge
+              variant="outline"
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1.5 ${
+                registration.checked_in_at
+                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                  : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700"
+              }`}
+            >
+              {registration.checked_in_at ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Presente</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Check-in Pendente</span>
                 </>
               )}
             </Badge>

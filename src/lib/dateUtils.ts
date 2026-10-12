@@ -49,3 +49,26 @@ export function formatDateBR(dateStr?: string | null): string {
   const parsed = new Date(dateStr);
   return isNaN(parsed.getTime()) ? "" : parsed.toLocaleDateString("pt-BR");
 }
+
+/**
+ * Formata um timestamp ISO para horário brasileiro HH:MM.
+ */
+export function formatTimeBR(isoStr?: string | null): string {
+  if (!isoStr) return "";
+  const parsed = new Date(isoStr);
+  if (isNaN(parsed.getTime())) return "";
+  return parsed.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Formata um timestamp ISO para data e horário brasileiro DD/MM/AAAA às HH:MM.
+ */
+export function formatDateTimeBR(isoStr?: string | null): string {
+  if (!isoStr) return "";
+  const parsed = new Date(isoStr);
+  if (isNaN(parsed.getTime())) return "";
+  return `${formatDateBR(isoStr)} às ${formatTimeBR(isoStr)}`;
+}

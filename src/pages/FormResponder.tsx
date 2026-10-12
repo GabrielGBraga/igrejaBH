@@ -707,7 +707,7 @@ export default function FormResponder() {
                 id,
                 guest_data,
                 custom_responses,
-                profiles (
+                profiles!profile_id (
                   email,
                   cpf
                 )

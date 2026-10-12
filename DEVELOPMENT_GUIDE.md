@@ -36,7 +36,7 @@ Este documento serve como um guia estrutural para o desenvolvimento do portal. A
 ## 6. Eventos e Retiros
 **Objetivo:** Gerenciar logística.
 *   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto e pagamento.
-*   **`/gestao/eventos` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx`) com controle de lotação de alojamentos, alocação de quartos e conciliação financeira do retiro.
+*   **`/manage-events` & `/manage-events/:eventId` (Visão Administrativa):** Painel administrativo completo (`ManageEventDetail.tsx`) com controle de credenciamento e check-in ágil na portaria (`EventCheckInTab`), listagem e filtros de inscritos (`EventDataTable`), divisão e lotação de alojamentos (`RoomManagementTab`), conciliação financeira de despesas (`EventFinanceTab`), cupons de desconto/isenção (`EventCouponsTab`) e dashboard analítico.
 
 ## 7. Módulo Educacional
 **Objetivo:** Nivelamento e ensino.

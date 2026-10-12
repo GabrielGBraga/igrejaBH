@@ -10,7 +10,7 @@
 - `studies`, `study_steps` & `user_study_progress`: Trilhas de aprendizado ordenadas (cursos) compostas por recursos e controle de conclusão por discípulo.
 - `study_notes`: Anotações individuais e formatadas dos discípulos por estudo (`study_id`) ou por recurso (`media_resource_id`), protegidas via RLS (`profile_id`).
 - `forms` & `form_submissions`: Sistema dinâmico de formulários. A tabela `forms` armazena o schema/JSON do template e `form_submissions` guarda as respostas dos usuários.
-- `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e controle de retiros.
+- `registrations` & `retreats`: Gestão de eventos, fichas de inscrição, controle de retiros e credenciamento na portaria (`checked_in_at`, `checked_in_by`).
 - `retreat_rooms`: Gestão de quartos/alocação de alojamentos customizáveis por retiro (`retreat_id`, `gender_type`, `capacity`).
 - `retreat_expenses`: Lançamento e controle de despesas/gastos por retiro para cálculo de resultado líquido (`retreat_id`, `category`, `amount`, `expense_date`).
 
