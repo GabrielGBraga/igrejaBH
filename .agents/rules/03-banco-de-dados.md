@@ -10,10 +10,10 @@
 - `studies`, `study_steps` & `user_study_progress`: Trilhas de aprendizado ordenadas (cursos) compostas por recursos e controle de conclusão por discípulo.
 - `study_notes`: Anotações individuais e formatadas dos discípulos por estudo (`study_id`) ou por recurso (`media_resource_id`), protegidas via RLS (`profile_id`).
 - `forms` & `form_submissions`: Sistema dinâmico de formulários. A tabela `forms` armazena o schema/JSON do template e `form_submissions` guarda as respostas dos usuários.
-- `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e controle de retiros.
+- `registrations` & `retreats`: Gestão de eventos, fichas de inscrição e controle de retiros. `registrations` armazena dados do participante, pagamento, quarto e equipe de serviço/voluntariado (`service_team`).
 - `retreat_rooms`: Gestão de quartos/alocação de alojamentos customizáveis por retiro (`retreat_id`, `gender_type`, `capacity`).
 - `retreat_expenses`: Lançamento e controle de despesas/gastos por retiro para cálculo de resultado líquido (`retreat_id`, `category`, `amount`, `expense_date`).
-- `event_coupons`: Códigos e cupons descartáveis para isenção e desconto em retiros (`retreat_id`, `code`, `cpf`, `discount_percent`).
+- `event_coupons`: Cupons de desconto e códigos de isenção para eventos (`retreat_id`, `code`, `cpf`, `discount_percent`), com vinculação opcional a CPF e atribuição automática de equipe de serviço (`target_service_team`).
 - `event_waitlist`: Lista de espera automática por evento/retiro após esgotamento de vagas (`retreat_id`, `full_name`, `phone`, `email`, `travel_mode`, `status`).
 
 ## 2. Tratamento de Dados Sensíveis

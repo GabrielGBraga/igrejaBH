@@ -30,6 +30,7 @@ import type {
   FilterOperator,
 } from "@/types/eventsFilter";
 import type { RetreatRoom } from "./RoomManagementTab";
+import { SERVICE_TEAMS } from "@/constants/serviceTeams";
 
 interface FilterBuilderProps {
   rules: FilterRule[];
@@ -54,6 +55,13 @@ const FIELD_OPTIONS: FilterFieldOption[] = [
       { label: "Pago / Confirmado", value: "true" },
       { label: "Pendente", value: "false" },
     ],
+  },
+  {
+    id: "service_team",
+    label: "Equipe de Serviço",
+    type: "select",
+    allowedOperators: ["is", "not_is", "eq", "neq"],
+    options: SERVICE_TEAMS.map((t) => ({ label: t.label, value: t.id })),
   },
   {
     id: "room_id",
@@ -397,6 +405,24 @@ export function FilterBuilder({
                             <SelectItem value="false" className="text-xs">
                               Pendente
                             </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    ) : rule.field === "service_team" ? (
+                      <Select
+                        value={String(rule.value || "")}
+                        onValueChange={(val) => handleUpdateRule(rule.id, { value: val })}
+                      >
+                        <SelectTrigger className="min-h-[44px] h-11 text-xs bg-white dark:bg-zinc-900">
+                          <SelectValue placeholder="Selecione a equipe" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {SERVICE_TEAMS.map((team) => (
+                              <SelectItem key={team.id} value={team.id} className="text-xs">
+                                {team.label}
+                              </SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>

@@ -26,6 +26,7 @@ export type Database = {
           is_used: boolean
           notes: string | null
           retreat_id: string | null
+          target_service_team: string | null
           used_at: string | null
           used_by_email: string | null
           used_by_name: string | null
@@ -41,6 +42,7 @@ export type Database = {
           is_used?: boolean
           notes?: string | null
           retreat_id?: string | null
+          target_service_team?: string | null
           used_at?: string | null
           used_by_email?: string | null
           used_by_name?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           is_used?: boolean
           notes?: string | null
           retreat_id?: string | null
+          target_service_team?: string | null
           used_at?: string | null
           used_by_email?: string | null
           used_by_name?: string | null
@@ -536,6 +539,7 @@ export type Database = {
           retreat_id: string | null
           room_allocation: string | null
           room_id: string | null
+          service_team: string | null
           status: "confirmado" | "presente" | "cancelado"
         }
         Insert: {
@@ -554,6 +558,7 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          service_team?: string | null
           status?: "confirmado" | "presente" | "cancelado"
         }
         Update: {
@@ -572,6 +577,7 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          service_team?: string | null
           status?: "confirmado" | "presente" | "cancelado"
         }
         Relationships: [

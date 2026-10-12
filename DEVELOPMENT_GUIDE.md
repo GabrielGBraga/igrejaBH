@@ -42,11 +42,12 @@ Este documento serve como um guia estrutural para o desenvolvimento do portal. A
 *   **`/manage-events` (Dashboard Administrativo):** Painel (`ManageEvents.tsx`) com visão geral dos eventos, filtros por status e criação/edição.
 *   **`/manage-events/:eventId` (Gestão Detalhada do Evento):** Painel administrativo (`ManageEventDetail.tsx`):
     *   Controle de lotação em tempo real (`max_participants`), calculando apenas inscrições ativas (`confirmado` e `presente`).
-    *   Gestão tabular (`EventDataTable.tsx`) com filtros por status e ação rápida de check-in (presença).
-    *   Modal de detalhes (`RegistrationDetailDialog.tsx`) para cancelamento com motivo ou reversão de cancelamento (com trava de segurança caso o evento esteja lotado).
-    *   Divisão de quartos (`RoomManagementTab.tsx`), conciliação financeira e exportação para Excel/CSV com status e motivos de cancelamento.
+    *   Gestão tabular (`EventDataTable.tsx`) com filtros por status, equipe de serviço e ação rápida de check-in (presença).
+    *   Modal de detalhes (`RegistrationDetailDialog.tsx`) para atribuição de equipe de serviço, cancelamento com motivo ou reversão de cancelamento (com trava de segurança caso o evento esteja lotado).
+    *   Divisão de quartos (`RoomManagementTab.tsx`), conciliação financeira e exportação para Excel/CSV com status, motivos de cancelamento e equipe de serviço.
+    *   Organização de equipes de serviço/voluntariado (`EventTeamsTab.tsx`) com visão geral, contadores, escalas para WhatsApp e alocação dinâmica. Consulte [`docs/EVENT_SERVICE_TEAMS.md`](docs/EVENT_SERVICE_TEAMS.md).
     *   Geração e impressão de listas em PDF (`EventPrintListsDialog.tsx` / `eventPrintUtils.ts`) com 3 relatórios prontos para operação física/offline em A4 (Lista de Presença/Portaria com assinatura, Folhas de Porta dos Quartos e Relatório da Cozinha/Restrições alimentares).
-    *   *Documentação detalhada:* Consulte [docs/EVENT_REGISTRATIONS.md](file:///C:/Users/ggoes/.gemini/antigravity/worktrees/igrejaBH/event_registration_status_history/docs/EVENT_REGISTRATIONS.md).
+    *   *Documentação detalhada:* Consulte [docs/EVENT_REGISTRATIONS.md](docs/EVENT_REGISTRATIONS.md) e [docs/EVENT_SERVICE_TEAMS.md](docs/EVENT_SERVICE_TEAMS.md).
 
 ## 7. Módulo Educacional
 **Objetivo:** Nivelamento e ensino.
