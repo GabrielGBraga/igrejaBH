@@ -24,3 +24,21 @@
 Sempre importar os tipos diretamente gerados pelo Supabase:
 `import { Database } from '@/lib/database.types'`
 Nunca reescreva ou crie interfaces "soltas" (como `interface Profile { ... }`). Estenda a tipagem do Supabase usando helpers utilitários quando necessário (ex: `type Profile = Database['public']['Tables']['profiles']['Row']`).
+
+## 4. Relacionamentos Múltiplos e Embeddings no PostgREST (Prevenção de Erro PGRST201)
+- Quando uma tabela no Supabase possui **mais de uma chave estrangeira** apontando para a mesma tabela de destino (exemplo real: `registrations` possui tanto `profile_id` quanto `checked_in_by` referenciando `profiles.id`), o PostgREST emite o erro `PGRST201` (*"Could not embed because more than one relationship was found..."*) caso a consulta faça o embedding genérico `profiles (...)`.
+- **Regra Obrigatória:** Em tabelas com chaves múltiplas, QUALIFIQUE SEMPRE a chave estrangeira explicitamente utilizando a sintaxe `alias:tabela!nome_da_constraint(...)`:
+  ```typescript
+  supabase
+    .from("registrations")
+    .select(`
+      *,
+      profiles:profiles!registrations_profile_id_fkey (
+        full_name,
+        email,
+        phone,
+        cpf
+      )
+    `)
+  ```
+  O alias `profiles:` garante que a propriedade no objeto JavaScript continue se chamando `profiles`, preservando a compatibilidade com a tipagem estrita e os componentes da interface sem quebras.

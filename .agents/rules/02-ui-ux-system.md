@@ -37,7 +37,11 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - O header principal deve SEMPRE conter o `ThemeToggle` e o `UserAvatar`.
 - **Fluxo de Gestão de Eventos (Arquitetura de Duas Páginas):** A gestão de eventos e retiros segue arquitetura dedicada de duas páginas:
   - `/manage-events`: Dashboard em grid responsivo (`EventCard`) com filtros em pílula por status (`ativo`, `rascunho`, `encerrado`), busca em tempo real e criação via modal (`CreateEditEventDialog`). Redirecionamentos legados a partir de `/gestao/eventos`.
-  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`) e métricas analíticas. NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
+  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`), lista de espera (`EventWaitlistTab`) e métricas analíticas. NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
+- **Fluxo de Lista de Espera (Event Waitlist):**
+  - **Experiência do Participante:** Quando um evento atinge lotação máxima (`closedReason === 'full'`), o formulário de inscrição (`FormResponder`) e a página do evento (`Events`) exibem um mini-formulário acolhedor (`EventWaitlistForm` / `EventWaitlistDialog`) solicitando dados de contato e modalidade de viagem. Se o participante assinalar "Já comprei passagem", recebe confirmação imediata de prioridade.
+  - **Bypass de Capacidade:** Participantes chamados pela liderança recebem links com parâmetro `?waitlist_id=...` (ou cupons/convites), que contornam o bloqueio de lotação e marcam o status do participante na fila automaticamente como `inscrito` após o envio da inscrição.
+  - **Gestão da Liderança (`EventWaitlistTab`):** Exibe a fila em ordem cronológica estrita de chegada (`created_at ASC`), numeração de fila `#1, #2...`, badges de status e destaque prioritário (púrpura de alto contraste AAA) para quem tem passagem comprada. Inclui ação "Chamar Participante" com geração de links, código de liberação e integração direta com WhatsApp.
 
 ## 4. Ferramentas MCP de UI/UX (Stitch & Acessibilidade)
 
