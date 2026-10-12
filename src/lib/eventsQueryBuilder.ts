@@ -57,7 +57,7 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
     .from("registrations")
     .select(`
       *,
-      profiles (
+      profiles:profiles!registrations_profile_id_fkey (
         full_name,
         email,
         phone,

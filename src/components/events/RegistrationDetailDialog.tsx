@@ -50,6 +50,12 @@ export type RegistrationWithDetails = Database["public"]["Tables"]["registration
     email: string | null;
     phone: string | null;
     cpf: string | null;
+    address_city?: string | null;
+    home_group_id?: string | null;
+    home_groups?: {
+      id?: string;
+      location_text?: string | null;
+    } | null;
   } | null;
   retreat_rooms?: {
     id: string;
@@ -144,13 +150,13 @@ export function RegistrationDetailDialog({
   };
 
   const profile = registration.profiles;
-  const guestData = registration.guest_data as Record<string, any> | null;
-  const customResponses = registration.custom_responses as Record<string, any> | null;
+  const guestData = registration.guest_data as Record<string, unknown> | null;
+  const customResponses = registration.custom_responses as Record<string, unknown> | null;
 
-  const fullName = profile?.full_name || guestData?.full_name || "Participante sem nome";
-  const email = profile?.email || guestData?.email || "Não informado";
-  const phone = profile?.phone || guestData?.phone || "Não informado";
-  const cpf = profile?.cpf || guestData?.cpf || "Não informado";
+  const fullName = String(profile?.full_name || guestData?.full_name || "Participante sem nome");
+  const email = String(profile?.email || guestData?.email || "Não informado");
+  const phone = String(profile?.phone || guestData?.phone || "Não informado");
+  const cpf = String(profile?.cpf || guestData?.cpf || "Não informado");
   const roomName = registration.retreat_rooms?.name || registration.room_allocation || "Não alocado";
 
   const rawMethod = (registration.payment_method || "").toLowerCase();
