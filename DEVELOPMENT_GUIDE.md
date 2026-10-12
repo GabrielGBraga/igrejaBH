@@ -34,10 +34,12 @@ Este documento serve como um guia estrutural para o desenvolvimento do portal. A
 *   **`/formularios/responder/:formId`:** Interface amigável e step-by-step (`FormResponder.tsx`) para preenchimento dos formulários dinâmicos.
 
 ## 6. Eventos e Retiros
-**Objetivo:** Gerenciar logística.
-*   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto e pagamento.
-*   **`/gestao/eventos` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx`) com controle de lotação de alojamentos, alocação de quartos e conciliação financeira do retiro.
+**Objetivo:** Gerenciar logística presencial e operação de retiros/encontros.
+*   **`/eventos` (Visão do Discípulo):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto e pagamento.
+*   **`/manage-events` (Dashboard Administrativo):** Painel (`ManageEvents.tsx`) com visão geral dos eventos, filtros por status e criação/edição.
+*   **`/manage-events/:eventId` (Gestão Detalhada do Evento):** Painel administrativo (`ManageEventDetail.tsx`) com KPIs, tabela de inscritos (`EventDataTable.tsx`), gestão e alocação de dormitórios (`RoomManagementTab.tsx`), conciliação financeira e diálogo de impressão/exportação em PDF (`EventPrintListsDialog.tsx` / `eventPrintUtils.ts`) com 3 relatórios prontos para operação física/offline em A4 (Lista de Presença/Portaria com assinatura, Folhas de Porta dos Quartos e Relatório da Cozinha/Restrições alimentares).
 
 ## 7. Módulo Educacional
 **Objetivo:** Nivelamento e ensino.
 *   **`/ensinos`:** Portal para consumo de aulas em vídeo, palestras e leitura de PDFs de catequese vinculados à tabela `media_resources`.
+

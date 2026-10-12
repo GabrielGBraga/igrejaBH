@@ -28,6 +28,7 @@ import {
   Gift,
   CheckCircle2,
   Clock,
+  Printer,
 } from "lucide-react";
 import {
   Table,
@@ -71,6 +72,7 @@ interface EventDataTableProps {
   onAssignRoomClick: (reg: RegistrationWithDetails) => void;
   onDeleteRegistration: (reg: RegistrationWithDetails) => void;
   onExportData: (filteredRecords?: RegistrationWithDetails[]) => void;
+  onPrint?: () => void;
   onFilteredDataChange?: (filtered: RegistrationWithDetails[]) => void;
 }
 
@@ -82,6 +84,7 @@ export function EventDataTable({
   onAssignRoomClick,
   onDeleteRegistration,
   onExportData,
+  onPrint,
   onFilteredDataChange,
 }: EventDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
@@ -597,6 +600,18 @@ export function EventDataTable({
             <Download className="h-4 w-4 text-zinc-500" />
             <span>Exportar CSV</span>
           </Button>
+
+          {/* Print Button */}
+          {onPrint && (
+            <Button
+              variant="outline"
+              onClick={onPrint}
+              className="min-h-[44px] h-11 px-4 text-xs font-semibold rounded-lg flex items-center gap-2 cursor-pointer shrink-0 border-zinc-200 dark:border-zinc-800"
+            >
+              <Printer className="h-4 w-4 text-zinc-500" />
+              <span>Imprimir / PDF</span>
+            </Button>
+          )}
         </div>
       </div>
 

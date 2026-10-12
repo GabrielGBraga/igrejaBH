@@ -17,6 +17,7 @@ import {
   PieChart,
   Ticket,
   Clock,
+  Printer,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -38,6 +39,7 @@ import { KPIBuilderDialog } from "@/components/events/KPIBuilderDialog";
 import { FilterBuilder } from "@/components/events/FilterBuilder";
 import { EventDataTable } from "@/components/events/EventDataTable";
 import { CreateEditEventDialog, type FormOption } from "@/components/events/CreateEditEventDialog";
+import { EventPrintListsDialog } from "@/components/events/EventPrintListsDialog";
 import {
   RegistrationDetailDialog,
   type RegistrationWithDetails,
@@ -106,6 +108,8 @@ export default function ManageEventDetail() {
 
   // Dialog & Modal states
   const [isEditEventOpen, setIsEditEventOpen] = useState(false);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [homeGroupsMap, setHomeGroupsMap] = useState<Map<string, string>>(new Map());
   const [selectedRegistrationForDetail, setSelectedRegistrationForDetail] =
     useState<RegistrationWithDetails | null>(null);
   const [selectedRegistrationForRoomModal, setSelectedRegistrationForRoomModal] =
@@ -280,6 +284,26 @@ export default function ManageEventDetail() {
     }
   }, []);
 
+  const fetchHomeGroups = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("home_groups")
+        .select("id, location_text");
+      if (error) throw error;
+      if (data) {
+        const map = new Map<string, string>();
+        data.forEach((hg) => {
+          if (hg.location_text) {
+            map.set(hg.id, hg.location_text);
+          }
+        });
+        setHomeGroupsMap(map);
+      }
+    } catch (e) {
+      console.warn("Erro ao buscar grupos caseiros:", e);
+    }
+  }, []);
+
   const fetchRegistrations = useCallback(async (id: string) => {
     setLoadingRegistrations(true);
     try {
@@ -291,7 +315,13 @@ export default function ManageEventDetail() {
             full_name,
             email,
             phone,
-            cpf
+            cpf,
+            address_city,
+            home_group_id,
+            home_groups (
+              id,
+              location_text
+            )
           ),
           retreat_rooms (
             id,
@@ -303,8 +333,35 @@ export default function ManageEventDetail() {
         .eq("retreat_id", id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setRegistrations((data as unknown as RegistrationWithDetails[]) || []);
+      if (error) {
+        // Fallback resiliente caso nested home_groups não seja suportado diretamente
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("registrations")
+          .select(`
+            *,
+            profiles:profiles!registrations_profile_id_fkey (
+              full_name,
+              email,
+              phone,
+              cpf,
+              address_city,
+              home_group_id
+            ),
+            retreat_rooms (
+              id,
+              name,
+              gender_type,
+              capacity
+            )
+          `)
+          .eq("retreat_id", id)
+          .order("created_at", { ascending: false });
+
+        if (fallbackError) throw fallbackError;
+        setRegistrations((fallbackData as unknown as RegistrationWithDetails[]) || []);
+      } else {
+        setRegistrations((data as unknown as RegistrationWithDetails[]) || []);
+      }
     } catch (err: unknown) {
       console.error("Erro ao carregar inscrições:", err);
       const msg =
@@ -360,9 +417,18 @@ export default function ManageEventDetail() {
       fetchRegistrations(eventId);
       fetchRetreatRooms(eventId);
       fetchForms();
+      fetchHomeGroups();
       fetchWaitlistCount(eventId);
     }
-  }, [eventId, fetchRetreatDetails, fetchRegistrations, fetchRetreatRooms, fetchForms, fetchWaitlistCount]);
+  }, [
+    eventId,
+    fetchRetreatDetails,
+    fetchRegistrations,
+    fetchRetreatRooms,
+    fetchForms,
+    fetchHomeGroups,
+    fetchWaitlistCount,
+  ]);
 
   // Toggle Payment Status
   const handleTogglePayment = async (reg: RegistrationWithDetails) => {
@@ -1025,6 +1091,15 @@ export default function ManageEventDetail() {
 
           <Button
             variant="outline"
+            onClick={() => setIsPrintDialogOpen(true)}
+            className="min-h-[44px] h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <Printer className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
+            <span>Imprimir / PDF</span>
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={() => setIsEditEventOpen(true)}
             className="min-h-[44px] h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
           >
@@ -1153,6 +1228,7 @@ export default function ManageEventDetail() {
             onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
             onDeleteRegistration={handleDeleteRegistration}
             onExportData={handleExportData}
+            onPrint={() => setIsPrintDialogOpen(true)}
             onFilteredDataChange={setTableFilteredRegistrations}
           />
         </div>
@@ -1163,6 +1239,7 @@ export default function ManageEventDetail() {
         <RoomManagementTab
           retreatId={retreat.id}
           registrations={registrations}
+          onPrint={() => setIsPrintDialogOpen(true)}
           onRefreshRegistrations={() => {
             fetchRegistrations(retreat.id);
             fetchRetreatRooms(retreat.id);
@@ -1492,6 +1569,16 @@ export default function ManageEventDetail() {
         onResetDefaults={handleResetKpiConfigs}
         data={tableFilteredRegistrations}
         meta={contextMeta}
+      />
+
+      {/* Modal: Impressão e PDF de Listas de Presença, Quartos e Cozinha */}
+      <EventPrintListsDialog
+        isOpen={isPrintDialogOpen}
+        onClose={() => setIsPrintDialogOpen(false)}
+        retreat={retreat}
+        registrations={registrations}
+        retreatRooms={retreatRooms}
+        homeGroupsMap={homeGroupsMap}
       />
     </div>
   );
