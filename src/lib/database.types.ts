@@ -526,6 +526,8 @@ export type Database = {
         Row: {
           cancellation_reason: string | null
           cancelled_at: string | null
+          checked_in_at: string | null
+          checked_in_by: string | null
           created_at: string | null
           custom_responses: Json | null
           form_submission_id: string | null
@@ -545,6 +547,8 @@ export type Database = {
         Insert: {
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -564,6 +568,8 @@ export type Database = {
         Update: {
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           created_at?: string | null
           custom_responses?: Json | null
           form_submission_id?: string | null
@@ -582,17 +588,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "registrations_form_submission_id_fkey"
-            columns: ["form_submission_id"]
-            isOneToOne: false
-            referencedRelation: "form_submissions"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "registrations_checked_in_by_fkey"
             columns: ["checked_in_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_form_submission_id_fkey"
+            columns: ["form_submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
             referencedColumns: ["id"]
           },
           {

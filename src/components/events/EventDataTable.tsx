@@ -376,6 +376,45 @@ export function EventDataTable({
         },
       },
       {
+        id: "checkin_status",
+        accessorFn: (row) => (row.checked_in_at ? "presente" : "pendente"),
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="p-0 h-auto font-bold text-xs text-zinc-900 dark:text-zinc-50 hover:bg-transparent flex items-center gap-1.5 cursor-pointer"
+          >
+            Check-in
+            <ArrowUpDown className="h-3 w-3 text-zinc-400" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const isPresent = Boolean(row.original.checked_in_at);
+          return (
+            <Badge
+              variant="outline"
+              className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md flex items-center gap-1 w-fit ${
+                isPresent
+                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                  : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700"
+              }`}
+            >
+              {isPresent ? (
+                <>
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>Presente</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="w-3 h-3 text-zinc-400" />
+                  <span>Pendente</span>
+                </>
+              )}
+            </Badge>
+          );
+        },
+      },
+      {
         id: "room_allocation",
         accessorFn: (row) =>
           row.retreat_rooms?.name || row.room_allocation || "Não alocado",

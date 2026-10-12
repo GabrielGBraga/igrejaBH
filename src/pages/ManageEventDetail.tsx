@@ -17,6 +17,7 @@ import {
   PieChart,
   Ticket,
   Clock,
+  UserCheck,
   HeartHandshake,
   Printer,
 } from "lucide-react";
@@ -50,6 +51,7 @@ import {
   type RetreatRoom,
 } from "@/components/events/RoomManagementTab";
 import { EventCouponsTab } from "@/components/events/EventCouponsTab";
+import { EventCheckInTab } from "@/components/events/EventCheckInTab";
 import { EventWaitlistTab } from "@/components/events/EventWaitlistTab";
 import {
   EventFinanceTab,
@@ -105,6 +107,7 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
+    | "checkin"
     | "registrations"
     | "rooms"
     | "teams"
@@ -1118,6 +1121,10 @@ export default function ManageEventDetail() {
   const femalePct =
     totalRegistered > 0 ? Math.round((femaleCount / totalRegistered) * 100) : 0;
 
+  const checkedInCount = useMemo(
+    () => registrations.filter((r) => Boolean(r.checked_in_at)).length,
+    [registrations]
+  );
   const volunteersCount = useMemo(() => {
     return registrations.filter((r) => !!r.service_team).length;
   }, [registrations]);
@@ -1298,6 +1305,20 @@ export default function ManageEventDetail() {
       {/* Navigation Tabs */}
       <div className="flex border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto gap-2">
         <button
+          onClick={() => setActiveTab("checkin")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "checkin"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <UserCheck className="w-4 h-4" />
+          <span>
+            Check-in / Recepção ({checkedInCount}/{registrations.length})
+          </span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("registrations")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "registrations"
@@ -1381,6 +1402,25 @@ export default function ManageEventDetail() {
           <span>Dashboard Analítico</span>
         </button>
       </div>
+
+      {/* Tab: Check-in / Recepção e Portaria */}
+      {activeTab === "checkin" && retreat && (
+        <EventCheckInTab
+          retreatId={retreat.id}
+          retreatTitle={retreat.title}
+          registrations={registrations}
+          retreatRooms={retreatRooms}
+          onUpdateRegistration={(updatedReg) => {
+            setRegistrations((prev) =>
+              prev.map((r) => (r.id === updatedReg.id ? updatedReg : r))
+            );
+          }}
+          onRefreshRegistrations={() => {
+            if (eventId) fetchRegistrations(eventId);
+          }}
+          onViewDetails={(reg) => setSelectedRegistrationForDetail(reg)}
+        />
+      )}
 
       {/* Tab 1: Inscrições com Construtor de Filtros e TanStack Data Table */}
       {activeTab === "registrations" && (

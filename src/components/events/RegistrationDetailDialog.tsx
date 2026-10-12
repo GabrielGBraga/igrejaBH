@@ -49,6 +49,7 @@ import {
 } from "@/constants/serviceTeams";
 import supabase from "@/lib/supabase";
 import { toast } from "sonner";
+import { formatTimeBR } from "@/lib/utils";
 import type { Database } from "@/lib/database.types";
 import { THEME_CLASSES } from "@/constants/colors";
 
@@ -303,9 +304,14 @@ export function RegistrationDetailDialog({
                 <Badge variant="outline" className={THEME_CLASSES.badgeRegistrationCancelled}>
                   <Ban className="w-3.5 h-3.5 mr-1" /> Cancelado
                 </Badge>
-              ) : isPresent ? (
+              ) : isPresent || registration.checked_in_at ? (
                 <Badge variant="outline" className={THEME_CLASSES.badgeRegistrationPresent}>
                   <UserCheck className="w-3.5 h-3.5 mr-1" /> Presente
+                  {registration.checked_in_at && (
+                    <span className="text-[10px] ml-1 opacity-80">
+                      ({formatTimeBR(registration.checked_in_at)})
+                    </span>
+                  )}
                 </Badge>
               ) : (
                 <Badge variant="outline" className={THEME_CLASSES.badgeRegistrationConfirmed}>
