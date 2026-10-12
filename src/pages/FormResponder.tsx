@@ -31,6 +31,7 @@ import {
 } from "@/lib/forms"
 import type { FormField, FormTemplate, FormPresentationPage } from "@/lib/forms"
 import { FormPresentationView } from "@/components/forms/FormPresentationView"
+import { EventWaitlistForm } from "@/components/events/EventWaitlistForm"
 import { Layout } from "@/components/layout/Layout"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { parseEndOfDay } from "@/lib/utils"
@@ -68,6 +69,7 @@ export default function FormResponder() {
     valid: boolean
     requiresCpf?: boolean
     discountPercent?: number
+    targetServiceTeam?: string | null
     message?: string
   }>({ checked: false, valid: false, discountPercent: 100 })
 
@@ -151,11 +153,12 @@ export default function FormResponder() {
         const hyphenatedId = rawFormId.replace(/\s+/g, "-")
 
         // 1. Try exact match by id
-        let { data: dbForm, error: formError } = await supabase
+        const { data: exactMatch, error: formError } = await supabase
           .from("forms")
           .select("*")
           .eq("id", rawFormId)
           .maybeSingle()
+        let dbForm = exactMatch
 
         // 2. If not found, try hyphenated format (e.g. "form solteiros 2026" -> "form-solteiros-2026")
         if (!dbForm && hyphenatedId !== rawFormId) {
@@ -270,14 +273,21 @@ export default function FormResponder() {
                 }
               }
 
-              // Check capacity
+              // Check capacity (counting only active registrations: 'confirmado' and 'presente')
               const { count, error: countError } = await supabase
                 .from("registrations")
                 .select("id", { count: "exact", head: true })
                 .eq("retreat_id", retreat.id)
+                .in("status", ["confirmado", "presente"])
 
               if (!countError && count !== null && retreat.max_participants) {
-                if (count >= retreat.max_participants) {
+                const searchParams = new URLSearchParams(window.location.search)
+                const hasBypass =
+                  searchParams.get("waitlist_id") ||
+                  searchParams.get("cupom") ||
+                  searchParams.get("coupon") ||
+                  searchParams.get("convite")
+                if (count >= retreat.max_participants && !hasBypass) {
                   setClosedReason("full")
                   return
                 }
@@ -357,13 +367,20 @@ export default function FormResponder() {
           p_retreat_id: associatedRetreat?.id || undefined,
         })
         if (!error && data) {
-          const res = data as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number }
+          const res = data as {
+            valid: boolean
+            message?: string
+            requires_cpf?: boolean
+            discount_percent?: number
+            target_service_team?: string | null
+          }
           const discountPct = res.discount_percent ?? 100
           setCouponValidation({
             checked: true,
             valid: res.valid,
             requiresCpf: res.requires_cpf,
             discountPercent: discountPct,
+            targetServiceTeam: res.target_service_team || null,
             message: res.message,
           })
           if (res.valid) {
@@ -692,7 +709,12 @@ export default function FormResponder() {
     }
 
     // Save submission to Supabase
-    async function executeSubmission(paid: boolean, method: string, reference: string) {
+    async function executeSubmission(
+      paid: boolean,
+      method: string,
+      reference: string,
+      assignedServiceTeam?: string | null
+    ) {
       try {
         const submissionId = `sub-${Math.random().toString(36).substring(7)}`
         const submitToastId = toast.loading("Enviando sua resposta...")
@@ -700,19 +722,21 @@ export default function FormResponder() {
         // Check for duplicates
         if (emailVal || cpfVal) {
           if (associatedRetreat) {
-            // Event registration check
+            // Event registration check (only check active registrations, ignoring cancelled ones)
             const { data: existingRegs } = await supabase
               .from("registrations")
               .select(`
                 id,
+                status,
                 guest_data,
                 custom_responses,
-                profiles!profile_id (
+                profiles:profiles!registrations_profile_id_fkey (
                   email,
                   cpf
                 )
               `)
               .eq("retreat_id", associatedRetreat.id)
+              .in("status", ["confirmado", "presente"])
 
             if (existingRegs) {
               const isDuplicate = existingRegs.some((reg: any) => {
@@ -834,6 +858,9 @@ export default function FormResponder() {
             guestData.gender = genderVal || "Não informado"
           }
 
+          const teamToStamp =
+            assignedServiceTeam || couponValidation.targetServiceTeam || null
+
           const { error: regError } = await supabase.from("registrations").insert({
             retreat_id: associatedRetreat.id,
             profile_id: profileId || null,
@@ -842,10 +869,26 @@ export default function FormResponder() {
             payment_method: method,
             payment_reference: reference,
             paid: paid,
+            service_team: teamToStamp,
             form_submission_id: submissionId,
+            status: "confirmado",
           })
 
           if (regError) throw regError
+
+          // Se o participante veio com link de chamada da lista de espera, marcar como inscrito
+          const urlParams = new URLSearchParams(window.location.search)
+          const waitlistId = urlParams.get("waitlist_id")
+          if (waitlistId) {
+            try {
+              await supabase
+                .from("event_waitlist")
+                .update({ status: "inscrito" })
+                .eq("id", waitlistId)
+            } catch (waitlistErr) {
+              console.warn("Não foi possível atualizar status na lista de espera:", waitlistErr)
+            }
+          }
         }
 
         toast.dismiss(submitToastId)
@@ -897,7 +940,13 @@ export default function FormResponder() {
           p_retreat_id: associatedRetreat?.id || undefined,
           p_form_id: template.id || undefined,
         })
-        const valData = rawValData as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number } | null
+        const valData = rawValData as {
+          valid: boolean
+          message?: string
+          requires_cpf?: boolean
+          discount_percent?: number
+          target_service_team?: string | null
+        } | null
 
         if (valErr || !valData?.valid) {
           toast.dismiss(redeemToastId)
@@ -906,6 +955,7 @@ export default function FormResponder() {
         }
 
         const discountPct = Number(valData.discount_percent ?? couponValidation.discountPercent ?? 100)
+        const targetTeam = valData.target_service_team || couponValidation.targetServiceTeam
 
         // 1.1 Full exemption (100% discount)
         if (discountPct === 100) {
@@ -927,7 +977,7 @@ export default function FormResponder() {
           }
 
           toast.success("Código de isenção (100%) validado com sucesso!")
-          await executeSubmission(true, "cupom", `Isenção (100%) - Cupom: ${couponCode}`)
+          await executeSubmission(true, "cupom", `Isenção (100%) - Cupom: ${couponCode}`, targetTeam)
           return
         }
 
@@ -950,7 +1000,7 @@ export default function FormResponder() {
             return
           }
           toast.success("Desconto aplicado! Inscrição gratuita confirmada.")
-          await executeSubmission(true, "cupom", `Desconto (${discountPct}%) - Cupom: ${couponCode}`)
+          await executeSubmission(true, "cupom", `Desconto (${discountPct}%) - Cupom: ${couponCode}`, targetTeam)
           return
         }
 
@@ -967,7 +1017,7 @@ export default function FormResponder() {
               p_retreat_id: associatedRetreat?.id || undefined,
               p_form_id: template.id || undefined,
             })
-            await executeSubmission(p, m, `${r} | Cupom: ${couponCode} (${discountPct}% OFF)`)
+            await executeSubmission(p, m, `${r} | Cupom: ${couponCode} (${discountPct}% OFF)`, targetTeam)
           }
         })
         setOriginalPrice(total)
@@ -1061,6 +1111,32 @@ export default function FormResponder() {
     let description = "Este formulário não está aceitando respostas no momento."
     let iconColor = "text-amber-500"
     let iconBg = "bg-amber-500/10"
+
+    if (closedReason === "full" && associatedRetreat) {
+      return (
+        <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="mb-6">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="gap-2 -ml-2 text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar para a página anterior
+            </Button>
+          </div>
+          <EventWaitlistForm
+            retreat={associatedRetreat}
+            initialData={{
+              fullName: user?.user_metadata?.full_name || "",
+              email: user?.email || "",
+            }}
+            onCancel={() => navigate(-1)}
+          />
+        </div>
+      )
+    }
 
     if (closedReason === "draft") {
       title = "Formulário em Rascunho"

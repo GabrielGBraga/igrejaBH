@@ -28,7 +28,11 @@ import {
   Gift,
   CheckCircle2,
   Clock,
+  UserCheck,
+  Ban,
+  Printer,
 } from "lucide-react";
+import { THEME_CLASSES } from "@/constants/colors";
 import {
   Table,
   TableBody,
@@ -53,6 +57,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  SERVICE_TEAMS,
+  getServiceTeam,
+  getServiceTeamBadgeStyle,
+} from "@/constants/serviceTeams";
 import type { RegistrationWithDetails } from "./RegistrationDetailDialog";
 
 interface GuestDataShape {
@@ -71,7 +80,13 @@ interface EventDataTableProps {
   onAssignRoomClick: (reg: RegistrationWithDetails) => void;
   onDeleteRegistration: (reg: RegistrationWithDetails) => void;
   onExportData: (filteredRecords?: RegistrationWithDetails[]) => void;
+  onPrint?: () => void;
   onFilteredDataChange?: (filtered: RegistrationWithDetails[]) => void;
+  onUpdateStatus?: (
+    reg: RegistrationWithDetails,
+    newStatus: "confirmado" | "presente" | "cancelado",
+    cancellationReason?: string
+  ) => Promise<void> | void;
 }
 
 export function EventDataTable({
@@ -82,14 +97,18 @@ export function EventDataTable({
   onAssignRoomClick,
   onDeleteRegistration,
   onExportData,
+  onPrint,
   onFilteredDataChange,
+  onUpdateStatus,
 }: EventDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "created_at", desc: true },
   ]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [roomFilter, setRoomFilter] = useState<string>("all");
+  const [serviceTeamFilter, setServiceTeamFilter] = useState<string>("all");
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -198,6 +217,55 @@ export function EventDataTable({
               }`}
             >
               {gender}
+            </Badge>
+          );
+        },
+      },
+      {
+        id: "status",
+        accessorFn: (row) => row.status || "confirmado",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="p-0 h-auto font-bold text-xs text-zinc-900 dark:text-zinc-50 hover:bg-transparent flex items-center gap-1.5 cursor-pointer"
+          >
+            Status
+            <ArrowUpDown className="h-3 w-3 text-zinc-400" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const reg = row.original;
+          const status = reg.status || "confirmado";
+          if (status === "cancelado") {
+            return (
+              <Badge
+                variant="outline"
+                className={THEME_CLASSES.badgeRegistrationCancelled}
+              >
+                <Ban className="w-3 h-3 mr-1" />
+                Cancelado
+              </Badge>
+            );
+          }
+          if (status === "presente") {
+            return (
+              <Badge
+                variant="outline"
+                className={THEME_CLASSES.badgeRegistrationPresent}
+              >
+                <UserCheck className="w-3 h-3 mr-1" />
+                Presente
+              </Badge>
+            );
+          }
+          return (
+            <Badge
+              variant="outline"
+              className={THEME_CLASSES.badgeRegistrationConfirmed}
+            >
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              Confirmado
             </Badge>
           );
         },
@@ -393,6 +461,45 @@ export function EventDataTable({
         },
       },
       {
+        id: "service_team",
+        accessorFn: (row) => row.service_team || "",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="p-0 h-auto font-bold text-xs text-zinc-900 dark:text-zinc-50 hover:bg-transparent flex items-center gap-1.5 cursor-pointer"
+          >
+            Equipe de Serviço
+            <ArrowUpDown className="h-3 w-3 text-zinc-400" />
+          </Button>
+        ),
+        cell: ({ row }) => {
+          const team = row.original.service_team;
+          const teamDef = getServiceTeam(team);
+
+          if (!teamDef) {
+            return (
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500 italic">
+                Participante
+              </span>
+            );
+          }
+
+          const TeamIcon = teamDef.icon;
+          const badgeStyle = getServiceTeamBadgeStyle(teamDef.id);
+
+          return (
+            <Badge
+              variant="outline"
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 w-fit ${badgeStyle}`}
+            >
+              <TeamIcon className="w-3 h-3 shrink-0" />
+              <span>{teamDef.shortLabel}</span>
+            </Badge>
+          );
+        },
+      },
+      {
         id: "created_at",
         accessorFn: (row) => row.created_at || "",
         header: ({ column }) => (
@@ -451,6 +558,45 @@ export function EventDataTable({
                 </Tooltip>
               </TooltipProvider>
 
+              {/* Quick Check-in Presence Toggle */}
+              {onUpdateStatus && reg.status !== "cancelado" && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          onUpdateStatus(
+                            reg,
+                            reg.status === "presente" ? "confirmado" : "presente"
+                          )
+                        }
+                        className={`min-h-[44px] min-w-[44px] h-11 w-11 sm:min-h-[36px] sm:min-w-[36px] sm:h-9 sm:w-9 rounded-md cursor-pointer ${
+                          reg.status === "presente"
+                            ? "text-blue-600 hover:bg-blue-500/10 dark:text-blue-400"
+                            : "text-zinc-400 hover:text-blue-600 hover:bg-blue-500/10"
+                        }`}
+                        aria-label={
+                          reg.status === "presente"
+                            ? "Desmarcar presença"
+                            : "Confirmar presença (check-in)"
+                        }
+                      >
+                        <UserCheck className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">
+                        {reg.status === "presente"
+                          ? "Desmarcar presença (voltar para confirmado)"
+                          : "Confirmar presença (check-in na recepção)"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
               {/* Toggle Pagamento */}
               <TooltipProvider>
                 <Tooltip>
@@ -507,12 +653,18 @@ export function EventDataTable({
         },
       },
     ],
-    [onViewDetails, onTogglePayment, onAssignRoomClick, onDeleteRegistration]
+    [onViewDetails, onTogglePayment, onAssignRoomClick, onDeleteRegistration, onUpdateStatus]
   );
 
-  // Filter dataset based on global search, payment filter, and room filter
+  // Filter dataset based on global search, status filter, payment filter, and room filter
   const filteredData = useMemo(() => {
     return data.filter((item) => {
+      // 0. Status filter
+      if (statusFilter !== "all") {
+        const itemStatus = item.status || "confirmado";
+        if (itemStatus !== statusFilter) return false;
+      }
+
       // 1. Payment filter
       if (paymentFilter === "paid" && !item.paid) return false;
       if (paymentFilter === "pending" && item.paid) return false;
@@ -525,7 +677,19 @@ export function EventDataTable({
       if (roomFilter === "allocated" && !hasRoom) return false;
       if (roomFilter === "unallocated" && hasRoom) return false;
 
-      // 3. Global search
+      // 3. Service Team filter
+      if (serviceTeamFilter === "assigned" && !item.service_team) return false;
+      if (serviceTeamFilter === "unassigned" && item.service_team) return false;
+      if (
+        serviceTeamFilter !== "all" &&
+        serviceTeamFilter !== "assigned" &&
+        serviceTeamFilter !== "unassigned" &&
+        (item.service_team || "").toLowerCase() !== serviceTeamFilter.toLowerCase()
+      ) {
+        return false;
+      }
+
+      // 4. Global search
       if (globalFilter.trim() !== "") {
         const query = globalFilter.toLowerCase();
         const guest = item.guest_data as GuestDataShape | null;
@@ -534,20 +698,25 @@ export function EventDataTable({
         const cpf = (item.profiles?.cpf || guest?.cpf || "").toLowerCase();
         const phone = (item.profiles?.phone || guest?.phone || "").toLowerCase();
         const room = (item.retreat_rooms?.name || item.room_allocation || "").toLowerCase();
+        const teamDef = getServiceTeam(item.service_team);
+        const teamName = (teamDef?.label || "").toLowerCase();
+        const status = (item.status || "confirmado").toLowerCase();
 
         const matches =
           name.includes(query) ||
           email.includes(query) ||
           cpf.includes(query) ||
           phone.includes(query) ||
-          room.includes(query);
+          room.includes(query) ||
+          teamName.includes(query) ||
+          status.includes(query);
 
         if (!matches) return false;
       }
 
       return true;
     });
-  }, [data, paymentFilter, roomFilter, globalFilter]);
+  }, [data, statusFilter, paymentFilter, roomFilter, serviceTeamFilter, globalFilter]);
 
   useEffect(() => {
     onFilteredDataChange?.(filteredData);
@@ -575,7 +744,7 @@ export function EventDataTable({
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
           <Input
-            placeholder="Buscar por nome, e-mail, CPF, quarto..."
+            placeholder="Buscar por nome, e-mail, CPF, quarto, equipe..."
             value={globalFilter}
             onChange={(e) => {
               setGlobalFilter(e.target.value);
@@ -587,6 +756,27 @@ export function EventDataTable({
 
         {/* Filter Dropdowns & Export */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Registration Status Filter */}
+          <div className="w-[155px]">
+            <Select
+              value={statusFilter}
+              onValueChange={(val) => {
+                setStatusFilter(val);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="min-h-[44px] h-11 text-xs">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Status</SelectItem>
+                <SelectItem value="confirmado">Confirmado</SelectItem>
+                <SelectItem value="presente">Presente (Check-in)</SelectItem>
+                <SelectItem value="cancelado">Cancelado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Payment Status Filter */}
           <div className="w-[150px]">
             <Select
@@ -627,6 +817,31 @@ export function EventDataTable({
             </Select>
           </div>
 
+          {/* Service Team Filter */}
+          <div className="w-[170px]">
+            <Select
+              value={serviceTeamFilter}
+              onValueChange={(val) => {
+                setServiceTeamFilter(val);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            >
+              <SelectTrigger className="min-h-[44px] h-11 text-xs">
+                <SelectValue placeholder="Equipe de Serviço" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as Equipes</SelectItem>
+                <SelectItem value="assigned">Apenas Voluntários</SelectItem>
+                <SelectItem value="unassigned">Sem Equipe (Participantes)</SelectItem>
+                {SERVICE_TEAMS.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.shortLabel}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Export Button */}
           <Button
             variant="outline"
@@ -636,6 +851,18 @@ export function EventDataTable({
             <Download className="h-4 w-4 text-zinc-500" />
             <span>Exportar CSV</span>
           </Button>
+
+          {/* Print Button */}
+          {onPrint && (
+            <Button
+              variant="outline"
+              onClick={onPrint}
+              className="min-h-[44px] h-11 px-4 text-xs font-semibold rounded-lg flex items-center gap-2 cursor-pointer shrink-0 border-zinc-200 dark:border-zinc-800"
+            >
+              <Printer className="h-4 w-4 text-zinc-500" />
+              <span>Imprimir / PDF</span>
+            </Button>
+          )}
         </div>
       </div>
 

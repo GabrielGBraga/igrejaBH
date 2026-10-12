@@ -6,7 +6,7 @@ Este arquivo é a referência central e mandatória para todos os agentes de IA 
 
 ## 📌 Regras Obrigatórias de Inicialização do Agente
 1. **Leitura Proativa de Regras:** O agente deve SEMPRE proativamente ler, verificar e seguir todas as regras definidas neste arquivo (`CLAUDE.md`), em `.claude/agents/` e na pasta `.agents/rules/`.
-2. **Leitura Proativa de Documentação:** O agente deve SEMPRE proativamente ler e utilizar os arquivos dentro da pasta `docs/` (ex: `docs/DIRETRIZES_CONTEUDO_DESIGN.md` e `docs/DATABASE_SEEDING.md`) para compreender funcionalidades, arquitetura e requisitos do sistema.
+2. **Leitura Proativa de Documentação:** O agente deve SEMPRE proativamente ler e utilizar os arquivos dentro da pasta `docs/` (ex: `docs/DIRETRIZES_CONTEUDO_DESIGN.md`, `docs/DATABASE_SEEDING.md` e `docs/EVENT_WAITLIST.md`) para compreender funcionalidades, arquitetura e requisitos do sistema.
 3. **Mobile-First & UI/UX Responsivo:**
    - Estilização mobile-first obrigatória.
    - Layouts fluidos (Flexbox / CSS Grid).

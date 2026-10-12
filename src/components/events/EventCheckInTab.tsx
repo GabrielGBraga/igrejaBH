@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Loader2,
   FileText,
+  HeartHandshake,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -21,6 +22,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChurchAvatar } from "@/components/ui/church-avatar";
 import { formatTimeBR } from "@/lib/utils";
+import { getServiceTeam, getServiceTeamBadgeStyle } from "@/constants/serviceTeams";
 import type { RegistrationWithDetails } from "@/components/events/RegistrationDetailDialog";
 import type { RetreatRoom } from "@/components/events/RoomManagementTab";
 
@@ -112,11 +114,17 @@ export function EventCheckInTab({
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Contadores e Métricas ao Vivo
-  const totalCount = registrations.length;
-  const presentCount = useMemo(
-    () => registrations.filter((r) => Boolean(r.checked_in_at)).length,
+  // Inscrições ativas para credenciamento (exclui cancelados)
+  const activeRegistrations = useMemo(
+    () => registrations.filter((r) => (r.status || "confirmado") !== "cancelado"),
     [registrations]
+  );
+
+  // Contadores e Métricas ao Vivo
+  const totalCount = activeRegistrations.length;
+  const presentCount = useMemo(
+    () => activeRegistrations.filter((r) => Boolean(r.checked_in_at) || r.status === "presente").length,
+    [activeRegistrations]
   );
   const pendingCount = totalCount - presentCount;
   const percentagePresent = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
@@ -126,9 +134,9 @@ export function EventCheckInTab({
     const queryNormalized = normalizeText(debouncedQuery);
     const digitsOnlyQuery = debouncedQuery.replace(/\D/g, "");
 
-    return registrations.filter((reg) => {
+    return activeRegistrations.filter((reg) => {
       // 1. Filtro rápido de status
-      const isPresent = Boolean(reg.checked_in_at);
+      const isPresent = Boolean(reg.checked_in_at) || reg.status === "presente";
       if (quickFilter === "present" && !isPresent) return false;
       if (quickFilter === "pending" && isPresent) return false;
 
@@ -228,6 +236,7 @@ export function EventCheckInTab({
         .update({
           checked_in_at: now,
           checked_in_by: operatorProfileId,
+          status: "presente",
         })
         .eq("id", reg.id);
 
@@ -238,6 +247,7 @@ export function EventCheckInTab({
         ...reg,
         checked_in_at: now,
         checked_in_by: operatorProfileId,
+        status: "presente",
       };
       onUpdateRegistration(updatedReg);
 
@@ -274,6 +284,7 @@ export function EventCheckInTab({
         .update({
           checked_in_at: null,
           checked_in_by: null,
+          status: "confirmado",
         })
         .eq("id", reg.id);
 
@@ -283,6 +294,7 @@ export function EventCheckInTab({
         ...reg,
         checked_in_at: null,
         checked_in_by: null,
+        status: "confirmado",
       };
       onUpdateRegistration(updatedReg);
 
@@ -589,27 +601,41 @@ export function EventCheckInTab({
                       </div>
                     </div>
 
-                    {/* Badge de Status de Presença */}
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1 ${
-                        isPresent
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                          : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700"
-                      }`}
-                    >
-                      {isPresent ? (
-                        <>
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                          <span>Presente</span>
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="w-3 h-3 text-zinc-400" />
-                          <span>Pendente</span>
-                        </>
+                    {/* Badges de Status e Equipe */}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1 ${
+                          isPresent
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                            : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700"
+                        }`}
+                      >
+                        {isPresent ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span>Presente</span>
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3 text-zinc-400" />
+                            <span>Pendente</span>
+                          </>
+                        )}
+                      </Badge>
+
+                      {reg.service_team && (
+                        <Badge
+                          variant="outline"
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 ${getServiceTeamBadgeStyle(reg.service_team)}`}
+                        >
+                          <HeartHandshake className="w-2.5 h-2.5 shrink-0" />
+                          <span className="truncate max-w-[110px]">
+                            {getServiceTeam(reg.service_team)?.shortLabel || reg.service_team}
+                          </span>
+                        </Badge>
                       )}
-                    </Badge>
+                    </div>
                   </div>
 
                   {/* Detalhes Críticos para a Portaria: Quarto e Telefone */}

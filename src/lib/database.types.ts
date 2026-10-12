@@ -26,6 +26,7 @@ export type Database = {
           is_used: boolean
           notes: string | null
           retreat_id: string | null
+          target_service_team: string | null
           used_at: string | null
           used_by_email: string | null
           used_by_name: string | null
@@ -41,6 +42,7 @@ export type Database = {
           is_used?: boolean
           notes?: string | null
           retreat_id?: string | null
+          target_service_team?: string | null
           used_at?: string | null
           used_by_email?: string | null
           used_by_name?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           is_used?: boolean
           notes?: string | null
           retreat_id?: string | null
+          target_service_team?: string | null
           used_at?: string | null
           used_by_email?: string | null
           used_by_name?: string | null
@@ -70,6 +73,56 @@ export type Database = {
           },
           {
             foreignKeyName: "event_coupons_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_waitlist: {
+        Row: {
+          city_state: string | null
+          cpf: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          retreat_id: string
+          status: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode: string | null
+        }
+        Insert: {
+          city_state?: string | null
+          cpf?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          retreat_id: string
+          status?: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode?: string | null
+        }
+        Update: {
+          city_state?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          retreat_id?: string
+          status?: "aguardando" | "chamado" | "inscrito" | "desistiu"
+          travel_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_waitlist_retreat_id_fkey"
             columns: ["retreat_id"]
             isOneToOne: false
             referencedRelation: "retreats"
@@ -471,6 +524,8 @@ export type Database = {
       }
       registrations: {
         Row: {
+          cancellation_reason: string | null
+          cancelled_at: string | null
           checked_in_at: string | null
           checked_in_by: string | null
           created_at: string | null
@@ -486,8 +541,12 @@ export type Database = {
           retreat_id: string | null
           room_allocation: string | null
           room_id: string | null
+          service_team: string | null
+          status: "confirmado" | "presente" | "cancelado"
         }
         Insert: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           checked_in_at?: string | null
           checked_in_by?: string | null
           created_at?: string | null
@@ -503,8 +562,12 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          service_team?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Update: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           checked_in_at?: string | null
           checked_in_by?: string | null
           created_at?: string | null
@@ -520,6 +583,8 @@ export type Database = {
           retreat_id?: string | null
           room_allocation?: string | null
           room_id?: string | null
+          service_team?: string | null
+          status?: "confirmado" | "presente" | "cancelado"
         }
         Relationships: [
           {

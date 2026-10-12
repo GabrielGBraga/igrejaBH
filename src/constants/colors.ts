@@ -229,10 +229,153 @@ export const THEME_CLASSES = {
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20 dark:text-amber-400",
   badgeDestructive:
     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-600 border border-red-500/20 dark:text-red-400",
+  badgeRegistrationConfirmed:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 dark:text-emerald-400",
+  badgeRegistrationPresent:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-500/15 text-blue-700 border border-blue-500/30 dark:text-blue-400",
+  badgeRegistrationCancelled:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide bg-red-500/15 text-red-700 border border-red-500/30 dark:text-red-400",
+  badgeInfo:
+    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20 dark:text-blue-400",
+  badgePriority:
+    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-700 border border-purple-500/25 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30",
+} as const;
+
+export const WAITLIST_STATUS_CONFIG = {
+  aguardando: {
+    label: "Aguardando",
+    className: THEME_CLASSES.badgeWarning,
+    color: STATUS_COLORS.warning,
+  },
+  chamado: {
+    label: "Chamado",
+    className: THEME_CLASSES.badgeInfo,
+    color: STATUS_COLORS.info,
+  },
+  inscrito: {
+    label: "Inscrito",
+    className: THEME_CLASSES.badgeSuccess,
+    color: STATUS_COLORS.success,
+  },
+  desistiu: {
+    label: "Desistiu",
+    className: THEME_CLASSES.badgeNeutral,
+    color: {
+      light: PALETTE.zinc[500],
+      dark: PALETTE.zinc[400],
+    },
+  },
 } as const;
 
 // ==========================================
-// 7. FUNÇÕES AUXILIARES DE CORES
+// 7. PALETA DE CORES PARA EQUIPES DE SERVIÇO (Voluntariado / Diaconato)
+// ==========================================
+export type ServiceTeamId =
+  | "cozinha"
+  | "limpeza"
+  | "recepcao"
+  | "multimidia"
+  | "criancas"
+  | "intercessao"
+  | "apoio"
+  | "geral";
+
+export const SERVICE_TEAM_COLORS: Record<
+  ServiceTeamId,
+  {
+    light: string;
+    dark: string;
+    bgLight: string;
+    bgDark: string;
+    borderLight: string;
+    borderDark: string;
+    badgeClass: string;
+  }
+> = {
+  cozinha: {
+    light: "#b45309",
+    dark: "#fbbf24",
+    bgLight: "rgba(180, 83, 9, 0.1)",
+    bgDark: "rgba(251, 191, 36, 0.15)",
+    borderLight: "rgba(180, 83, 9, 0.25)",
+    borderDark: "rgba(251, 191, 36, 0.3)",
+    badgeClass:
+      "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  },
+  limpeza: {
+    light: "#0f766e",
+    dark: "#2dd4bf",
+    bgLight: "rgba(15, 118, 110, 0.1)",
+    bgDark: "rgba(45, 212, 191, 0.15)",
+    borderLight: "rgba(15, 118, 110, 0.25)",
+    borderDark: "rgba(45, 212, 191, 0.3)",
+    badgeClass:
+      "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/30",
+  },
+  recepcao: {
+    light: "#be123c",
+    dark: "#fb7185",
+    bgLight: "rgba(190, 18, 60, 0.1)",
+    bgDark: "rgba(251, 113, 133, 0.15)",
+    borderLight: "rgba(190, 18, 60, 0.25)",
+    borderDark: "rgba(251, 113, 133, 0.3)",
+    badgeClass:
+      "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30",
+  },
+  multimidia: {
+    light: "#6d28d9",
+    dark: "#c084fc",
+    bgLight: "rgba(109, 40, 217, 0.1)",
+    bgDark: "rgba(192, 132, 252, 0.15)",
+    borderLight: "rgba(109, 40, 217, 0.25)",
+    borderDark: "rgba(192, 132, 252, 0.3)",
+    badgeClass:
+      "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30",
+  },
+  criancas: {
+    light: "#0369a1",
+    dark: "#38bdf8",
+    bgLight: "rgba(3, 105, 161, 0.1)",
+    bgDark: "rgba(56, 189, 248, 0.15)",
+    borderLight: "rgba(3, 105, 161, 0.25)",
+    borderDark: "rgba(56, 189, 248, 0.3)",
+    badgeClass:
+      "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/30",
+  },
+  intercessao: {
+    light: "#b91c1c",
+    dark: "#f87171",
+    bgLight: "rgba(185, 28, 28, 0.1)",
+    bgDark: "rgba(248, 113, 113, 0.15)",
+    borderLight: "rgba(185, 28, 28, 0.25)",
+    borderDark: "rgba(248, 113, 113, 0.3)",
+    badgeClass:
+      "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30",
+  },
+  apoio: {
+    light: "#4338ca",
+    dark: "#818cf8",
+    bgLight: "rgba(67, 56, 202, 0.1)",
+    bgDark: "rgba(129, 140, 248, 0.15)",
+    borderLight: "rgba(67, 56, 202, 0.25)",
+    borderDark: "rgba(129, 140, 248, 0.3)",
+    badgeClass:
+      "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/30",
+  },
+  geral: {
+    light: "#15803d",
+    dark: "#4ade80",
+    bgLight: "rgba(21, 128, 61, 0.1)",
+    bgDark: "rgba(74, 222, 128, 0.15)",
+    borderLight: "rgba(21, 128, 61, 0.25)",
+    borderDark: "rgba(74, 222, 128, 0.3)",
+    badgeClass:
+      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  },
+};
+
+// ==========================================
+// 8. FUNÇÕES AUXILIARES DE CORES
 // ==========================================
 /**
  * Retorna os tokens semânticos baseados no modo dark atual.
@@ -247,5 +390,14 @@ export function getThemeTokens(isDark: boolean) {
 export function getGraphNodeColors(role: GraphNodeRole, isDark: boolean) {
   const roleConfig = GRAPH_NODE_COLORS[role] ?? GRAPH_NODE_COLORS.inativo;
   return isDark ? roleConfig.dark : roleConfig.light;
+}
+
+/**
+ * Retorna a configuração de cor e badge para uma equipe de serviço.
+ */
+export function getServiceTeamColorConfig(teamId?: string | null) {
+  if (!teamId) return null;
+  const normalized = teamId.toLowerCase().trim() as ServiceTeamId;
+  return SERVICE_TEAM_COLORS[normalized] ?? null;
 }
 

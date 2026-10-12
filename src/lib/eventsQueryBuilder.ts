@@ -57,7 +57,7 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
     .from("registrations")
     .select(`
       *,
-      profiles!profile_id (
+      profiles:profiles!registrations_profile_id_fkey (
         full_name,
         email,
         phone,
@@ -112,6 +112,16 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
       } else if (rule.operator === "ilike") {
         query = query.ilike("payment_method", `%${strVal}%`);
       }
+    } else if (rule.field === "service_team") {
+      if (rule.operator === "is") {
+        query = query.is("service_team", null);
+      } else if (rule.operator === "not_is") {
+        query = query.not("service_team", "is", null);
+      } else if (rule.operator === "eq") {
+        query = query.eq("service_team", String(rule.value));
+      } else if (rule.operator === "neq") {
+        query = query.neq("service_team", String(rule.value));
+      }
     } else if (rule.field === "room_id") {
       if (rule.operator === "is") {
         query = query.is("room_id", null);
@@ -128,6 +138,16 @@ export function buildSupabaseRegistrationsQuery(retreatId: string, rules: Filter
         query = query.gte("created_at", dateVal);
       } else if (rule.operator === "lte") {
         query = query.lte("created_at", dateVal);
+      }
+    } else if (rule.field === "status") {
+      const strVal = String(rule.value).toLowerCase() as
+        | "confirmado"
+        | "presente"
+        | "cancelado";
+      if (rule.operator === "eq") {
+        query = query.eq("status", strVal);
+      } else if (rule.operator === "neq") {
+        query = query.neq("status", strVal);
       }
     } else if (rule.field === "notes") {
       const strVal = String(rule.value);
@@ -176,7 +196,19 @@ function testRule(reg: RegistrationWithDetails, rule: FilterRule): boolean {
     return true;
   }
 
-  // 3. Room Allocation
+  // 3. Service Team
+  if (rule.field === "service_team") {
+    const hasTeam = Boolean(reg.service_team);
+    if (rule.operator === "is") return !hasTeam; // Without service team
+    if (rule.operator === "not_is") return hasTeam; // Has service team
+    const actualTeam = (reg.service_team || "").toLowerCase();
+    const targetTeam = String(rule.value || "").toLowerCase();
+    if (rule.operator === "eq") return actualTeam === targetTeam;
+    if (rule.operator === "neq") return actualTeam !== targetTeam;
+    return true;
+  }
+
+  // 4. Room Allocation
   if (rule.field === "room_id") {
     const hasRoom = Boolean(
       reg.room_id || (reg.room_allocation && reg.room_allocation !== "Não alocado")
@@ -214,6 +246,15 @@ function testRule(reg: RegistrationWithDetails, rule: FilterRule): boolean {
     if (isNaN(targetDate)) return true;
     if (rule.operator === "gte") return regDate >= targetDate;
     if (rule.operator === "lte") return regDate <= targetDate;
+    return true;
+  }
+
+  // 7. Registration Status
+  if (rule.field === "status") {
+    const actual = (reg.status || "confirmado").toLowerCase();
+    const target = String(rule.value).toLowerCase();
+    if (rule.operator === "eq") return actual === target;
+    if (rule.operator === "neq") return actual !== target;
     return true;
   }
 

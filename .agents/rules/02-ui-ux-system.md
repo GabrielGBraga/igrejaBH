@@ -37,7 +37,20 @@ O sistema DEVE suportar `next-themes`. Todas as classes Tailwind geradas devem p
   - O header principal deve SEMPRE conter o `ThemeToggle` e o `UserAvatar`.
 - **Fluxo de Gestão de Eventos (Arquitetura de Duas Páginas):** A gestão de eventos e retiros segue arquitetura dedicada de duas páginas:
   - `/manage-events`: Dashboard em grid responsivo (`EventCard`) com filtros em pílula por status (`ativo`, `rascunho`, `encerrado`), busca em tempo real e criação via modal (`CreateEditEventDialog`). Redirecionamentos legados a partir de `/gestao/eventos`.
-  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), sistema de check-in e credenciamento ágil para portaria (`EventCheckInTab` com placar ao vivo, busca instantânea por nome/CPF, cards mobile-first e alvos de toque 44px+), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`) e métricas analíticas. NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
+  - `/manage-events/:eventId`: Painel de gestão completa com banner superior, 4 cartões de KPIs analíticos (`EventKpiCards`), sistema de check-in e credenciamento ágil para portaria (`EventCheckInTab` com placar ao vivo, busca instantânea por nome/CPF, cards mobile-first e alvos de toque 44px+), tabela de dados com busca global e filtros (`EventDataTable`), divisão de quartos/alojamentos (`RoomManagementTab`), controle financeiro de despesas (`EventFinanceTab`), lista de espera (`EventWaitlistTab`), equipes de serviço (`EventTeamsTab`), métricas analíticas e diálogo de impressão/exportação em PDF (`EventPrintListsDialog`). NUNCA utilize side-panels estreitos ou listas espremidas para esta finalidade.
+- **Relatórios Impressos e Exportação em PDF (Operação Offline / @media print):**
+  - Para eventos, retiros ou operações em sítios e zonas rurais sem conectividade garantida, o sistema provê relatórios físicos formatados em A4 gerados via `window.print()` / PDF.
+  - **Isolamento de Contêiner de Impressão:** Devido a limitações dos motores de renderização dos navegadores (onde elementos dentro de containers com `position: fixed` ou overflow em modais Radix/Dialog não quebram páginas corretamente), o conteúdo para impressão DEVE ser renderizado via Portal (`createPortal`) diretamente no `document.body` em um contêiner `#event-print-container`.
+  - **Regras CSS `@media print` (`src/index.css`):**
+    - `@page { size: A4 portrait; margin: 12mm; }`
+    - Ocultação de toda a casca da aplicação (`#root`, botões, modais Radix, toasts): `#root, [data-radix-portal] { display: none !important; }`
+    - Quebras de página controladas por folha (`.print-page-break { break-after: page; page-break-after: always; }` e `break-inside: avoid;`).
+    - Repetição automática do cabeçalho da tabela em todas as páginas: `thead { display: table-header-group; }`.
+    - Estilização em alto contraste, preto e branco/escala de cinza para economia de tinta e nitidez em impressoras monocromáticas.
+- **Fluxo de Lista de Espera (Event Waitlist):**
+  - **Experiência do Participante:** Quando um evento atinge lotação máxima (`closedReason === 'full'`), o formulário de inscrição (`FormResponder`) e a página do evento (`Events`) exibem um mini-formulário acolhedor (`EventWaitlistForm` / `EventWaitlistDialog`) solicitando dados de contato e modalidade de viagem. Se o participante assinalar "Já comprei passagem", recebe confirmação imediata de prioridade.
+  - **Bypass de Capacidade:** Participantes chamados pela liderança recebem links com parâmetro `?waitlist_id=...` (ou cupons/convites), que contornam o bloqueio de lotação e marcam o status do participante na fila automaticamente como `inscrito` após o envio da inscrição.
+  - **Gestão da Liderança (`EventWaitlistTab`):** Exibe a fila em ordem cronológica estrita de chegada (`created_at ASC`), numeração de fila `#1, #2...`, badges de status e destaque prioritário (púrpura de alto contraste AAA) para quem tem passagem comprada. Inclui ação "Chamar Participante" com geração de links, código de liberação e integração direta com WhatsApp.
 
 ## 4. Ferramentas MCP de UI/UX (Stitch & Acessibilidade)
 
