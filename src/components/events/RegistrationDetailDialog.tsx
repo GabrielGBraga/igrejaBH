@@ -34,8 +34,16 @@ import {
   Gift,
   Wallet,
   Edit2,
-  Check
+  Check,
+  Users
 } from "lucide-react";
+import {
+  SERVICE_TEAMS,
+  getServiceTeam,
+  getServiceTeamBadgeStyle,
+} from "@/constants/serviceTeams";
+import supabase from "@/lib/supabase";
+import { toast } from "sonner";
 import type { Database } from "@/lib/database.types";
 
 export type RegistrationWithDetails = Database["public"]["Tables"]["registrations"]["Row"] & {
@@ -62,6 +70,10 @@ interface RegistrationDetailDialogProps {
     regId: string,
     updates: { paid: boolean; payment_method: string; payment_reference?: string | null }
   ) => Promise<void>;
+  onUpdateServiceTeam?: (
+    regId: string,
+    serviceTeam: string | null
+  ) => Promise<void>;
 }
 
 export function RegistrationDetailDialog({
@@ -70,30 +82,42 @@ export function RegistrationDetailDialog({
   onClose,
   onTogglePayment,
   onUpdatePayment,
+  onUpdateServiceTeam,
 }: RegistrationDetailDialogProps) {
   const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [editMethod, setEditMethod] = useState("cupom");
   const [editReference, setEditReference] = useState("");
   const [isSavingPayment, setIsSavingPayment] = useState(false);
 
+  // Service Team state
+  const [isEditingTeam, setIsEditingTeam] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<string>("none");
+  const [isSavingTeam, setIsSavingTeam] = useState(false);
+  const [currentTeamState, setCurrentTeamState] = useState<string | null>(null);
+
   useEffect(() => {
     if (registration) {
       setEditMethod(registration.payment_method || "pix");
       setEditReference(registration.payment_reference || "");
       setIsEditingPayment(false);
+
+      const team = registration.service_team || null;
+      setCurrentTeamState(team);
+      setSelectedTeam(team || "none");
+      setIsEditingTeam(false);
     }
   }, [registration]);
 
   if (!registration) return null;
 
   const profile = registration.profiles;
-  const guestData = registration.guest_data as Record<string, any> | null;
-  const customResponses = registration.custom_responses as Record<string, any> | null;
+  const guestData = registration.guest_data as Record<string, unknown> | null;
+  const customResponses = registration.custom_responses as Record<string, unknown> | null;
 
-  const fullName = profile?.full_name || guestData?.full_name || "Participante sem nome";
-  const email = profile?.email || guestData?.email || "Não informado";
-  const phone = profile?.phone || guestData?.phone || "Não informado";
-  const cpf = profile?.cpf || guestData?.cpf || "Não informado";
+  const fullName = profile?.full_name || (typeof guestData?.full_name === "string" ? guestData.full_name : null) || "Participante sem nome";
+  const email = profile?.email || (typeof guestData?.email === "string" ? guestData.email : null) || "Não informado";
+  const phone = profile?.phone || (typeof guestData?.phone === "string" ? guestData.phone : null) || "Não informado";
+  const cpf = profile?.cpf || (typeof guestData?.cpf === "string" ? guestData.cpf : null) || "Não informado";
   const roomName = registration.retreat_rooms?.name || registration.room_allocation || "Não alocado";
 
   const rawMethod = (registration.payment_method || "").toLowerCase();
@@ -112,6 +136,32 @@ export function RegistrationDetailDialog({
       setIsEditingPayment(false);
     } finally {
       setIsSavingPayment(false);
+    }
+  };
+
+  const handleSaveServiceTeam = async () => {
+    if (!registration) return;
+    setIsSavingTeam(true);
+    try {
+      const newTeamValue = selectedTeam === "none" ? null : selectedTeam;
+      if (onUpdateServiceTeam) {
+        await onUpdateServiceTeam(registration.id, newTeamValue);
+      } else {
+        const { error } = await supabase
+          .from("registrations")
+          .update({ service_team: newTeamValue })
+          .eq("id", registration.id);
+        if (error) throw error;
+      }
+      setCurrentTeamState(newTeamValue);
+      setIsEditingTeam(false);
+      toast.success("Equipe de serviço atualizada com sucesso!");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro desconhecido";
+      console.error("Erro ao salvar equipe:", err);
+      toast.error("Erro ao salvar equipe: " + msg);
+    } finally {
+      setIsSavingTeam(false);
     }
   };
 
@@ -349,6 +399,104 @@ export function RegistrationDetailDialog({
                     {isCoupon && <Ticket className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />}
                     {registration.payment_reference}
                   </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator className="bg-border/50" />
+
+          {/* Seção Equipe de Serviço & Diaconato */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-primary" /> Equipe de Serviço (Voluntariado)
+            </h4>
+            <div className="bg-muted/20 border border-border/40 p-4 rounded-xl text-xs space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <span className="text-muted-foreground block font-semibold">Equipe Designada</span>
+                  <div className="mt-1 flex items-center gap-2">
+                    {(() => {
+                      const teamDef = getServiceTeam(currentTeamState);
+                      if (!teamDef) {
+                        return (
+                          <span className="text-muted-foreground italic flex items-center gap-1.5">
+                            Participante Comum (Sem equipe atribuída)
+                          </span>
+                        );
+                      }
+                      const TeamIcon = teamDef.icon;
+                      const badgeStyle = getServiceTeamBadgeStyle(teamDef.id);
+                      return (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 ${badgeStyle}`}
+                        >
+                          <TeamIcon className="w-3.5 h-3.5" />
+                          {teamDef.label}
+                        </Badge>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {!isEditingTeam && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingTeam(true)}
+                    className="min-h-[44px] sm:min-h-[32px] h-11 sm:h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1 cursor-pointer"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" /> Alterar Equipe
+                  </Button>
+                )}
+              </div>
+
+              {/* Modo de Edição de Equipe de Serviço */}
+              {isEditingTeam && (
+                <div className="space-y-3 bg-muted/40 p-3 rounded-xl border border-border mt-2">
+                  <div className="text-xs font-bold text-foreground">
+                    Alterar Atribuição de Voluntariado
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div className="flex-1">
+                      <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                        <SelectTrigger className="min-h-[44px] sm:min-h-[40px] h-11 sm:h-10 text-xs bg-background">
+                          <SelectValue placeholder="Selecione a equipe..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Nenhuma (Participante Comum)</SelectItem>
+                          {SERVICE_TEAMS.map((t) => (
+                            <SelectItem key={t.id} value={t.id}>
+                              {t.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        onClick={() => setIsEditingTeam(false)}
+                        className="min-h-[44px] sm:min-h-[36px] h-11 sm:h-9 text-xs cursor-pointer"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="button"
+                        disabled={isSavingTeam}
+                        onClick={handleSaveServiceTeam}
+                        className="min-h-[44px] sm:min-h-[36px] h-11 sm:h-9 text-xs font-bold cursor-pointer gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        {isSavingTeam ? "Salvando..." : "Salvar"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

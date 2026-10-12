@@ -35,8 +35,8 @@ Este documento serve como um guia estrutural para o desenvolvimento do portal. A
 
 ## 6. Eventos e Retiros
 **Objetivo:** Gerenciar logística.
-*   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto e pagamento.
-*   **`/gestao/eventos` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx`) com controle de lotação de alojamentos, alocação de quartos e conciliação financeira do retiro.
+*   **`/eventos` (Visão do Usuário):** Visualização e stepper para inscrição em eventos. Lida com `registrations`, seleções de quarto, pagamento e resgate de cupons de isenção/desconto.
+*   **`/gestao/eventos` e `/gestao/eventos/:eventId` (Visão Administrativa):** Dashboard administrativo (`ManageEvents.tsx` e `ManageEventDetail.tsx`) com controle de lotação de alojamentos, alocação de quartos, conciliação financeira do retiro, emissão de cupons de isenção e organização de equipes de serviço/voluntariado (`EventTeamsTab.tsx`). Para documentação detalhada da arquitetura de voluntariado, consulte [`docs/EVENT_SERVICE_TEAMS.md`](file:///docs/EVENT_SERVICE_TEAMS.md).
 
 ## 7. Módulo Educacional
 **Objetivo:** Nivelamento e ensino.

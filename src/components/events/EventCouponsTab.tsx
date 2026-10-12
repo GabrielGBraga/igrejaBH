@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Ticket,
   Plus,
@@ -14,11 +14,19 @@ import {
   Info,
   Sparkles,
   Percent,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +40,11 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
 import { isValidCPF } from "@/lib/forms";
+import {
+  SERVICE_TEAMS,
+  getServiceTeam,
+  getServiceTeamBadgeStyle,
+} from "@/constants/serviceTeams";
 import type { Database } from "@/lib/database.types";
 
 type Retreat = Database["public"]["Tables"]["retreats"]["Row"];
@@ -58,6 +71,7 @@ export function EventCouponsTab({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newCode, setNewCode] = useState("");
   const [newDiscountPercent, setNewDiscountPercent] = useState<number>(100);
+  const [newTargetServiceTeam, setNewTargetServiceTeam] = useState<string>("none");
   const [newCpf, setNewCpf] = useState("");
   const [newNotes, setNewNotes] = useState("");
   const [creating, setCreating] = useState(false);
@@ -92,13 +106,14 @@ export function EventCouponsTab({
   const openCreateDialog = () => {
     setNewDiscountPercent(100);
     setNewCode(generateRandomCode(100));
+    setNewTargetServiceTeam("none");
     setNewCpf("");
     setNewNotes("");
     setIsCreateOpen(true);
   };
 
   // Fetch Coupons
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -109,17 +124,18 @@ export function EventCouponsTab({
 
       if (error) throw error;
       setCoupons(data || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro desconhecido";
       console.error("Error fetching coupons:", err);
-      toast.error("Erro ao carregar códigos de isenção: " + err.message);
+      toast.error("Erro ao carregar códigos de isenção: " + msg);
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId]);
 
   useEffect(() => {
     fetchCoupons();
-  }, [eventId]);
+  }, [fetchCoupons]);
 
   // Create Coupon
   const handleCreateCoupon = async () => {
@@ -149,6 +165,11 @@ export function EventCouponsTab({
         data: { user },
       } = await supabase.auth.getUser();
 
+      const targetTeam =
+        newTargetServiceTeam && newTargetServiceTeam !== "none"
+          ? newTargetServiceTeam.toLowerCase().trim()
+          : null;
+
       const { data, error } = await supabase
         .from("event_coupons")
         .insert({
@@ -158,6 +179,7 @@ export function EventCouponsTab({
           cpf: cleanCpf,
           notes: newNotes.trim() || null,
           discount_percent: newDiscountPercent,
+          target_service_team: targetTeam,
           is_used: false,
           created_by: user?.id || null,
         })
@@ -173,12 +195,14 @@ export function EventCouponsTab({
       }
 
       const discountLabel = data.discount_percent === 100 ? "100% isenção" : `${data.discount_percent}% de desconto`;
-      toast.success(`Código ${data.code} (${discountLabel}) vinculado ao CPF com sucesso!`);
+      const teamMsg = targetTeam ? ` vinculado à equipe ${targetTeam}` : "";
+      toast.success(`Código ${data.code} (${discountLabel}${teamMsg}) vinculado ao CPF com sucesso!`);
       setIsCreateOpen(false);
       fetchCoupons();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro desconhecido";
       console.error("Error creating coupon:", err);
-      toast.error("Erro ao gerar código: " + err.message);
+      toast.error("Erro ao gerar código: " + msg);
     } finally {
       setCreating(false);
     }
@@ -197,9 +221,10 @@ export function EventCouponsTab({
       if (error) throw error;
       toast.success("Código excluído com sucesso.");
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro desconhecido";
       console.error("Error deleting coupon:", err);
-      toast.error("Erro ao excluir código: " + err.message);
+      toast.error("Erro ao excluir código: " + msg);
     }
   };
 
@@ -230,9 +255,11 @@ export function EventCouponsTab({
   };
 
   // Share via WhatsApp
-  const handleShareWhatsApp = (code: string, note?: string | null) => {
+  const handleShareWhatsApp = (code: string, note?: string | null, targetTeam?: string | null) => {
     const link = getDirectLink(code);
-    const text = `Graça e paz!${note ? ` Irmão(ã) ${note},` : ""} Segue o link com código de isenção para a sua inscrição no encontro *${retreat.title}*:\n\n${link || `Utilize o código: *${code}*`}\n\nDeus te abençoe!`;
+    const teamDef = getServiceTeam(targetTeam);
+    const teamMsg = teamDef ? ` para a equipe de *${teamDef.label}*` : "";
+    const text = `Graça e paz!${note ? ` Irmão(ã) ${note},` : ""} Segue o link com código de isenção${teamMsg} para a sua inscrição no encontro *${retreat.title}*:\n\n${link || `Utilize o código: *${code}*`}\n\nDeus te abençoe!`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   };
@@ -377,6 +404,7 @@ export function EventCouponsTab({
                   <tr className="border-b border-border/80 bg-muted/50 font-bold uppercase tracking-wider text-muted-foreground">
                     <th className="p-3.5">Código</th>
                     <th className="p-3.5">Desconto</th>
+                    <th className="p-3.5">Equipe de Serviço</th>
                     <th className="p-3.5">CPF Vinculado</th>
                     <th className="p-3.5">Beneficiário / Nota</th>
                     <th className="p-3.5">Status</th>
@@ -427,6 +455,34 @@ export function EventCouponsTab({
                           >
                             {coupon.discount_percent}% OFF
                           </Badge>
+                        )}
+                      </td>
+
+                      <td className="p-3.5">
+                        {coupon.target_service_team ? (
+                          (() => {
+                            const teamDef = getServiceTeam(coupon.target_service_team);
+                            if (!teamDef) {
+                              return (
+                                <span className="text-xs text-muted-foreground">
+                                  {coupon.target_service_team}
+                                </span>
+                              );
+                            }
+                            const TeamIcon = teamDef.icon;
+                            const badgeStyle = getServiceTeamBadgeStyle(teamDef.id);
+                            return (
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 w-fit ${badgeStyle}`}
+                              >
+                                <TeamIcon className="w-3 h-3" />
+                                {teamDef.shortLabel}
+                              </Badge>
+                            );
+                          })()
+                        ) : (
+                          <span className="text-xs text-muted-foreground/60 italic">—</span>
                         )}
                       </td>
 
@@ -515,7 +571,7 @@ export function EventCouponsTab({
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => handleShareWhatsApp(coupon.code, coupon.notes)}
+                                onClick={() => handleShareWhatsApp(coupon.code, coupon.notes, coupon.target_service_team)}
                                 className="min-h-[44px] min-w-[44px] px-2 text-xs cursor-pointer text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
                                 title="Compartilhar via WhatsApp"
                               >
@@ -572,6 +628,21 @@ export function EventCouponsTab({
                           {coupon.discount_percent}% OFF
                         </Badge>
                       )}
+                      {coupon.target_service_team && (() => {
+                        const teamDef = getServiceTeam(coupon.target_service_team);
+                        if (!teamDef) return null;
+                        const TeamIcon = teamDef.icon;
+                        const badgeStyle = getServiceTeamBadgeStyle(teamDef.id);
+                        return (
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 w-fit ${badgeStyle}`}
+                          >
+                            <TeamIcon className="w-3 h-3" />
+                            {teamDef.shortLabel}
+                          </Badge>
+                        );
+                      })()}
                       <button
                         type="button"
                         onClick={() => handleCopyCode(coupon.code)}
@@ -653,7 +724,7 @@ export function EventCouponsTab({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleShareWhatsApp(coupon.code, coupon.notes)}
+                          onClick={() => handleShareWhatsApp(coupon.code, coupon.notes, coupon.target_service_team)}
                           className="min-h-[44px] min-w-[44px] p-2 text-xs cursor-pointer text-emerald-600"
                           title="WhatsApp"
                         >
@@ -924,6 +995,40 @@ export function EventCouponsTab({
               />
               <p className="text-[11px] text-muted-foreground">
                 Essa nota é visível apenas para os administradores no painel.
+              </p>
+            </Field>
+
+            {/* SECTION 6: SERVICE TEAM SELECTION (VOLUNTEERS) */}
+            <Field className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="coupon-team" className="text-sm font-semibold flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-primary" />
+                  Equipe de Serviço Designada (Voluntariado - Opcional)
+                </FieldLabel>
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                  Diaconato
+                </span>
+              </div>
+              <Select
+                value={newTargetServiceTeam}
+                onValueChange={setNewTargetServiceTeam}
+              >
+                <SelectTrigger id="coupon-team" className="min-h-[44px] h-11 text-xs">
+                  <SelectValue placeholder="Selecione se for cupom para servidor..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
+                    Nenhuma (Isenção Geral / Participante Comum)
+                  </SelectItem>
+                  {SERVICE_TEAMS.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                Se selecionado, o participante será automaticamente carimbado nesta equipe de serviço ao concluir a inscrição com o cupom.
               </p>
             </Field>
           </div>

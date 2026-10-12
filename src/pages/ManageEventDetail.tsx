@@ -17,6 +17,7 @@ import {
   PieChart,
   Ticket,
   Clock,
+  HeartHandshake,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -50,6 +51,8 @@ import { EventCouponsTab } from "@/components/events/EventCouponsTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
+import { EventTeamsTab } from "@/components/events/EventTeamsTab";
+import { getServiceTeam } from "@/constants/serviceTeams";
 import type { Database } from "@/lib/database.types";
 import type { FilterRule, FilterLogic, KPIConfig } from "@/types/eventsFilter";
 import {
@@ -99,7 +102,7 @@ export default function ManageEventDetail() {
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    "registrations" | "rooms" | "finance" | "coupons" | "dashboard"
+    "registrations" | "rooms" | "teams" | "finance" | "coupons" | "dashboard"
   >("registrations");
 
   // Dialog & Modal states
@@ -478,6 +481,46 @@ export default function ManageEventDetail() {
     }
   };
 
+  // Update Service Team for a Registration
+  const handleUpdateServiceTeam = async (
+    regId: string,
+    team: string | null
+  ) => {
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .update({ service_team: team })
+        .eq("id", regId);
+
+      if (error) throw error;
+
+      setRegistrations((prev) =>
+        prev.map((item) =>
+          item.id === regId ? { ...item, service_team: team } : item
+        )
+      );
+
+      if (selectedRegistrationForDetail?.id === regId) {
+        setSelectedRegistrationForDetail((prev) =>
+          prev ? { ...prev, service_team: team } : null
+        );
+      }
+
+      toast.success(
+        team
+          ? "Equipe de serviço atribuída com sucesso!"
+          : "Voluntário removido da equipe de serviço."
+      );
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Erro ao atualizar equipe de serviço";
+      toast.error(msg);
+      throw err;
+    }
+  };
+
   // Delete Registration
   const handleDeleteRegistration = async (reg: RegistrationWithDetails) => {
     if (
@@ -704,6 +747,7 @@ export default function ManageEventDetail() {
       "Método de Pagamento",
       "Referência de Pagamento",
       "Alojamento",
+      "Equipe de Serviço",
       "Observações",
       "Data de Inscrição",
     ];
@@ -730,6 +774,9 @@ export default function ManageEventDetail() {
       const dateStr = reg.created_at
         ? new Date(reg.created_at).toLocaleString("pt-BR")
         : "";
+
+      const teamDef = getServiceTeam(reg.service_team);
+      const equipeServico = teamDef ? teamDef.label : (reg.service_team || "Sem Equipe");
 
       const cr = (reg.custom_responses as Record<string, unknown> | null) || {};
 
@@ -761,6 +808,7 @@ export default function ManageEventDetail() {
         reg.payment_method || "",
         reg.payment_reference || "",
         reg.retreat_rooms?.name || reg.room_allocation || "Não alocado",
+        equipeServico,
         reg.notes || "",
         dateStr,
         ...customValues,
@@ -864,6 +912,10 @@ export default function ManageEventDetail() {
     totalRegistered > 0 ? Math.round((maleCount / totalRegistered) * 100) : 0;
   const femalePct =
     totalRegistered > 0 ? Math.round((femaleCount / totalRegistered) * 100) : 0;
+
+  const volunteersCount = useMemo(() => {
+    return registrations.filter((r) => !!r.service_team).length;
+  }, [registrations]);
 
   if (loadingRetreat) {
     return (
@@ -1056,6 +1108,18 @@ export default function ManageEventDetail() {
         </button>
 
         <button
+          onClick={() => setActiveTab("teams")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "teams"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <HeartHandshake className="w-4 h-4" />
+          <span>Equipes de Serviço ({volunteersCount})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("finance")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "finance"
@@ -1130,6 +1194,17 @@ export default function ManageEventDetail() {
             fetchRegistrations(retreat.id);
             fetchRetreatRooms(retreat.id);
           }}
+        />
+      )}
+
+      {/* Tab: Equipes de Serviço (Voluntariado / Diaconato) */}
+      {activeTab === "teams" && retreat && (
+        <EventTeamsTab
+          retreat={retreat}
+          registrations={registrations}
+          onUpdateServiceTeam={handleUpdateServiceTeam}
+          onViewDetails={(reg) => setSelectedRegistrationForDetail(reg)}
+          onAssignRoomClick={(reg) => setSelectedRegistrationForRoomModal(reg)}
         />
       )}
 
@@ -1423,6 +1498,7 @@ export default function ManageEventDetail() {
         onClose={() => setSelectedRegistrationForDetail(null)}
         onTogglePayment={handleTogglePayment}
         onUpdatePayment={handleUpdatePaymentDetails}
+        onUpdateServiceTeam={handleUpdateServiceTeam}
       />
 
       {/* Modal: Editar Evento */}

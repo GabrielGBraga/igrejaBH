@@ -68,6 +68,7 @@ export default function FormResponder() {
     valid: boolean
     requiresCpf?: boolean
     discountPercent?: number
+    targetServiceTeam?: string | null
     message?: string
   }>({ checked: false, valid: false, discountPercent: 100 })
 
@@ -151,11 +152,12 @@ export default function FormResponder() {
         const hyphenatedId = rawFormId.replace(/\s+/g, "-")
 
         // 1. Try exact match by id
-        let { data: dbForm, error: formError } = await supabase
+        const { data: exactMatch, error: formError } = await supabase
           .from("forms")
           .select("*")
           .eq("id", rawFormId)
           .maybeSingle()
+        let dbForm = exactMatch
 
         // 2. If not found, try hyphenated format (e.g. "form solteiros 2026" -> "form-solteiros-2026")
         if (!dbForm && hyphenatedId !== rawFormId) {
@@ -357,13 +359,20 @@ export default function FormResponder() {
           p_retreat_id: associatedRetreat?.id || undefined,
         })
         if (!error && data) {
-          const res = data as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number }
+          const res = data as {
+            valid: boolean
+            message?: string
+            requires_cpf?: boolean
+            discount_percent?: number
+            target_service_team?: string | null
+          }
           const discountPct = res.discount_percent ?? 100
           setCouponValidation({
             checked: true,
             valid: res.valid,
             requiresCpf: res.requires_cpf,
             discountPercent: discountPct,
+            targetServiceTeam: res.target_service_team || null,
             message: res.message,
           })
           if (res.valid) {
@@ -692,7 +701,12 @@ export default function FormResponder() {
     }
 
     // Save submission to Supabase
-    async function executeSubmission(paid: boolean, method: string, reference: string) {
+    async function executeSubmission(
+      paid: boolean,
+      method: string,
+      reference: string,
+      assignedServiceTeam?: string | null
+    ) {
       try {
         const submissionId = `sub-${Math.random().toString(36).substring(7)}`
         const submitToastId = toast.loading("Enviando sua resposta...")
@@ -834,6 +848,9 @@ export default function FormResponder() {
             guestData.gender = genderVal || "Não informado"
           }
 
+          const teamToStamp =
+            assignedServiceTeam || couponValidation.targetServiceTeam || null
+
           const { error: regError } = await supabase.from("registrations").insert({
             retreat_id: associatedRetreat.id,
             profile_id: profileId || null,
@@ -842,6 +859,7 @@ export default function FormResponder() {
             payment_method: method,
             payment_reference: reference,
             paid: paid,
+            service_team: teamToStamp,
             form_submission_id: submissionId,
           })
 
@@ -897,7 +915,13 @@ export default function FormResponder() {
           p_retreat_id: associatedRetreat?.id || undefined,
           p_form_id: template.id || undefined,
         })
-        const valData = rawValData as { valid: boolean; message?: string; requires_cpf?: boolean; discount_percent?: number } | null
+        const valData = rawValData as {
+          valid: boolean
+          message?: string
+          requires_cpf?: boolean
+          discount_percent?: number
+          target_service_team?: string | null
+        } | null
 
         if (valErr || !valData?.valid) {
           toast.dismiss(redeemToastId)
@@ -906,6 +930,7 @@ export default function FormResponder() {
         }
 
         const discountPct = Number(valData.discount_percent ?? couponValidation.discountPercent ?? 100)
+        const targetTeam = valData.target_service_team || couponValidation.targetServiceTeam
 
         // 1.1 Full exemption (100% discount)
         if (discountPct === 100) {
@@ -927,7 +952,7 @@ export default function FormResponder() {
           }
 
           toast.success("Código de isenção (100%) validado com sucesso!")
-          await executeSubmission(true, "cupom", `Isenção (100%) - Cupom: ${couponCode}`)
+          await executeSubmission(true, "cupom", `Isenção (100%) - Cupom: ${couponCode}`, targetTeam)
           return
         }
 
@@ -950,7 +975,7 @@ export default function FormResponder() {
             return
           }
           toast.success("Desconto aplicado! Inscrição gratuita confirmada.")
-          await executeSubmission(true, "cupom", `Desconto (${discountPct}%) - Cupom: ${couponCode}`)
+          await executeSubmission(true, "cupom", `Desconto (${discountPct}%) - Cupom: ${couponCode}`, targetTeam)
           return
         }
 
@@ -967,7 +992,7 @@ export default function FormResponder() {
               p_retreat_id: associatedRetreat?.id || undefined,
               p_form_id: template.id || undefined,
             })
-            await executeSubmission(p, m, `${r} | Cupom: ${couponCode} (${discountPct}% OFF)`)
+            await executeSubmission(p, m, `${r} | Cupom: ${couponCode} (${discountPct}% OFF)`, targetTeam)
           }
         })
         setOriginalPrice(total)
