@@ -294,32 +294,63 @@ export default function Home() {
       {/* 2. Grid Principal: 4 Eixos da Vida Orgânica */}
       <section aria-label="Eixos da Vida Comum">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Card 1: Meu Grupo Caseiro (Oikos) */}
-          <HomeGroupCard
-            homeGroup={homeGroup}
-            members={groupMembers}
-            loading={loading}
-          />
+          {profile?.is_church_linked === false ? (
+            <>
+              {/* Para usuários não vinculados, o foco principal é o estudo da Palavra e encontros da cidade */}
+              <StudyProgressCard
+                studyInfo={studyInfo}
+                loading={loading}
+              />
+              <CommunityCalendarCard
+                events={communityEvents}
+                loading={loading}
+              />
+              <HomeGroupCard
+                homeGroup={homeGroup}
+                members={groupMembers}
+                loading={loading}
+                isChurchLinked={false}
+              />
+              <DiscipleshipCard
+                discipler={discipler}
+                disciples={disciples}
+                fellows={fellows}
+                loading={loading}
+                isChurchLinked={false}
+              />
+            </>
+          ) : (
+            <>
+              {/* Card 1: Meu Grupo Caseiro (Oikos) */}
+              <HomeGroupCard
+                homeGroup={homeGroup}
+                members={groupMembers}
+                loading={loading}
+                isChurchLinked={true}
+              />
 
-          {/* Card 2: Juntas e Ligamentos (Rede de Discipulado) */}
-          <DiscipleshipCard
-            discipler={discipler}
-            disciples={disciples}
-            fellows={fellows}
-            loading={loading}
-          />
+              {/* Card 2: Juntas e Ligamentos (Rede de Discipulado) */}
+              <DiscipleshipCard
+                discipler={discipler}
+                disciples={disciples}
+                fellows={fellows}
+                loading={loading}
+                isChurchLinked={true}
+              />
 
-          {/* Card 3: Catequese & Ensinos */}
-          <StudyProgressCard
-            studyInfo={studyInfo}
-            loading={loading}
-          />
+              {/* Card 3: Catequese & Ensinos */}
+              <StudyProgressCard
+                studyInfo={studyInfo}
+                loading={loading}
+              />
 
-          {/* Card 4: Encontros da Igreja na Cidade (Calendário & Agenda Casual) */}
-          <CommunityCalendarCard
-            events={communityEvents}
-            loading={loading}
-          />
+              {/* Card 4: Encontros da Igreja na Cidade (Calendário & Agenda Casual) */}
+              <CommunityCalendarCard
+                events={communityEvents}
+                loading={loading}
+              />
+            </>
+          )}
         </div>
       </section>
 

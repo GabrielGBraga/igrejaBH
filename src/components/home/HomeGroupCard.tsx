@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Home, Users, MapPin, Calendar, Clock, ArrowRight, MessageCircle, Phone, Sparkles } from "lucide-react"
+import { Home, Users, MapPin, Calendar, Clock, ArrowRight, MessageCircle, Phone, Sparkles, BookOpen } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +29,7 @@ interface HomeGroupCardProps {
   homeGroup: HomeGroup | null
   members: GroupMember[]
   loading?: boolean
+  isChurchLinked?: boolean
 }
 
 const dayNames = [
@@ -41,7 +42,12 @@ const dayNames = [
   "Sábado",
 ]
 
-export function HomeGroupCard({ homeGroup, members, loading = false }: HomeGroupCardProps) {
+export function HomeGroupCard({ 
+  homeGroup, 
+  members, 
+  loading = false,
+  isChurchLinked = true 
+}: HomeGroupCardProps) {
   const [isMemberListOpen, setIsMemberListOpen] = useState(false)
 
   if (loading) {
@@ -60,6 +66,43 @@ export function HomeGroupCard({ homeGroup, members, loading = false }: HomeGroup
   }
 
   if (!homeGroup) {
+    if (!isChurchLinked) {
+      return (
+        <Card className="flex flex-col justify-between rounded-xl border-border bg-card/60 shadow-xs">
+          <CardHeader className="space-y-1 pb-3">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg font-bold text-foreground">
+                <Home className="h-5 w-5 text-primary" />
+                Igreja nas Casas (Oikos)
+              </CardTitle>
+              <Badge variant="outline" className="border-primary/30 text-primary text-xs">
+                Comunidade
+              </Badge>
+            </div>
+            <CardDescription className="text-xs">
+              A dinâmica da igreja reunida nos lares pela cidade
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 py-2 text-sm text-muted-foreground">
+            <p>
+              A igreja em Belo Horizonte se reúne nas casas para oração, partir do pão e comunhão sincera. Toda semana, discípulos se encontram em diversos bairros da cidade vivendo a fé na prática.
+            </p>
+            <div className="rounded-lg border border-border/60 bg-muted/30 p-3 text-xs">
+              <span className="font-semibold text-foreground">Deseja caminhar junto?</span> Converse com os irmãos que compartilharam este portal para conhecer um Grupo Caseiro perto de você.
+            </div>
+          </CardContent>
+          <CardFooter className="pt-2">
+            <Button asChild variant="outline" size="sm" className="min-h-[44px] w-full gap-2">
+              <Link to="/ensinos">
+                <BookOpen className="h-4 w-4 text-primary" />
+                Explorar Trilhas de Estudo
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      )
+    }
+
     return (
       <Card className="flex flex-col justify-between rounded-xl border-border bg-card/60 shadow-xs">
         <CardHeader className="space-y-1 pb-3">
@@ -86,9 +129,9 @@ export function HomeGroupCard({ homeGroup, members, loading = false }: HomeGroup
         </CardContent>
         <CardFooter className="pt-2">
           <Button asChild variant="outline" size="sm" className="min-h-[44px] w-full gap-2">
-            <Link to="/grupos-caseiros">
+            <Link to="/perfil">
               <MapPin className="h-4 w-4 text-primary" />
-              Ver Mapa de Grupos Caseiros
+              Ver Minhas Informações de Vínculo
             </Link>
           </Button>
         </CardFooter>

@@ -383,9 +383,9 @@ export type Database = {
           address_zip_code: string | null
           avatar_url: string | null
           baptism_date: string | null
-          birth_date: string
+          birth_date: string | null
           can_post: boolean | null
-          cpf: string
+          cpf: string | null
           created_at: string
           dependents_count: number | null
           discipler_id: string | null
@@ -400,6 +400,7 @@ export type Database = {
           household_income: string | null
           housing_status: string | null
           id: string
+          is_church_linked: boolean
           is_deacon: boolean | null
           is_dev: boolean | null
           is_presbyter: boolean | null
@@ -420,9 +421,9 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
-          birth_date: string
+          birth_date?: string | null
           can_post?: boolean | null
-          cpf: string
+          cpf?: string | null
           created_at?: string
           dependents_count?: number | null
           discipler_id?: string | null
@@ -437,6 +438,7 @@ export type Database = {
           household_income?: string | null
           housing_status?: string | null
           id?: string
+          is_church_linked?: boolean
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null
@@ -457,9 +459,9 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
-          birth_date?: string
+          birth_date?: string | null
           can_post?: boolean | null
-          cpf?: string
+          cpf?: string | null
           created_at?: string
           dependents_count?: number | null
           discipler_id?: string | null
@@ -474,6 +476,7 @@ export type Database = {
           household_income?: string | null
           housing_status?: string | null
           id?: string
+          is_church_linked?: boolean
           is_deacon?: boolean | null
           is_dev?: boolean | null
           is_presbyter?: boolean | null

@@ -8,7 +8,9 @@ Este documento descreve o funcionamento, a estrutura e a lógica de geração do
 O objetivo deste seeding é fornecer um banco de dados de desenvolvimento completo, coerente e com grande volumetria de dados para simulações e apresentações de demonstração (demos). 
 
 O script de seeding é capaz de repopular o banco do zero em uma única execução (~7 segundos), limpando dados antigos e recriando um ecossistema completo de:
-- **528 discípulos/perfis** distribuídos por **24 Grupos Caseiros (GCs)** e **6 regiões/setores**.
+- **537 perfis no total:**
+  - **531 discípulos vinculados à igreja** (`is_church_linked = true`): 528 gerados na grade regular dos **24 Grupos Caseiros (GCs)** nos **6 setores** + 3 filhos na família de Rafael e Isabele Moraes (Bia, André e Filipe no GC Castelo).
+  - **6 contas de acesso aos estudos** (`is_church_linked = false`), permitindo testar o fluxo de visitantes não vinculados, progresso de trilhas e vinculação posterior pela liderança.
 - **Mural de Avisos Comunitário** com 14 posts abrangendo todas as 6 categorias (`noticia`, `oracao`, `diaconato`, `obra`, `aviso`, `evento`), com datas e fotos de capa.
 - **Centro de Ensino e Catequese** com 3 trilhas estruturadas, 10 recursos multimídia (YouTube, PDFs, Markdown) e progresso ativo dos usuários.
 - **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 142 inscrições vinculadas.
@@ -57,9 +59,11 @@ Para garantir diversidade nos testes e simulações, cada grupo caseiro possui e
 *   **7 Solteiros Ordinários (Adultos):** 168 no total. Jovens/adultos sem laços de casamento e sem vínculo de moradia com as famílias locais do GC.
 
 **Totais Gerais do Banco:**
-*   **Contas de Acesso (`auth.users`):** 408 usuários (todos com a senha inicial `senha123`).
-*   **Perfis de Discípulos (`public.profiles`):** 528 perfis (408 com conta ativa + 120 perfis fantasmas).
-*   **Fotos de Perfil (`avatar_url`):** 480 avatares em alta resolução (Unsplash Portraits) distribuídos por gênero e idade.
+*   **Contas de Acesso (`auth.users`):** 414 usuários (408 discípulos + 6 visitantes de estudos, todos com a senha inicial `senha123`).
+*   **Perfis (`public.profiles`):** 537 perfis:
+    *   **531 vinculados à igreja (`is_church_linked = true`):** 408 com login ativo + 123 perfis fantasmas (crianças e idosos).
+    *   **6 contas de estudos (`is_church_linked = false`):** sem vínculo a GC nem discipulador.
+*   **Fotos de Perfil (`avatar_url`):** 489 avatares em alta resolução (Unsplash Portraits) distribuídos por gênero e idade.
 *   **Telefones Válidos:** 100% dos perfis com telefone possuem celulares brasileiros com máscara de 9 dígitos `(31) 9XXXX-XXXX`.
 
 ---
@@ -83,6 +87,21 @@ O módulo de Ensinos (`public.studies`, `public.media_resources`, `public.study_
 *   **Trilha 2: Juntas e Ligamentos — O Discipulado Prático:** Relacionamentos de transparência e amor fraternal (2 etapas: vídeo e caderno prático PDF).
 *   **Trilha 3: O Sacerdócio Universal e a Dinâmica nas Casas:** Todos os santos em serviço e operação dos dons (3 etapas: vídeo, artigo e dinâmica das casas).
 *   **Progresso de Gabriel Góes Braga:** Possui 4 etapas concluídas (Trilha 1 100% finalizada e Trilha 2 em andamento), permitindo testar barras de progresso e certificados imediatamente no frontend.
+
+### Contas de Estudos (Visitantes Não Vinculados — `is_church_linked = false`)
+Para simulação de novos convertidos ou visitantes externos que criam conta unicamente para realizar os estudos e trilhas da igreja:
+*   **Credenciais de Acesso (todos com a senha padrão `senha123`):**
+    *   `lucas.estudos@email.com` — Lucas Alencar (1 etapa concluída)
+    *   `marina.estudos@email.com` — Marina Duarte (2 etapas concluídas)
+    *   `andre.estudos@email.com` — André Siqueira (Trilha 1 100% concluída)
+    *   `carolina.estudos@email.com` — Carolina Mendes (Recém-cadastrada, sem etapas)
+    *   `felipe.estudos@email.com` — Felipe Vasconcelos (Recém-cadastrado, sem etapas)
+    *   `beatriz.estudos@email.com` — Beatriz Prado (Recém-cadastrada, sem etapas)
+*   **Comportamento no Sistema:**
+    *   Acessam diretamente a Home (`/dashboard`) com foco nos ensinos e o catálogo de trilhas (`/estudos`), sem bloqueio de onboarding socioeconômico.
+    *   Exibem o badge "Conta de Estudos" e o card informativo de vinculação no perfil (`/perfil`).
+    *   No painel da liderança (`/membros`), aparecem sob a aba **"Não Vinculados (Apenas Estudos)"** com botão de ação rápida **"Vincular à Igreja"**.
+    *   Não aparecem no grafo de relacionamentos (`/relacionamentos`) nem nos relatórios de GCs até serem vinculados.
 
 ---
 

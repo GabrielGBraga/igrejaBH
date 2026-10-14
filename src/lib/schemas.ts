@@ -161,6 +161,34 @@ export const signUpSchema = z
     path: ["confirmPassword"],
   })
 export type SignUpValue = z.infer<typeof signUpSchema>
+
+export const visitorSignUpSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(3, { message: "Nome completo deve ter pelo menos 3 caracteres." }),
+    email: z.string().email({ message: "E-mail inválido." }),
+    phone: z
+      .string()
+      .refine(
+        (val) => val === "" || /^\+55 \(\d{2}\) 9\d{4}-\d{4}$/.test(val),
+        {
+          message: "Telefone deve seguir o padrão: +55 (31) 9XXXX-XXXX",
+        }
+      )
+      .optional()
+      .or(z.literal("")),
+    password: passwordSchema,
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Confirmação de senha é obrigatória." }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem.",
+    path: ["confirmPassword"],
+  })
+export type VisitorSignUpValue = z.infer<typeof visitorSignUpSchema>
+
 export const homeGroupSchema = z.object({
   meetingDay: z.number().min(0).max(6),
   startTime: z

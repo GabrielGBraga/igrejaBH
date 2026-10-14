@@ -31,13 +31,58 @@ async function verify() {
   const projectRef = match[1];
   const host = `db.${projectRef}.supabase.co`;
   const connectionString = `postgresql://postgres:${encodeURIComponent(password)}@${host}:5432/postgres`;
+  let client;
+  let connected = false;
 
-  const client = new pg.Client({
+  console.log(`Tentando conexão direta (IPv6) ao host: ${host}...`);
+  client = new pg.Client({
     connectionString,
     ssl: { rejectUnauthorized: false }
   });
 
-  await client.connect();
+  try {
+    const connectPromise = client.connect();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('timeout')), 5000)
+    );
+    await Promise.race([connectPromise, timeoutPromise]);
+    connected = true;
+    console.log('Conectado via conexão direta com sucesso.');
+  } catch (err) {
+    console.log(`Conexão direta indisponível ou expirou. Erro: ${err.message}`);
+    await client.end().catch(() => {});
+
+    const poolerHosts = [
+      `aws-0-sa-east-1.pooler.supabase.com`,
+      `aws-1-sa-east-1.pooler.supabase.com`
+    ];
+
+    for (const poolerHost of poolerHosts) {
+      const poolerUser = `postgres.${projectRef}`;
+      const poolerConnectionString = `postgresql://${poolerUser}:${encodeURIComponent(password)}@${poolerHost}:6543/postgres`;
+      console.log(`Tentando conexão via Pooler (IPv4) ao host: ${poolerHost}...`);
+
+      client = new pg.Client({
+        connectionString: poolerConnectionString,
+        ssl: { rejectUnauthorized: false }
+      });
+
+      try {
+        await client.connect();
+        connected = true;
+        console.log(`Conectado via Pooler (IPv4) ao host ${poolerHost} com sucesso.`);
+        break;
+      } catch (poolerErr) {
+        console.log(`Falha ao conectar via Pooler ao host ${poolerHost}: ${poolerErr.message}`);
+        await client.end().catch(() => {});
+      }
+    }
+  }
+
+  if (!connected) {
+    console.error('ERRO CRÍTICO: Não foi possível conectar ao banco de dados via conexão direta ou pooler.');
+    process.exit(1);
+  }
 
   console.log('=== VERIFYING DATABASE SEED DATA ===\n');
 
@@ -188,6 +233,71 @@ async function verify() {
     SELECT count(*) as populated_avatars FROM public.profiles WHERE avatar_url IS NOT NULL
   `);
   console.log(`Populated avatars: ${avatars.rows[0].populated_avatars}`);
+
+  // ============================================================================
+  // VERIFICAÇÃO DE VÍNCULO À IGREJA E CONTAS DE ESTUDO (NOVA ARQUITETURA)
+  // ============================================================================
+  console.log('\n--- VERIFICAÇÃO DE CONTAS VINCULADAS VS ESTUDOS ---');
+  const churchLinkedRes = await client.query(`
+    SELECT is_church_linked, count(*) as count
+    FROM public.profiles
+    GROUP BY is_church_linked
+    ORDER BY is_church_linked DESC
+  `);
+  console.log('Perfis por is_church_linked:');
+  console.table(churchLinkedRes.rows);
+
+  const linkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === true)?.count || 0, 10);
+  const unlinkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === false)?.count || 0, 10);
+
+  if (linkedCount === 531) {
+    console.log('✅ Discípulos vinculados à igreja: 531 (528 da grade regular de GCs + 3 filhos de Rafael Moraes)');
+  } else {
+    console.error(`❌ ERRO: Esperado 531 vinculados, obtido ${linkedCount}`);
+    process.exitCode = 1;
+  }
+
+  if (unlinkedCount === 6) {
+    console.log('✅ Contas de estudo não vinculadas: 6 (correto)');
+  } else {
+    console.error(`❌ ERRO: Esperado 6 não vinculados, obtido ${unlinkedCount}`);
+    process.exitCode = 1;
+  }
+
+  // Verificar que nenhuma conta de estudos possui GC ou discipulador associado
+  const invalidUnlinkedRes = await client.query(`
+    SELECT count(*) FROM public.profiles
+    WHERE is_church_linked = false AND (home_group_id IS NOT NULL OR discipler_id IS NOT NULL)
+  `);
+  if (parseInt(invalidUnlinkedRes.rows[0].count, 10) === 0) {
+    console.log('✅ Integridade: nenhuma conta de estudos possui GC ou discipulador vinculado.');
+  } else {
+    console.error(`❌ ERRO: Existem ${invalidUnlinkedRes.rows[0].count} contas de estudo com GC ou discipulador.`);
+    process.exitCode = 1;
+  }
+
+  // Exibir as contas de estudos
+  const unlinkedAccountsRes = await client.query(`
+    SELECT p.full_name, p.email, p.phone, p.gender, p.is_church_linked,
+           (SELECT count(*) FROM public.user_study_progress WHERE profile_id = p.id) as study_steps_completed
+    FROM public.profiles p
+    WHERE p.is_church_linked = false
+    ORDER BY p.email ASC
+  `);
+  console.log('\nContas de Estudos (Visitantes Não Vinculados):');
+  console.table(unlinkedAccountsRes.rows);
+
+  // Verificar que perfis fantasmas (crianças e idosos sem conta auth) estão marcados como vinculados
+  const phantomCheck = await client.query(`
+    SELECT count(*) FROM public.profiles
+    WHERE user_id IS NULL AND is_church_linked = false
+  `);
+  if (parseInt(phantomCheck.rows[0].count, 10) === 0) {
+    console.log('✅ Perfis fantasmas (crianças e idosos) integrados à igreja: 100% vinculados.');
+  } else {
+    console.error(`❌ ERRO: Existem ${phantomCheck.rows[0].count} perfis fantasmas com is_church_linked = false.`);
+    process.exitCode = 1;
+  }
 
   await client.end();
 }

@@ -16,6 +16,7 @@ import {
   Loader2Icon,
   SearchIcon,
   ArrowLeftIcon,
+  InfoIcon,
   type LucideIcon,
 } from "lucide-react"
 import supabase from "@/lib/supabase"
@@ -69,6 +70,7 @@ interface UserProfile {
   id: string
   full_name: string
   email: string
+  is_church_linked: boolean
   is_dev: boolean
   is_presbyter: boolean
   is_deacon: boolean
@@ -222,6 +224,7 @@ export default function Profile() {
           id: data.id,
           full_name: data.full_name,
           email: isOwn ? (session.user.email || data.email || "") : (data.email || ""),
+          is_church_linked: !!data.is_church_linked,
           is_dev: !!data.is_dev,
           is_presbyter: !!data.is_presbyter,
           is_deacon: !!data.is_deacon,
@@ -625,6 +628,18 @@ export default function Profile() {
         </p>
       </div>
 
+      {!profile.is_church_linked && isOwnProfile && (
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground flex items-start gap-3">
+          <InfoIcon className="size-5 text-primary shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-foreground">Conta com Acesso aos Estudos</p>
+            <p className="text-xs leading-relaxed">
+              Você possui acesso completo aos ensinos, materiais e à página inicial. Se você já congrega ou caminha na Igreja em BH, solicite ao seu discipulador ou líder de Grupo Caseiro para registrar o seu vínculo.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <Card className="h-fit overflow-hidden rounded-3xl border-border bg-card/30 shadow-sm backdrop-blur-sm lg:col-span-1">
           <CardHeader className="relative overflow-hidden pt-12 pb-8">
@@ -654,9 +669,20 @@ export default function Profile() {
                 <CardTitle className="text-2xl leading-tight font-bold">
                   {profile.full_name}
                 </CardTitle>
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary">
-                  <ShieldIcon className="size-3" />
-                  {getRole()}
+                <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    <ShieldIcon className="size-3" />
+                    {getRole()}
+                  </div>
+                  {profile.is_church_linked ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      Discípulo Vinculado
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                      Conta de Estudos / Não Vinculado
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

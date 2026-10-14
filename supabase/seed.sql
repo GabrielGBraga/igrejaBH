@@ -355,14 +355,14 @@ BEGIN
 
           INSERT INTO public.profiles (
             id, full_name, email, cpf, phone, birth_date, baptism_date, gender, 
-            is_dev, is_presbyter, is_deacon, can_post, 
+            is_dev, is_presbyter, is_deacon, can_post, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code,
             occupation, education_level, employment_status, household_income, housing_status, marital_status,
             drivers_license, dependents_count, avatar_url
           ) VALUES (
             temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M',
             (i = 2 AND j = 3 AND k = 1),
-            is_presb, is_deac, true,
+            is_presb, is_deac, true, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr,
             s_occupations[1 + ((i * 3 + j * 2 + k) % array_length(s_occupations, 1))],
             s_education[1 + ((i * 2 + j * 3 + k) % array_length(s_education, 1))],
@@ -486,12 +486,12 @@ BEGIN
           END IF;
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, spouse_id,
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, spouse_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code,
             occupation, education_level, employment_status, household_income, housing_status, marital_status,
             drivers_license, dependents_count, avatar_url
           ) VALUES (
-            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, m_id,
+            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, m_id, true,
             m_profile.address_street, m_profile.address_number, m_profile.address_neighborhood, m_profile.address_city, 'MG', m_profile.address_zip_code,
             s_occupations[1 + ((i * 2 + j * 4 + k) % array_length(s_occupations, 1))],
             s_education[1 + ((i * 3 + j * 1 + k) % array_length(s_education, 1))],
@@ -531,11 +531,11 @@ BEGIN
       IF i = 2 AND j = 2 THEN
         -- Bia Moraes (Menina, ~8 anos, não batizada)
         INSERT INTO public.profiles (
-          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
           address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
           occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
         ) VALUES (
-          bia_id, 'Bia Moraes', '152.671.309-81', '2018-04-10'::date, NULL, 'F', gc_id, rafael_id, isabele_id,
+          bia_id, 'Bia Moraes', '152.671.309-81', '2018-04-10'::date, NULL, 'F', gc_id, rafael_id, isabele_id, true,
           gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
           'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
           'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80'
@@ -544,11 +544,11 @@ BEGIN
 
         -- André Moraes (Menino, ~6 anos, não batizado)
         INSERT INTO public.profiles (
-          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
           address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
           occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
         ) VALUES (
-          andre_id, 'André Moraes', '154.892.418-72', '2020-08-15'::date, NULL, 'M', gc_id, rafael_id, isabele_id,
+          andre_id, 'André Moraes', '154.892.418-72', '2020-08-15'::date, NULL, 'M', gc_id, rafael_id, isabele_id, true,
           gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
           'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
           'https://images.unsplash.com/photo-1545167622-3a6ac756afa4?w=200&auto=format&fit=crop&q=80'
@@ -557,11 +557,11 @@ BEGIN
 
         -- Filipe Moraes (Menino, ~3 anos, não batizado)
         INSERT INTO public.profiles (
-          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id,
+          id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
           address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
           occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
         ) VALUES (
-          filipe_id, 'Filipe Moraes', '156.913.527-63', '2023-02-20'::date, NULL, 'M', gc_id, rafael_id, isabele_id,
+          filipe_id, 'Filipe Moraes', '156.913.527-63', '2023-02-20'::date, NULL, 'M', gc_id, rafael_id, isabele_id, true,
           gc_streets[2][2], '248', gc_neighborhoods[2][2], gc_cities[2], 'MG', gc_ceps[2][2], 'Solteiro(a)',
           'Educação Infantil', 'Educação Infantil', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0,
           'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80'
@@ -598,12 +598,12 @@ BEGIN
         cep_addr := gc_ceps[i][j];
 
         INSERT INTO public.profiles (
-          id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id,
+          id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, is_church_linked,
           address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code,
           occupation, education_level, employment_status, household_income, housing_status, marital_status,
           drivers_license, dependents_count, avatar_url
         ) VALUES (
-          f_husband_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id,
+          f_husband_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id, true,
           st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr,
           s_occupations[1 + ((i * 1 + j * 3 + k) % array_length(s_occupations, 1))],
           s_education[1 + ((i * 2 + j * 2 + k) % array_length(s_education, 1))],
@@ -651,12 +651,12 @@ BEGIN
         avatar_val := s_avatars_female[1 + ((i * 3 + j * 2 + k) % array_length(s_avatars_female, 1))];
 
         INSERT INTO public.profiles (
-          id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, spouse_id,
+          id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, spouse_id, is_church_linked,
           address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code,
           occupation, education_level, employment_status, household_income, housing_status, marital_status,
           drivers_license, dependents_count, avatar_url
         ) VALUES (
-          f_wife_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, f_husband_id,
+          f_wife_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, f_husband_id, true,
           st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr,
           s_occupations[1 + ((i * 2 + j * 2 + k) % array_length(s_occupations, 1))],
           s_education[1 + ((i * 1 + j * 3 + k) % array_length(s_education, 1))],
@@ -700,11 +700,11 @@ BEGIN
           cpf_val := lpad(cpf_seq::text, 3, '0') || '.' || lpad(((cpf_seq * 7) % 899 + 100)::text, 3, '0') || '.' || lpad(((cpf_seq * 13) % 899 + 100)::text, 3, '0') || '-' || lpad(((cpf_seq * 3) % 89 + 10)::text, 2, '0');
           
           INSERT INTO public.profiles (
-            id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, 
+            id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count
           ) VALUES (
-            temp_profile_id, full_nm, cpf_val, (now() - ((5 + (i+j+k)%5)::text || ' years')::interval)::date, NULL, 'M', gc_id, f_husband_id, f_wife_id, 
+            temp_profile_id, full_nm, cpf_val, (now() - ((5 + (i+j+k)%5)::text || ' years')::interval)::date, NULL, 'M', gc_id, f_husband_id, f_wife_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0
           );
@@ -715,11 +715,11 @@ BEGIN
           cpf_val := lpad(cpf_seq::text, 3, '0') || '.' || lpad(((cpf_seq * 7) % 899 + 100)::text, 3, '0') || '.' || lpad(((cpf_seq * 13) % 899 + 100)::text, 3, '0') || '-' || lpad(((cpf_seq * 3) % 89 + 10)::text, 2, '0');
 
           INSERT INTO public.profiles (
-            id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, 
+            id, full_name, cpf, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count
           ) VALUES (
-            temp_profile_id, full_nm, cpf_val, (now() - ((3 + (i+j)%6)::text || ' years')::interval)::date, NULL, 'F', gc_id, f_husband_id, f_wife_id, 
+            temp_profile_id, full_nm, cpf_val, (now() - ((3 + (i+j)%6)::text || ' years')::interval)::date, NULL, 'F', gc_id, f_husband_id, f_wife_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             'Estudante Infantil', 'Ensino Fundamental', 'Não se aplica', '2 a 5 salários mínimos', 'Própria', 'Não possui', 0
           );
@@ -746,11 +746,11 @@ BEGIN
           avatar_val := s_avatars_male[1 + ((i * 2 + j * 1 + k) % array_length(s_avatars_male, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
-            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id, f_husband_id, f_wife_id, 
+            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id, f_husband_id, f_wife_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             'Estudante do Ensino Médio', 'Ensino Médio', 'Estudante', s_income[1+((i*2+j)%4)], 'Própria', 'Não possui', 0, avatar_val
           );
@@ -766,11 +766,11 @@ BEGIN
           avatar_val := s_avatars_female[1 + ((i * 3 + j * 2 + k) % array_length(s_avatars_female, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, father_id, mother_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
-            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, f_husband_id, f_wife_id, 
+            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, f_husband_id, f_wife_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             'Estudante Universitária', 'Ensino Superior', 'Estudante', s_income[1+((i*2+j)%4)], 'Própria', 'Não possui', 0, avatar_val
           );
@@ -828,12 +828,12 @@ BEGIN
           avatar_val := s_avatars_male[1 + ((i + j + k) % array_length(s_avatars_male, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
             temp_profile_id, full_nm, email_addr, cpf_val,
-            phone_num, b_date, bapt_date, 'M', gc_id, 
+            phone_num, b_date, bapt_date, 'M', gc_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Casado(a)',
             'Aposentado', 'Ensino Médio', 'Aposentado', '1 a 2 salários mínimos', 'Própria', 'Não possui', 0, avatar_val
           );
@@ -847,12 +847,12 @@ BEGIN
           avatar_val := s_avatars_female[1 + ((i + j + k) % array_length(s_avatars_female, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
             temp_profile_id, full_nm, email_addr, cpf_val,
-            phone_num, b_date, bapt_date, 'F', gc_id, 
+            phone_num, b_date, bapt_date, 'F', gc_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Viúvo(a)',
             'Aposentada', 'Ensino Fundamental', 'Aposentado', 'menos de 1 salário mínimo', 'Própria', 'Não possui', 0, avatar_val
           );
@@ -891,11 +891,11 @@ BEGIN
           avatar_val := s_avatars_male[1 + ((i * 2 + j * 1 + k * 3) % array_length(s_avatars_male, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
-            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id, 
+            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'M', gc_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             s_occupations[1 + ((i * 2 + j * 1 + k * 3) % array_length(s_occupations, 1))],
             s_education[1 + ((i * 1 + j * 2 + k * 2) % array_length(s_education, 1))],
@@ -914,11 +914,11 @@ BEGIN
           avatar_val := s_avatars_female[1 + ((i * 2 + j * 1 + k * 3) % array_length(s_avatars_female, 1))];
 
           INSERT INTO public.profiles (
-            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, 
+            id, full_name, email, cpf, phone, birth_date, baptism_date, gender, home_group_id, is_church_linked,
             address_street, address_number, address_neighborhood, address_city, address_state, address_zip_code, marital_status,
             occupation, education_level, employment_status, household_income, housing_status, drivers_license, dependents_count, avatar_url
           ) VALUES (
-            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, 
+            temp_profile_id, full_nm, email_addr, cpf_val, phone_num, b_date, bapt_date, 'F', gc_id, true,
             st_addr, num_addr, neigh_addr, city_addr, 'MG', cep_addr, 'Solteiro(a)',
             s_occupations[1 + ((i * 2 + j * 1 + k * 3) % array_length(s_occupations, 1))],
             s_education[1 + ((i * 1 + j * 2 + k * 2) % array_length(s_education, 1))],
@@ -2238,6 +2238,83 @@ BEGIN
         ),
         jsonb_build_object('Nome Completo', v_rec_cls.full_name, 'Sexo / Gênero', v_gender_cls)
       );
+    END LOOP;
+  END;
+
+  -- ==========================================================================
+  -- 13. CONTAS DE ACESSO AOS ESTUDOS (USUÁRIOS NÃO VINCULADOS / VISITANTES)
+  -- ==========================================================================
+  DECLARE
+    v_estudos_users text[][] := ARRAY[
+      ARRAY['Lucas Alencar', 'lucas.estudos@email.com', 'M', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80'],
+      ARRAY['Marina Duarte', 'marina.estudos@email.com', 'F', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80'],
+      ARRAY['André Siqueira', 'andre.estudos@email.com', 'M', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80'],
+      ARRAY['Carolina Mendes', 'carolina.estudos@email.com', 'F', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80'],
+      ARRAY['Felipe Vasconcelos', 'felipe.estudos@email.com', 'M', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80'],
+      ARRAY['Beatriz Prado', 'beatriz.estudos@email.com', 'F', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80']
+    ];
+    v_estudos_pid uuid;
+    v_estudos_aid uuid;
+    v_est_idx int;
+  BEGIN
+    FOR v_est_idx IN 1..array_length(v_estudos_users, 1) LOOP
+      v_estudos_aid := extensions.uuid_generate_v4();
+      v_estudos_pid := NULL;
+
+      INSERT INTO auth.users (
+        id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+        created_at, updated_at, role, aud, confirmation_token, recovery_token, email_change_token_new, email_change
+      ) VALUES (
+        v_estudos_aid, '00000000-0000-0000-0000-000000000000', v_estudos_users[v_est_idx][2], pwd_hash, now(),
+        '{"provider":"email","providers":["email"]}'::jsonb,
+        jsonb_build_object(
+          'full_name', v_estudos_users[v_est_idx][1],
+          'avatar_url', v_estudos_users[v_est_idx][4],
+          'phone', '(31) 9' || ((8200 + v_est_idx * 70)::text) || '-' || lpad(((v_est_idx * 450 + 1200)::text), 4, '0')
+        ),
+        now() - (v_est_idx * INTERVAL '2 days'), now() - (v_est_idx * INTERVAL '2 days'),
+        'authenticated', 'authenticated', '', '', '', ''
+      );
+
+      SELECT id INTO v_estudos_pid FROM public.profiles WHERE user_id = v_estudos_aid;
+
+      IF v_estudos_pid IS NULL THEN
+        v_estudos_pid := extensions.uuid_generate_v4();
+        INSERT INTO public.profiles (
+          id, user_id, full_name, email, phone, gender,
+          is_church_linked, avatar_url, created_at
+        ) VALUES (
+          v_estudos_pid, v_estudos_aid, v_estudos_users[v_est_idx][1], v_estudos_users[v_est_idx][2],
+          '(31) 9' || ((8200 + v_est_idx * 70)::text) || '-' || lpad(((v_est_idx * 450 + 1200)::text), 4, '0'),
+          v_estudos_users[v_est_idx][3],
+          false,
+          v_estudos_users[v_est_idx][4],
+          now() - (v_est_idx * INTERVAL '2 days')
+        );
+      ELSE
+        UPDATE public.profiles 
+        SET gender = v_estudos_users[v_est_idx][3],
+            avatar_url = v_estudos_users[v_est_idx][4]
+        WHERE id = v_estudos_pid;
+      END IF;
+
+      -- Progresso de estudo
+      IF v_est_idx = 1 THEN
+        INSERT INTO public.user_study_progress (profile_id, study_id, step_id, completed_at)
+        VALUES (v_estudos_pid, study_id1, step_id1, now() - INTERVAL '1 day')
+        ON CONFLICT DO NOTHING;
+      ELSIF v_est_idx = 2 THEN
+        INSERT INTO public.user_study_progress (profile_id, study_id, step_id, completed_at)
+        VALUES (v_estudos_pid, study_id1, step_id1, now() - INTERVAL '2 days'),
+               (v_estudos_pid, study_id1, step_id2, now() - INTERVAL '1 day')
+        ON CONFLICT DO NOTHING;
+      ELSIF v_est_idx = 3 THEN
+        INSERT INTO public.user_study_progress (profile_id, study_id, step_id, completed_at)
+        VALUES (v_estudos_pid, study_id1, step_id1, now() - INTERVAL '3 days'),
+               (v_estudos_pid, study_id1, step_id2, now() - INTERVAL '2 days'),
+               (v_estudos_pid, study_id1, step_id3, now() - INTERVAL '1 day')
+        ON CONFLICT DO NOTHING;
+      END IF;
     END LOOP;
   END;
 

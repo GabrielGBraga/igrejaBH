@@ -24,6 +24,7 @@ interface DiscipleshipCardProps {
   disciples: ProfileSummary[]
   fellows: ProfileSummary[]
   loading?: boolean
+  isChurchLinked?: boolean
 }
 
 export function DiscipleshipCard({
@@ -31,6 +32,7 @@ export function DiscipleshipCard({
   disciples,
   fellows,
   loading = false,
+  isChurchLinked = true,
 }: DiscipleshipCardProps) {
   const [isDisciplesModalOpen, setIsDisciplesModalOpen] = useState(false)
 
@@ -45,6 +47,58 @@ export function DiscipleshipCard({
           <div className="h-14 w-full animate-pulse rounded-lg bg-muted" />
           <div className="h-14 w-full animate-pulse rounded-lg bg-muted" />
         </CardContent>
+      </Card>
+    )
+  }
+
+  if (!isChurchLinked) {
+    return (
+      <Card className="flex flex-col justify-between rounded-xl border-border/80 bg-card/70 shadow-xs backdrop-blur-xs transition-colors hover:border-primary/30">
+        <CardHeader className="space-y-1.5 pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-1">
+              <CardTitle className="flex items-center gap-2 text-base font-bold sm:text-lg">
+                <Heart className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>Juntas e Ligamentos</span>
+              </CardTitle>
+              <CardDescription className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                Discipulado e edificação mútua no Corpo
+              </CardDescription>
+            </div>
+            <Badge
+              variant="outline"
+              className="shrink-0 gap-1 rounded-full border-amber-600/30 dark:border-amber-400/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
+            >
+              <Sparkles className="h-3 w-3" />
+              Efésios 4:16
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3.5 py-2">
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground space-y-2">
+            <p className="leading-relaxed">
+              No Corpo de Cristo, a edificação não ocorre de forma passiva, mas através de relacionamentos reais de discipulado — vida na vida. Todos nós somos chamados a crescer à semelhança de Jesus.
+            </p>
+            <p className="leading-relaxed">
+              Acompanhe os estudos bíblicos e as mensagens da igreja na cidade. Se desejar caminhar junto em discipulado, fale conosco!
+            </p>
+          </div>
+        </CardContent>
+
+        <CardFooter className="pt-3">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="btn-tactile min-h-[44px] w-full justify-center gap-1.5 text-xs font-semibold"
+          >
+            <Link to="/ensinos">
+              Ver Trilhas de Estudo
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        </CardFooter>
       </Card>
     )
   }

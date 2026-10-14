@@ -48,6 +48,13 @@ export function ProfileCompletionBlocker() {
         if (error) throw error
 
         if (profile) {
+          // Bloqueia apenas discípulos vinculados à igreja.
+          // Usuários não vinculados (contas de estudos/visitantes) têm acesso liberado sem obrigatoriedade de dados diaconais.
+          if (!profile.is_church_linked) {
+            setIsOpen(false)
+            return
+          }
+
           const missing = getMissingProfileFields(profile)
           setMissingFields(missing)
           setIsOpen(missing.length > 0 && !isProfilePage)

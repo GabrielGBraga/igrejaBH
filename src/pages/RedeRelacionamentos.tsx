@@ -165,10 +165,11 @@ export default function RedeRelacionamentos() {
     try {
       if (isInitial) setLoading(true)
 
-      // Fetch profiles
+      // Fetch profiles (only church-linked disciples belong to the discipleship network)
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
+        .eq("is_church_linked", true)
         .order("full_name")
       if (profilesError) throw profilesError
 

@@ -1,5 +1,11 @@
 import { useForm, Controller } from "react-hook-form";
-import { signUpSchema, type SignUpValue, validateCPF } from "../lib/schemas"
+import { 
+    signUpSchema, 
+    type SignUpValue, 
+    visitorSignUpSchema, 
+    type VisitorSignUpValue, 
+    validateCPF 
+} from "../lib/schemas"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button"
 import {
@@ -22,9 +28,22 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { EyeIcon, EyeOffIcon, UploadIcon, UserIcon, SearchIcon, Loader2, ArrowLeftIcon, XIcon } from "lucide-react";
+import { 
+    EyeIcon, 
+    EyeOffIcon, 
+    UploadIcon, 
+    UserIcon, 
+    SearchIcon, 
+    Loader2, 
+    ArrowLeftIcon, 
+    XIcon,
+    BookOpenIcon,
+    UsersIcon,
+    InfoIcon
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import supabase from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
 import { CardSelector, CardSelectorItem } from "@/components/ui/card-selector";
@@ -74,6 +93,45 @@ const formatCPF = (value: string) => {
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 };
 
+function AccountTypeSelector({ 
+    selected, 
+    onSelect 
+}: { 
+    selected: 'visitor' | 'church_member'; 
+    onSelect: (type: 'visitor' | 'church_member') => void;
+}) {
+    return (
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-muted/60 rounded-xl border border-border/50">
+            <button
+                type="button"
+                onClick={() => onSelect('visitor')}
+                className={cn(
+                    "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px] cursor-pointer",
+                    selected === 'visitor'
+                        ? "bg-background text-foreground shadow-xs border border-border/60"
+                        : "text-muted-foreground hover:text-foreground"
+                )}
+            >
+                <BookOpenIcon className="h-4 w-4 text-primary shrink-0" />
+                <span>Acesso aos Estudos</span>
+            </button>
+            <button
+                type="button"
+                onClick={() => onSelect('church_member')}
+                className={cn(
+                    "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px] cursor-pointer",
+                    selected === 'church_member'
+                        ? "bg-background text-foreground shadow-xs border border-border/60"
+                        : "text-muted-foreground hover:text-foreground"
+                )}
+            >
+                <UsersIcon className="h-4 w-4 text-primary shrink-0" />
+                <span>Sou da Igreja em BH</span>
+            </button>
+        </div>
+    );
+}
+
 export default function SignUp() {
     const navigate = useNavigate()
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -108,6 +166,20 @@ export default function SignUp() {
         }
     })
 
+    const [accountType, setAccountType] = useState<'visitor' | 'church_member'>('visitor')
+    const [cpfNotFound, setCpfNotFound] = useState(false)
+
+    const visitorForm = useForm<VisitorSignUpValue>({
+        resolver: zodResolver(visitorSignUpSchema),
+        defaultValues: {
+            fullName: "",
+            email: "",
+            phone: "",
+            password: "",
+            confirmPassword: "",
+        }
+    })
+
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [submitting, setSubmitting] = useState(false)
@@ -123,15 +195,18 @@ export default function SignUp() {
         const cleanCpf = verificationCpf.replace(/\D/g, "");
         if (cleanCpf.length !== 11) {
             setCpfError("CPF deve conter 11 dígitos");
+            setCpfNotFound(false);
             return;
         }
         if (!validateCPF(cleanCpf)) {
             setCpfError("CPF inválido");
+            setCpfNotFound(false);
             return;
         }
 
         setVerifyingCpf(true);
         setCpfError(null);
+        setCpfNotFound(false);
         try {
             const formattedCpf = formatCPF(cleanCpf);
             const { data, error } = await (supabase.rpc as any)('check_cpf_registration', {
@@ -145,7 +220,8 @@ export default function SignUp() {
             }
 
             if (!data || data.length === 0 || !data[0].exists_profile) {
-                setCpfError("CPF não encontrado. Por favor, entre em contato com seu discipulador ou com um líder de grupo caseiro para realizar seu pré-cadastro.");
+                setCpfError("CPF não encontrado no pré-cadastro da igreja. Se você já congrega, converse com seu discipulador ou líder de grupo caseiro.");
+                setCpfNotFound(true);
                 return;
             }
 
@@ -153,6 +229,11 @@ export default function SignUp() {
 
             if (result.is_linked) {
                 setCpfError("Este CPF já está vinculado a um usuário cadastrado. Se você já tem uma conta, faça login.");
+                return;
+            }
+
+            if (!result.has_baptism_date) {
+                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
                 return;
             }
 
@@ -250,6 +331,72 @@ export default function SignUp() {
 
         fetchCep();
     }, [zipCode, signForm]);
+
+    async function onVisitorSubmit(data: VisitorSignUpValue) {
+        setSubmitting(true)
+        const signupOperation = async () => {
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: data.email,
+                password: data.password,
+                options: {
+                    data: {
+                        full_name: data.fullName,
+                        phone: data.phone || null,
+                    }
+                }
+            })
+
+            if (authError) throw authError
+            if (!authData.user) throw new Error("Erro ao criar conta")
+
+            if (avatarFile) {
+                try {
+                    const fileExt = avatarFile.name.split('.').pop() || "jpg"
+                    const filePath = `${authData.user.id}/avatar.${fileExt}`
+                    const { error: uploadError } = await supabase.storage
+                        .from('avatars')
+                        .upload(filePath, avatarFile, {
+                            upsert: true,
+                            contentType: avatarFile.type || "image/jpeg"
+                        })
+                    if (!uploadError) {
+                        const { data: { publicUrl } } = supabase.storage
+                            .from('avatars')
+                            .getPublicUrl(filePath)
+                        await supabase
+                            .from('profiles')
+                            .update({ avatar_url: `${publicUrl}?t=${Date.now()}` })
+                            .eq('user_id', authData.user.id)
+                    }
+                } catch (avatarErr) {
+                    console.error("Erro no upload do avatar:", avatarErr)
+                }
+            }
+
+            return authData
+        }
+
+        toast.promise(signupOperation(), {
+            loading: "Criando sua conta de acesso...",
+            success: () => {
+                navigate('/dashboard')
+                return "Conta criada com sucesso! Seja bem-vindo(a)."
+            },
+            error: (error) => {
+                console.error("Erro no cadastro de visitante:", error)
+                if (error instanceof Error) {
+                    if (error.message === "User already registered") {
+                        return "Este e-mail já está cadastrado."
+                    }
+                    return error.message
+                }
+                return "Erro ao realizar cadastro. Tente novamente."
+            },
+            finally: () => {
+                setSubmitting(false)
+            }
+        })
+    }
 
     async function onSubmit(data: SignUpValue) {
         setSubmitting(true)
@@ -383,17 +530,241 @@ export default function SignUp() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px]" />
             </div>
 
-            {step === 'cpf_check' ? (
-                <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
-                    <CardHeader className="space-y-1 text-center">
+            {accountType === 'visitor' ? (
+                <Card className="w-full max-w-lg border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-3 text-center">
                         <div className="flex items-center justify-between">
-                            <Button variant="ghost" onClick={() => navigate('/')}>
+                            <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="min-h-[44px]">
                                 <ArrowLeftIcon className="mr-2 h-4 w-4" />
                                 Voltar
                             </Button>
                         </div>
-                        <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Cadastro</CardTitle>
-                        <CardDescription className="text-muted-foreground">Insira seu CPF para iniciar o cadastro</CardDescription>
+
+                        {/* Seletor de Tipo de Cadastro */}
+                        <AccountTypeSelector
+                            selected={accountType}
+                            onSelect={(t) => {
+                                setAccountType(t);
+                                setCpfError(null);
+                                if (t === 'visitor') setCpfNotFound(false);
+                            }}
+                        />
+
+                        <div>
+                            <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                                Criar Conta de Acesso
+                            </CardTitle>
+                            <CardDescription className="text-muted-foreground text-xs sm:text-sm mt-1">
+                                Acesse as mensagens, trilhas de estudos e materiais da Igreja em Belo Horizonte
+                            </CardDescription>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent>
+                        <form id="visitor-sign-up-form" onSubmit={visitorForm.handleSubmit(onVisitorSubmit)} className="space-y-4">
+                            {/* Avatar */}
+                            <div className="flex flex-col items-center gap-2 mb-2">
+                                <div className="relative h-20 w-20 group">
+                                    <div 
+                                        className="relative h-full w-full rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center bg-muted overflow-hidden cursor-pointer shadow-inner" 
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        {avatarPreview ? (
+                                            <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <UserIcon className="h-10 w-10 text-muted-foreground" />
+                                        )}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                            <UploadIcon className="h-5 w-5 text-white" />
+                                        </div>
+                                    </div>
+                                    {avatarPreview && (
+                                        <button 
+                                            type="button" 
+                                            onClick={clearAvatar}
+                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 shadow-lg hover:scale-110 transition-transform z-20 min-h-[28px] min-w-[28px] flex items-center justify-center"
+                                            aria-label="Remover foto"
+                                        >
+                                            <XIcon className="h-3 w-3" />
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-[11px] text-muted-foreground">Foto de perfil (opcional)</p>
+                            </div>
+
+                            <FieldGroup className="space-y-3">
+                                <Controller
+                                    name="fullName"
+                                    control={visitorForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Nome Completo*</FieldLabel>
+                                            <Input {...field} placeholder="Seu nome completo" className="min-h-[44px]" />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="email"
+                                    control={visitorForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>E-mail*</FieldLabel>
+                                            <Input {...field} type="email" placeholder="seu@email.com" className="min-h-[44px]" />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="phone"
+                                    control={visitorForm.control}
+                                    render={({ field: { onChange, value, ...fieldProps }, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Telefone / WhatsApp (Opcional)</FieldLabel>
+                                            <Input
+                                                {...fieldProps}
+                                                value={value || ""}
+                                                onChange={(e) => {
+                                                    const cursor = e.target.selectionStart;
+                                                    const formatted = formatPhone(e.target.value);
+                                                    onChange(formatted);
+                                                    setTimeout(() => {
+                                                        if (e.target && cursor !== null) {
+                                                            const diff = formatted.length - e.target.value.length;
+                                                            e.target.setSelectionRange(cursor + diff, cursor + diff);
+                                                        }
+                                                    }, 0);
+                                                }}
+                                                placeholder="+55 (31) 9XXXX-XXXX"
+                                                maxLength={20}
+                                                className="min-h-[44px]"
+                                            />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <Controller
+                                        name="password"
+                                        control={visitorForm.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel>Senha*</FieldLabel>
+                                                <InputGroup>
+                                                    <InputGroupInput
+                                                        {...field}
+                                                        type={showPassword ? "text" : "password"}
+                                                        placeholder="********"
+                                                        className="min-h-[44px]"
+                                                    />
+                                                    <InputGroupAddon align="inline-end">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            type="button"
+                                                            onClick={() => setShowPassword(!showPassword)}
+                                                            className="min-h-[44px] min-w-[44px]"
+                                                        >
+                                                            {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                                                        </Button>
+                                                    </InputGroupAddon>
+                                                </InputGroup>
+                                                <FieldError errors={[fieldState.error]} />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        name="confirmPassword"
+                                        control={visitorForm.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel>Confirmar Senha*</FieldLabel>
+                                                <InputGroup>
+                                                    <InputGroupInput
+                                                        {...field}
+                                                        type={showConfirmPassword ? "text" : "password"}
+                                                        placeholder="********"
+                                                        className="min-h-[44px]"
+                                                    />
+                                                    <InputGroupAddon align="inline-end">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            type="button"
+                                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                            className="min-h-[44px] min-w-[44px]"
+                                                        >
+                                                            {showConfirmPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                                                        </Button>
+                                                    </InputGroupAddon>
+                                                </InputGroup>
+                                                <FieldError errors={[fieldState.error]} />
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+                            </FieldGroup>
+                        </form>
+                    </CardContent>
+
+                    <CardFooter className="flex flex-col space-y-4">
+                        <Button 
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-base font-semibold min-h-[48px] transition-all active:scale-[0.98]" 
+                            type="submit" 
+                            form="visitor-sign-up-form" 
+                            disabled={submitting}
+                        >
+                            {submitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    Criando sua conta...
+                                </>
+                            ) : "Criar Conta e Acessar"}
+                        </Button>
+
+                        <p className="text-center text-sm text-muted-foreground">
+                            Já tem uma conta?{" "}
+                            <Link
+                                to="/entrar"
+                                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                            >
+                                Faça login
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+            ) : step === 'cpf_check' ? (
+                <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-xl shadow-2xl relative z-10">
+                    <CardHeader className="space-y-3 text-center">
+                        <div className="flex items-center justify-between">
+                            <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="min-h-[44px]">
+                                <ArrowLeftIcon className="mr-2 h-4 w-4" />
+                                Voltar
+                            </Button>
+                        </div>
+
+                        {/* Seletor de Tipo de Cadastro */}
+                        <AccountTypeSelector
+                            selected={accountType}
+                            onSelect={(t) => {
+                                setAccountType(t);
+                                setCpfError(null);
+                                if (t === 'visitor') setCpfNotFound(false);
+                            }}
+                        />
+
+                        <div>
+                            <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                                Ativar Conta
+                            </CardTitle>
+                            <CardDescription className="text-muted-foreground text-xs sm:text-sm mt-1">
+                                Insira seu CPF para localizar seu pré-cadastro na igreja
+                            </CardDescription>
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleVerifyCpf} className="space-y-4">
@@ -411,18 +782,44 @@ export default function SignUp() {
                                     }}
                                     placeholder="000.000.000-00"
                                     maxLength={14}
-                                    className="h-10 text-lg"
+                                    className="h-10 text-lg min-h-[44px]"
                                     required
                                 />
                                 {cpfError && (
-                                    <p className="text-sm font-medium text-destructive mt-1">
-                                        {cpfError}
-                                    </p>
+                                    <div className="space-y-2 mt-2">
+                                        <p className="text-sm font-medium text-destructive">
+                                            {cpfError}
+                                        </p>
+                                        {cpfNotFound && (
+                                            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-left space-y-2">
+                                                <div className="flex items-start gap-2">
+                                                    <InfoIcon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                                        Não encontrou seu pré-cadastro? Você pode criar uma conta agora para acessar livremente os estudos e materiais.
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setAccountType('visitor');
+                                                        setCpfError(null);
+                                                        setCpfNotFound(false);
+                                                    }}
+                                                    className="w-full min-h-[44px] text-xs font-semibold gap-2 border-primary/40 text-primary hover:bg-primary/10"
+                                                >
+                                                    <BookOpenIcon className="h-3.5 w-3.5" />
+                                                    Criar Conta de Estudos Agora
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                             <Button 
                                 type="submit" 
-                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-semibold h-12 transition-all active:scale-[0.98] mt-4"
+                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-semibold h-12 transition-all active:scale-[0.98] mt-4 min-h-[44px]"
                                 disabled={verifyingCpf}
                             >
                                 {verifyingCpf ? (

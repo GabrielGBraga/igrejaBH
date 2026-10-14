@@ -14,7 +14,9 @@ import {
     MailIcon,
     UserCheckIcon,
     HeartIcon,
-    FileText
+    FileText,
+    BookOpenIcon,
+    LinkIcon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -244,6 +246,39 @@ const phantomUserSchema = z.object({
 
 type PhantomUserValue = z.infer<typeof phantomUserSchema>;
 
+// Zod Schema para vincular uma conta de estudos à igreja
+const linkToChurchSchema = z.object({
+    cpf: z.string().refine(validateCPF, {
+        message: "CPF inválido."
+    }),
+    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data de nascimento é obrigatória (AAAA-MM-DD)." }),
+    homeGroupId: z.string().min(1, { message: "Grupo caseiro é obrigatório para irmãos vinculados." }),
+    disciplerId: z.string().min(1, { message: "Discipulador é obrigatório para irmãos vinculados." }),
+    phone: z.union([
+        z.string().refine((val) => val === "" || /^(?:\+55 )?\(\d{2}\) 9\d{4}-\d{4}$/.test(val), {
+            message: "O telefone celular deve ser válido e conter o 9 (ex: (31) 98888-7777)."
+        }),
+        z.literal("")
+    ]).optional().nullable(),
+    baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
+    gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
+    maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
+}).superRefine((data, ctx) => {
+    if (data.birthDate && data.baptismDate) {
+        const birth = new Date(data.birthDate);
+        const baptism = new Date(data.baptismDate);
+        if (baptism < birth) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "A data de batismo não pode ser anterior à data de nascimento.",
+                path: ["baptismDate"],
+            });
+        }
+    }
+});
+
+type LinkToChurchValue = z.infer<typeof linkToChurchSchema>;
+
 interface MemberManagementProps {
   hideHeader?: boolean;
 }
@@ -253,11 +288,17 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     const [homeGroups, setHomeGroups] = useState<HomeGroupOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [churchLinkFilter, setChurchLinkFilter] = useState<"all" | "linked" | "unlinked">("all");
     
     // Modal states
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedMember, setSelectedMember] = useState<ProfileWithGroup | null>(null);
     const [submitting, setSubmitting] = useState(false);
+
+    // Modal Vincular à Igreja states
+    const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+    const [linkingMember, setLinkingMember] = useState<ProfileWithGroup | null>(null);
+    const [linkSubmitting, setLinkSubmitting] = useState(false);
 
     const form = useForm<PhantomUserValue>({
         resolver: zodResolver(phantomUserSchema),
@@ -275,6 +316,20 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             disciplerId: "",
             fatherId: "",
             motherId: "",
+        }
+    });
+
+    const linkForm = useForm<LinkToChurchValue>({
+        resolver: zodResolver(linkToChurchSchema),
+        defaultValues: {
+            cpf: "",
+            birthDate: "",
+            homeGroupId: "",
+            disciplerId: "",
+            phone: "",
+            baptismDate: "",
+            gender: "",
+            maritalStatus: "",
         }
     });
 
@@ -405,6 +460,73 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
         });
     };
 
+    const handleOpenLinkDialog = (member: ProfileWithGroup) => {
+        setLinkingMember(member);
+        linkForm.reset({
+            cpf: member.cpf || "",
+            birthDate: member.birth_date || "",
+            homeGroupId: member.home_group_id || "",
+            disciplerId: member.discipler_id || "",
+            phone: member.phone || "",
+            baptismDate: member.baptism_date || "",
+            gender: (member.gender as any) || "",
+            maritalStatus: (member.marital_status as any) || "",
+        });
+        setIsLinkDialogOpen(true);
+    };
+
+    const onLinkSubmit = async (data: LinkToChurchValue) => {
+        if (!linkingMember) return;
+        setLinkSubmitting(true);
+        try {
+            // Verificar duplicidade de CPF
+            if (data.cpf) {
+                const { data: duplicates, error: dupError } = await supabase
+                    .from("profiles")
+                    .select("id, full_name, cpf")
+                    .neq("id", linkingMember.id)
+                    .eq("cpf", data.cpf);
+
+                if (dupError) throw dupError;
+                if (duplicates && duplicates.length > 0) {
+                    linkForm.setError("cpf", {
+                        type: "manual",
+                        message: `CPF já cadastrado para ${duplicates[0].full_name}.`
+                    });
+                    setLinkSubmitting(false);
+                    return;
+                }
+            }
+
+            const { error } = await supabase
+                .from("profiles")
+                .update({
+                    is_church_linked: true,
+                    cpf: data.cpf,
+                    birth_date: data.birthDate,
+                    home_group_id: data.homeGroupId,
+                    discipler_id: data.disciplerId,
+                    phone: data.phone || null,
+                    baptism_date: data.baptismDate || null,
+                    gender: data.gender || null,
+                    marital_status: data.maritalStatus || null,
+                })
+                .eq("id", linkingMember.id);
+
+            if (error) throw error;
+
+            toast.success(`${linkingMember.full_name} agora é um discípulo vinculado!`);
+            setIsLinkDialogOpen(false);
+            setLinkingMember(null);
+            fetchData();
+        } catch (err) {
+            console.error("Erro ao vincular à igreja:", err);
+            toast.error("Erro ao vincular membro à igreja.");
+        } finally {
+            setLinkSubmitting(false);
+        }
+    };
+
     const onSubmit = async (data: PhantomUserValue) => {
         setSubmitting(true);
         
@@ -472,6 +594,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             discipler_id: data.registrationType === "adult" ? (data.disciplerId || null) : null,
             father_id: data.fatherId || null,
             mother_id: data.motherId || null,
+            is_church_linked: selectedMember ? selectedMember.is_church_linked : true,
             // Certificamos que um perfil provisório criado pela liderança nunca tem acesso associado por padrão
             user_id: selectedMember ? selectedMember.user_id : null,
         };
@@ -515,21 +638,30 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     const itemsPerPage = 24;
     const [currentPage, setCurrentPage] = useState(1);
 
-    const filteredMembers = members.filter(m => 
-        m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.phone?.includes(searchQuery) ||
-        m.cpf?.includes(searchQuery) ||
-        m.address_neighborhood?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.email?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const totalCount = members.length;
+    const linkedCount = members.filter(m => m.is_church_linked).length;
+    const unlinkedCount = members.filter(m => !m.is_church_linked).length;
+
+    const filteredMembers = members.filter(m => {
+        if (churchLinkFilter === "linked" && !m.is_church_linked) return false;
+        if (churchLinkFilter === "unlinked" && m.is_church_linked) return false;
+
+        return (
+            m.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            m.phone?.includes(searchQuery) ||
+            m.cpf?.includes(searchQuery) ||
+            m.address_neighborhood?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            m.email?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    });
 
     const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
     const paginatedMembers = filteredMembers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    // Reset to page 1 when search query changes
+    // Reset to page 1 when search query or filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery]);
+    }, [searchQuery, churchLinkFilter]);
 
     const getInitials = (name: string) => {
         return name
@@ -602,6 +734,69 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                 </div>
             )}
 
+            {/* Filter Tabs: Todos / Vinculados / Apenas Estudos */}
+            <div className="flex flex-wrap items-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => setChurchLinkFilter("all")}
+                    className={`px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                        churchLinkFilter === "all"
+                            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-sm"
+                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
+                    }`}
+                >
+                    <UsersIcon className="w-3.5 h-3.5" />
+                    <span>Todos</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                        churchLinkFilter === "all"
+                            ? "bg-zinc-800 text-zinc-300 dark:bg-zinc-200 dark:text-zinc-800"
+                            : "bg-background/80 text-muted-foreground"
+                    }`}>
+                        {totalCount}
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setChurchLinkFilter("linked")}
+                    className={`px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                        churchLinkFilter === "linked"
+                            ? "bg-emerald-600 text-white shadow-sm"
+                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
+                    }`}
+                >
+                    <UserCheckIcon className="w-3.5 h-3.5" />
+                    <span>Vinculados à Igreja</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                        churchLinkFilter === "linked"
+                            ? "bg-emerald-700 text-emerald-100"
+                            : "bg-background/80 text-muted-foreground"
+                    }`}>
+                        {linkedCount}
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setChurchLinkFilter("unlinked")}
+                    className={`px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                        churchLinkFilter === "unlinked"
+                            ? "bg-amber-600 text-white shadow-sm"
+                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
+                    }`}
+                >
+                    <BookOpenIcon className="w-3.5 h-3.5" />
+                    <span>Não Vinculados (Apenas Estudos)</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                        churchLinkFilter === "unlinked"
+                            ? "bg-amber-700 text-amber-100"
+                            : "bg-background/80 text-muted-foreground"
+                    }`}>
+                        {unlinkedCount}
+                    </span>
+                </button>
+            </div>
+
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -634,6 +829,15 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                         {member.full_name}
                                     </CardTitle>
                                     <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {member.is_church_linked ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                                                Vinculado
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                                Apenas Estudos
+                                            </span>
+                                        )}
                                         {member.is_dev && (
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-blue-500/10 text-blue-500 border border-blue-500/20">
                                                 Dev
@@ -650,7 +854,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                             </span>
                                         )}
                                         {member.is_leader && (
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                                                 Líder GC
                                             </span>
                                         )}
@@ -671,89 +875,144 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                     </div>
                                 </div>
 
-                                {!member.user_id && (
-                                    <div className="flex items-center gap-1 self-start">
+                                <div className="flex items-center gap-1 self-start">
+                                    {!member.is_church_linked && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-                                            onClick={() => handleEditClick(member)}
-                                            title="Editar Perfil Vinculado"
+                                            className="h-8 w-8 rounded-lg hover:bg-amber-500/10 text-amber-600 hover:text-amber-700 shrink-0 cursor-pointer"
+                                            onClick={() => handleOpenLinkDialog(member)}
+                                            title="Vincular à Igreja"
                                         >
-                                            <Edit2Icon className="w-3.5 h-3.5" />
+                                            <LinkIcon className="w-3.5 h-3.5" />
                                         </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer"
-                                            onClick={() => handleDeleteClick(member.id)}
-                                            title="Remover Perfil Vinculado"
-                                        >
-                                            <Trash2Icon className="w-3.5 h-3.5" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardHeader>
-                            <CardContent className="space-y-4 px-5 pb-5 pt-2 flex-1 flex flex-col justify-between">
-                                <div className="grid grid-cols-1 gap-3 text-sm">
-                                    {member.cpf && (
-                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                                <FileText className="w-4 h-4 text-primary/70" />
-                                            </div>
-                                            <span className="truncate font-medium">CPF: {member.cpf}</span>
-                                        </div>
                                     )}
-
-                                    {member.email && (
-                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                                <MailIcon className="w-4 h-4 text-primary/70" />
-                                            </div>
-                                            <span className="truncate font-medium">{member.email}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                        <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                            <PhoneIcon className="w-4 h-4 text-primary/70" />
-                                        </div>
-                                        <span className="font-medium">{member.phone || "Não informado"}</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                        <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                            <MapPinIcon className="w-4 h-4 text-primary/70" />
-                                        </div>
-                                        <span className="truncate font-medium">
-                                            {member.home_groups?.location_text || "Sem Grupo Caseiro"}
-                                        </span>
-                                    </div>
-
-                                    {(member.father || member.mother) && (
-                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                                <HeartIcon className="w-4 h-4 text-primary/70" />
-                                            </div>
-                                            <span className="truncate font-medium text-xs">
-                                                {member.father && `Pai: ${member.father.full_name}`}
-                                                {member.father && member.mother && ' | '}
-                                                {member.mother && `Mãe: ${member.mother.full_name}`}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {member.address_neighborhood && (
-                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
-                                                <HomeIcon className="w-4 h-4 text-primary/70" />
-                                            </div>
-                                            <span className="truncate font-medium">
-                                                {member.address_neighborhood}, {member.address_city}
-                                            </span>
-                                        </div>
+                                    {!member.user_id && (
+                                        <>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                                                onClick={() => handleEditClick(member)}
+                                                title="Editar Perfil Vinculado"
+                                            >
+                                                <Edit2Icon className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer"
+                                                onClick={() => handleDeleteClick(member.id)}
+                                                title="Remover Perfil Vinculado"
+                                            >
+                                                <Trash2Icon className="w-3.5 h-3.5" />
+                                            </Button>
+                                        </>
                                     )}
                                 </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4 px-5 pb-5 pt-2 flex-1 flex flex-col justify-between">
+                                {!member.is_church_linked ? (
+                                    <div className="space-y-3">
+                                        <div className="rounded-xl p-3 bg-amber-500/10 border border-amber-500/20 text-xs space-y-1.5">
+                                            <div className="font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                                <BookOpenIcon className="w-3.5 h-3.5" />
+                                                Conta de Estudos (Não Vinculado)
+                                            </div>
+                                            <p className="text-muted-foreground leading-relaxed text-[11px]">
+                                                Cadastrado para acesso aos ensinos. Não possui grupo caseiro nem discipulador atribuído.
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-2.5 text-sm pt-1">
+                                            {member.email && (
+                                                <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                    <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                        <MailIcon className="w-4 h-4 text-primary/70" />
+                                                    </div>
+                                                    <span className="truncate font-medium">{member.email}</span>
+                                                </div>
+                                            )}
+                                            {member.phone && (
+                                                <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                    <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                        <PhoneIcon className="w-4 h-4 text-primary/70" />
+                                                    </div>
+                                                    <span className="font-medium">{member.phone}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Button
+                                            size="sm"
+                                            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl h-10 min-h-[44px] flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-all"
+                                            onClick={() => handleOpenLinkDialog(member)}
+                                        >
+                                            <UserCheckIcon className="w-4 h-4" />
+                                            Vincular à Igreja
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-3 text-sm">
+                                        {member.cpf && (
+                                            <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                    <FileText className="w-4 h-4 text-primary/70" />
+                                                </div>
+                                                <span className="truncate font-medium">CPF: {member.cpf}</span>
+                                            </div>
+                                        )}
+
+                                        {member.email && (
+                                            <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                    <MailIcon className="w-4 h-4 text-primary/70" />
+                                                </div>
+                                                <span className="truncate font-medium">{member.email}</span>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                <PhoneIcon className="w-4 h-4 text-primary/70" />
+                                            </div>
+                                            <span className="font-medium">{member.phone || "Não informado"}</span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                            <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                <MapPinIcon className="w-4 h-4 text-primary/70" />
+                                            </div>
+                                            <span className="truncate font-medium">
+                                                {member.home_groups?.location_text || "Sem Grupo Caseiro"}
+                                            </span>
+                                        </div>
+
+                                        {(member.father || member.mother) && (
+                                            <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                    <HeartIcon className="w-4 h-4 text-primary/70" />
+                                                </div>
+                                                <span className="truncate font-medium text-xs">
+                                                    {member.father && `Pai: ${member.father.full_name}`}
+                                                    {member.father && member.mother && ' | '}
+                                                    {member.mother && `Mãe: ${member.mother.full_name}`}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {member.address_neighborhood && (
+                                            <div className="flex items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                                                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                                                    <HomeIcon className="w-4 h-4 text-primary/70" />
+                                                </div>
+                                                <span className="truncate font-medium">
+                                                    {member.address_neighborhood}, {member.address_city}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 
                                 <div className="pt-4 mt-2 border-t border-border/50 flex items-center justify-between text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">
                                     <div className="flex items-center gap-1.5">
@@ -1064,7 +1323,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 >
                                                     <option value="">Selecione o Discipulador...</option>
                                                     {members
-                                                        .filter(m => !selectedMember || m.id !== selectedMember.id)
+                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id))
                                                         .map(member => (
                                                             <option key={member.id} value={member.id}>
                                                                 {member.full_name}
@@ -1164,6 +1423,273 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                     </>
                                 ) : (
                                     "Salvar Perfil"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal Dialog para Vincular Discípulo à Igreja */}
+            <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+                <DialogContent className="sm:max-w-xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            <UserCheckIcon className="w-5 h-5 text-emerald-600" />
+                            Vincular Discípulo à Igreja
+                        </DialogTitle>
+                        <DialogDescription>
+                            Atribua os dados demográficos e de discipulado para vincular {linkingMember?.full_name} à vida da igreja e suas juntas e ligamentos.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={linkForm.handleSubmit(onLinkSubmit)} className="space-y-6 pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Nome Completo (Visualização) */}
+                            <div className="md:col-span-2">
+                                <Field>
+                                    <FieldLabel>Nome do Discípulo</FieldLabel>
+                                    <Input
+                                        value={linkingMember?.full_name || ""}
+                                        disabled
+                                        className="bg-muted/50 rounded-xl font-medium"
+                                    />
+                                </Field>
+                            </div>
+
+                            {/* Email (Visualização se existir) */}
+                            {linkingMember?.email && (
+                                <div className="md:col-span-2">
+                                    <Field>
+                                        <FieldLabel>E-mail da Conta</FieldLabel>
+                                        <Input
+                                            value={linkingMember.email}
+                                            disabled
+                                            className="bg-muted/50 rounded-xl"
+                                        />
+                                    </Field>
+                                </div>
+                            )}
+
+                            {/* CPF */}
+                            <div>
+                                <Controller
+                                    name="cpf"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>CPF*</FieldLabel>
+                                            <Input
+                                                {...field}
+                                                placeholder="000.000.000-00"
+                                                className="bg-background/50 rounded-xl"
+                                                autoComplete="off"
+                                                onChange={(e) => {
+                                                    const formatted = formatCPF(e.target.value);
+                                                    field.onChange(formatted);
+                                                }}
+                                            />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Data de Nascimento */}
+                            <div>
+                                <Controller
+                                    name="birthDate"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Data de Nascimento*</FieldLabel>
+                                            <Input
+                                                {...field}
+                                                type="date"
+                                                className="bg-background/50 rounded-xl"
+                                                value={field.value || ""}
+                                            />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Telefone */}
+                            <div>
+                                <Controller
+                                    name="phone"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Telefone Celular</FieldLabel>
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ""}
+                                                placeholder="(31) 98888-8888"
+                                                className="bg-background/50 rounded-xl"
+                                                autoComplete="off"
+                                                onChange={(e) => {
+                                                    const formatted = formatPhone(e.target.value);
+                                                    field.onChange(formatted);
+                                                }}
+                                            />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Grupo Caseiro */}
+                            <div>
+                                <Controller
+                                    name="homeGroupId"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Grupo Caseiro*</FieldLabel>
+                                            <select
+                                                {...field}
+                                                value={field.value || ""}
+                                                className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                            >
+                                                <option value="">Selecione o Grupo Caseiro...</option>
+                                                {homeGroups.map(group => (
+                                                    <option key={group.id} value={group.id}>
+                                                        {getGroupLabel(group)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Discipulador */}
+                            <div className="md:col-span-2">
+                                <Controller
+                                    name="disciplerId"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Discipulador*</FieldLabel>
+                                            <select
+                                                {...field}
+                                                value={field.value || ""}
+                                                className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                            >
+                                                <option value="">Selecione o Discipulador...</option>
+                                                {members
+                                                    .filter(m => m.is_church_linked && (!linkingMember || m.id !== linkingMember.id))
+                                                    .map(member => (
+                                                        <option key={member.id} value={member.id}>
+                                                            {member.full_name}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Data de Batismo */}
+                            <div>
+                                <Controller
+                                    name="baptismDate"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Data de Batismo</FieldLabel>
+                                            <Input
+                                                {...field}
+                                                type="date"
+                                                className="bg-background/50 rounded-xl"
+                                                value={field.value || ""}
+                                            />
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Gênero */}
+                            <div>
+                                <Controller
+                                    name="gender"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Gênero</FieldLabel>
+                                            <select
+                                                {...field}
+                                                value={field.value || ""}
+                                                className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                            >
+                                                <option value="">Selecione...</option>
+                                                <option value="masculino">Masculino</option>
+                                                <option value="feminino">Feminino</option>
+                                                <option value="outro">Outro</option>
+                                            </select>
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Estado Civil */}
+                            <div className="md:col-span-2">
+                                <Controller
+                                    name="maritalStatus"
+                                    control={linkForm.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Estado Civil</FieldLabel>
+                                            <select
+                                                {...field}
+                                                value={field.value || ""}
+                                                className="flex h-11 w-full rounded-xl border border-input bg-background/50 px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                            >
+                                                <option value="">Selecione...</option>
+                                                <option value="solteiro">Solteiro(a)</option>
+                                                <option value="casado">Casado(a)</option>
+                                                <option value="divorciado">Divorciado(a)</option>
+                                                <option value="viuvo">Viúvo(a)</option>
+                                            </select>
+                                            <FieldError errors={[fieldState.error]} />
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter className="gap-2 sm:gap-0 mt-6 pt-4 border-t border-border/50">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="rounded-xl min-h-[44px]"
+                                onClick={() => setIsLinkDialogOpen(false)}
+                                disabled={linkSubmitting}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl min-h-[44px] flex items-center gap-2"
+                                disabled={linkSubmitting}
+                            >
+                                {linkSubmitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        Vinculando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <UserCheckIcon className="w-4 h-4" />
+                                        Confirmar Vínculo à Igreja
+                                    </>
                                 )}
                             </Button>
                         </DialogFooter>
