@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import supabase from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 import Landing from "./pages/Landing.tsx";
+import QueroSaberMais from "./pages/QueroSaberMais.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Home from "./pages/Home.tsx";
@@ -21,6 +22,8 @@ import RedeRelacionamentos from "./pages/RedeRelacionamentos.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { Toaster } from "@/components/ui/sonner";
 import { Layout } from "./components/layout/Layout.tsx";
+import { LandingHeader } from "./components/landing/LandingHeader.tsx";
+import { LandingFooter } from "./components/landing/LandingFooter.tsx";
 import type { ReactNode } from "react";
 
 // Helper component to provide Layout context to protected routes
@@ -95,6 +98,61 @@ function RootRoute() {
   return <Landing />
 }
 
+// Ensinos route wrapper: provides full member layout for logged-in users,
+// and guest header/footer container with open access to written materials for visitors
+function EnsinosRoute() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (active) {
+        setIsAuthenticated(!!session?.user)
+      }
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setIsAuthenticated(!!session?.user)
+      }
+    })
+
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (isAuthenticated) {
+    return (
+      <Layout>
+        <Ensinos />
+      </Layout>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen w-full flex-col overflow-x-hidden bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
+      <LandingHeader />
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <Ensinos />
+      </main>
+      <LandingFooter />
+    </div>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -102,6 +160,10 @@ function App() {
       <Routes>
         <Route path="/" element={<RootRoute />} />
         <Route path="/landing" element={<Landing />} />
+        <Route path="/quero-saber-mais" element={<QueroSaberMais />} />
+        <Route path="/quero-conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
+        <Route path="/conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
+        <Route path="/ensinos" element={<EnsinosRoute />} />
         <Route path="/entrar" element={<SignIn />} />
         <Route path="/cadastro" element={<SignUp />} />
         <Route path="/formularios/responder/:formId" element={<FormResponder />} />
@@ -111,7 +173,6 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Home />} />
           <Route path="/noticias/nova" element={<CreatePost />} />
-          <Route path="/ensinos" element={<Ensinos />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/eventos" element={<Events />} />
           <Route path="/mensagens" element={<Messages />} />

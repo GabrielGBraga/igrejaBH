@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { 
     GraduationCapIcon, 
     YoutubeIcon, 
@@ -9,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { TextEditor } from "@/components/TextEditor";
 import { fetchLatestVideos, type YouTubeVideo } from "@/lib/youtube";
@@ -47,12 +49,39 @@ const getYouTubeId = (url: string) => {
     return match && match[2].length === 11 ? match[2] : null;
 };
 
+// Map URL query param aliases to TabType
+const normalizeTabParam = (paramVal: string | null): TabType | null => {
+    if (!paramVal) return null;
+    const lower = paramVal.toLowerCase();
+    if (lower === "apostilas" || lower === "pdfs") return "pdfs";
+    if (lower === "ministracoes" || lower === "videos") return "videos";
+    if (lower === "artigos" || lower === "textos") return "textos";
+    if (lower === "estudos" || lower === "trilhas") return "estudos";
+    if (lower === "anotacoes") return "anotacoes";
+    return null;
+};
+
 export default function Ensinos() {
-    const [activeTab, setActiveTab] = useState<TabType>("estudos");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTab = normalizeTabParam(searchParams.get("tab")) || "estudos";
+    const [activeTab, setActiveTab] = useState<TabType>(initialTab);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("todos");
+
+    // Synchronize tab state if URL query params change
+    useEffect(() => {
+        const urlTab = normalizeTabParam(searchParams.get("tab"));
+        if (urlTab && urlTab !== activeTab) {
+            setActiveTab(urlTab);
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (newTab: TabType) => {
+        setActiveTab(newTab);
+        setSearchParams({ tab: newTab });
+    };
 
     // Database content states
     const [resources, setResources] = useState<MediaResource[]>([]);
@@ -98,7 +127,7 @@ export default function Ensinos() {
                         .from("profiles")
                         .select("id, is_presbyter, is_deacon, is_dev")
                         .eq("user_id", session.user.id)
-                        .single();
+                        .maybeSingle();
 
                     if (profData) {
                         const profObj = {
@@ -114,8 +143,17 @@ export default function Ensinos() {
                         const fetched = await fetchLatestVideos();
                         setYoutubeVideos(fetched);
                         setLoadingYoutube(false);
+                        return;
                     }
                 }
+
+                // Guest visitor flow (unauthenticated access to written and video materials)
+                setProfile(null);
+                await loadDatabaseData(undefined);
+                setLoadingYoutube(true);
+                const fetched = await fetchLatestVideos();
+                setYoutubeVideos(fetched);
+                setLoadingYoutube(false);
             } catch (err) {
                 console.error("Error fetching initial profile data:", err);
             } finally {
@@ -125,13 +163,13 @@ export default function Ensinos() {
         fetchProfileAndData();
     }, []);
 
-    async function loadDatabaseData(profileId: string, isSilent = false) {
+    async function loadDatabaseData(profileId?: string, isSilent = false) {
         try {
             if (!isSilent) {
                 setLoadingData(true);
             }
 
-            // 1. Fetch Media Resources
+            // 1. Fetch Media Resources (PDFs, Markdown texts, Videos)
             const { data: resData } = await supabase
                 .from("media_resources")
                 .select("*")
@@ -152,20 +190,25 @@ export default function Ensinos() {
                 .order("sort_order", { ascending: true });
             setStudySteps((stepsData as unknown as StudyStep[]) || []);
 
-            // 4. Fetch User Progress
-            const { data: progData } = await supabase
-                .from("user_study_progress")
-                .select("*")
-                .eq("profile_id", profileId);
-            setUserProgress(progData || []);
+            // 4. Fetch User Progress (only if profileId is present)
+            if (profileId) {
+                const { data: progData } = await supabase
+                    .from("user_study_progress")
+                    .select("*")
+                    .eq("profile_id", profileId);
+                setUserProgress(progData || []);
 
-            // 5. Fetch Study Notes
-            const { data: notesData } = await supabase
-                .from("study_notes")
-                .select("*")
-                .eq("profile_id", profileId)
-                .order("updated_at", { ascending: false });
-            setNotes(notesData || []);
+                // 5. Fetch Study Notes
+                const { data: notesData } = await supabase
+                    .from("study_notes")
+                    .select("*")
+                    .eq("profile_id", profileId)
+                    .order("updated_at", { ascending: false });
+                setNotes(notesData || []);
+            } else {
+                setUserProgress([]);
+                setNotes([]);
+            }
         } catch (err) {
             console.error("Error loading learning data:", err);
             toast.error("Erro ao carregar dados do servidor.");
@@ -590,7 +633,10 @@ export default function Ensinos() {
 
     // Toggle complete step logic
     const handleToggleCompleteStep = async (step: StudyStep) => {
-        if (!profile) return;
+        if (!profile) {
+            toast.info("Faça login para salvar o progresso das suas trilhas de estudo.");
+            return;
+        }
 
         const isCompleted = userProgress.some((p) => p.step_id === step.id);
 
@@ -658,7 +704,7 @@ export default function Ensinos() {
         existingNoteId,
     }: SaveNoteParams) => {
         if (!profile) {
-            toast.error("Usuário não autenticado.");
+            toast.info("Faça login para registrar e salvar suas anotações pessoais.");
             return;
         }
 
@@ -973,19 +1019,42 @@ export default function Ensinos() {
                 }}
             />
 
-            {/* 2. Discipleship Overall Progress KPI Banner */}
-            <StudyOverallProgress
-                totalStudies={totalCourses}
-                completedStudies={completedCourses}
-                activeStudies={activeCourses}
-                totalNotes={notes.length}
-                percent={overallPercent}
-            />
+            {/* 2. Discipleship Overall Progress KPI Banner (Authenticated) OR Guest Library Banner (Unauthenticated) */}
+            {profile ? (
+                <StudyOverallProgress
+                    totalStudies={totalCourses}
+                    completedStudies={completedCourses}
+                    activeStudies={activeCourses}
+                    totalNotes={notes.length}
+                    percent={overallPercent}
+                />
+            ) : (
+                <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3.5">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                            <BookOpenIcon className="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm sm:text-base font-bold text-foreground">
+                                Acesso Livre aos Ensinos e Apostilas
+                            </h3>
+                            <p className="mt-1 text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                                Você está navegando como visitante. Todas as nossas apostilas, artigos bíblicos e ministrações gravadas estão com acesso livre para a sua edificação. Para salvar anotações e acompanhar o progresso das suas trilhas de estudo, faça login ou cadastre-se.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 self-stretch sm:self-auto shrink-0">
+                        <Button asChild className="min-h-[44px] w-full sm:w-auto rounded-full font-bold bg-primary text-primary-foreground hover:bg-primary/90 px-5">
+                            <Link to="/entrar">Entrar / Criar Conta</Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* 3. Navigation Tabs, Search & Category Filters */}
             <StudyTabsNav
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 counts={{
@@ -1239,112 +1308,133 @@ export default function Ensinos() {
                         {/* TAB: MINHAS ANOTAÇÕES */}
                         {activeTab === "anotacoes" && (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-                                {/* Sub-filters */}
-                                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                                    {(
-                                        [
-                                            { id: "todos", label: "Todas", count: notes.length },
-                                            {
-                                                id: "estudos",
-                                                label: "Trilhas",
-                                                count: notes.filter((n) => n.study_id && !n.media_resource_id).length,
-                                            },
-                                            {
-                                                id: "videos",
-                                                label: "Vídeos",
-                                                count: notes.filter((n) => {
-                                                    const r = resources.find((res) => res.id === n.media_resource_id);
-                                                    return r?.type === "video";
-                                                }).length,
-                                            },
-                                            {
-                                                id: "pdfs",
-                                                label: "PDFs",
-                                                count: notes.filter((n) => {
-                                                    const r = resources.find((res) => res.id === n.media_resource_id);
-                                                    return r?.type === "pdf";
-                                                }).length,
-                                            },
-                                            {
-                                                id: "textos",
-                                                label: "Textos",
-                                                count: notes.filter((n) => {
-                                                    const r = resources.find((res) => res.id === n.media_resource_id);
-                                                    return r?.type === "markdown";
-                                                }).length,
-                                            },
-                                        ] as const
-                                    ).map((filter) => (
-                                        <button
-                                            key={filter.id}
-                                            onClick={() => setNotesFilter(filter.id)}
-                                            className={cn(
-                                                "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap min-h-[44px] cursor-pointer",
-                                                notesFilter === filter.id
-                                                    ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-xs"
-                                                    : "bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                                            )}
-                                        >
-                                            <span>{filter.label}</span>
-                                            <span
-                                                className={cn(
-                                                    "px-1.5 py-0.5 rounded-full text-[10px]",
-                                                    notesFilter === filter.id
-                                                        ? "bg-primary-foreground/20 text-primary-foreground"
-                                                        : "bg-muted text-muted-foreground"
-                                                )}
-                                            >
-                                                {filter.count}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {filteredNotes.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {filteredNotes.map((item) => (
-                                            <NoteCard
-                                                key={item.id}
-                                                note={item}
-                                                onEdit={() => {
-                                                    if (item.resource) {
-                                                        handleOpenResourceNote(item.resource, item.study_id || undefined);
-                                                    } else {
-                                                        setNoteTarget({
-                                                            type: "study",
-                                                            id: item.study_id || item.id,
-                                                            title: item.targetTitle,
-                                                            studyId: item.study_id || undefined,
-                                                            note: item,
-                                                        });
-                                                        setIsNoteEditorOpen(true);
-                                                    }
-                                                }}
-                                                onDelete={() => handleDeleteNote(item.id)}
-                                                onOpenMaterial={() => {
-                                                    if (item.resource) {
-                                                        handleOpenResource(item.resource, item.study_id || undefined);
-                                                    } else if (item.study) {
-                                                        setSelectedStudy(item.study);
-                                                    }
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/60 rounded-3xl p-6">
-                                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <StickyNoteIcon className="h-8 w-8 text-primary" />
+                                {!profile ? (
+                                    <div className="text-center py-20 bg-card/40 backdrop-blur-sm border border-dashed border-border/80 rounded-3xl p-6 sm:p-8 max-w-lg mx-auto">
+                                        <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20">
+                                            <StickyNoteIcon className="h-8 w-8" />
                                         </div>
                                         <h3 className="text-base sm:text-lg font-bold text-foreground">
-                                            {searchQuery ? "Nenhuma anotação encontrada" : "Você ainda não possui anotações"}
+                                            Anotações Pessoais de Estudo
                                         </h3>
-                                        <p className="text-muted-foreground mt-1 max-w-md mx-auto text-xs sm:text-sm leading-relaxed">
-                                            {searchQuery
-                                                ? "Nenhuma reflexão corresponde à busca ou filtro atual."
-                                                : "Suas notas pessoais e reflexões bíblicas feitas nas ministrações aparecerão organizadas aqui. Clique no ícone de anotação em qualquer material para registrar."}
+                                        <p className="text-muted-foreground mt-2 text-xs sm:text-sm leading-relaxed">
+                                            Faça login para registrar anotações exclusivas ao ler apostilas, artigos ou assistir a ministrações. Suas notas ficam salvas de forma segura e pessoal.
                                         </p>
+                                        <div className="mt-6 flex justify-center">
+                                            <Button asChild className="min-h-[44px] rounded-full font-bold px-6 bg-primary text-primary-foreground hover:bg-primary/90">
+                                                <Link to="/entrar">Fazer Login / Cadastre-se</Link>
+                                            </Button>
+                                        </div>
                                     </div>
+                                ) : (
+                                    <>
+                                        {/* Sub-filters */}
+                                        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                                            {(
+                                                [
+                                                    { id: "todos", label: "Todas", count: notes.length },
+                                                    {
+                                                        id: "estudos",
+                                                        label: "Trilhas",
+                                                        count: notes.filter((n) => n.study_id && !n.media_resource_id).length,
+                                                    },
+                                                    {
+                                                        id: "videos",
+                                                        label: "Vídeos",
+                                                        count: notes.filter((n) => {
+                                                            const r = resources.find((res) => res.id === n.media_resource_id);
+                                                            return r?.type === "video";
+                                                        }).length,
+                                                    },
+                                                    {
+                                                        id: "pdfs",
+                                                        label: "PDFs",
+                                                        count: notes.filter((n) => {
+                                                            const r = resources.find((res) => res.id === n.media_resource_id);
+                                                            return r?.type === "pdf";
+                                                        }).length,
+                                                    },
+                                                    {
+                                                        id: "textos",
+                                                        label: "Textos",
+                                                        count: notes.filter((n) => {
+                                                            const r = resources.find((res) => res.id === n.media_resource_id);
+                                                            return r?.type === "markdown";
+                                                        }).length,
+                                                    },
+                                                ] as const
+                                            ).map((filter) => (
+                                                <button
+                                                    key={filter.id}
+                                                    onClick={() => setNotesFilter(filter.id)}
+                                                    className={cn(
+                                                        "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap min-h-[44px] cursor-pointer",
+                                                        notesFilter === filter.id
+                                                            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-xs"
+                                                            : "bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                                                    )}
+                                                >
+                                                    <span>{filter.label}</span>
+                                                    <span
+                                                        className={cn(
+                                                            "px-1.5 py-0.5 rounded-full text-[10px]",
+                                                            notesFilter === filter.id
+                                                                ? "bg-primary-foreground/20 text-primary-foreground"
+                                                                : "bg-muted text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        {filter.count}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {filteredNotes.length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {filteredNotes.map((item) => (
+                                                    <NoteCard
+                                                        key={item.id}
+                                                        note={item}
+                                                        onEdit={() => {
+                                                            if (item.resource) {
+                                                                handleOpenResourceNote(item.resource, item.study_id || undefined);
+                                                            } else {
+                                                                setNoteTarget({
+                                                                    type: "study",
+                                                                    id: item.study_id || item.id,
+                                                                    title: item.targetTitle,
+                                                                    studyId: item.study_id || undefined,
+                                                                    note: item,
+                                                                });
+                                                                setIsNoteEditorOpen(true);
+                                                            }
+                                                        }}
+                                                        onDelete={() => handleDeleteNote(item.id)}
+                                                        onOpenMaterial={() => {
+                                                            if (item.resource) {
+                                                                handleOpenResource(item.resource, item.study_id || undefined);
+                                                            } else if (item.study) {
+                                                                setSelectedStudy(item.study);
+                                                            }
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-20 bg-card/30 backdrop-blur-sm border border-dashed border-border/60 rounded-3xl p-6">
+                                                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <StickyNoteIcon className="h-8 w-8 text-primary" />
+                                                </div>
+                                                <h3 className="text-base sm:text-lg font-bold text-foreground">
+                                                    {searchQuery ? "Nenhuma anotação encontrada" : "Você ainda não possui anotações"}
+                                                </h3>
+                                                <p className="text-muted-foreground mt-1 max-w-md mx-auto text-xs sm:text-sm leading-relaxed">
+                                                    {searchQuery
+                                                        ? "Nenhuma reflexão corresponde à busca ou filtro atual."
+                                                        : "Suas notas pessoais e reflexões bíblicas feitas nas ministrações aparecerão organizadas aqui. Clique no ícone de anotação em qualquer material para registrar."}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )}
