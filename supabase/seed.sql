@@ -1232,93 +1232,10 @@ BEGIN
   END LOOP;
 
   -- ==========================================================================
-  -- 7. MURAL DE POSTS ORGÂNICO E VIBRANTE (15 Posts com Categorias e Datas)
+  -- 7. MURAL DE POSTS CENTRALIZADO
+  -- (A inserção dos posts foi realocada para a Seção 10B para respeitar as Foreign Keys
+  --  com media_resources, forms e retreats criados nas seções 8, 9 e 10).
   -- ==========================================================================
-  INSERT INTO public.posts (author_id, category, title, content, is_published, event_start_date, event_end_date, image_urls, created_at)
-  VALUES 
-    -- 1. Notícia Central
-    (presbyters[1], 'noticia', 'Início da Trilha de Formação Comum: O Propósito Eterno', 
-     'Queridos irmãos, iniciamos nossa nova série de estudos sobre "Juntas e Ligamentos no Corpo de Cristo". Todos os materiais de leitura (Catequese) e vídeos de apoio já estão disponíveis na nossa central de Ensino. Incentivamos que os discipuladores estudem junto com seus discípulos ao longo das semanas.', 
-     true, (now() - INTERVAL '2 days'), NULL, 
-     ARRAY['https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '2 days'),
-    
-    -- 2. Diaconato - Mutirão
-    (gabriel_id, 'diaconato', 'Mutirão Diaconal de Reforma na Região São Gabriel', 
-     'Graça e paz, irmãos! No próximo sábado faremos um mutirão de pintura e reparos na residência de uma família assistida na região do São Gabriel. Quem tiver ferramentas simples (espátula, rolo de pintura, lixas) favor trazer. O almoço será comunitário preparado pelas irmãs no local.', 
-     true, (now() + INTERVAL '3 days' + INTERVAL '8 hours'), (now() + INTERVAL '3 days' + INTERVAL '16 hours'), 
-     ARRAY['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '1 day'),
-    
-    -- 3. Oração - Saúde e Enfermos
-    (presbyters[2], 'oracao', 'Clamor pela Saúde dos Irmãos Idosos e Gestantes', 
-     'Lembramos toda a igreja de sustentar em oração os nossos irmãos e irmãs mais idosos que têm enfrentado desafios de saúde neste período, assim como as três gestantes que se aproximam do parto. Orem em suas casas e nos encontros semanais dos Grupos Caseiros.', 
-     true, (now() - INTERVAL '3 days'), NULL, 
-     ARRAY['https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '3 days'),
-     
-    -- 4. Notícia - Novos Batismos
-    (presbyters[3], 'noticia', 'Novo Nascimento e Batismo nas Águas na Região Oeste', 
-     'Celebramos com júbilo a confissão pública de fé e batismo de 8 novos discípulos que desceram às águas no último fim de semana no Barreiro e Buritis! Que o Senhor fortaleça esses novos irmãos em sua caminhada de discipulado.', 
-     true, (now() - INTERVAL '4 days'), NULL, 
-     ARRAY['https://images.unsplash.com/photo-1544717305-2782549b5136?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '4 days'),
-
-    -- 5. Diaconato - Campanha de Inverno
-    (deacons[1], 'diaconato', 'Campanha Metropolitana de Agasalhos e Cobertores', 
-     'A diaconia das seis regiões está recolhendo cobertores novos e agasalhos em bom estado para as famílias em situação de vulnerabilidade em Contagem e Betim. As caixas de arrecadação estão localizadas nas residências onde os GCs se reúnem.', 
-     true, (now() - INTERVAL '5 days'), (now() + INTERVAL '10 days'), 
-     ARRAY['https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '5 days'),
-
-    -- 6. Aviso - Reunião Coletiva
-    (presbyters[1], 'aviso', 'Reunião Coletiva de Toda a Igreja no Parque Municipal', 
-     'Neste domingo, a partir das 09h30, nos reuniremos ao ar livre no Parque Municipal de Belo Horizonte para um tempo especial de louvor, oração coletiva e partilha do pão. Cada família é encorajada a levar toalha de piquenique e frutas/lanches para compartilhar.', 
-     true, (now() + INTERVAL '4 days' + INTERVAL '9 hours 30 minutes'), (now() + INTERVAL '4 days' + INTERVAL '13 hours'), 
-     ARRAY['https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '6 hours'),
-
-    -- 7. Obra - Manutenção
-    (deacons[2], 'obra', 'Manutenção Preventiva de Equipamentos de Som e Cabos', 
-     'A equipe de apoio técnico realizou a revisão de todas as caixas de som ativas, cabos de microfone e projetores utilizados nas reuniões maiores das regiões. Tudo limpo e devidamente identificado por setor.', 
-     true, (now() - INTERVAL '6 days'), NULL, 
-     ARRAY['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '6 days'),
-
-    -- 8. Evento - Retiro de Solteiros
-    (gabriel_id, 'evento', 'Inscrições Abertas: Retiro de Solteiros e Jovens 2026', 
-     'Estão abertas as inscrições para o nosso Retiro de Solteiros no Sítio das Palmeiras em Santa Luzia! Serão três dias de edificação profunda, palavra e comunhão intensa. As vagas nos chalés são limitadas. Inscrevam-se pelo portal!', 
-     true, '2026-10-10 08:00:00+00', '2026-10-12 17:00:00+00', 
-     ARRAY['https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '1 day'),
-
-    -- 9. Oração - Famílias e Evangelismo
-    (leader_ids[3], 'oracao', 'Intercessão pelo Evangelismo nas Universidades e Ruas', 
-     'Pedimos a cobertura em oração para os jovens irmãos que têm saído aos sábados à tarde nas imediações da Praça da Liberdade e da UFMG para conversar naturalmente com as pessoas e compartilhar o Evangelho do Reino.', 
-     true, (now() - INTERVAL '7 days'), NULL, 
-     NULL, now() - INTERVAL '7 days'),
-
-    -- 10. Obra - Espaço Comunitário em Betim
-    (deacons[3], 'obra', 'Revisão Elétrica e Hidráulica na Casa Comum de Betim', 
-     'Agradecemos a todos os irmãos que doaram tempo e materiais para a substituição da fiação e instalação das novas lâmpadas de LED no ponto de apoio comunitário em Betim. Trabalho concluído com excelência.', 
-     true, (now() - INTERVAL '8 days'), NULL, 
-     NULL, now() - INTERVAL '8 days'),
-
-    -- 11. Aviso - Censo de Dons e Habilidades
-    (deacons[4], 'aviso', 'Preenchimento do Censo de Dons e Recursos Práticos', 
-     'Solicitamos a todos os irmãos que preencham a ficha de "Censo de Vida Comum e Talentos" disponível na aba de Formulários. O objetivo é mapear profissões e habilidades práticas para apoiar viúvas, enfermos e irmãos desempregados.', 
-     true, (now() - INTERVAL '2 days'), (now() + INTERVAL '15 days'), 
-     ARRAY['https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '2 days'),
-
-    -- 12. Notícia - Testemunho nas Casas
-    (leader_ids[5], 'noticia', 'Comunhão e Crescimento nos Grupos Caseiros de Venda Nova', 
-     'Nesta última quinta-feira, os quatro GCs de Venda Nova se reuniram para uma ceia compartilhada. Foi marcante ver o carinho e o acolhimento com dois novos vizinhos que decidiram caminhar conosco rumo ao discipulado.', 
-     true, (now() - INTERVAL '9 days'), NULL, 
-     ARRAY['https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '9 days'),
-
-    -- 13. Oração - Irmãos Enfermos
-    (leader_ids[7], 'oracao', 'Pedido de Cura: Recuperação Pós-Cirúrgica', 
-     'Irmãos, intercedamos pelo irmão Cláudio do GC Castelo, que passou por cirurgia no joelho ontem. O procedimento foi bem-sucedido e agora ele necessita de repouso e oração para plena recuperação funcional.', 
-     true, (now() - INTERVAL '12 hours'), NULL, 
-     NULL, now() - INTERVAL '12 hours'),
-
-    -- 14. Evento - Encontro de Casais (Rascunho/Planejamento)
-    (presbyters[4], 'evento', 'Planejamento: Encontro de Casais nas Casas 2026', 
-     'O presbitério e diaconato estão alinhando a data e o programa do nosso Encontro Metropolitano de Casais. Em breve disponibilizaremos os detalhes e orientações para os pequenos grupos.', 
-     true, '2026-11-20 19:30:00+00', '2026-11-22 16:00:00+00', 
-     ARRAY['https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '10 hours');
 
   -- ==========================================================================
   -- 8. PLATAFORMA DE ENSINO & CATEQUESE (Media Resources, Studies, Steps, Progress)
@@ -1949,6 +1866,119 @@ BEGIN
 
   INSERT INTO public.retreat_expenses (retreat_id, description, category, amount, expense_date, notes) VALUES
     (r_retreat_draft, 'Sinal de Reserva da Pousada (30%)', 'aluguel', 2500.00, '2026-09-20', 'Pago via transferência bancária');
+
+  -- ==========================================================================
+  -- 10B. MURAL CENTRALIZADO DE NOTÍCIAS, ENCONTROS E AVISOS (13 Posts Completos)
+  -- ==========================================================================
+  INSERT INTO public.posts (
+    author_id, category, title, content, is_public, is_published,
+    event_start_date, event_end_date, event_location,
+    media_resource_id, form_id, retreat_id, event_label,
+    image_urls, created_at
+  ) VALUES 
+    -- 1. Geral / Notícia Central (Pública)
+    (presbyters[1], 'geral', 'Caminhando em Família: Bem-vindos à Igreja em Belo Horizonte',
+     'Uma igreja simples, nas casas e pelas ruas de Belo Horizonte, Contagem e Betim. Não temos templos ou clero: somos discípulos de Cristo vivendo em comunhão, edificando uns aos outros e buscando expressar o amor do Pai em nossos bairros.',
+     true, true,
+     NULL, NULL, NULL,
+     NULL, NULL, NULL, NULL,
+     ARRAY['https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '5 days'),
+
+    -- 2. Geral / Diaconia (Interna)
+    (gabriel_id, 'geral', 'Mutirão Diaconal de Apoio na Região São Gabriel',
+     'Graça e paz, irmãos! No próximo sábado faremos um mutirão de reparos e pintura na casa de uma família assistida no São Gabriel. Quem tiver ferramentas simples (espátula, rolo de pintura, lixas) favor trazer. O almoço comunitário será preparado pelas irmãs no local.',
+     false, true,
+     NULL, NULL, NULL,
+     NULL, NULL, NULL, NULL,
+     ARRAY['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '2 days'),
+
+    -- 3. Oração (Interna)
+    (presbyters[2], 'oracao', 'Clamor e Intercessão pela Saúde dos Irmãos Idosos e Gestantes',
+     'Lembramos toda a igreja de sustentar em oração os nossos irmãos e irmãs mais idosos que têm enfrentado desafios de saúde neste período, assim como as três gestantes que se aproximam do parto. Orem em suas casas e nos encontros semanais dos Grupos Caseiros.',
+     false, true,
+     NULL, NULL, NULL,
+     NULL, NULL, NULL, NULL,
+     NULL, now() - INTERVAL '3 days'),
+
+    -- 4. Missões / Evangelismo (Pública)
+    (leader_ids[3], 'missoes', 'Evangelismo Natural e Testemunho nas Universidades e Ruas',
+     'Compartilhamos com alegria os frutos do evangelismo despretensioso na Praça da Liberdade e arredores da UFMG. Vários jovens universitários abriram seus corações para o Evangelho e iniciaram conversas de discipulado!',
+     true, true,
+     NULL, NULL, NULL,
+     NULL, NULL, NULL, NULL,
+     ARRAY['https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '4 days'),
+
+    -- 5. Encontro Casual na Cidade (Público)
+    (presbyters[1], 'encontro', 'Encontro Geral de Louvor e Piquenique no Parque Municipal',
+     'Neste domingo nos reuniremos ao ar livre no Parque Municipal de Belo Horizonte para um tempo especial de louvor, oração coletiva e partilha do pão. Traga sua família, toalha de piquenique e algo para compartilhar!',
+     true, true,
+     (now() + INTERVAL '4 days' + INTERVAL '9 hours 30 minutes'), (now() + INTERVAL '4 days' + INTERVAL '13 hours'), 'Parque Municipal de Belo Horizonte (próximo ao Coreto)',
+     NULL, NULL, NULL, NULL,
+     ARRAY['https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '1 day'),
+
+    -- 6. Encontro Casual na Cidade (Interno)
+    (leader_ids[5], 'encontro', 'Vigília e Noite de Oração dos Discípulos',
+     'Tempo de busca e intercessão profunda pela cidade e pelo avanço do Reino nas casas. Venha com o coração aberto para orar e adorar ao Senhor.',
+     false, true,
+     (now() + INTERVAL '6 days' + INTERVAL '21 hours'), (now() + INTERVAL '7 days' + INTERVAL '1 hour'), 'Casa de Apoio Comunitária - Região Oeste',
+     NULL, NULL, NULL, NULL,
+     NULL, now() - INTERVAL '18 hours'),
+
+    -- 7. Estudo Vinculado (Público)
+    (presbyters[1], 'estudo', 'Novo Conteúdo: O Propósito Eterno de Deus',
+     'Disponibilizamos uma exposição bíblica profunda sobre o propósito eterno do Pai em ter muitos filhos à imagem de Jesus. Recomendamos que todos os discípulos assistam e meditem nas Escrituras indicadas.',
+     true, true,
+     NULL, NULL, NULL,
+     m_res_id1, NULL, NULL, NULL,
+     NULL, now() - INTERVAL '6 days'),
+
+    -- 8. Estudo Vinculado (Interno)
+    (presbyters[3], 'estudo', 'Apostila Liberada: O Sacerdócio Universal de Todos os Santos',
+     'Já está acessível na plataforma o caderno de estudo em PDF sobre como cada discípulo é sacerdote e cooperador no Corpo de Cristo. Estude com o seu discipulador ao longo desta semana.',
+     false, true,
+     NULL, NULL, NULL,
+     m_res_id6, NULL, NULL, NULL,
+     NULL, now() - INTERVAL '2 days'),
+
+    -- 9. Formulário Vinculado (Interno)
+    (deacons[4], 'formulario', 'Censo da Vida Comum: Mapeamento de Dons e Talentos',
+     'Pedimos a todos os irmãos e discípulos que preencham o formulário do censo. O objetivo é mapear profissões e habilidades práticas para apoiar viúvas, enfermos e irmãos desempregados.',
+     false, true,
+     NULL, NULL, NULL,
+     NULL, 'form-censo-dons', NULL, NULL,
+     NULL, now() - INTERVAL '3 days'),
+
+    -- 10. Formulário Vinculado (Público)
+    (deacons[1], 'formulario', 'Ficha de Solicitação de Apoio Diaconal e Necessidades',
+     'Se você ou alguma família próxima está enfrentando necessidades emergenciais (alimentos, saúde, moradia), utilize este formulário para que a diaconia da igreja possa agir em amor.',
+     true, true,
+     NULL, NULL, NULL,
+     NULL, 'form-apoio-diaconal', NULL, NULL,
+     NULL, now() - INTERVAL '5 days'),
+
+    -- 11. Evento Vinculado: Vagas Abertas (Público)
+    (gabriel_id, 'evento', 'Inscrições Abertas: Retiro de Solteiros e Jovens 2026',
+     'Estão abertas as inscrições oficiais para o Retiro de Solteiros no Sítio das Palmeiras em Santa Luzia! Serão três dias de edificação profunda, palavra e comunhão intensa. As vagas nos chalés são limitadas. Garanta sua inscrição pelo portal!',
+     true, true,
+     '2026-10-10 08:00:00+00', '2026-10-12 17:00:00+00', 'Sítio das Palmeiras, Santa Luzia, MG',
+     NULL, NULL, r_retreat_active, 'Vagas Abertas',
+     ARRAY['https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&auto=format&fit=crop&q=80'], now() - INTERVAL '4 days'),
+
+    -- 12. Evento Vinculado: Transporte e Caronas (Interno)
+    (deacons[2], 'evento', 'Organização de Caronas e Logística: Retiro de Solteiros',
+     'Irmãos inscritos no Retiro de Solteiros, favor verificar a tabela de caronas por região (Barreiro, Venda Nova, Pampulha, Contagem e Betim) para otimizar os carros e despesas de pedágio/combustível.',
+     false, true,
+     NULL, NULL, NULL,
+     NULL, NULL, r_retreat_active, 'Transporte & Caronas',
+     NULL, now() - INTERVAL '1 day'),
+
+    -- 13. Evento Vinculado: Oração e Preparação Espiritual (Público)
+    (presbyters[2], 'evento', 'Clamor e Intercessão pelo Retiro de Jovens e Solteiros',
+     'Convocamos toda a igreja a interceder pela vida de cada jovem que estará presente no sítio. Que o Senhor traga discernimento, arrependimento sincero e profunda revelação de Cristo a cada coração.',
+     true, true,
+     NULL, NULL, NULL,
+     NULL, NULL, r_retreat_active, 'Oração',
+     NULL, now() - INTERVAL '12 hours');
 
   -- ==========================================================================
   -- 11. INSCRIÇÕES COERENTES NOS RETIROS (Ativo e Encerrado)

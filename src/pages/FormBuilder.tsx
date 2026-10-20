@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   Users,
   Sparkles,
+  Bell,
 } from "lucide-react"
 import { FormPresentationEditor } from "@/components/forms/FormPresentationEditor"
 import { parseEndOfDay } from "@/lib/utils"
@@ -138,6 +139,8 @@ export default function FormBuilder() {
     {}
   )
   const [showPreview, setShowPreview] = useState(true)
+  const [postAnnouncement, setPostAnnouncement] = useState(false)
+  const [announcementText, setAnnouncementText] = useState("")
 
   const isFormConnectedToEvent = selectedForm
     ? retreats.some((r) => r.form_id === selectedForm.id)
@@ -290,6 +293,8 @@ export default function FormBuilder() {
     setBuilderTab("edit")
     setPreviewFormData({})
     setPreviewFormErrors({})
+    setPostAnnouncement(false)
+    setAnnouncementText("")
   }
 
   // Edit existing form
@@ -301,6 +306,8 @@ export default function FormBuilder() {
     setEditingFieldId(form.fields.length > 0 ? form.fields[0].id : null)
     setPreviewFormData({})
     setPreviewFormErrors({})
+    setPostAnnouncement(false)
+    setAnnouncementText("")
   }
 
   // Save the form template
@@ -361,6 +368,27 @@ export default function FormBuilder() {
 
       if (error) throw error
       toast.dismiss(savingToastId)
+
+      // Se o usuário optou por publicar aviso no Mural da Igreja
+      if (postAnnouncement) {
+        const content = announcementText.trim()
+          ? announcementText.trim()
+          : (selectedForm.description?.trim() || `Novo formulário disponível para resposta: "${selectedForm.name}".`);
+
+        const { error: postErr } = await supabase.from("posts").insert({
+          title: `Novo Formulário: ${selectedForm.name}`,
+          content,
+          category: "formulario",
+          form_id: selectedForm.id,
+          is_public: !!selectedForm.isPublic,
+          is_published: true,
+          author_id: session?.user?.id || null,
+        })
+
+        if (postErr) {
+          console.error("Erro ao publicar notícia do formulário no Mural:", postErr)
+        }
+      }
 
       const index = forms.findIndex((f) => f.id === selectedForm.id)
       let updated: FormTemplate[]
@@ -1407,26 +1435,55 @@ export default function FormBuilder() {
                   placeholder="Insira uma descrição explicativa curta..."
                   className="h-auto w-full rounded-none border-none bg-transparent px-0 py-1.5 text-sm text-muted-foreground focus-visible:border-b focus-visible:border-primary/30 focus-visible:ring-0"
                 />
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="form-is-public"
-                    checked={!!selectedForm.isPublic}
-                    onChange={(e) =>
-                      setSelectedForm({
-                        ...selectedForm,
-                        isPublic: e.target.checked,
-                      })
-                    }
-                    className="h-4 w-4 cursor-pointer rounded border-zinc-300 text-primary focus:ring-primary/20 dark:border-zinc-700"
-                  />
-                  <label
-                    htmlFor="form-is-public"
-                    className="cursor-pointer text-xs font-medium text-muted-foreground transition-colors select-none hover:text-foreground"
-                  >
-                    Disponibilizar como Formulário Público (não exige login para
-                    responder)
-                  </label>
+                <div className="flex flex-col gap-2.5 pt-2 border-t border-border/40">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="form-is-public"
+                      checked={!!selectedForm.isPublic}
+                      onChange={(e) =>
+                        setSelectedForm({
+                          ...selectedForm,
+                          isPublic: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 cursor-pointer rounded border-zinc-300 text-primary focus:ring-primary/20 dark:border-zinc-700"
+                    />
+                    <label
+                      htmlFor="form-is-public"
+                      className="cursor-pointer text-xs font-medium text-muted-foreground transition-colors select-none hover:text-foreground"
+                    >
+                      Disponibilizar como Formulário Público (não exige login para responder)
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="form-post-announcement"
+                      checked={postAnnouncement}
+                      onChange={(e) => setPostAnnouncement(e.target.checked)}
+                      className="h-4 w-4 cursor-pointer rounded border-zinc-300 text-primary focus:ring-primary/20 dark:border-zinc-700"
+                    />
+                    <label
+                      htmlFor="form-post-announcement"
+                      className="cursor-pointer text-xs font-medium text-muted-foreground transition-colors select-none hover:text-foreground flex items-center gap-1.5"
+                    >
+                      <Bell className="h-3.5 w-3.5 text-primary" />
+                      Publicar aviso no Mural da Igreja ao salvar
+                    </label>
+                  </div>
+
+                  {postAnnouncement && (
+                    <div className="pt-1 pl-6">
+                      <Input
+                        value={announcementText}
+                        onChange={(e) => setAnnouncementText(e.target.value)}
+                        placeholder="Mensagem personalizada para o Mural (opcional)..."
+                        className="h-9 text-xs rounded-lg max-w-lg"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

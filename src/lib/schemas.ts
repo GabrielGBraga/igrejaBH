@@ -211,10 +211,24 @@ export const postSchema = z.object({
   content: z
     .string()
     .min(10, { message: "Conteúdo deve ter pelo menos 10 caracteres." }),
-  category: z.enum(["noticia", "oracao", "aviso", "evento"] as const),
-  eventStartDate: z.string().nullable().optional(),
-  eventEndDate: z.string().nullable().optional(),
+  category: z.enum([
+    "geral",
+    "oracao",
+    "missoes",
+    "encontro",
+    "estudo",
+    "formulario",
+    "evento",
+  ] as const),
+  isPublic: z.boolean(),
   isPublished: z.boolean(),
   imageUrls: z.array(z.string()),
+  eventStartDate: z.string().nullable().optional(),
+  eventEndDate: z.string().nullable().optional(),
+  eventLocation: z.string().nullable().optional(),
+  mediaResourceId: z.string().nullable().optional(),
+  formId: z.string().nullable().optional(),
+  retreatId: z.string().nullable().optional(),
+  eventLabel: z.string().nullable().optional(),
 })
 export type PostValue = z.infer<typeof postSchema>

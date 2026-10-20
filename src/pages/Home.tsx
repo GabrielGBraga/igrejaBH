@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { HomeGroupCard } from "@/components/home/HomeGroupCard"
 import { DiscipleshipCard } from "@/components/home/DiscipleshipCard"
 import { StudyProgressCard, type ActiveStudyInfo } from "@/components/home/StudyProgressCard"
-import { CommunityCalendarCard, type CommunityEvent } from "@/components/home/CommunityCalendarCard"
+import { CommunityCalendarCard } from "@/components/home/CommunityCalendarCard"
 import { NewsTimeline } from "@/components/home/NewsTimeline"
 import type { Database } from "@/lib/database.types"
 
@@ -54,7 +54,6 @@ export default function Home() {
   const [disciples, setDisciples] = useState<ProfileSummary[]>([])
   const [fellows, setFellows] = useState<ProfileSummary[]>([])
   const [studyInfo, setStudyInfo] = useState<ActiveStudyInfo | null>(null)
-  const [communityEvents, setCommunityEvents] = useState<CommunityEvent[]>([])
   const [loading, setLoading] = useState(true)
 
   // Seleciona um versículo do dia baseado no dia do ano
@@ -233,18 +232,6 @@ export default function Home() {
             })
           }
         }
-
-        // 5. Carrega Encontros da Igreja na Cidade (posts com datas)
-        const { data: eventsData } = await supabase
-          .from("posts")
-          .select("*")
-          .eq("is_published", true)
-          .not("event_start_date", "is", null)
-          .order("event_start_date", { ascending: true })
-
-        if (isMounted && eventsData) {
-          setCommunityEvents(eventsData)
-        }
       } catch (err) {
         console.error("Erro ao carregar dashboard:", err)
       } finally {
@@ -302,8 +289,8 @@ export default function Home() {
                 loading={loading}
               />
               <CommunityCalendarCard
-                events={communityEvents}
                 loading={loading}
+                isChurchLinked={false}
               />
               <HomeGroupCard
                 homeGroup={homeGroup}
@@ -344,10 +331,10 @@ export default function Home() {
                 loading={loading}
               />
 
-              {/* Card 4: Encontros da Igreja na Cidade (Calendário & Agenda Casual) */}
+              {/* Card 4: Agenda & Calendário da Igreja */}
               <CommunityCalendarCard
-                events={communityEvents}
                 loading={loading}
+                isChurchLinked={true}
               />
             </>
           )}

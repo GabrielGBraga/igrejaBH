@@ -372,7 +372,7 @@ export default function Ensinos() {
                 return;
             }
 
-            const { error: insertError } = await supabase
+            const { data: newResource, error: insertError } = await supabase
                 .from("media_resources")
                 .insert({
                     title: values.title,
@@ -380,9 +380,32 @@ export default function Ensinos() {
                     type: values.type,
                     url: publicUrl,
                     category: activeTab !== "estudos" ? activeTab : "ensinos",
-                });
+                })
+                .select("id, title, description")
+                .single();
 
             if (insertError) throw insertError;
+
+            // Publica notícia no Mural se selecionado
+            if (values.postAnnouncement && newResource) {
+                const announcementContent = values.announcementText?.trim()
+                    ? values.announcementText.trim()
+                    : (values.description?.trim() || `Novo material de estudo disponível: "${values.title}". Acesse para edificar sua vida na Palavra.`);
+
+                const { error: postError } = await supabase.from("posts").insert({
+                    title: `Novo Estudo: ${values.title}`,
+                    content: announcementContent,
+                    category: "estudo",
+                    media_resource_id: newResource.id,
+                    is_public: values.isPublicAnnouncement ?? true,
+                    is_published: true,
+                    author_id: profile.id,
+                });
+
+                if (postError) {
+                    console.error("Erro ao criar aviso no mural:", postError);
+                }
+            }
 
             toast.success("Recurso adicionado com sucesso!");
             await loadDatabaseData(profile.id);

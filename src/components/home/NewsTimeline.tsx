@@ -1,192 +1,121 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BellIcon, MapPinIcon, CalendarHeartIcon, Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
-import supabase from "@/lib/supabase"
-import { format, parseISO } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
+import { Bell, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PlusIcon } from "lucide-react"
-
-type Post = {
-  id: string
-  title: string
-  content: string
-  event_start_date: string | null
-  event_end_date: string | null
-  category: "noticia" | "oracao" | "aviso" | "evento" | "diaconato" | "obra"
-  image_urls?: string[] | null
-}
-
-const visualStyles = [
-  { color: "text-primary", bg: "bg-primary/20", icon: CalendarHeartIcon },
-  { color: "text-amber-500", bg: "bg-amber-500/20", icon: BellIcon },
-  { color: "text-emerald-500", bg: "bg-emerald-500/20", icon: MapPinIcon },
-]
+import { Skeleton } from "@/components/ui/skeleton"
+import supabase from "@/lib/supabase"
+import { useNewsFeed, type PostCategory } from "@/hooks/useNewsFeed"
+import { NewsCategoryFilters } from "@/components/news/NewsCategoryFilters"
+import { NewsCard } from "@/components/news/NewsCard"
 
 export function NewsTimeline() {
-  const [news, setNews] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+  const { feedItems, loading } = useNewsFeed()
+  const [selectedCategory, setSelectedCategory] = useState<PostCategory | "todos">("todos")
   const [canPost, setCanPost] = useState(false)
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("is_published", true)
-        .order("event_start_date", { ascending: true })
-        .limit(10)
-
-      if (!error && data) {
-        setNews(data)
-      }
-      setLoading(false)
-    }
-
-    const checkPermissions = async () => {
+    async function checkPermissions() {
       const {
         data: { session },
       } = await supabase.auth.getSession()
+
       if (session?.user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("can_post")
+          .select("can_post, is_dev, is_presbyter, is_deacon")
           .eq("user_id", session.user.id)
           .single()
 
         if (profile) {
-          setCanPost(!!profile.can_post)
+          setCanPost(
+            Boolean(
+              profile.can_post ||
+              profile.is_dev ||
+              profile.is_presbyter ||
+              profile.is_deacon
+            )
+          )
         }
       }
     }
 
-    fetchPosts()
     checkPermissions()
   }, [])
 
-  const formatEventDate = (
-    startDate: string | null,
-    endDate: string | null
-  ) => {
-    if (!startDate) return "Data a definir"
-    try {
-      const start = parseISO(startDate)
-      const startStr = format(start, "EEEE, dd/MM 'às' HH:mm", { locale: ptBR })
-
-      if (!endDate) return startStr
-
-      const end = parseISO(endDate)
-
-      if (format(start, "dd/MM") === format(end, "dd/MM")) {
-        const startTime = format(start, "HH:mm")
-        const endTime = format(end, "HH:mm")
-        return `${format(start, "EEEE, dd/MM", { locale: ptBR })} | ${startTime} - ${endTime}`
-      }
-      return `${format(start, "dd/MM")} a ${format(end, "dd/MM")}`
-    } catch (e) {
-      return startDate
-    }
-  }
+  const filteredItems = useMemo(() => {
+    if (selectedCategory === "todos") return feedItems
+    return feedItems.filter((item) => item.category === selectedCategory)
+  }, [feedItems, selectedCategory])
 
   return (
-    <Card className="flex h-full flex-col border-border bg-card/40 shadow-xl backdrop-blur-md">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="flex items-center gap-2 text-xl font-bold">
-            <BellIcon className="h-5 w-5 text-primary" />
-            Mural de Avisos
-          </CardTitle>
-          {canPost && (
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1 border-primary/20 hover:border-primary/50 hover:bg-primary/5"
+    <div className="space-y-6">
+      {/* Header do Mural com Ação de Novo Aviso */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+            <Bell className="h-6 w-6 text-primary shrink-0" />
+            <span>Mural da Comunidade</span>
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+            Acompanhe comunicados, pedidos de oração, novos ensinos e a vida da igreja na cidade.
+          </p>
+        </div>
+
+        {canPost && (
+          <Button
+            asChild
+            size="sm"
+            className="min-h-[44px] shrink-0 gap-1.5 rounded-full font-semibold px-4"
+          >
+            <Link to="/noticias/nova">
+              <Plus className="h-4 w-4" />
+              <span>Novo Comunicado</span>
+            </Link>
+          </Button>
+        )}
+      </div>
+
+      {/* Barra de Filtros por Categoria */}
+      <NewsCategoryFilters
+        activeCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
+
+      {/* Conteúdo do Feed */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col justify-between rounded-2xl border border-border/50 bg-card p-5 space-y-4"
             >
-              <Link to="/noticias/nova">
-                <PlusIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Novo Aviso</span>
-              </Link>
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto pr-2">
-        <div className="relative ml-3 space-y-8 border-l-2 border-primary/20 pb-4">
-          {loading ? (
-            <div className="flex items-center justify-center p-8">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-28 rounded-full" />
+                <Skeleton className="h-6 w-full rounded" />
+                <Skeleton className="h-4 w-3/4 rounded" />
+                <Skeleton className="h-16 w-full rounded-xl" />
+              </div>
+              <Skeleton className="h-8 w-24 rounded" />
             </div>
-          ) : news.length === 0 ? (
-            <p className="p-8 text-center text-muted-foreground">
-              Nenhum evento futuro.
-            </p>
-          ) : (
-            news.map((item, index) => {
-              const style = visualStyles[index % visualStyles.length]
-              const Icon = style.icon
-
-              return (
-                <div key={item.id} className="relative pl-6">
-                  {/* Marker */}
-                  <div
-                    className={`absolute top-1 -left-[11px] flex h-5 w-5 items-center justify-center rounded-full border-4 border-card backdrop-blur-sm ${style.bg}`}
-                  >
-                    <div
-                      className={`h-2 w-2 rounded-full ${style.color.replace("text-", "bg-")}`}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="rounded-lg border border-border/50 bg-background/50 p-4 shadow-sm transition-colors hover:border-primary/30">
-                    <div className="mb-1 flex items-center gap-2">
-                      <Icon className={`h-4 w-4 ${style.color}`} />
-                      <h3 className="text-sm font-semibold text-foreground lg:text-base">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <time className="mb-2 block text-xs font-medium text-primary">
-                      {formatEventDate(
-                        item.event_start_date,
-                        item.event_end_date
-                      )}
-                    </time>
-                    <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                      {item.content}
-                    </p>
-
-                    {item.image_urls && item.image_urls.length > 0 && (
-                      <div
-                        className={`mb-2 grid gap-2 ${item.image_urls.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}
-                      >
-                        {item.image_urls.map((url, idx) => (
-                          <div
-                            key={idx}
-                            className={`relative overflow-hidden rounded-md border border-border/30 bg-muted/20 ${
-                              item.image_urls &&
-                              item.image_urls.length === 3 &&
-                              idx === 0
-                                ? "col-span-2"
-                                : ""
-                            }`}
-                          >
-                            <img
-                              src={url}
-                              alt={`Post image ${idx + 1}`}
-                              className="h-full max-h-48 w-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })
-          )}
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      ) : filteredItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-card/40 p-8 text-center">
+          <Bell className="h-8 w-8 text-muted-foreground/50 mb-2" />
+          <p className="text-sm font-semibold text-foreground">
+            Nenhuma publicação nesta categoria no momento.
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Selecione "Todos" ou volte em breve para novas atualizações da comunidade.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredItems.map((item) => (
+            <NewsCard key={item.id} post={item} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

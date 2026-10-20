@@ -20,6 +20,7 @@ import {
   UserCheck,
   HeartHandshake,
   Printer,
+  Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 import supabase from "@/lib/supabase";
@@ -53,6 +54,7 @@ import {
 import { EventCouponsTab } from "@/components/events/EventCouponsTab";
 import { EventCheckInTab } from "@/components/events/EventCheckInTab";
 import { EventWaitlistTab } from "@/components/events/EventWaitlistTab";
+import { EventAnnouncementsTab } from "@/components/events/EventAnnouncementsTab";
 import {
   EventFinanceTab,
 } from "@/components/events/EventFinanceTab";
@@ -114,6 +116,7 @@ export default function ManageEventDetail() {
     | "finance"
     | "coupons"
     | "waitlist"
+    | "announcements"
     | "dashboard"
   >("registrations");
   const [waitlistCount, setWaitlistCount] = useState<number>(0);
@@ -1393,6 +1396,18 @@ export default function ManageEventDetail() {
         </button>
 
         <button
+          onClick={() => setActiveTab("announcements")}
+          className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+            activeTab === "announcements"
+              ? "border-primary text-primary"
+              : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+          }`}
+        >
+          <Bell className="w-4 h-4" />
+          <span>Comunicados & Avisos</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("dashboard")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
             activeTab === "dashboard"
@@ -1632,6 +1647,11 @@ export default function ManageEventDetail() {
           formId={retreat.form_id}
           onWaitlistCountChange={setWaitlistCount}
         />
+      )}
+
+      {/* Tab 7: Comunicados & Avisos do Evento */}
+      {activeTab === "announcements" && retreat && (
+        <EventAnnouncementsTab retreat={retreat} />
       )}
 
       {/* Modal: Alocar Quarto para Inscrito Específico */}

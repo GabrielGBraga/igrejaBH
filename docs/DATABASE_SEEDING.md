@@ -11,7 +11,7 @@ O script de seeding é capaz de repopular o banco do zero em uma única execuç�
 - **537 perfis no total:**
   - **531 discípulos vinculados à igreja** (`is_church_linked = true`): 528 gerados na grade regular dos **24 Grupos Caseiros (GCs)** nos **6 setores** + 3 filhos na família de Rafael e Isabele Moraes (Bia, André e Filipe no GC Castelo).
   - **6 contas de acesso aos estudos** (`is_church_linked = false`), permitindo testar o fluxo de visitantes não vinculados, progresso de trilhas e vinculação posterior pela liderança.
-- **Mural de Avisos Comunitário** com 14 posts abrangendo todas as 6 categorias (`noticia`, `oracao`, `diaconato`, `obra`, `aviso`, `evento`), com datas e fotos de capa.
+- **Mural Centralizado de Notícias & Encontros** com 13 posts estruturados abrangendo todas as categorias (`geral`, `oracao`, `missoes`, `encontro`, `estudo`, `formulario`, `evento`), com suporte a visibilidade pública/interna (`is_public`), encontros casuais na cidade com data/horário/local, e vínculos relacionais diretos a recursos de estudo (`media_resource_id`), formulários (`form_id`) e eventos/retiros (`retreat_id`, `event_label`).
 - **Centro de Ensino e Catequese** com 3 trilhas estruturadas, 10 recursos multimídia (YouTube, PDFs, Markdown) e progresso ativo dos usuários.
 - **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 142 inscrições vinculadas.
 - **Sistema de Formulários Dinâmicos** com 5 modelos dedicados (`form-solteiros-2026`, `form-carnaval-2026`, `form-casais-2026`, `form-censo-dons`, `form-apoio-diaconal`) e 147 submissões registradas, garantindo que cada evento possua sua própria ficha de inscrição sem conflitos de dados ou estado.
@@ -116,7 +116,29 @@ Cada evento possui uma ficha de inscrição customizada exclusiva para evitar co
 
 ---
 
-## 7. Como Customizar os Dados
+## 7. Mural Centralizado de Notícias, Encontros & Avisos
+
+O sistema de notícias e avisos da igreja foi unificado sob a tabela `public.posts`, atendendo tanto ao `/dashboard` e ao calendário comunitário quanto à landing page pública:
+
+*   **Categorias (`public.post_category`):**
+    *   `geral`: Notícias comunitárias, avisos pastorais e ações de diaconia (com até 3 fotos).
+    *   `oracao`: Pedidos de oração e intercessão pela igreja, enfermos e cidades.
+    *   `missoes`: Notícias e testemunhos de evangelismo na cidade e universidades.
+    *   `encontro`: Encontros casuais na cidade (piqueniques em parques, vigílias), com `event_start_date`, `event_end_date` e `event_location`. Alimenta diretamente a agenda da Landing Page e o Calendário do Dashboard.
+    *   `estudo`: Avisos automáticos ou manuais de novos recursos cadastrados no acervo (`media_resource_id` FK).
+    *   `formulario`: Avisos vinculados a formulários do sistema (`form_id` FK).
+    *   `evento`: Avisos contextuais vinculados a retiros/eventos (`retreat_id` FK) com tags de status (`event_label` ex: "Vagas Abertas", "Transporte & Logística", "Lista de Espera", "Oração").
+*   **Visibilidade & RLS (`is_public`):**
+    *   `is_public = true`: Exibido publicamente na Landing Page e visível para visitantes anônimos e contas de estudo (`is_church_linked = false`).
+    *   `is_public = false`: Restrito a discípulos vinculados à igreja (`is_church_linked = true`), protegido a nível de banco por Row-Level Security com cache subquery `(SELECT auth.uid())`.
+*   **Integrações Automáticas:**
+    *   Ao adicionar material em `Ensinos.tsx` (`AddResourceModal`), o usuário pode optar por publicar automaticamente no mural (ativado por padrão).
+    *   Ao salvar formulários em `FormBuilder.tsx`, o usuário pode optar por publicar no mural (desativado por padrão).
+    *   Em `ManageEventDetail.tsx`, a aba "Avisos & Notícias" permite criar notícias com tags contextuais do retiro diretamente no feed da igreja.
+
+---
+
+## 8. Como Customizar os Dados
 Se você precisar alterar a volumetria, os nomes ou adicionar novas regras, modifique o bloco transacional em `supabase/seed.sql`:
 *   Para mudar nomes comuns gerados, altere os arrays `s_names`, `s_fnames` e `s_surnames`.
 *   Para ajustar o tamanho dos grupos caseiros ou a proporção de famílias/solteiros, altere os laços internos de repetição no script.

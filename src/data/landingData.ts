@@ -213,49 +213,50 @@ export const FALLBACK_NEWS_CARDS: NewsHighlight[] = [
 ]
 
 // ==========================================
-// 3. AGENDA & EVENTOS DO MÊS
+// 3. AGENDA & EVENTOS DO MÊS (ALINHADOS COM O BANCO DE DADOS)
 // ==========================================
 export const DEFAULT_MONTHLY_EVENTS: AgendaEvent[] = [
   {
-    id: "evt-1",
-    day: 4,
-    month: 10,
-    year: 2026,
-    title: "Encontro Geral",
-    type: "geral",
-    location: "Grande Belo Horizonte",
-    isHighlight: true,
-  },
-  {
-    id: "evt-2",
+    id: "4faf45cb-c431-48f6-9d3f-598fbe9e5bcc",
     day: 10,
-    dayEnd: 11,
+    dayEnd: 12,
     month: 10,
     year: 2026,
-    title: "Retiro de Setor",
-    type: "setor",
-    location: "Sítio dos Discípulos",
+    title: "Retiro de Solteiros e Jovens 2026",
+    type: "retiro",
+    location: "Sítio das Palmeiras, Santa Luzia, MG",
     isHighlight: true,
   },
   {
-    id: "evt-3",
-    day: 17,
-    month: 10,
-    year: 2026,
-    title: "Encontro de Jovens",
-    type: "jovens",
-    location: "Lares e Praças da Cidade",
-    isHighlight: false,
-  },
-  {
-    id: "evt-4",
+    id: "fdc1c69d-e0f5-480f-8586-3c7cfeaa6b2b",
     day: 24,
     month: 10,
     year: 2026,
-    title: "Encontro de Casais",
-    type: "casais",
-    location: "Comunhão nos Lares",
+    title: "Comunhão da Igreja no Parque Municipal",
+    type: "geral",
+    location: "Parque Municipal - Centro, Belo Horizonte",
+    isHighlight: true,
+  },
+  {
+    id: "98e5662e-1b59-47a5-b345-f12bfad59abe",
+    day: 1,
+    month: 11,
+    year: 2026,
+    title: "Oração e Comunhão ao Redor da Lagoa da Pampulha",
+    type: "geral",
+    location: "Praça da Pampulha, Belo Horizonte",
     isHighlight: false,
+  },
+  {
+    id: "b2c3d4e5-f6a7-48b9-c0d1-223344556677",
+    day: 20,
+    dayEnd: 22,
+    month: 11,
+    year: 2026,
+    title: "Encontro Metropolitano de Casais nas Casas 2026",
+    type: "casais",
+    location: "Pousada Morada do Sol, Nova Lima, MG",
+    isHighlight: true,
   },
 ]
 

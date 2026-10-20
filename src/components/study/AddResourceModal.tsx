@@ -2,12 +2,16 @@ import React, { useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Switch } from "@/components/ui/switch";
 import { 
     YoutubeIcon, 
     FileTextIcon, 
     BookOpenIcon, 
     UploadCloudIcon, 
-    PlayIcon
+    PlayIcon,
+    Bell,
+    Globe,
+    Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +34,9 @@ const resourceSchema = z.object({
     description: z.string().optional(),
     type: z.enum(["video", "pdf", "markdown"]),
     url: z.string().optional(),
+    postAnnouncement: z.boolean(),
+    isPublicAnnouncement: z.boolean(),
+    announcementText: z.string().optional(),
 });
 
 export type ResourceFormValues = z.infer<typeof resourceSchema>;
@@ -67,12 +74,16 @@ export function AddResourceModal({
             description: "",
             type: "video",
             url: "",
+            postAnnouncement: true,
+            isPublicAnnouncement: true,
+            announcementText: "",
         },
     });
 
     const resourceType = watch("type");
     const videoUrl = watch("url") || "";
     const ytId = resourceType === "video" ? getYouTubeId(videoUrl) : null;
+    const postAnnouncement = watch("postAnnouncement");
 
     React.useEffect(() => {
         if (isOpen) {
@@ -81,6 +92,9 @@ export function AddResourceModal({
                 description: "",
                 type: "video",
                 url: "",
+                postAnnouncement: true,
+                isPublicAnnouncement: true,
+                announcementText: "",
             });
             setSelectedFile(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -266,6 +280,83 @@ export function AddResourceModal({
                                 </div>
                             </Field>
                         )}
+
+                        {/* Notícia / Mural Announcement */}
+                        <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                                        <Bell className="h-4 w-4 text-primary" />
+                                        <span>Avisar no Mural da Igreja</span>
+                                    </div>
+                                    <p className="text-[11px] text-muted-foreground">
+                                        Publica automaticamente uma notícia informando a igreja sobre este novo estudo.
+                                    </p>
+                                </div>
+                                <Controller
+                                    control={control}
+                                    name="postAnnouncement"
+                                    render={({ field }) => (
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            aria-label="Publicar notícia sobre o estudo"
+                                        />
+                                    )}
+                                />
+                            </div>
+
+                            {postAnnouncement && (
+                                <div className="space-y-3 pt-3 border-t border-border/50">
+                                    <Controller
+                                        control={control}
+                                        name="announcementText"
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="res-announcement" className="text-xs font-medium text-muted-foreground">
+                                                    Mensagem personalizada (opcional)
+                                                </FieldLabel>
+                                                <Textarea
+                                                    id="res-announcement"
+                                                    placeholder="Deixe em branco para usar o resumo padrão do estudo..."
+                                                    className="rounded-xl min-h-[60px] text-xs"
+                                                    {...field}
+                                                />
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <div className="flex items-center justify-between gap-3 pt-1">
+                                        <Controller
+                                            control={control}
+                                            name="isPublicAnnouncement"
+                                            render={({ field }) => (
+                                                <div className="flex items-center gap-2.5">
+                                                    <Switch
+                                                        id="announcement-public"
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    <label htmlFor="announcement-public" className="text-xs font-medium cursor-pointer flex items-center gap-1.5 text-foreground select-none">
+                                                        {field.value ? (
+                                                            <>
+                                                                <Globe className="h-3.5 w-3.5 text-primary" />
+                                                                <span>Visível na Landing Page (Público)</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                <span>Apenas Discípulos Vinculados</span>
+                                                            </>
+                                                        )}
+                                                    </label>
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <DialogFooter className="p-4 sm:p-5 border-t border-border/50 shrink-0 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5">

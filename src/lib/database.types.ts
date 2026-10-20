@@ -330,37 +330,58 @@ export type Database = {
           author_id: string | null
           category: Database["public"]["Enums"]["post_category"]
           content: string
-          created_at: string | null
+          created_at: string
           event_end_date: string | null
+          event_label: string | null
+          event_location: string | null
           event_start_date: string | null
+          form_id: string | null
           id: string
           image_urls: string[] | null
-          is_published: boolean | null
+          is_public: boolean
+          is_published: boolean
+          media_resource_id: string | null
+          retreat_id: string | null
           title: string
+          updated_at: string
         }
         Insert: {
           author_id?: string | null
           category?: Database["public"]["Enums"]["post_category"]
           content: string
-          created_at?: string | null
+          created_at?: string
           event_end_date?: string | null
+          event_label?: string | null
+          event_location?: string | null
           event_start_date?: string | null
+          form_id?: string | null
           id?: string
           image_urls?: string[] | null
-          is_published?: boolean | null
+          is_public?: boolean
+          is_published?: boolean
+          media_resource_id?: string | null
+          retreat_id?: string | null
           title: string
+          updated_at?: string
         }
         Update: {
           author_id?: string | null
           category?: Database["public"]["Enums"]["post_category"]
           content?: string
-          created_at?: string | null
+          created_at?: string
           event_end_date?: string | null
+          event_label?: string | null
+          event_location?: string | null
           event_start_date?: string | null
+          form_id?: string | null
           id?: string
           image_urls?: string[] | null
-          is_published?: boolean | null
+          is_public?: boolean
+          is_published?: boolean
+          media_resource_id?: string | null
+          retreat_id?: string | null
           title?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -368,6 +389,27 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_media_resource_id_fkey"
+            columns: ["media_resource_id"]
+            isOneToOne: false
+            referencedRelation: "media_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_retreat_id_fkey"
+            columns: ["retreat_id"]
+            isOneToOne: false
+            referencedRelation: "retreats"
             referencedColumns: ["id"]
           },
         ]
@@ -1043,11 +1085,12 @@ export type Database = {
     Enums: {
       media_type: "video" | "pdf" | "markdown"
       post_category:
-        | "noticia"
+        | "geral"
         | "oracao"
-        | "diaconato"
-        | "obra"
-        | "aviso"
+        | "missoes"
+        | "encontro"
+        | "estudo"
+        | "formulario"
         | "evento"
       retreat_form_model: "geral" | "socioeconomico" | "logistica"
     }
@@ -1179,11 +1222,12 @@ export const Constants = {
     Enums: {
       media_type: ["video", "pdf", "markdown"],
       post_category: [
-        "noticia",
+        "geral",
         "oracao",
-        "diaconato",
-        "obra",
-        "aviso",
+        "missoes",
+        "encontro",
+        "estudo",
+        "formulario",
         "evento",
       ],
       retreat_form_model: ["geral", "socioeconomico", "logistica"],
