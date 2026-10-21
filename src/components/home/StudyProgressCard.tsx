@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
-import { BookOpen, Play, CheckCircle2, GraduationCap } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { BookOpen, Play, CheckCircle2, ChevronRight, GraduationCap } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -40,84 +40,104 @@ export function StudyProgressCard({ studyInfo, loading = false }: StudyProgressC
       : 0
 
   return (
-    <Card className="flex flex-col justify-between rounded-xl border-border/80 bg-card/70 shadow-xs backdrop-blur-xs transition-colors hover:border-primary/30">
-      <CardHeader className="space-y-1.5 pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1">
+    <Card className="rounded-xl border-border/80 bg-card/70 shadow-xs backdrop-blur-xs transition-colors hover:border-primary/30">
+      <CardHeader className="space-y-1 pb-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="space-y-0.5">
             <CardTitle className="flex items-center gap-2 text-base font-bold sm:text-lg">
               <BookOpen className="h-5 w-5 text-primary shrink-0" />
-              <span>Catequese & Ensinos</span>
+              <span>Catequese &amp; Ensinos</span>
             </CardTitle>
-            <CardDescription className="text-xs font-medium text-primary">
+            <CardDescription className="text-xs font-medium text-muted-foreground">
               Crescimento e maturidade na Palavra
             </CardDescription>
           </div>
-          <Badge
-            variant="outline"
-            className="shrink-0 gap-1 rounded-full border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1 text-xs font-semibold text-primary hover:text-primary/90"
           >
-            <GraduationCap className="h-3 w-3" />
-            Trilhas
-          </Badge>
+            <Link to="/ensinos">
+              Ver todas as trilhas
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 py-2">
+      <CardContent className="space-y-3 pt-0 pb-4">
         {!studyInfo ? (
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-xs text-muted-foreground">
-            <p className="leading-relaxed">
-              Inicie os estudos apostólicos da igreja. A Trilha 1 apresenta o fundamento bíblico do Propósito Eterno de Deus!
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 p-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-foreground">Fundamentos da Fé</span>
+              <p className="text-xs text-muted-foreground">
+                Inicie os estudos apostólicos da igreja. A Trilha 1 apresenta o fundamento bíblico do Propósito Eterno de Deus!
+              </p>
+            </div>
+            <Button asChild size="sm" className="btn-tactile min-h-[44px] shrink-0 text-xs font-semibold">
+              <Link to="/ensinos">
+                <Play className="h-3.5 w-3.5 fill-current mr-1" />
+                Iniciar Trilha 1
+              </Link>
+            </Button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                Trilha em Andamento
-              </span>
-              <h4 className="text-sm font-bold text-foreground leading-snug">
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Badge
+                variant="outline"
+                className="gap-1.5 rounded-md border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
                 {studyInfo.studyTitle}
-              </h4>
-              {studyInfo.nextStepTitle && (
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                  Próxima lição: <span className="text-foreground font-medium">{studyInfo.nextStepTitle}</span>
-                </p>
-              )}
+              </Badge>
+              <span className="text-xs text-muted-foreground font-medium">
+                {studyInfo.completedSteps} de {studyInfo.totalSteps} etapas • {percent}% concluído
+              </span>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Progresso</span>
-                <span className="font-bold text-primary">{percent}% concluído</span>
+            {studyInfo.nextStepTitle && (
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Próxima Lição
+                </span>
+                <h4 className="text-sm font-semibold text-foreground leading-snug">
+                  {studyInfo.nextStepTitle}
+                </h4>
               </div>
+            )}
+
+            <div className="space-y-1.5">
               <Progress value={percent} className="h-2" />
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>{studyInfo.completedSteps} de {studyInfo.totalSteps} etapas</span>
-                {percent === 100 && (
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/40">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                {percent === 100 ? (
                   <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Concluída!
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Trilha Concluída!
                   </span>
+                ) : (
+                  <span>Etapa atual em andamento</span>
                 )}
               </div>
+
+              <Button
+                asChild
+                size="sm"
+                className="btn-tactile min-h-[44px] sm:min-h-[38px] justify-center gap-1.5 text-xs font-semibold shadow-xs"
+              >
+                <Link to="/ensinos">
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                  {percent > 0 && percent < 100 ? "Retomar Estudo" : "Acessar Lições"}
+                </Link>
+              </Button>
             </div>
           </div>
         )}
       </CardContent>
-
-      <CardFooter className="pt-3">
-        <Button
-          asChild
-          variant="default"
-          size="sm"
-          className="btn-tactile min-h-[44px] w-full justify-center gap-2 text-xs font-semibold shadow-xs"
-        >
-          <Link to="/ensinos">
-            <Play className="h-3.5 w-3.5 fill-current" />
-            {studyInfo && percent > 0 && percent < 100 ? "Retomar Estudo" : "Acessar Centro de Ensinos"}
-          </Link>
-        </Button>
-      </CardFooter>
     </Card>
   )
 }
