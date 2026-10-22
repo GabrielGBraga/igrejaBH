@@ -11,7 +11,7 @@ export function LandingHero() {
       <LandingLandscapeCarousel />
 
       {/* 2. Hero Content Container */}
-      <div className="animate-section-enter mx-auto mt-8 max-w-4xl px-4 text-center sm:mt-12 sm:px-6 lg:px-8">
+      <div className="animate-section-enter mx-auto mt-6 max-w-4xl px-4 text-center sm:mt-8 md:mt-10 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl">
           Igreja em Belo Horizonte
         </h1>

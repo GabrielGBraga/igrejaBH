@@ -10,7 +10,7 @@ export function LandingLandscapeCarousel() {
   const [hasError, setHasError] = useState(false)
 
   return (
-    <div className="relative h-[240px] w-full overflow-hidden sm:h-[320px] md:h-[400px] lg:h-[460px]">
+    <div className="relative h-[180px] w-full overflow-hidden sm:h-[220px] md:h-[240px] lg:h-[260px] max-h-[30vh] landscape:max-h-[260px]">
       <img
         src={hasError ? landscape.fallbackSrc : landscape.src}
         alt={landscape.alt}
@@ -19,7 +19,7 @@ export function LandingLandscapeCarousel() {
         loading="eager"
       />
       {/* Subtle gradient vignette to blend into content */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/20 to-black/30" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background via-background/10 to-black/20" />
     </div>
   )
 }
