@@ -43,6 +43,7 @@ import { HomeGroupEditorDialog } from "@/components/gestao/HomeGroupEditorDialog
 import { GroupsDirectoryAndMap } from "@/components/gestao/GroupsDirectoryAndMap"
 import { RelationshipGraphView } from "@/components/gestao/RelationshipGraphView"
 import { RestrictedGroupLinkDialog } from "@/components/gestao/RestrictedGroupLinkDialog"
+import { disableRestrictedGroupMode } from "@/lib/restrictedMode"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
@@ -417,7 +418,37 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     )
   }
 
-  // Escala 1: Usuário comum é redirecionado
+  // Tratamento de permissão no Modo Restrito (evita loop infinito de redirecionamento)
+  if (singleGroupMode && (isUnauthorizedForGroup || !myHomeGroup || (!isTier3 && !isLeader))) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center p-4 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10 text-destructive mb-4">
+          <ShieldAlert className="h-8 w-8" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground">Acesso Restrito ao Grupo</h2>
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+          {isUnauthorizedForGroup
+            ? "Você não possui permissão para gerenciar este Grupo Caseiro específico ou o grupo informado não existe."
+            : "Sua conta atual não possui permissão de liderança de Grupo Caseiro."}
+        </p>
+        <div className="mt-6 flex flex-col gap-2 w-full">
+          <Button
+            variant="destructive"
+            onClick={async () => {
+              disableRestrictedGroupMode()
+              await supabase.auth.signOut()
+              navigate("/entrar", { replace: true })
+            }}
+            className="h-11 min-h-[44px] w-full rounded-xl text-xs font-semibold"
+          >
+            Sair e Trocar de Conta
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Escala 1: Usuário comum fora do modo restrito é redirecionado
   if (!isTier3 && !isLeader) {
     return <Navigate to="/dashboard" replace />
   }
@@ -445,9 +476,24 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
           </p>
         </div>
 
-        {/* Botão de Alternância para Grafo (Apenas Nível 3) */}
-        {isTier3 && (
-          <div className="flex items-center gap-2">
+        {/* Ações de Cabeçalho */}
+        <div className="flex flex-wrap items-center gap-2">
+          {isDev && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setLinkGenSelectedGroupId(myHomeGroup?.id || null)
+                setIsLinkGenOpen(true)
+              }}
+              className="h-11 min-h-[44px] gap-2 rounded-xl text-xs font-medium"
+            >
+              <Link2 className="h-4 w-4 text-primary" />
+              <span>Gerar Link de GC</span>
+            </Button>
+          )}
+
+          {/* Botão de Alternância para Grafo (Apenas Nível 3 fora do modo restrito) */}
+          {!singleGroupMode && isTier3 && (
             <Button
               variant={showGraphView ? "default" : "outline"}
               onClick={() => setShowGraphView(!showGraphView)}
@@ -465,8 +511,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 </>
               )}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Se estiver no modo Grafo (Nível 3) */}
@@ -482,8 +528,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         />
       ) : (
         <>
-          {/* 2. Barra de Abas Grandes (Touch targets >= 44px) */}
-          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-1.5 border border-border/60">
+          {/* 2. Barra de Abas Grandes (Apenas no Modo Normal) */}
+          {!singleGroupMode && (
+            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/60 p-1.5 border border-border/60">
             <Button
               type="button"
               variant={activeTab === "meu_grupo" ? "default" : "ghost"}
@@ -504,14 +551,15 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
               <span>{isTier3 ? "Diretório de GCs & Mapa" : "Outros Grupos e Mapa"}</span>
             </Button>
           </div>
+          )}
 
           {/* ========================================================= */}
           {/* ABA 1: MEU GRUPO CASEIRO / GESTÃO DE IRMÃOS              */}
           {/* ========================================================= */}
           {activeTab === "meu_grupo" && (
             <div className="space-y-5">
-              {/* Seletor de Grupo Caseiro para Nível 3 */}
-              {isTier3 && (
+              {/* Seletor de Grupo Caseiro para Nível 3 (apenas fora do modo restrito) */}
+              {!singleGroupMode && isTier3 && (
                 <div className="flex flex-col gap-2 rounded-xl border border-border/80 bg-card p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4 text-primary" />
@@ -736,10 +784,15 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 homeGroups={homeGroups}
                 sectors={sectors}
                 allProfiles={profiles}
-                isTier3={isTier3}
+                isTier3={!singleGroupMode && isTier3}
+                isDev={isDev}
                 myGroupId={myHomeGroup?.id}
                 onEditGroup={handleOpenEditGroup}
                 onCreateGroup={isTier3 ? handleOpenCreateGroup : undefined}
+                onGenerateGroupLink={(hg) => {
+                  setLinkGenSelectedGroupId(hg.id)
+                  setIsLinkGenOpen(true)
+                }}
                 onSelectGroupForMembers={
                   isTier3
                     ? (groupId) => {
@@ -768,11 +821,14 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         allProfiles={profiles}
         fellowships={fellowships}
         defaultHomeGroupId={
-          selectedGroupFilter !== "all" && selectedGroupFilter !== "unlinked"
+          singleGroupMode
+            ? myHomeGroup?.id
+            : selectedGroupFilter !== "all" && selectedGroupFilter !== "unlinked"
             ? selectedGroupFilter
             : myHomeGroup?.id
         }
-        isTier3={isTier3}
+        isTier3={!singleGroupMode && isTier3}
+        lockGroupSelectionOnCreate={singleGroupMode}
         initialTransformToBaptized={transformToBaptizedOnOpen}
         onSuccess={() => loadData(false)}
       />
@@ -784,16 +840,16 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         open={isHomeGroupDialogOpen}
         onOpenChange={setIsHomeGroupDialogOpen}
         homeGroup={editingHomeGroup}
-        isTier3={isTier3}
+        isTier3={!singleGroupMode && isTier3}
         allProfiles={profiles}
         sectors={sectors}
         onSuccess={() => loadData(false)}
       />
 
       {/* ========================================================= */}
-      {/* MODAL 3: GERENCIAR SETORES (APENAS TIER 3)                */}
+      {/* MODAL 3: GERENCIAR SETORES (APENAS TIER 3 FORA DO MODO RESTRITO) */}
       {/* ========================================================= */}
-      {isTier3 && (
+      {!singleGroupMode && isTier3 && (
         <Dialog open={isSectorDialogOpen} onOpenChange={setIsSectorDialogOpen}>
           <DialogContent className="max-w-md rounded-2xl p-5">
             <DialogHeader>
@@ -839,6 +895,20 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL 4: GERAR LINKS DE ACESSO RESTRITO (DEV)             */}
+      {/* ========================================================= */}
+      {isDev && (
+        <RestrictedGroupLinkDialog
+          open={isLinkGenOpen}
+          onOpenChange={setIsLinkGenOpen}
+          homeGroups={homeGroups}
+          allProfiles={profiles}
+          sectors={sectors}
+          initialGroupId={linkGenSelectedGroupId}
+        />
       )}
     </div>
   )

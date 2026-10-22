@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 import supabase from "@/lib/supabase"
+import { isRestrictedGroupMode } from "@/lib/restrictedMode"
 import { Loader2 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "@/lib/database.types"
@@ -98,10 +99,12 @@ export function ProtectedRoute({
   }
 
   if (profile) {
+    const fallbackPath = isRestrictedGroupMode() ? "/meu-grupo" : "/dashboard"
+
     if (requireAdmin) {
       const isAllowed = profile.is_dev || profile.is_presbyter
       if (!isAllowed) {
-        return <Navigate to="/dashboard" replace />
+        return <Navigate to={fallbackPath} replace />
       }
     }
 
@@ -112,7 +115,7 @@ export function ProtectedRoute({
         profile.is_deacon ||
         profile.is_leader
       if (!isAllowed) {
-        return <Navigate to="/dashboard" replace />
+        return <Navigate to={fallbackPath} replace />
       }
     }
 
@@ -123,7 +126,7 @@ export function ProtectedRoute({
         profile.can_post
       )
       if (!isAllowed) {
-        return <Navigate to="/dashboard" replace />
+        return <Navigate to={fallbackPath} replace />
       }
     }
   }
