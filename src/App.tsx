@@ -181,11 +181,11 @@ function App() {
             <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>
           } />
           
-          <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
-          
-          <Route path="/gestao/grafo" element={
+          <Route path="/gestao" element={
             <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
           } />
+          <Route path="/gestao/vinculados" element={<Navigate to="/gestao" replace />} />
+          <Route path="/gestao/grafo" element={<Navigate to="/gestao" replace />} />
           
           <Route path="/manage-events" element={
             <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
