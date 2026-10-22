@@ -158,10 +158,10 @@ export function DiscipleCard({
                 </div>
               )}
 
-              {/* Companheiros de Caminhada */}
+              {/* Companheiros de Obra */}
               {fellowshipNames.length > 0 && (
                 <div className="border-t border-border/40 pt-1.5">
-                  <span className="text-muted-foreground">Companheiros(as):</span>
+                  <span className="text-muted-foreground">Companheiro(s) de obra:</span>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {fellowshipNames.map((name, idx) => (
                       <span

@@ -222,7 +222,7 @@ export function DiscipleshipSideCard({
           {fellows.length > 0 && (
             <div className="space-y-1.5 border-t border-border/30 pt-2">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Companheiros de Jugo ({fellows.length})
+                Companheiros de Obra ({fellows.length})
               </span>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-1.5 overflow-hidden">

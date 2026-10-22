@@ -334,6 +334,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     });
 
     const registrationType = form.watch("registrationType");
+    const watchedGender = form.watch("gender");
 
     const fetchData = async (isInitial = false) => {
         if (isInitial) setLoading(true);
@@ -1323,7 +1324,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 >
                                                     <option value="">Selecione o Discipulador...</option>
                                                     {members
-                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id))
+                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id) && (!watchedGender || m.gender === watchedGender))
                                                         .map(member => (
                                                             <option key={member.id} value={member.id}>
                                                                 {member.full_name}

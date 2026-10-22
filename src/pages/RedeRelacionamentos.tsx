@@ -17,6 +17,7 @@ import {
   Filter,
   Link2,
   ShieldAlert,
+  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -227,7 +228,15 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         setActiveTab("meu_grupo")
         setShowGraphView(false)
       } else if (isInitial) {
-        if (isUserLeader && !tier3 && primaryGroup) {
+        if (requestedGroupId && primaryGroup) {
+          setSelectedGroupFilter(primaryGroup.id)
+        } else if (isUserLeader && primaryGroup) {
+          // Se o usuário também for líder de grupo, abre primeiro só no grupo dele
+          setSelectedGroupFilter(primaryGroup.id)
+        } else if (tier3) {
+          // Usuários com visão geral que não lideram GC específico abrem com a visão geral
+          setSelectedGroupFilter("all")
+        } else if (primaryGroup) {
           setSelectedGroupFilter(primaryGroup.id)
         } else {
           setSelectedGroupFilter("all")
@@ -282,10 +291,47 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
   const currentFocusedGroup = useMemo(() => {
     if (singleGroupMode) return myHomeGroup
     if (selectedGroupFilter !== "all" && selectedGroupFilter !== "unlinked") {
-      return homeGroups.find((g) => g.id === selectedGroupFilter) || myHomeGroup
+      return homeGroups.find((g) => g.id === selectedGroupFilter) || null
     }
-    return myHomeGroup
+    return null
   }, [singleGroupMode, selectedGroupFilter, homeGroups, myHomeGroup])
+
+  // KPIs consolidados da igreja para quando "Todos da Igreja" estiver selecionado
+  const churchKpis = useMemo(() => {
+    const totalDisciples = profiles.length
+    const adultDisciples = profiles.filter((p) => !checkIsChild(p))
+    const adultCount = adultDisciples.length
+    const childrenCount = profiles.filter((p) => checkIsChild(p)).length
+
+    const withDiscipler = adultDisciples.filter((p) => !!p.discipler_id).length
+    const withoutDiscipler = adultCount - withDiscipler
+    const discipleshipRate = adultCount > 0 ? Math.round((withDiscipler / adultCount) * 100) : 0
+
+    const totalGroups = homeGroups.length
+    const totalSectors = sectors.length
+
+    // Companheiros de obra
+    const profilesWithCompanion = new Set<string>()
+    fellowships.forEach((f) => {
+      profilesWithCompanion.add(f.member_a_id)
+      profilesWithCompanion.add(f.member_b_id)
+    })
+    const brothersWithCompanions = profilesWithCompanion.size
+    const totalFellowships = fellowships.length
+
+    return {
+      totalDisciples,
+      adultCount,
+      childrenCount,
+      withDiscipler,
+      withoutDiscipler,
+      discipleshipRate,
+      totalGroups,
+      totalSectors,
+      totalFellowships,
+      brothersWithCompanions,
+    }
+  }, [profiles, homeGroups, sectors, fellowships])
 
   // Lista de irmãos filtrada
   const filteredDisciples = useMemo(() => {
@@ -594,8 +640,139 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 </div>
               )}
 
-              {/* Card de Informações do Grupo Caseiro Focado */}
-              {currentFocusedGroup && (
+              {/* Card de Informações: KPIs da Igreja (quando "Todos da Igreja") OU Visitantes OU Grupo Caseiro Focado */}
+              {selectedGroupFilter === "all" ? (
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between px-1">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className="border-primary/30 bg-primary/10 text-primary text-[11px] font-medium"
+                      >
+                        Igreja em Belo Horizonte
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Panorama Geral do Corpo
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">
+                      {churchKpis.totalDisciples} vidas cadastradas
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {/* KPI 1: Discípulos */}
+                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-primary" />
+                          Discípulos
+                        </span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
+                          Total
+                        </Badge>
+                      </div>
+                      <div className="mt-2.5">
+                        <div className="text-2xl font-bold tracking-tight text-foreground">
+                          {churchKpis.totalDisciples}
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                          {churchKpis.adultCount} adultos • {churchKpis.childrenCount} crianças
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* KPI 2: Grupos Caseiros */}
+                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                          Grupos Caseiros
+                        </span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
+                          {churchKpis.totalSectors} setores
+                        </Badge>
+                      </div>
+                      <div className="mt-2.5">
+                        <div className="text-2xl font-bold tracking-tight text-foreground">
+                          {churchKpis.totalGroups}
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                          Igrejas nas casas pela cidade
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* KPI 3: Cobertura de Discipulado */}
+                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 text-primary" />
+                          Discipulado
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 font-medium border-primary/30 bg-primary/10 text-primary"
+                        >
+                          {churchKpis.discipleshipRate}%
+                        </Badge>
+                      </div>
+                      <div className="mt-2.5">
+                        <div className="text-2xl font-bold tracking-tight text-foreground">
+                          {churchKpis.withDiscipler}{" "}
+                          <span className="text-xs font-normal text-muted-foreground">
+                            / {churchKpis.adultCount}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                          Adultos com discipulador(a)
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* KPI 4: Companheiros de Obra */}
+                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-primary" />
+                          Companheiros de Obra
+                        </span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
+                          {churchKpis.totalFellowships} juntas
+                        </Badge>
+                      </div>
+                      <div className="mt-2.5">
+                        <div className="text-2xl font-bold tracking-tight text-foreground">
+                          {churchKpis.brothersWithCompanions}
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                          Irmãos em parcerias de serviço
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : selectedGroupFilter === "unlinked" ? (
+                <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="border-purple-500/30 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 text-[11px] font-medium"
+                    >
+                      Estudos Bíblicos
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {counts.total} pessoa(s) em acolhimento
+                    </span>
+                  </div>
+                  <h2 className="mt-1 text-lg font-bold text-foreground sm:text-xl">
+                    Visitantes nos Estudos
+                  </h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Pessoas que estão participando das reuniões nas casas e conhecendo a palavra antes do vínculo pleno.
+                  </p>
+                </div>
+              ) : currentFocusedGroup ? (
                 <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -646,16 +823,18 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     </Button>
                   </div>
                 </div>
-              )}
+              ) : null}
 
-              {/* Botão Grande "+ Adicionar Irmão ao Grupo" (Min Height 48px) */}
+              {/* Botão Grande "+ Adicionar Irmão" (Min Height 48px) */}
               <Button
                 type="button"
                 onClick={handleOpenAddDisciple}
                 className="h-12 min-h-[48px] w-full gap-2 rounded-xl text-sm font-semibold shadow-sm"
               >
                 <Plus className="h-5 w-5" />
-                <span>Adicionar Irmão ao Grupo</span>
+                <span>
+                  {currentFocusedGroup ? "Adicionar Irmão ao Grupo" : "Adicionar Irmão"}
+                </span>
               </Button>
 
               {/* Barra de Busca e Chips de Status */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,6 @@ import {
   Plus,
   X,
   Loader2,
-  Heart,
   Calendar,
   RotateCcw,
   Check,
@@ -180,14 +179,75 @@ export function DiscipleEditorDialog({
     }
   }, [open, disciple, defaultHomeGroupId, homeGroups, fellowships, initialTransformToBaptized])
 
-  // Lista de irmãos disponíveis para companheiro
-  const availableCompanions = allProfiles.filter(
-    (p) =>
-      p.id !== disciple?.id &&
-      !selectedFellowships.includes(p.id) &&
-      !checkIsChild(p) &&
-      (gender ? p.gender === gender : true)
-  )
+  // Tratamento da mudança de gênero para auto-ajustar discipulador, cônjuge e companheiro(s) de obra
+  const handleGenderChange = (newGender: "M" | "F") => {
+    setGender(newGender)
+
+    // Se o discipulador selecionado não for do mesmo gênero, reseta
+    if (disciplerId !== "none") {
+      const dProf = allProfiles.find((p) => p.id === disciplerId)
+      if (dProf?.gender && dProf.gender !== newGender) {
+        setDisciplerId("none")
+      }
+    }
+
+    // Se o cônjuge selecionado não for do gênero oposto, reseta
+    if (spouseId !== "none") {
+      const sProf = allProfiles.find((p) => p.id === spouseId)
+      if (sProf?.gender && sProf.gender === newGender) {
+        setSpouseId("none")
+      }
+    }
+
+    // Se houver companheiro(s) de obra com gênero diferente do novo, remove
+    if (selectedFellowships.length > 0) {
+      const validFellowships = selectedFellowships.filter((fid) => {
+        const fProf = allProfiles.find((p) => p.id === fid)
+        return !fProf?.gender || fProf.gender === newGender
+      })
+      if (validFellowships.length !== selectedFellowships.length) {
+        setSelectedFellowships(validFellowships)
+      }
+    }
+  }
+
+  // Lista de irmãos disponíveis para discipulador (somente mesmo gênero)
+  const availableDisciplers = useMemo(() => {
+    return allProfiles
+      .filter((p) => {
+        if (p.id === disciple?.id) return false
+        if (checkIsChild(p)) return false
+        if (p.id === disciplerId) return true
+        return gender ? p.gender === gender : true
+      })
+      .sort((a, b) => a.full_name.localeCompare(b.full_name))
+  }, [allProfiles, disciple?.id, disciplerId, gender])
+
+  // Lista de irmãos disponíveis para cônjuge (somente gênero oposto)
+  const availableSpouses = useMemo(() => {
+    const oppositeGender = gender === "M" ? "F" : "M"
+    return allProfiles
+      .filter((p) => {
+        if (p.id === disciple?.id) return false
+        if (checkIsChild(p)) return false
+        if (p.id === spouseId) return true
+        return p.gender === oppositeGender
+      })
+      .sort((a, b) => a.full_name.localeCompare(b.full_name))
+  }, [allProfiles, disciple?.id, spouseId, gender])
+
+  // Lista de irmãos disponíveis para companheiro(s) de obra (somente mesmo gênero)
+  const availableCompanions = useMemo(() => {
+    return allProfiles
+      .filter(
+        (p) =>
+          p.id !== disciple?.id &&
+          !selectedFellowships.includes(p.id) &&
+          !checkIsChild(p) &&
+          (gender ? p.gender === gender : true)
+      )
+      .sort((a, b) => a.full_name.localeCompare(b.full_name))
+  }, [allProfiles, disciple?.id, selectedFellowships, gender])
 
   const handleAddCompanion = () => {
     if (companionToAdd && companionToAdd !== "none") {
@@ -448,7 +508,7 @@ export function DiscipleEditorDialog({
                     <p className="text-[11px] text-muted-foreground">
                       {isChild
                         ? "Foi batizado(a)? Clique no botão para registrar o batismo."
-                        : "Vínculos de discipulador e companheiros liberados abaixo."}
+                        : "Vínculos de discipulador e companheiro(s) de obra liberados abaixo."}
                     </p>
                   </div>
                 </div>
@@ -552,7 +612,7 @@ export function DiscipleEditorDialog({
                     type="button"
                     variant={gender === "M" ? "secondary" : "outline"}
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
-                    onClick={() => setGender("M")}
+                    onClick={() => handleGenderChange("M")}
                   >
                     Masculino
                   </Button>
@@ -560,7 +620,7 @@ export function DiscipleEditorDialog({
                     type="button"
                     variant={gender === "F" ? "secondary" : "outline"}
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
-                    onClick={() => setGender("F")}
+                    onClick={() => handleGenderChange("F")}
                   >
                     Feminino
                   </Button>
@@ -604,60 +664,51 @@ export function DiscipleEditorDialog({
             {!isChild ? (
               <>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {/* Discipulador */}
+                  {/* Discipulador (somente mesmo gênero) */}
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-foreground">
                       Quem é o Discipulador(a)? <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
                     <Select value={disciplerId} onValueChange={setDisciplerId}>
                       <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder="Selecione quem o acompanha" />
+                        <SelectValue placeholder={gender === "M" ? "Selecione o discipulador" : "Selecione a discipuladora"} />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
                         <SelectItem value="none">Nenhum no momento</SelectItem>
-                        {allProfiles
-                          .filter((p) => p.id !== disciple?.id && !checkIsChild(p))
-                          .map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
+                        {availableDisciplers.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.full_name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {/* Cônjuge */}
+                  {/* Cônjuge (somente gênero oposto) */}
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-foreground">
                       É casado(a)? Cônjuge: <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
                     <Select value={spouseId} onValueChange={setSpouseId}>
                       <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder="Selecione o cônjuge" />
+                        <SelectValue placeholder={gender === "M" ? "Selecione a esposa" : "Selecione o marido"} />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
                         <SelectItem value="none">Não é casado(a) / Nenhum</SelectItem>
-                        {allProfiles
-                          .filter(
-                            (p) =>
-                              p.id !== disciple?.id &&
-                              !checkIsChild(p) &&
-                              (gender === "M" ? p.gender === "F" : p.gender === "M")
-                          )
-                          .map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
+                        {availableSpouses.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.full_name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                {/* Companheiros de Caminhada */}
+                {/* Companheiro(s) de Obra (somente mesmo gênero) */}
                 <div className="space-y-2.5 border-t border-border/60 pt-3">
                   <Label className="text-xs font-medium text-foreground">
-                    Companheiros(as) de Oração e Comunhão: <span className="text-muted-foreground font-normal">(Opcional)</span>
+                    Companheiro(s) de obra: <span className="text-muted-foreground font-normal">(Opcional)</span>
                   </Label>
 
                   {/* Chips já adicionados */}
@@ -670,7 +721,6 @@ export function DiscipleEditorDialog({
                             key={fid}
                             className="inline-flex items-center gap-1.5 rounded-full bg-secondary/80 px-3 py-1.5 text-xs font-medium text-secondary-foreground border border-border/50"
                           >
-                            <Heart className="h-3 w-3 text-primary" />
                             <span>{companionProfile?.full_name || "Irmão"}</span>
                             <button
                               type="button"
@@ -685,14 +735,14 @@ export function DiscipleEditorDialog({
                     </div>
                   )}
 
-                  {/* Seletor para adicionar novo companheiro */}
+                  {/* Seletor para adicionar novo companheiro de obra */}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <Select
                       value={companionToAdd}
                       onValueChange={setCompanionToAdd}
                     >
                       <SelectTrigger className="h-11 min-h-[44px] flex-1 rounded-xl text-xs sm:text-sm">
-                        <SelectValue placeholder="Adicionar companheiro(a) de oração..." />
+                        <SelectValue placeholder={gender === "M" ? "Adicionar companheiro de obra..." : "Adicionar companheira de obra..."} />
                       </SelectTrigger>
                       <SelectContent className="max-h-48">
                         <SelectItem value="none">Selecione para adicionar</SelectItem>

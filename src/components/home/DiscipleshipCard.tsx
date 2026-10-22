@@ -190,7 +190,7 @@ export function DiscipleshipCard({
                 <div className="space-y-1.5 pt-0.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      Companheiros de Caminhada ({fellows.length})
+                      Companheiros de Obra ({fellows.length})
                     </span>
                   </div>
 
