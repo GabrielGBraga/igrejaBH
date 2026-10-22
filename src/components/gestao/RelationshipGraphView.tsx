@@ -8,6 +8,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { Database } from "@/lib/database.types"
+import {
+  GRAPH_LINK_COLORS,
+  STATUS_COLORS,
+  PALETTE,
+} from "@/constants/colors"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
@@ -301,7 +306,9 @@ function RelationshipGraphCanvas({
         ctx.lineWidth = 2
         ctx.setLineDash([4, 4])
       } else {
-        ctx.strokeStyle = isHighlighted ? "#22c55e" : isDark ? "#27272a" : "#e4e4e7"
+        ctx.strokeStyle = isHighlighted
+          ? isDark ? STATUS_COLORS.success.dark : STATUS_COLORS.success.light
+          : isDark ? GRAPH_LINK_COLORS.default.dark : GRAPH_LINK_COLORS.default.light
         ctx.lineWidth = isHighlighted ? 2.5 : 1.5
         ctx.setLineDash([])
       }
@@ -323,32 +330,32 @@ function RelationshipGraphCanvas({
       ctx.beginPath()
       ctx.arc(node.x, node.y, radius, 0, Math.PI * 2)
 
-      // Cor de preenchimento
+      // Cor de preenchimento padronizada
       if (node.role === "presbyter") {
-        ctx.fillStyle = "#8b5cf6"
+        ctx.fillStyle = isDark ? "#a78bfa" : "#7c3aed"
       } else if (node.role === "deacon") {
-        ctx.fillStyle = "#f59e0b"
+        ctx.fillStyle = isDark ? STATUS_COLORS.warning.dark : STATUS_COLORS.warning.light
       } else if (node.role === "leader") {
-        ctx.fillStyle = "#10b981"
+        ctx.fillStyle = isDark ? STATUS_COLORS.success.dark : STATUS_COLORS.success.light
       } else {
-        ctx.fillStyle = isDark ? "#3f3f46" : "#e4e4e7"
+        ctx.fillStyle = isDark ? PALETTE.zinc[700] : PALETTE.zinc[200]
       }
       ctx.fill()
 
       // Borda
       ctx.lineWidth = isSelected ? 4 : isHovered || isMatchSearch ? 3 : 1.5
       ctx.strokeStyle = isSelected
-        ? "#3b82f6"
+        ? isDark ? "#60a5fa" : "#2563eb"
         : isMatchSearch
-        ? "#facc15"
+        ? isDark ? STATUS_COLORS.warning.dark : STATUS_COLORS.warning.light
         : isDark
-        ? "#71717a"
-        : "#a1a1aa"
+        ? PALETTE.zinc[600]
+        : PALETTE.zinc[400]
       ctx.stroke()
 
       // Nome do irmão abaixo do nó
       ctx.font = "11px Geist, sans-serif"
-      ctx.fillStyle = isDark ? "#f4f4f5" : "#18181b"
+      ctx.fillStyle = isDark ? PALETTE.zinc[100] : PALETTE.zinc[900]
       ctx.textAlign = "center"
       const firstName = node.name.split(" ")[0]
       ctx.fillText(firstName, node.x, node.y + radius + 13)
@@ -456,9 +463,9 @@ function RelationshipGraphCanvas({
             zoomRef.current = Math.min(zoomRef.current * 1.2, 4)
             drawCanvas()
           }}
-          className="h-8 w-8"
+          className="h-11 w-11 min-h-[44px] min-w-[44px] rounded-xl"
         >
-          <ZoomIn className="h-4 w-4" />
+          <ZoomIn className="h-5 w-5" />
         </Button>
         <Button
           size="icon"
@@ -467,9 +474,9 @@ function RelationshipGraphCanvas({
             zoomRef.current = Math.max(zoomRef.current * 0.8, 0.2)
             drawCanvas()
           }}
-          className="h-8 w-8"
+          className="h-11 w-11 min-h-[44px] min-w-[44px] rounded-xl"
         >
-          <ZoomOut className="h-4 w-4" />
+          <ZoomOut className="h-5 w-5" />
         </Button>
         <Button
           size="icon"
@@ -479,9 +486,9 @@ function RelationshipGraphCanvas({
             panRef.current = { x: 0, y: 0 }
             drawCanvas()
           }}
-          className="h-8 w-8"
+          className="h-11 w-11 min-h-[44px] min-w-[44px] rounded-xl"
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="h-5 w-5" />
         </Button>
       </div>
     </div>
@@ -585,12 +592,12 @@ export function RelationshipGraphView({
     <div className="space-y-4">
       {/* Barra Superior do Grafo */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Input
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
             placeholder="Destacar irmão no grafo..."
-            className="h-10 min-h-[40px] w-64 rounded-xl text-xs"
+            className="h-11 min-h-[44px] w-full sm:w-64 rounded-xl text-xs"
           />
         </div>
 
@@ -599,7 +606,7 @@ export function RelationshipGraphView({
             variant="outline"
             size="sm"
             onClick={onClose}
-            className="h-10 min-h-[40px] gap-1.5 rounded-xl text-xs"
+            className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs"
           >
             <X className="h-4 w-4" />
             <span>Fechar Visualização em Grafo</span>
@@ -631,7 +638,7 @@ export function RelationshipGraphView({
             <Button
               size="sm"
               onClick={() => onSelectDisciple(selectedProfile)}
-              className="h-10 min-h-[40px] text-xs font-medium"
+              className="h-11 min-h-[44px] text-xs font-medium rounded-xl px-4"
             >
               Ver e Editar Dados
             </Button>

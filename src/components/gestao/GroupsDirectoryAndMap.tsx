@@ -14,6 +14,7 @@ import {
   Link2,
 } from "lucide-react"
 import type { Database } from "@/lib/database.types"
+import { THEME_CLASSES } from "@/constants/colors"
 
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
 type Sector = Database["public"]["Tables"]["sectors"]["Row"]
@@ -166,12 +167,12 @@ export function GroupsDirectoryAndMap({
           )}
         </div>
 
-        {/* Chips de Setor */}
+        {/* Chips de Setor (Touch targets >= 44px) */}
         <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1">
           <button
             type="button"
             onClick={() => setSelectedSectorId("all")}
-            className={`min-h-[36px] shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+            className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
               selectedSectorId === "all"
                 ? "bg-foreground text-background shadow-xs"
                 : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
@@ -186,7 +187,7 @@ export function GroupsDirectoryAndMap({
                 key={sector.id}
                 type="button"
                 onClick={() => setSelectedSectorId(sector.id)}
-                className={`min-h-[36px] shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
                   selectedSectorId === sector.id
                     ? "bg-foreground text-background shadow-xs"
                     : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
@@ -246,7 +247,7 @@ export function GroupsDirectoryAndMap({
                     )}
 
                     {isMyGroup && (
-                      <Badge className="bg-emerald-600 text-white hover:bg-emerald-700 text-[11px]">
+                      <Badge className={`${THEME_CLASSES.badgeSuccess} text-[11px]`}>
                         Meu Grupo
                       </Badge>
                     )}
@@ -291,10 +292,10 @@ export function GroupsDirectoryAndMap({
                     <Button
                       asChild
                       variant="outline"
-                      className="h-11 min-h-[44px] w-full gap-2 rounded-xl border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40 text-xs font-medium"
+                      className="h-11 min-h-[44px] w-full gap-2 rounded-xl text-xs font-medium"
                     >
                       <a href={leaderWhatsapp} target="_blank" rel="noopener noreferrer">
-                        <MessageSquare className="h-4 w-4" />
+                        <MessageSquare className="h-4 w-4 text-primary" />
                         <span>Falar com Líder</span>
                       </a>
                     </Button>
@@ -306,7 +307,7 @@ export function GroupsDirectoryAndMap({
                       <Button
                         variant="secondary"
                         onClick={() => onEditGroup(hg)}
-                        className="h-10 min-h-[40px] flex-1 gap-1.5 rounded-lg text-xs font-medium"
+                        className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium"
                       >
                         <Edit className="h-3.5 w-3.5" />
                         <span>Editar Grupo</span>
@@ -316,7 +317,7 @@ export function GroupsDirectoryAndMap({
                         <Button
                           variant="outline"
                           onClick={() => onSelectGroupForMembers(hg.id)}
-                          className="h-10 min-h-[40px] flex-1 gap-1.5 rounded-lg text-xs font-medium"
+                          className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium"
                         >
                           <Users className="h-3.5 w-3.5" />
                           <span>Ver Irmãos</span>
@@ -331,7 +332,7 @@ export function GroupsDirectoryAndMap({
                       type="button"
                       variant="outline"
                       onClick={() => onGenerateGroupLink(hg)}
-                      className="h-10 min-h-[40px] w-full gap-1.5 rounded-lg text-xs font-medium border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+                      className="h-11 min-h-[44px] w-full gap-1.5 rounded-xl text-xs font-medium border-primary/30 text-primary hover:bg-primary/10 transition-colors"
                     >
                       <Link2 className="h-3.5 w-3.5" />
                       <span>Gerar Link Restrito</span>

@@ -266,7 +266,7 @@ export function RestrictedGroupLinkDialog({
                 disabled={!directLink}
                 className="h-11 min-h-[44px] gap-2 rounded-xl text-xs font-semibold shrink-0 px-4"
               >
-                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 <span>{copied ? "Copiado!" : "Copiar Link"}</span>
               </Button>
             </div>
@@ -279,14 +279,14 @@ export function RestrictedGroupLinkDialog({
               {targetLeaderForWa?.phone ? (
                 <span className="text-[11px] text-muted-foreground shrink-0">{targetLeaderForWa.phone}</span>
               ) : (
-                <span className="text-[11px] text-amber-600 dark:text-amber-400 shrink-0">Sem telefone cadastrado</span>
+                <span className="text-[11px] text-muted-foreground shrink-0 italic">Sem telefone cadastrado</span>
               )}
             </div>
 
             {whatsappUrl ? (
               <Button
                 asChild
-                className="h-11 min-h-[44px] w-full gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs"
+                className="h-11 min-h-[44px] w-full gap-2 rounded-xl font-semibold text-xs shadow-xs"
               >
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <MessageSquare className="h-4 w-4 shrink-0" />

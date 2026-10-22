@@ -457,14 +457,14 @@ export function DiscipleEditorDialog({
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isTransformingLinked
-              ? "Transformar em Discípulo Vinculado"
+              ? "Integrar Discípulo à Comunhão"
               : isEditing
               ? "Editar Irmão e Vínculos"
               : "Adicionar Irmão ao Grupo"}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             {isTransformingLinked
-              ? `Vincule ${disciple?.full_name || "este irmão"} à comunhão da igreja local definindo seu Grupo Caseiro e discipulador.`
+              ? `Integre ${disciple?.full_name || "este irmão"} à comunhão da igreja local definindo seu Grupo Caseiro e discipulador para acompanhamento mútuo.`
               : isEditing
               ? "Atualize os dados e os vínculos de cuidado mútuo (juntas e ligamentos) no Corpo."
               : "Preencha as informações básicas para incluir o irmão na vida e comunhão do Grupo Caseiro."}
@@ -473,13 +473,13 @@ export function DiscipleEditorDialog({
 
         {/* Corpo com Scroll Integrado ao Modal */}
         <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6 space-y-4">
-          {/* Banner de Transição de Usuário de Estudos para Vinculado */}
+          {/* Banner de Acolhimento na Comunhão */}
           {isTransformingLinked && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
-              <BookOpen className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="rounded-xl border border-border/80 bg-muted/40 p-3.5 text-xs text-foreground flex items-start gap-2.5">
+              <BookOpen className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-amber-800 dark:text-amber-300">
-                  Transição para Discípulo Vinculado
+                <p className="font-semibold text-foreground">
+                  Acolhimento na Comunhão da Igreja
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                   Defina o Grupo Caseiro e o Discipulador para integrar este irmão plenamente na comunhão do Corpo.
@@ -488,7 +488,7 @@ export function DiscipleEditorDialog({
             </div>
           )}
 
-          {/* 1. Seletor Grande: Adulto/Jovem vs Criança (Apenas ao criar novo) */}
+          {/* 1. Seletor: Adulto/Jovem vs Criança (Apenas ao criar novo) */}
           {!isEditing && (
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -522,19 +522,13 @@ export function DiscipleEditorDialog({
             <div
               className={`rounded-xl border p-3.5 transition-all ${
                 isChild
-                  ? "border-sky-200 bg-sky-50/70 dark:border-sky-900/60 dark:bg-sky-950/30"
-                  : "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/30"
+                  ? "border-border/80 bg-muted/30"
+                  : "border-border/80 bg-card"
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      isChild
-                        ? "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300"
-                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
-                    }`}
-                  >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     {isChild ? <Baby className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                   </div>
                   <div>
@@ -543,7 +537,7 @@ export function DiscipleEditorDialog({
                     </h5>
                     <p className="text-[11px] text-muted-foreground">
                       {isChild
-                        ? "Foi batizado(a)? Clique no botão para registrar o batismo."
+                        ? "Após o batismo, confirme para liberar os vínculos de discipulado."
                         : "Vínculos de discipulador e companheiro(s) de obra liberados abaixo."}
                     </p>
                   </div>
@@ -559,7 +553,7 @@ export function DiscipleEditorDialog({
                       }
                       toast.success("Batismo registrado! Defina o discipulador e salve.")
                     }}
-                    className="h-10 min-h-[40px] shrink-0 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-xs px-4"
+                    className="h-11 min-h-[44px] shrink-0 rounded-xl font-semibold text-xs shadow-xs px-4"
                   >
                     <span>Registrar Batismo</span>
                   </Button>
@@ -571,7 +565,7 @@ export function DiscipleEditorDialog({
                       setIsChild(true)
                       setBaptismDate("")
                     }}
-                    className="h-9 min-h-[36px] shrink-0 gap-1 rounded-xl border-border text-xs font-medium text-muted-foreground hover:text-foreground"
+                    className="h-11 min-h-[44px] shrink-0 gap-1 rounded-xl border-border text-xs font-medium text-muted-foreground hover:text-foreground"
                   >
                     <RotateCcw className="h-3 w-3" />
                     <span>Desfazer</span>
@@ -581,7 +575,7 @@ export function DiscipleEditorDialog({
 
               {/* Campo Rápido de Data de Batismo quando em transição */}
               {!isChild && (
-                <div className="mt-3 pt-2.5 border-t border-emerald-200/60 dark:border-emerald-800/60 flex items-center gap-2.5">
+                <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center gap-2.5">
                   <Label htmlFor="baptismDateQuick" className="text-xs font-medium text-foreground shrink-0">
                     Data do Batismo:
                   </Label>
@@ -590,7 +584,7 @@ export function DiscipleEditorDialog({
                     type="date"
                     value={baptismDate}
                     onChange={(e) => setBaptismDate(e.target.value)}
-                    className="h-9 min-h-[36px] max-w-[180px] rounded-lg bg-background text-xs"
+                    className="h-11 min-h-[44px] max-w-[180px] rounded-lg bg-background text-xs"
                   />
                 </div>
               )}
@@ -967,7 +961,7 @@ export function DiscipleEditorDialog({
                     type="button"
                     variant="ghost"
                     onClick={() => setConfirmDelete(true)}
-                    className="h-10 min-h-[40px] text-xs text-destructive hover:bg-destructive/10 shrink-0"
+                    className="h-11 min-h-[44px] text-xs text-destructive hover:bg-destructive/10 shrink-0"
                   >
                     <Trash2 className="mr-1.5 h-4 w-4" />
                     Excluir Cadastro
@@ -984,7 +978,7 @@ export function DiscipleEditorDialog({
                       variant="destructive"
                       disabled={deleting}
                       onClick={handleDelete}
-                      className="h-10 min-h-[40px] flex-1 text-xs font-medium rounded-xl"
+                      className="h-11 min-h-[44px] flex-1 text-xs font-medium rounded-xl"
                     >
                       {deleting ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -996,7 +990,7 @@ export function DiscipleEditorDialog({
                       type="button"
                       variant="outline"
                       onClick={() => setConfirmDelete(false)}
-                      className="h-10 min-h-[40px] flex-1 text-xs rounded-xl"
+                      className="h-11 min-h-[44px] flex-1 text-xs rounded-xl"
                     >
                       Cancelar
                     </Button>
@@ -1029,7 +1023,7 @@ export function DiscipleEditorDialog({
                 Salvando...
               </>
             ) : isTransformingLinked ? (
-              "Vincular à Igreja"
+              "Integrar à Comunhão"
             ) : isEditing ? (
               "Salvar Alterações"
             ) : (

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Database } from "@/lib/database.types"
+import { THEME_CLASSES } from "@/constants/colors"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -75,7 +76,7 @@ export function DiscipleCard({
               {isLeader && (
                 <Badge
                   variant="outline"
-                  className="border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-[11px] font-medium"
+                  className={`${THEME_CLASSES.badgeSuccess} text-[11px] font-medium`}
                 >
                   <Shield className="mr-1 h-3 w-3" />
                   Líder de GC
@@ -84,7 +85,7 @@ export function DiscipleCard({
               {disciple.is_presbyter && (
                 <Badge
                   variant="outline"
-                  className="border-primary/40 bg-primary/10 text-primary text-[11px] font-medium"
+                  className={`${THEME_CLASSES.badgePrimary} text-[11px] font-medium`}
                 >
                   Presbítero
                 </Badge>
@@ -92,7 +93,7 @@ export function DiscipleCard({
               {disciple.is_deacon && (
                 <Badge
                   variant="outline"
-                  className="border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 text-[11px] font-medium"
+                  className={`${THEME_CLASSES.badgeWarning} text-[11px] font-medium`}
                 >
                   Diácono
                 </Badge>
@@ -100,7 +101,7 @@ export function DiscipleCard({
               {isChild && (
                 <Badge
                   variant="outline"
-                  className="border-sky-500/30 bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300 text-[11px] font-medium"
+                  className={`${THEME_CLASSES.badgeInfo} text-[11px] font-medium`}
                 >
                   <Baby className="mr-1 h-3 w-3" />
                   Criança
@@ -109,7 +110,7 @@ export function DiscipleCard({
               {!disciple.is_church_linked && (
                 <Badge
                   variant="outline"
-                  className="border-purple-500/30 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 text-[11px] font-medium"
+                  className={`${THEME_CLASSES.badgePriority} text-[11px] font-medium`}
                 >
                   Visitante nos Estudos
                 </Badge>
@@ -131,13 +132,13 @@ export function DiscipleCard({
 
         {/* Bloco Juntas e Ligamentos (Vínculos de Cuidado) OU Informativo para Usuários de Estudo */}
         {!disciple.is_church_linked ? (
-          <div className="mt-3.5 space-y-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-xs">
-            <div className="flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-400">
-              <BookOpen className="h-3.5 w-3.5" />
-              <span>Conta de Estudos (Não Vinculado)</span>
+          <div className="mt-3.5 space-y-1.5 rounded-lg bg-muted/50 border border-border/80 p-3 text-xs">
+            <div className="flex items-center gap-1.5 font-medium text-foreground">
+              <BookOpen className="h-3.5 w-3.5 text-primary" />
+              <span>Irmão em Acolhimento nos Estudos</span>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              Cadastrado para acesso aos ensinos. Não possui juntas nem vínculos com a igreja local.
+              Participa dos estudos bíblicos. Ainda sem vínculos definidos de discipulado na comunhão local.
             </p>
           </div>
         ) : (
@@ -160,7 +161,7 @@ export function DiscipleCard({
                         Discipulado Mútuo
                       </span>
                     ) : (
-                      <span className="text-amber-600 dark:text-amber-400 font-normal italic">
+                      <span className="text-muted-foreground font-normal italic">
                         Pendente definir
                       </span>
                     )}
@@ -208,13 +209,13 @@ export function DiscipleCard({
           </div>
         )}
 
-        {/* Ação rápida para Crianças: Registrar Batismo */}
+        {/* Ação para Crianças: Registrar Batismo */}
         {isChild && onTransformChild && (
           <Button
             type="button"
             variant="outline"
             onClick={() => onTransformChild(disciple)}
-            className="mt-2.5 h-11 min-h-[44px] w-full rounded-lg border-sky-400/40 bg-sky-50/70 text-sky-800 hover:bg-sky-100 hover:text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200 dark:hover:bg-sky-900/60 text-xs font-semibold shadow-2xs"
+            className="mt-2.5 h-11 min-h-[44px] w-full rounded-xl text-xs font-semibold shadow-2xs"
           >
             <span>Registrar Batismo</span>
           </Button>
@@ -227,10 +228,10 @@ export function DiscipleCard({
           <Button
             asChild
             variant="outline"
-            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-950/40 text-xs font-medium"
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium"
           >
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <MessageSquare className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4 text-primary" />
               <span>WhatsApp</span>
             </a>
           </Button>
@@ -238,7 +239,7 @@ export function DiscipleCard({
           <Button
             variant="outline"
             disabled
-            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs opacity-50"
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs opacity-50"
           >
             <Phone className="h-4 w-4" />
             <span>Sem Telefone</span>
@@ -248,7 +249,8 @@ export function DiscipleCard({
         {disciple.is_church_linked !== false ? (
           <Button
             onClick={() => onEdit(disciple)}
-            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs font-medium cursor-pointer"
+            variant="secondary"
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-medium cursor-pointer"
           >
             <Edit className="h-4 w-4" />
             <span>Editar</span>
@@ -256,10 +258,10 @@ export function DiscipleCard({
         ) : (
           <Button
             onClick={() => (onTransformToLinked ? onTransformToLinked(disciple) : onEdit(disciple))}
-            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700 dark:text-white cursor-pointer shadow-xs transition-colors"
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-xl text-xs font-semibold cursor-pointer shadow-xs transition-colors"
           >
             <UserCheck className="h-4 w-4" />
-            <span>Transformar em Vinculado</span>
+            <span>Integrar à Comunhão</span>
           </Button>
         )}
       </div>

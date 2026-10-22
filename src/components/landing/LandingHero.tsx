@@ -1,13 +1,10 @@
-import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRight, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LandingLandscapeCarousel } from "@/components/landing/LandingLandscapeCarousel"
-import { getTodayCatechesis } from "@/data/landingData"
+import { LandingCatequeseQuote } from "@/components/landing/LandingCatequeseQuote"
 
 export function LandingHero() {
-  const dailyVerse = useMemo(() => getTodayCatechesis(), [])
-
   return (
     <section className="relative w-full border-b border-border/40 pt-0 pb-12 sm:pb-16">
       {/* 1. Panoramic Carousel of Belo Horizonte Landscapes */}
@@ -49,16 +46,10 @@ export function LandingHero() {
           </Button>
         </div>
 
-        {/* Simple, understated Daily Scripture Quote */}
-        <figure className="mx-auto mt-10 max-w-2xl border-t border-border/50 pt-6 text-center">
-          <blockquote className="font-serif text-sm italic leading-relaxed text-foreground/90 sm:text-base">
-            &ldquo;{dailyVerse.quote}&rdquo;
-          </blockquote>
-          <figcaption className="mt-2 text-xs font-medium text-muted-foreground">
-            {dailyVerse.reference} &middot; {dailyVerse.theme}
-          </figcaption>
-        </figure>
+        {/* Simple, understated Catechesis Scripture Quote (rotates on each page load) */}
+        <LandingCatequeseQuote />
       </div>
     </section>
   )
 }
+

@@ -6,6 +6,8 @@
  * - Recurring calendar events and teaching categories
  */
 
+import { getRandomCatequeseVerse, type CatequeseVerseEntry } from "@/data/catequese"
+
 export interface NavItem {
   label: string
   href: string
@@ -166,18 +168,14 @@ export const DAILY_CATECHESIS: DailyVerse[] = [
 ]
 
 /**
- * Retorna o versículo do dia baseado no dia do ano atual (1 a 365)
+ * Retorna um versículo da catequese sorteado a cada carregamento da página (load / reload)
  */
 export function getTodayCatechesis(): DailyVerse {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), 0, 0)
-  const diff = now.getTime() - start.getTime()
-  const oneDay = 1000 * 60 * 60 * 24
-  const dayOfYear = Math.floor(diff / oneDay)
-
-  const index = Math.abs(dayOfYear) % DAILY_CATECHESIS.length
-  return DAILY_CATECHESIS[index]
+  return getRandomCatequeseVerse()
 }
+
+export { getRandomCatequeseVerse, type CatequeseVerseEntry }
+
 
 /**
  * Extrai o ID do vídeo do YouTube a partir de qualquer formato de URL

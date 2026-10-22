@@ -438,15 +438,15 @@ export function HomeGroupEditorDialog({
             </div>
 
             {lat && lng ? (
-              <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 p-3 text-xs text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-500/20">
-                <MapPin className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center gap-2.5 rounded-xl bg-card border border-border/80 p-3 text-xs text-foreground">
+                <MapPin className="h-4 w-4 shrink-0 text-primary" />
                 <span>
-                  Coordenadas salvas: {lat.toFixed(4)}, {lng.toFixed(4)} (aparecerá com pin no mapa interativo)
+                  Coordenadas salvas: {lat.toFixed(4)}, {lng.toFixed(4)} (visível no mapa interativo)
                 </span>
               </div>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                Clique em "Buscar no Mapa" após preencher o endereço para que o grupo apareça automaticamente no mapa interativo.
+                Preencha o endereço e acione Buscar no Mapa para localizar as coordenadas no mapa interativo.
               </p>
             )}
           </div>
