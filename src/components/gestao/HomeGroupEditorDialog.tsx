@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Dialog,
   DialogContent,
@@ -10,13 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { MapPin, Clock, Calendar, Users, Loader2, Search } from "lucide-react"
 import { toast } from "sonner"
 import supabase from "@/lib/supabase"
@@ -92,6 +86,50 @@ export function HomeGroupEditorDialog({
       }
     }
   }, [open, homeGroup])
+
+  const leader1Options = useMemo(() => {
+    return allProfiles
+      .filter((p) => !p.father_id || !!p.baptism_date)
+      .map((p) => ({
+        value: p.id,
+        label: p.full_name,
+        description: p.phone || undefined,
+        badge: p.is_presbyter ? "Presbítero" : undefined,
+        keywords: p.phone || "",
+      }))
+  }, [allProfiles])
+
+  const leader2Options = useMemo(() => {
+    return [
+      { value: "none", label: "Nenhum", keywords: "nenhum sem co-lider" },
+      ...allProfiles
+        .filter((p) => (!p.father_id || !!p.baptism_date) && p.id !== leader1Id)
+        .map((p) => ({
+          value: p.id,
+          label: p.full_name,
+          description: p.phone || undefined,
+          badge: p.is_presbyter ? "Presbítero" : undefined,
+          keywords: p.phone || "",
+        })),
+    ]
+  }, [allProfiles, leader1Id])
+
+  const sectorOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Sem setor definido", keywords: "nenhum sem setor" },
+      ...sectors.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    ]
+  }, [sectors])
+
+  const dayOptions = useMemo(() => {
+    return DAYS_OF_WEEK.map((d) => ({
+      value: d.value,
+      label: d.label,
+    }))
+  }, [])
 
   const handleGeocodeAddress = async () => {
     if (!locationText.trim()) {
@@ -265,7 +303,7 @@ export function HomeGroupEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
+      <DialogContent className="h-[90vh] sm:h-[85vh] max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isEditing ? "Editar Dados do Grupo Caseiro" : "Novo Grupo Caseiro"}
@@ -278,7 +316,7 @@ export function HomeGroupEditorDialog({
         </DialogHeader>
 
         {/* Corpo com Scroll Integrado ao Modal */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4 overscroll-contain">
           {/* Liderança e Setor (Apenas Nível 3 - Diáconos, Presbíteros, Devs) */}
           {isTier3 && (
             <div className="space-y-4 rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
@@ -295,58 +333,37 @@ export function HomeGroupEditorDialog({
                   <Label className="text-xs font-medium text-foreground">
                     Líder 1 (Principal) <span className="text-destructive">*</span>
                   </Label>
-                  <Select value={leader1Id} onValueChange={setLeader1Id}>
-                    <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                      <SelectValue placeholder="Selecione o Líder 1" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      {allProfiles
-                        .filter((p) => !p.father_id || !!p.baptism_date)
-                        .map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.full_name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    options={leader1Options}
+                    value={leader1Id}
+                    onValueChange={setLeader1Id}
+                    placeholder="Buscar Líder 1 pelo nome..."
+                    clearable={false}
+                  />
                 </div>
 
                 {/* Líder 2 */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-foreground">Líder 2 (Cônjuge ou Co-líder)</Label>
-                  <Select value={leader2Id} onValueChange={setLeader2Id}>
-                    <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                      <SelectValue placeholder="Selecione o Líder 2 (opcional)" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      <SelectItem value="none">Nenhum</SelectItem>
-                      {allProfiles
-                        .filter((p) => (!p.father_id || !!p.baptism_date) && p.id !== leader1Id)
-                        .map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.full_name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    options={leader2Options}
+                    value={leader2Id}
+                    onValueChange={setLeader2Id}
+                    placeholder="Buscar Líder 2 pelo nome (opcional)..."
+                    clearable={true}
+                  />
                 </div>
 
                 {/* Setor */}
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label className="text-xs font-medium text-foreground">Setor da Cidade</Label>
-                  <Select value={sectorId} onValueChange={setSectorId}>
-                    <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                      <SelectValue placeholder="Selecione o Setor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sem setor definido</SelectItem>
-                      {sectors.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    options={sectorOptions}
+                    value={sectorId}
+                    onValueChange={setSectorId}
+                    placeholder="Buscar ou selecionar setor..."
+                    clearable={true}
+                  />
                 </div>
               </div>
             </div>
@@ -364,21 +381,13 @@ export function HomeGroupEditorDialog({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-foreground">Dia da Semana</Label>
-                <Select
+                <SearchableSelect
+                  options={dayOptions}
                   value={String(meetingDay)}
                   onValueChange={(val) => setMeetingDay(parseInt(val, 10))}
-                >
-                  <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                    <SelectValue placeholder="Selecione o dia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DAYS_OF_WEEK.map((d) => (
-                      <SelectItem key={d.value} value={d.value}>
-                        {d.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Buscar ou selecionar dia..."
+                  clearable={false}
+                />
               </div>
 
               <div className="space-y-1.5">

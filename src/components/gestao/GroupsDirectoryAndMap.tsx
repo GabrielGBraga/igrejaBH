@@ -15,6 +15,10 @@ import {
 } from "lucide-react"
 import type { Database } from "@/lib/database.types"
 import { THEME_CLASSES } from "@/constants/colors"
+import {
+  getHomeGroupDisplayName,
+  getHomeGroupLeadersName,
+} from "@/lib/homeGroupUtils"
 
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
 type Sector = Database["public"]["Tables"]["sectors"]["Row"]
@@ -84,21 +88,11 @@ export function GroupsDirectoryAndMap({
   }, [allProfiles])
 
   const getGroupTitle = useCallback((hg: HomeGroup) => {
-    const l1 = hg.leader_1_id ? profileMap.get(hg.leader_1_id)?.full_name : null
-    const l2 = hg.leader_2_id ? profileMap.get(hg.leader_2_id)?.full_name : null
-
-    const leadersText = [l1, l2].filter(Boolean).join(" & ")
-    if (hg.location_text) {
-      const firstPart = hg.location_text.split("-")[0].trim()
-      return leadersText ? `${firstPart} — ${leadersText}` : firstPart
-    }
-    return leadersText ? `Grupo de ${leadersText}` : `Grupo Caseiro (${hg.id.slice(0, 5)})`
+    return getHomeGroupDisplayName(hg, profileMap)
   }, [profileMap])
 
   const getLeadersText = useCallback((hg: HomeGroup) => {
-    const l1 = hg.leader_1_id ? profileMap.get(hg.leader_1_id)?.full_name : null
-    const l2 = hg.leader_2_id ? profileMap.get(hg.leader_2_id)?.full_name : null
-    return [l1, l2].filter(Boolean).join(" & ") || "Liderança a definir"
+    return getHomeGroupLeadersName(hg, profileMap)
   }, [profileMap])
 
   // Filtragem dos grupos

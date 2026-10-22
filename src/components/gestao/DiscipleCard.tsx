@@ -1,4 +1,4 @@
-import { Phone, Edit, MessageSquare, Shield, Baby, Users, BookOpen, UserCheck } from "lucide-react"
+import { Phone, Edit, MessageSquare, Shield, Baby, Users, BookOpen, UserCheck, MapPin } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ export interface DiscipleCardProps {
   fatherName?: string | null
   motherName?: string | null
   fellowshipNames?: string[]
+  groupName?: string | null
   onEdit: (disciple: Profile) => void
   onTransformChild?: (disciple: Profile) => void
   onTransformToLinked?: (disciple: Profile) => void
@@ -28,6 +29,7 @@ export function DiscipleCard({
   fatherName,
   motherName,
   fellowshipNames = [],
+  groupName,
   onEdit,
   onTransformChild,
   onTransformToLinked,
@@ -127,6 +129,13 @@ export function DiscipleCard({
                 </span>
               )}
             </div>
+
+            {groupName && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span className="truncate font-medium text-foreground/90">{groupName}</span>
+              </div>
+            )}
           </div>
         </div>
 

@@ -22,13 +22,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -45,6 +38,11 @@ import { RelationshipGraphView } from "@/components/gestao/RelationshipGraphView
 import { RestrictedGroupLinkDialog } from "@/components/gestao/RestrictedGroupLinkDialog"
 import { disableRestrictedGroupMode } from "@/lib/restrictedMode"
 import { THEME_CLASSES } from "@/constants/colors"
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
+import {
+  getHomeGroupLeadersName,
+  getHomeGroupDisplayName,
+} from "@/lib/homeGroupUtils"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
@@ -423,6 +421,47 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     return { total, withDiscipler, withoutDiscipler }
   }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter])
 
+  // Opções para o seletor com pesquisa de Grupo Caseiro
+  const groupFilterOptions: SearchableSelectOption[] = useMemo(() => {
+    const linkedCount = profiles.filter((p) => p.is_church_linked !== false).length
+    const unlinkedCount = profiles.filter((p) => p.is_church_linked === false).length
+
+    const list: SearchableSelectOption[] = [
+      {
+        value: "all",
+        label: `Todos da Igreja (${linkedCount})`,
+        description: "Panorama geral de todos os discípulos vinculados",
+        keywords: "todos geral igreja corpo",
+      },
+      {
+        value: "unlinked",
+        label: `Visitantes nos Estudos (${unlinkedCount})`,
+        description: "Pessoas em acolhimento nos estudos bíblicos",
+        keywords: "visitantes estudos bíblicos acolhimento",
+      },
+    ]
+
+    homeGroups.forEach((hg) => {
+      const count = profiles.filter((p) => p.home_group_id === hg.id).length
+      const leaders = getHomeGroupLeadersName(hg, profileMap)
+      const displayName = getHomeGroupDisplayName(hg, profileMap)
+      const loc = hg.location_text ? hg.location_text.split("-")[0].trim() : ""
+      const sector = hg.sector_id ? sectorMap.get(hg.sector_id)?.name : undefined
+
+      list.push({
+        value: hg.id,
+        label: `${displayName} (${count})`,
+        description: loc
+          ? `${loc} • ${count} ${count === 1 ? "discípulo" : "discípulos"}`
+          : `${count} ${count === 1 ? "discípulo" : "discípulos"}`,
+        badge: sector,
+        keywords: `${leaders} ${hg.location_text || ""} ${sector || ""}`,
+      })
+    })
+
+    return list
+  }, [profiles, homeGroups, profileMap, sectorMap])
+
   // Abertura dos modais
   const handleOpenAddDisciple = () => {
     setEditingDisciple(null)
@@ -642,30 +681,15 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       Filtrar por Grupo Caseiro:
                     </span>
                   </div>
-                  <Select
-                    value={selectedGroupFilter}
-                    onValueChange={setSelectedGroupFilter}
-                  >
-                    <SelectTrigger className="h-11 min-h-[44px] w-full sm:w-72 rounded-lg text-xs font-medium">
-                      <SelectValue placeholder="Selecione um grupo" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      <SelectItem value="all">
-                        Todos da Igreja ({profiles.filter((p) => p.is_church_linked !== false).length})
-                      </SelectItem>
-                      <SelectItem value="unlinked">
-                        Visitantes nos Estudos ({profiles.filter((p) => p.is_church_linked === false).length})
-                      </SelectItem>
-                      {homeGroups.map((hg) => {
-                        const count = profiles.filter((p) => p.home_group_id === hg.id).length
-                        return (
-                          <SelectItem key={hg.id} value={hg.id}>
-                            {hg.location_text || `GC (${hg.id.slice(0, 5)})`} ({count})
-                          </SelectItem>
-                        )
-                      })}
-                    </SelectContent>
-                  </Select>
+                  <div className="w-full sm:w-80">
+                    <SearchableSelect
+                      options={groupFilterOptions}
+                      value={selectedGroupFilter}
+                      onValueChange={setSelectedGroupFilter}
+                      placeholder="Buscar grupo por líder ou bairro..."
+                      clearable={false}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -820,7 +844,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       </div>
 
                       <h2 className="mt-1 text-lg font-bold text-foreground sm:text-xl">
-                        {currentFocusedGroup.location_text || "Grupo Caseiro"}
+                        {getHomeGroupDisplayName(currentFocusedGroup, profileMap)}
                       </h2>
 
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
@@ -948,6 +972,13 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       ? profileMap.get(disciple.mother_id)?.full_name
                       : null
                     const companions = fellowshipsByProfile.get(disciple.id) || []
+                    const discipleGroup = disciple.home_group_id
+                      ? homeGroups.find((g) => g.id === disciple.home_group_id)
+                      : null
+                    const groupName =
+                      selectedGroupFilter === "all" && discipleGroup
+                        ? getHomeGroupDisplayName(discipleGroup, profileMap)
+                        : null
 
                     return (
                       <DiscipleCard
@@ -959,6 +990,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         fatherName={father}
                         motherName={mother}
                         fellowshipNames={companions}
+                        groupName={groupName}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
                         onTransformToLinked={handleOpenTransformToLinked}

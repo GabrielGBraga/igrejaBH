@@ -13,6 +13,7 @@ import {
   STATUS_COLORS,
   PALETTE,
 } from "@/constants/colors"
+import { getHomeGroupDisplayName } from "@/lib/homeGroupUtils"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
@@ -519,6 +520,7 @@ export function RelationshipGraphView({
 
   // Montar nós e links
   const { nodes, links } = useMemo(() => {
+    const profileMap = new Map(profiles.map((p) => [p.id, p]))
     const groupMap = new Map(homeGroups.map((g) => [g.id, g]))
     const sectorMap = new Map(sectors.map((s) => [s.id, s]))
 
@@ -539,7 +541,7 @@ export function RelationshipGraphView({
         role,
         gender: p.gender,
         homeGroupId: p.home_group_id,
-        homeGroupName: hg?.location_text || null,
+        homeGroupName: hg ? getHomeGroupDisplayName(hg, profileMap) : null,
         sector: sector || "Geral",
         neighborhood: p.address_neighborhood,
         phone: p.phone,

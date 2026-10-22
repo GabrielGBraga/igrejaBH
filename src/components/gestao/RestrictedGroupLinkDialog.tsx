@@ -9,13 +9,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  getHomeGroupDisplayName,
+  getHomeGroupSearchKeywords,
+} from "@/lib/homeGroupUtils"
 import { Badge } from "@/components/ui/badge"
 import {
   Link2,
@@ -97,6 +95,21 @@ export function RestrictedGroupLinkDialog({
 
   const leadersName = [leader1?.full_name, leader2?.full_name].filter(Boolean).join(" & ") || "Liderança a definir"
 
+  const groupOptions = useMemo(() => {
+    return homeGroups.map((hg) => {
+      const displayName = getHomeGroupDisplayName(hg, profileMap)
+      const loc = hg.location_text ? hg.location_text.split("-")[0].trim() : ""
+      const sector = hg.sector_id ? sectorMap.get(hg.sector_id)?.name : undefined
+      return {
+        value: hg.id,
+        label: displayName,
+        description: loc || undefined,
+        badge: sector,
+        keywords: getHomeGroupSearchKeywords(hg, profileMap, sector),
+      }
+    })
+  }, [homeGroups, profileMap, sectorMap])
+
   // Telefone para envio no WhatsApp (prioriza líder 1, senão líder 2)
   const targetLeaderForWa = leader1?.phone ? leader1 : leader2?.phone ? leader2 : null
   const cleanPhone = targetLeaderForWa?.phone?.replace(/\D/g, "") || ""
@@ -142,7 +155,7 @@ export function RestrictedGroupLinkDialog({
         onOpenChange(nextOpen)
       }}
     >
-      <DialogContent className="flex flex-col max-h-[85vh] sm:max-h-[88vh] w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl border border-border/70">
+      <DialogContent className="flex flex-col h-[85vh] sm:h-[88vh] max-h-[85vh] sm:max-h-[88vh] w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl border border-border/70">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <div className="flex items-center gap-2">
             <Badge
@@ -166,41 +179,16 @@ export function RestrictedGroupLinkDialog({
             <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">
               Selecione o Grupo Caseiro:
             </Label>
-            <Select
+            <SearchableSelect
+              options={groupOptions}
               value={activeGroupId}
               onValueChange={(val) => {
                 setUserSelectedGroupId(val)
                 setCopied(false)
               }}
-            >
-              <SelectTrigger className="w-full min-w-0 max-w-full h-11 min-h-[44px] rounded-xl text-xs sm:text-sm overflow-hidden text-left [&>span]:truncate [&>span]:block [&>span]:min-w-0">
-                <SelectValue placeholder="Selecione um grupo">
-                  {currentGroup ? (
-                    <span className="truncate block max-w-[calc(100vw-9rem)] sm:max-w-[360px] text-foreground">
-                      {currentGroup.location_text || `Grupo (${currentGroup.id.slice(0, 5)})`}
-                      {leadersName !== "Liderança a definir" ? ` — ${leadersName}` : ""}
-                    </span>
-                  ) : (
-                    "Selecione um grupo"
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-64 max-w-[calc(100vw-3rem)] sm:max-w-lg">
-                {homeGroups.map((hg) => {
-                  const l1 = hg.leader_1_id ? profileMap.get(hg.leader_1_id)?.full_name : null
-                  const l2 = hg.leader_2_id ? profileMap.get(hg.leader_2_id)?.full_name : null
-                  const leaders = [l1, l2].filter(Boolean).join(" & ")
-                  return (
-                    <SelectItem key={hg.id} value={hg.id} className="text-xs">
-                      <span className="truncate block max-w-full">
-                        {hg.location_text || `Grupo (${hg.id.slice(0, 5)})`}
-                        {leaders ? ` — ${leaders}` : ""}
-                      </span>
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
+              placeholder="Buscar Grupo Caseiro por líder ou bairro..."
+              clearable={false}
+            />
           </div>
 
           {/* 2. Card de Resumo do Grupo Selecionado */}
@@ -208,7 +196,7 @@ export function RestrictedGroupLinkDialog({
             <div className="rounded-xl border border-border/80 bg-muted/30 p-3.5 sm:p-4 space-y-2.5 min-w-0">
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <span className="font-semibold text-foreground text-sm truncate flex-1 min-w-0">
-                  {currentGroup.location_text || "Grupo Caseiro"}
+                  {getHomeGroupDisplayName(currentGroup, profileMap)}
                 </span>
                 {sector && (
                   <Badge variant="outline" className="text-[11px] border-primary/30 text-primary shrink-0">

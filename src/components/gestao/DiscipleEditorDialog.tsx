@@ -10,14 +10,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { SearchableSelect } from "@/components/ui/searchable-select"
+import {
+  getHomeGroupDisplayName,
+  getHomeGroupSearchKeywords,
+} from "@/lib/homeGroupUtils"
 import {
   User,
   Baby,
@@ -257,6 +255,106 @@ export function DiscipleEditorDialog({
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, selectedFellowships, gender])
 
+  // Mapeamento rápido de perfis e líderes
+  const profileMap = useMemo(() => {
+    const map = new Map<string, Profile>()
+    allProfiles.forEach((p) => map.set(p.id, p))
+    return map
+  }, [allProfiles])
+
+  const leaderIds = useMemo(() => {
+    const set = new Set<string>()
+    homeGroups.forEach((g) => {
+      if (g.leader_1_id) set.add(g.leader_1_id)
+      if (g.leader_2_id) set.add(g.leader_2_id)
+    })
+    return set
+  }, [homeGroups])
+
+  // Opções para o Seletor com pesquisa de Grupo Caseiro (com nome dos líderes)
+  const homeGroupOptions = useMemo(() => {
+    return homeGroups.map((hg) => {
+      const displayName = getHomeGroupDisplayName(hg, profileMap)
+      const loc = hg.location_text ? hg.location_text.split("-")[0].trim() : ""
+      return {
+        value: hg.id,
+        label: displayName,
+        description: loc || undefined,
+        keywords: getHomeGroupSearchKeywords(hg, profileMap),
+      }
+    })
+  }, [homeGroups, profileMap])
+
+  // Opções de Discipulador
+  const disciplerOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Nenhum no momento", keywords: "nenhum sem discipulador" },
+      ...availableDisciplers.map((p) => ({
+        value: p.id,
+        label: p.full_name,
+        description: p.phone ? formatPhone(p.phone) : undefined,
+        badge: p.is_presbyter ? "Presbítero" : leaderIds.has(p.id) ? "Líder de GC" : undefined,
+        keywords: p.phone || "",
+      })),
+    ]
+  }, [availableDisciplers, leaderIds])
+
+  // Opções de Cônjuge
+  const spouseOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Não é casado(a) / Nenhum", keywords: "solteiro nao casado nenhum" },
+      ...availableSpouses.map((p) => ({
+        value: p.id,
+        label: p.full_name,
+        description: p.phone ? formatPhone(p.phone) : undefined,
+        keywords: p.phone || "",
+      })),
+    ]
+  }, [availableSpouses])
+
+  // Opções de Companheiro de Obra
+  const companionOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Selecione para adicionar" },
+      ...availableCompanions.map((p) => ({
+        value: p.id,
+        label: p.full_name,
+        description: p.phone ? formatPhone(p.phone) : undefined,
+        keywords: p.phone || "",
+      })),
+    ]
+  }, [availableCompanions])
+
+  // Opções de Pai (Crianças)
+  const fatherOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Não informado" },
+      ...allProfiles
+        .filter((p) => !checkIsChild(p) && p.gender === "M")
+        .map((p) => ({
+          value: p.id,
+          label: p.full_name,
+          description: p.phone ? formatPhone(p.phone) : undefined,
+          keywords: p.phone || "",
+        })),
+    ]
+  }, [allProfiles])
+
+  // Opções de Mãe (Crianças)
+  const motherOptions = useMemo(() => {
+    return [
+      { value: "none", label: "Não informada" },
+      ...allProfiles
+        .filter((p) => !checkIsChild(p) && p.gender === "F")
+        .map((p) => ({
+          value: p.id,
+          label: p.full_name,
+          description: p.phone ? formatPhone(p.phone) : undefined,
+          keywords: p.phone || "",
+        })),
+    ]
+  }, [allProfiles])
+
   const handleAddCompanion = () => {
     if (companionToAdd && companionToAdd !== "none") {
       setSelectedFellowships([...selectedFellowships, companionToAdd])
@@ -453,7 +551,7 @@ export function DiscipleEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
+      <DialogContent className="h-[90vh] sm:h-[85vh] max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isTransformingLinked
@@ -472,7 +570,7 @@ export function DiscipleEditorDialog({
         </DialogHeader>
 
         {/* Corpo com Scroll Integrado ao Modal */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4 overscroll-contain">
           {/* Banner de Acolhimento na Comunhão */}
           {isTransformingLinked && (
             <div className="rounded-xl border border-border/80 bg-muted/40 p-3.5 text-xs text-foreground flex items-start gap-2.5">
@@ -662,22 +760,14 @@ export function DiscipleEditorDialog({
                 <Label className="text-xs font-medium text-foreground">
                   Grupo Caseiro <span className="text-destructive">*</span>
                 </Label>
-                <Select
+                <SearchableSelect
+                  options={homeGroupOptions}
                   value={homeGroupId}
                   onValueChange={setHomeGroupId}
+                  placeholder="Buscar Grupo Caseiro por líder ou bairro..."
                   disabled={!isEditing && lockGroupSelectionOnCreate}
-                >
-                  <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                    <SelectValue placeholder="Selecione o Grupo Caseiro" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64">
-                    {homeGroups.map((hg) => (
-                      <SelectItem key={hg.id} value={hg.id}>
-                        {hg.location_text || `Grupo Caseiro (${hg.id.slice(0, 5)})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  clearable={false}
+                />
               </div>
             </div>
           </div>
@@ -699,19 +789,13 @@ export function DiscipleEditorDialog({
                     <Label className="text-xs font-medium text-foreground">
                       Quem é o Discipulador(a)? <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
-                    <Select value={disciplerId} onValueChange={setDisciplerId}>
-                      <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder={gender === "M" ? "Selecione o discipulador" : "Selecione a discipuladora"} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        <SelectItem value="none">Nenhum no momento</SelectItem>
-                        {availableDisciplers.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                      options={disciplerOptions}
+                      value={disciplerId}
+                      onValueChange={setDisciplerId}
+                      placeholder={gender === "M" ? "Buscar discipulador pelo nome..." : "Buscar discipuladora pelo nome..."}
+                      clearable={true}
+                    />
                   </div>
 
                   {/* Cônjuge (somente gênero oposto) */}
@@ -719,19 +803,13 @@ export function DiscipleEditorDialog({
                     <Label className="text-xs font-medium text-foreground">
                       É casado(a)? Cônjuge: <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
-                    <Select value={spouseId} onValueChange={setSpouseId}>
-                      <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder={gender === "M" ? "Selecione a esposa" : "Selecione o marido"} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        <SelectItem value="none">Não é casado(a) / Nenhum</SelectItem>
-                        {availableSpouses.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                      options={spouseOptions}
+                      value={spouseId}
+                      onValueChange={setSpouseId}
+                      placeholder={gender === "M" ? "Buscar esposa pelo nome..." : "Buscar marido pelo nome..."}
+                      clearable={true}
+                    />
                   </div>
                 </div>
 
@@ -767,22 +845,15 @@ export function DiscipleEditorDialog({
 
                   {/* Seletor para adicionar novo companheiro de obra */}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <Select
-                      value={companionToAdd}
-                      onValueChange={setCompanionToAdd}
-                    >
-                      <SelectTrigger className="h-11 min-h-[44px] flex-1 rounded-xl text-xs sm:text-sm">
-                        <SelectValue placeholder={gender === "M" ? "Adicionar companheiro de obra..." : "Adicionar companheira de obra..."} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-48">
-                        <SelectItem value="none">Selecione para adicionar</SelectItem>
-                        {availableCompanions.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex-1 min-w-0">
+                      <SearchableSelect
+                        options={companionOptions}
+                        value={companionToAdd}
+                        onValueChange={setCompanionToAdd}
+                        placeholder={gender === "M" ? "Buscar companheiro de obra..." : "Buscar companheira de obra..."}
+                        clearable={false}
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
@@ -804,42 +875,26 @@ export function DiscipleEditorDialog({
                     <Label className="text-xs font-medium text-foreground">
                       Pai <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
-                    <Select value={fatherId} onValueChange={setFatherId}>
-                      <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder="Selecione o pai" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-52">
-                        <SelectItem value="none">Não informado</SelectItem>
-                        {allProfiles
-                          .filter((p) => !checkIsChild(p) && p.gender === "M")
-                          .map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                      options={fatherOptions}
+                      value={fatherId}
+                      onValueChange={setFatherId}
+                      placeholder="Buscar pai pelo nome..."
+                      clearable={true}
+                    />
                   </div>
 
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-foreground">
                       Mãe <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
-                    <Select value={motherId} onValueChange={setMotherId}>
-                      <SelectTrigger className="h-11 min-h-[44px] rounded-xl text-sm">
-                        <SelectValue placeholder="Selecione a mãe" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-52">
-                        <SelectItem value="none">Não informado</SelectItem>
-                        {allProfiles
-                          .filter((p) => !checkIsChild(p) && p.gender === "F")
-                          .map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                      options={motherOptions}
+                      value={motherId}
+                      onValueChange={setMotherId}
+                      placeholder="Buscar mãe pelo nome..."
+                      clearable={true}
+                    />
                   </div>
                 </div>
               </>
