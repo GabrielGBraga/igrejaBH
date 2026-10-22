@@ -32,6 +32,7 @@ import {
   Calendar,
   RotateCcw,
   Check,
+  BookOpen,
 } from "lucide-react"
 import { toast } from "sonner"
 import supabase from "@/lib/supabase"
@@ -51,6 +52,7 @@ export interface DiscipleEditorDialogProps {
   defaultHomeGroupId?: string | null
   isTier3: boolean // true if dev, presbyter, or deacon
   initialTransformToBaptized?: boolean
+  initialTransformToLinked?: boolean
   lockGroupSelectionOnCreate?: boolean
   onSuccess: () => void
 }
@@ -87,10 +89,12 @@ export function DiscipleEditorDialog({
   defaultHomeGroupId,
   isTier3,
   initialTransformToBaptized = false,
+  initialTransformToLinked = false,
   lockGroupSelectionOnCreate = false,
   onSuccess,
 }: DiscipleEditorDialogProps) {
   const isEditing = !!disciple
+  const isTransformingLinked = Boolean(initialTransformToLinked || (disciple && disciple.is_church_linked === false))
 
   // Form State
   const [isChild, setIsChild] = useState<boolean>(false)
@@ -124,6 +128,7 @@ export function DiscipleEditorDialog({
       if (disciple) {
         const isChildProfile = checkIsChild(disciple)
         const shouldTransform = Boolean(initialTransformToBaptized && isChildProfile)
+        const shouldTransformLinked = Boolean(initialTransformToLinked || disciple.is_church_linked === false)
 
         setIsChild(shouldTransform ? false : isChildProfile)
         setFullName(disciple.full_name || "")
@@ -142,10 +147,13 @@ export function DiscipleEditorDialog({
             ? (disciple.baptism_date || new Date().toISOString().split("T")[0])
             : (disciple.baptism_date || "")
         )
-        setIsChurchLinked(disciple.is_church_linked !== false)
+        setIsChurchLinked(shouldTransformLinked ? true : (disciple.is_church_linked !== false))
 
         if (shouldTransform) {
           toast.info("Transição ativada! Defina o discipulador e confirme a data do batismo.")
+        } else if (shouldTransformLinked) {
+          setShowOptionalFields(true)
+          toast.info("Transição ativada! Defina o Grupo Caseiro e o Discipulador para vincular o irmão.")
         }
 
         // Carregar companheiros existentes
@@ -177,7 +185,7 @@ export function DiscipleEditorDialog({
       setConfirmDelete(false)
       setShowOptionalFields(false)
     }
-  }, [open, disciple, defaultHomeGroupId, homeGroups, fellowships, initialTransformToBaptized])
+  }, [open, disciple, defaultHomeGroupId, homeGroups, fellowships, initialTransformToBaptized, initialTransformToLinked])
 
   // Tratamento da mudança de gênero para auto-ajustar discipulador, cônjuge e companheiro(s) de obra
   const handleGenderChange = (newGender: "M" | "F") => {
@@ -279,6 +287,13 @@ export function DiscipleEditorDialog({
     if (!birthDate.trim()) {
       toast.error("A Data de Nascimento é obrigatória.")
       return
+    }
+
+    if (isTransformingLinked && !isChild) {
+      if ((!disciplerId || disciplerId === "none") && !disciple?.is_presbyter) {
+        toast.error("Por favor, selecione um Discipulador para vincular o irmão à igreja.")
+        return
+      }
     }
 
     setSaving(true)
@@ -441,10 +456,16 @@ export function DiscipleEditorDialog({
       <DialogContent className="max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            {isEditing ? "Editar Irmão e Vínculos" : "Adicionar Irmão ao Grupo"}
+            {isTransformingLinked
+              ? "Transformar em Discípulo Vinculado"
+              : isEditing
+              ? "Editar Irmão e Vínculos"
+              : "Adicionar Irmão ao Grupo"}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {isEditing
+            {isTransformingLinked
+              ? `Vincule ${disciple?.full_name || "este irmão"} à comunhão da igreja local definindo seu Grupo Caseiro e discipulador.`
+              : isEditing
               ? "Atualize os dados e os vínculos de cuidado mútuo (juntas e ligamentos) no Corpo."
               : "Preencha as informações básicas para incluir o irmão na vida e comunhão do Grupo Caseiro."}
           </DialogDescription>
@@ -452,6 +473,21 @@ export function DiscipleEditorDialog({
 
         {/* Corpo com Scroll Integrado ao Modal */}
         <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6 space-y-4">
+          {/* Banner de Transição de Usuário de Estudos para Vinculado */}
+          {isTransformingLinked && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
+              <BookOpen className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-amber-800 dark:text-amber-300">
+                  Transição para Discípulo Vinculado
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                  Defina o Grupo Caseiro e o Discipulador para integrar este irmão plenamente na comunhão do Corpo.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* 1. Seletor Grande: Adulto/Jovem vs Criança (Apenas ao criar novo) */}
           {!isEditing && (
             <div>
@@ -895,7 +931,7 @@ export function DiscipleEditorDialog({
                   </div>
                 </div>
 
-                {isTier3 && (
+                {isTier3 && !isTransformingLinked && (
                   <div className="flex items-center gap-2 pt-2 border-t border-border/50">
                     <Checkbox
                       id="isChurchLinked"
@@ -992,6 +1028,8 @@ export function DiscipleEditorDialog({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Salvando...
               </>
+            ) : isTransformingLinked ? (
+              "Vincular à Igreja"
             ) : isEditing ? (
               "Salvar Alterações"
             ) : (

@@ -43,12 +43,10 @@ export function LandingNewsSection() {
             id: m.id,
             type: "video",
             title: m.title,
-            categoryTitle: "Nova mensagem publicada",
             speakerOrAuthor: m.series_name || "Igreja em Belo Horizonte",
             dateLabel: new Date(m.created_at || Date.now()).toLocaleDateString("pt-BR"),
             description: m.description || FALLBACK_FEATURED_VIDEO.description,
-            badgeText: "Vídeo Oficial",
-            tags: ["#Edificação", "#Mensagem"],
+            badgeText: "Ministração",
             imageUrl: actualThumbnail,
             videoUrl: m.url,
             linkUrl: "#video-player",
@@ -104,16 +102,9 @@ export function LandingNewsSection() {
 
                 {/* Video Play Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 group-hover:scale-110">
+                  <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 group-hover:scale-105">
                     <Play className="h-6 w-6 sm:h-7 sm:w-7 fill-current ml-1" />
                   </div>
-                </div>
-
-                {/* Top Overlay Badge */}
-                <div className="absolute top-3 left-3">
-                  <Badge className="bg-black/70 hover:bg-black/70 text-white text-[11px] font-semibold border-none backdrop-blur-xs">
-                    {featured.badgeText}
-                  </Badge>
                 </div>
               </div>
             </div>
@@ -121,10 +112,16 @@ export function LandingNewsSection() {
             {/* Right: Text Description & Actions */}
             <div className="md:col-span-6 lg:col-span-5 flex flex-col justify-between space-y-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  {featured.categoryTitle || "Nova mensagem publicada"}
-                </span>
-                <h3 className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="font-medium text-primary">{featured.badgeText}</span>
+                  {featured.dateLabel && (
+                    <>
+                      <span>&middot;</span>
+                      <span>{featured.dateLabel}</span>
+                    </>
+                  )}
+                </div>
+                <h3 className="mt-1.5 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                   {featured.title}
                 </h3>
                 <p className="mt-3 text-xs sm:text-sm leading-relaxed text-muted-foreground">
@@ -137,13 +134,13 @@ export function LandingNewsSection() {
                   type="button"
                   variant="link"
                   onClick={() => setSelectedVideo(featured)}
-                  className="p-0 text-xs sm:text-sm font-semibold text-primary hover:underline flex items-center gap-1"
+                  className="min-h-[44px] p-0 text-xs sm:text-sm font-semibold text-primary hover:underline flex items-center gap-1"
                 >
                   Assistir ministração
                   <ArrowRight className="h-4 w-4" />
                 </Button>
                 {featured.speakerOrAuthor && (
-                  <span className="text-[11px] text-muted-foreground font-medium">
+                  <span className="text-xs text-muted-foreground font-medium">
                     {featured.speakerOrAuthor}
                   </span>
                 )}
@@ -152,18 +149,12 @@ export function LandingNewsSection() {
           </div>
         </div>
 
-        {/* 2. Secondary News Cards: Harmonizados com o Sistema de Notícias */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Últimas Publicações Públicas
-            </span>
-            <Button asChild variant="link" size="sm" className="p-0 text-xs text-primary font-semibold">
-              <Link to="/ensinos">
-                Ver todos os ensinos
-                <ArrowRight className="ml-1 h-3 w-3" />
-              </Link>
-            </Button>
+        {/* 2. Secondary News Cards */}
+        <div className="mt-10">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-foreground">
+              Comunicados e Estudos Recentes
+            </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -174,13 +165,13 @@ export function LandingNewsSection() {
               : FALLBACK_NEWS_CARDS.map((card) => (
                   <div
                     key={card.id}
-                    className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs"
+                    className="flex flex-col justify-between overflow-hidden rounded-xl border border-border/60 bg-card p-5 shadow-2xs transition-colors hover:border-border"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
                         <Badge
                           variant="outline"
-                          className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-0.5 text-[11px] font-semibold text-primary"
+                          className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-0.5 text-[11px] font-medium text-primary"
                         >
                           {card.badgeText}
                         </Badge>
@@ -197,10 +188,10 @@ export function LandingNewsSection() {
                     </div>
 
                     <div className="mt-5 pt-3 border-t border-border/30 flex items-center justify-between">
-                      <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-xs font-semibold text-primary">
+                      <Button asChild variant="ghost" size="sm" className="min-h-[44px] px-2 text-xs font-semibold text-primary">
                         <Link to={card.linkUrl}>
-                          Saiba mais
-                          <ArrowRight className="ml-1 h-3 w-3" />
+                          Ler mais
+                          <ArrowRight className="ml-1 h-3.5 w-3.5" />
                         </Link>
                       </Button>
                     </div>

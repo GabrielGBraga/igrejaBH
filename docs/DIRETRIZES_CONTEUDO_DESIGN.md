@@ -43,3 +43,12 @@ Você é um agente encarregado de criar componentes (React, Tailwind, shadcn/ui)
 ## 7. Vocabulário: Discípulos em vez de Membros
 * **Conceito:** A igreja não é um clube ou instituição associativa; portanto, não possui "membros" estáticos, mas sim discípulos em constante processo de formação e aprendizado prático.
 * **Aplicação no Design/UI:** O agente está terminantemente proibido de usar jargões institucionais. Ao gerar botões, formulários de contato ou seções de engajamento, substitua frases institucionais como "Torne-se um membro", "Seja membro" ou "Cadastre-se" por convites relacionais, como "Caminhe conosco", "Inicie seu discipulado" ou "Junte-se a nós".
+
+---
+
+## 8. Higiene de Copywriting e Arquitetura de Informação (Anti-Clichês de IA)
+* **Proibição Absoluta da Palavra "Instituição":** NUNCA descreva a igreja como *"nossa existência enquanto instituição"* ou qualquer variação institucional, nem mesmo para explicar o nome geográfico da igreja. Use *"comunhão local"* ou *"presença local na cidade"*.
+* **Sem Vazamento de Nomenclatura de Banco de Dados:** NUNCA exponha termos técnicos do schema na interface pública (ex: escrever *"Últimas Publicações Públicas"* por causa da coluna `is_public = true`). Use títulos naturais como *"Comunicados e Estudos Recentes"*.
+* **Separação entre Ferramentas Internas e Landing Page Pública:** Componentes internos de estudo e acompanhamento (como widgets completos de `CatequeseDiaria` com metadados de trilhas, lições e botões de cópia para WhatsApp) pertencem ao `/dashboard` ou `/ensinos`. A Hero Section pública deve ser limpa, acolhedora e compreensível imediatamente por um visitante de primeira viagem.
+* **Sem Links "Clique Aqui" ou Modais Escondendo Conteúdo Essencial:** NUNCA utilize frases como *"Quer saber mais..., clique aqui"* para esconder os fundamentos da fé em popups/modais que prometem conteúdos inexistentes (ex: prometer *"nossa história"* quando o modal contém apenas tópicos doutrinários). Apresente os fundamentos de forma editorial e direta na página.
+* **Consistência de Identificação Geográfica:** Mantenha a identificação *"Igreja em Belo Horizonte"* consistente entre cabeçalho, Hero e rodapé, evitando alternar entre múltiplas variações de títulos em cada seção da mesma página.

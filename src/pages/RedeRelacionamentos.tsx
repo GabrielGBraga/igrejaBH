@@ -17,7 +17,6 @@ import {
   Filter,
   Link2,
   ShieldAlert,
-  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -103,6 +102,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
   const [editingDisciple, setEditingDisciple] = useState<Profile | null>(null)
   const [isDiscipleDialogOpen, setIsDiscipleDialogOpen] = useState<boolean>(false)
   const [transformToBaptizedOnOpen, setTransformToBaptizedOnOpen] = useState<boolean>(false)
+  const [transformToLinkedOnOpen, setTransformToLinkedOnOpen] = useState<boolean>(false)
 
   const [editingHomeGroup, setEditingHomeGroup] = useState<HomeGroup | null>(null)
   const [isHomeGroupDialogOpen, setIsHomeGroupDialogOpen] = useState<boolean>(false)
@@ -298,14 +298,25 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
   // KPIs consolidados da igreja para quando "Todos da Igreja" estiver selecionado
   const churchKpis = useMemo(() => {
-    const totalDisciples = profiles.length
-    const adultDisciples = profiles.filter((p) => !checkIsChild(p))
+    // Apenas discípulos vinculados à igreja (usuários de estudo não entram na contagem do Corpo)
+    const churchProfiles = profiles.filter((p) => p.is_church_linked !== false)
+    const totalDisciples = churchProfiles.length
+    const adultDisciples = churchProfiles.filter((p) => !checkIsChild(p))
     const adultCount = adultDisciples.length
-    const childrenCount = profiles.filter((p) => checkIsChild(p)).length
+    const childrenCount = churchProfiles.filter((p) => checkIsChild(p)).length
 
-    const withDiscipler = adultDisciples.filter((p) => !!p.discipler_id).length
-    const withoutDiscipler = adultCount - withDiscipler
+    // Presbíteros funcionam em discipulado mútuo e são descontados ao verificar se alguém não tem discipulador
+    const withDiscipler = adultDisciples.filter((p) => !!p.discipler_id || p.is_presbyter).length
+    const withoutDiscipler = adultDisciples.filter((p) => !p.discipler_id && !p.is_presbyter).length
     const discipleshipRate = adultCount > 0 ? Math.round((withDiscipler / adultCount) * 100) : 0
+
+    // Quantos discipuladores existem no Corpo
+    const activeDisciplerIds = new Set(
+      churchProfiles
+        .map((p) => p.discipler_id)
+        .filter((id): id is string => Boolean(id))
+    )
+    const totalDisciplers = activeDisciplerIds.size
 
     const totalGroups = homeGroups.length
     const totalSectors = sectors.length
@@ -326,6 +337,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       withDiscipler,
       withoutDiscipler,
       discipleshipRate,
+      totalDisciplers,
       totalGroups,
       totalSectors,
       totalFellowships,
@@ -352,6 +364,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
           if (p.is_church_linked !== false) return false
         } else if (selectedGroupFilter !== "all") {
           if (p.home_group_id !== selectedGroupFilter) return false
+        } else {
+          // Quando "Todos da Igreja", não incluir usuários de estudo
+          if (p.is_church_linked === false) return false
         }
       }
 
@@ -366,9 +381,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       // 3. Filtro de Discipulador
       const isChild = checkIsChild(p)
       if (filterDisciplerStatus === "with") {
-        if (!p.discipler_id || isChild) return false
+        if (isChild || (!p.discipler_id && !p.is_presbyter)) return false
       } else if (filterDisciplerStatus === "without") {
-        if (p.discipler_id || isChild) return false
+        // Presbíteros descontados ao verificar quem não tem discipulador (possuem discipulado mútuo)
+        if (isChild || p.discipler_id || p.is_presbyter) return false
       }
 
       return true
@@ -394,12 +410,14 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       }
       if (selectedGroupFilter === "unlinked") return p.is_church_linked === false
       if (selectedGroupFilter !== "all") return p.home_group_id === selectedGroupFilter
-      return true
+      // Quando "Todos da Igreja", não incluir usuários de estudo
+      return p.is_church_linked !== false
     })
 
     const total = baseList.length
-    const withDiscipler = baseList.filter((p) => !!p.discipler_id && !checkIsChild(p)).length
-    const withoutDiscipler = baseList.filter((p) => !p.discipler_id && !checkIsChild(p)).length
+    const withDiscipler = baseList.filter((p) => !checkIsChild(p) && (!!p.discipler_id || p.is_presbyter)).length
+    // Presbíteros descontados ao verificar se alguém não tem discipulador
+    const withoutDiscipler = baseList.filter((p) => !checkIsChild(p) && !p.discipler_id && !p.is_presbyter).length
 
     return { total, withDiscipler, withoutDiscipler }
   }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter])
@@ -408,18 +426,28 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
   const handleOpenAddDisciple = () => {
     setEditingDisciple(null)
     setTransformToBaptizedOnOpen(false)
+    setTransformToLinkedOnOpen(false)
     setIsDiscipleDialogOpen(true)
   }
 
   const handleOpenEditDisciple = (disciple: Profile) => {
     setEditingDisciple(disciple)
     setTransformToBaptizedOnOpen(false)
+    setTransformToLinkedOnOpen(false)
     setIsDiscipleDialogOpen(true)
   }
 
   const handleOpenTransformBaptism = (disciple: Profile) => {
     setEditingDisciple(disciple)
     setTransformToBaptizedOnOpen(true)
+    setTransformToLinkedOnOpen(false)
+    setIsDiscipleDialogOpen(true)
+  }
+
+  const handleOpenTransformToLinked = (disciple: Profile) => {
+    setEditingDisciple(disciple)
+    setTransformToBaptizedOnOpen(false)
+    setTransformToLinkedOnOpen(true)
     setIsDiscipleDialogOpen(true)
   }
 
@@ -622,7 +650,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     </SelectTrigger>
                     <SelectContent className="max-h-64">
                       <SelectItem value="all">
-                        Todos da Igreja ({profiles.length})
+                        Todos da Igreja ({profiles.filter((p) => p.is_church_linked !== false).length})
                       </SelectItem>
                       <SelectItem value="unlinked">
                         Visitantes nos Estudos ({profiles.filter((p) => p.is_church_linked === false).length})
@@ -707,14 +735,14 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                          <Sparkles className="h-3.5 w-3.5 text-primary" />
+                          <Network className="h-3.5 w-3.5 text-primary" />
                           Discipulado
                         </span>
                         <Badge
                           variant="outline"
                           className="text-[10px] px-1.5 py-0 font-medium border-primary/30 bg-primary/10 text-primary"
                         >
-                          {churchKpis.discipleshipRate}%
+                          {churchKpis.totalDisciplers} {churchKpis.totalDisciplers === 1 ? "discipulador" : "discipuladores"}
                         </Badge>
                       </div>
                       <div className="mt-2.5">
@@ -725,7 +753,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           </span>
                         </div>
                         <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                          Adultos com discipulador(a)
+                          {churchKpis.discipleshipRate}% acompanhados • {churchKpis.withoutDiscipler} sem discipulador
                         </p>
                       </div>
                     </div>
@@ -932,6 +960,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         fellowshipNames={companions}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
+                        onTransformToLinked={handleOpenTransformToLinked}
                       />
                     )
                   })}
@@ -993,7 +1022,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         open={isDiscipleDialogOpen}
         onOpenChange={(open) => {
           setIsDiscipleDialogOpen(open)
-          if (!open) setTransformToBaptizedOnOpen(false)
+          if (!open) {
+            setTransformToBaptizedOnOpen(false)
+            setTransformToLinkedOnOpen(false)
+          }
         }}
         disciple={editingDisciple}
         homeGroups={homeGroups}
@@ -1009,6 +1041,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         isTier3={!singleGroupMode && isTier3}
         lockGroupSelectionOnCreate={singleGroupMode}
         initialTransformToBaptized={transformToBaptizedOnOpen}
+        initialTransformToLinked={transformToLinkedOnOpen}
         onSuccess={() => loadData(false)}
       />
 

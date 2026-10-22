@@ -9,19 +9,21 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin, ArrowRight, ExternalLink } from "lucide-react"
+import { Calendar, MapPin, ArrowRight, ExternalLink } from "lucide-react"
 import { type CalendarEventItem, formatEventSchedule } from "@/hooks/useChurchCalendar"
 
 interface CalendarEventDetailDialogProps {
   event: CalendarEventItem | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  isPublicView?: boolean
 }
 
 export function CalendarEventDetailDialog({
   event,
   open,
   onOpenChange,
+  isPublicView = false,
 }: CalendarEventDetailDialogProps) {
   if (!event) return null
 
@@ -30,8 +32,8 @@ export function CalendarEventDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-lg bg-card border-border/70 shadow-2xl rounded-3xl p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="p-5 sm:p-6 pb-4 border-b border-border/50 shrink-0">
+      <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-lg bg-card border-border/70 shadow-2xl rounded-2xl p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-5 sm:p-6 pb-4 border-b border-border/50 shrink-0 text-left">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Badge
               variant="outline"
@@ -43,78 +45,59 @@ export function CalendarEventDetailDialog({
             >
               {isRetreat ? "Retiro Comunitário" : "Encontro na Cidade"}
             </Badge>
-
-            {event.isHighlight && (
-              <Badge
-                variant="outline"
-                className="text-[10px] px-2 py-0.5 rounded-full font-bold border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
-              >
-                Destaque
-              </Badge>
-            )}
           </div>
 
           <DialogTitle className="text-lg sm:text-xl font-extrabold text-foreground leading-snug">
             {event.title}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-primary" />
+            <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
             <span>{scheduleText}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
-          {/* Card de Data e Local */}
-          <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 space-y-3">
-            <div className="flex items-start gap-2.5">
-              <Clock className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <div className="text-xs">
-                <span className="font-semibold text-foreground block">Data e Horário</span>
-                <span className="text-muted-foreground">{scheduleText}</span>
-              </div>
-            </div>
-
-            {event.location && (
-              <div className="flex items-start gap-2.5 pt-2 border-t border-border/40">
+          {/* Card de Local */}
+          {event.location && (
+            <div className="flex items-center justify-between gap-2.5 rounded-xl border border-border/60 bg-muted/20 p-3.5">
+              <div className="flex items-start gap-2.5 min-w-0">
                 <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div className="text-xs flex-1">
-                  <span className="font-semibold text-foreground block">Local do Encontro</span>
-                  <span className="text-muted-foreground">{event.location}</span>
+                <div className="text-xs min-w-0">
+                  <span className="font-semibold text-foreground block">Local</span>
+                  <span className="text-muted-foreground break-words">{event.location}</span>
                 </div>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:text-primary/80 transition-colors p-1"
-                  title="Abrir no Google Maps"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
               </div>
-            )}
-          </div>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg text-primary hover:bg-muted transition-colors"
+                title="Abrir no Google Maps"
+                aria-label="Abrir localização no Google Maps"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
 
           {/* Descrição / Conteúdo do Encontro */}
           {event.description && (
             <div className="space-y-1.5">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Sobre este momento
-              </h5>
               <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-line leading-relaxed">
                 {event.description}
               </p>
             </div>
           )}
 
-          {/* Dica orgânica / Vida Comum */}
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-[11px] text-muted-foreground">
+          {/* Contexto do Encontro */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 text-xs text-muted-foreground leading-relaxed">
             {isRetreat ? (
               <p>
-                Os retiros são tempos intensos de edificação e convívio mútuo. As vagas são limitadas aos leitos disponíveis.
+                Os retiros são tempos de edificação e convívio mútuo. As vagas são limitadas aos leitos disponíveis.
               </p>
             ) : (
               <p>
-                Reunião aberta da igreja na cidade. Sem necessidade de inscrição prévia — basta chegar com sua família ou Grupo Caseiro.
+                Reunião aberta da igreja na cidade. Não há necessidade de inscrição prévia — basta comparecer com sua família ou irmãos próximos.
               </p>
             )}
           </div>
@@ -130,7 +113,7 @@ export function CalendarEventDetailDialog({
             Fechar
           </Button>
 
-          {isRetreat ? (
+          {isRetreat && !isPublicView ? (
             <Button
               asChild
               className="min-h-[44px] rounded-xl px-5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs sm:text-sm font-semibold cursor-pointer"
@@ -143,8 +126,8 @@ export function CalendarEventDetailDialog({
           ) : (
             <Button
               asChild
-              variant="outline"
-              className="min-h-[44px] rounded-xl px-5 border-border text-xs sm:text-sm font-semibold cursor-pointer"
+              variant={isRetreat ? "default" : "outline"}
+              className="min-h-[44px] rounded-xl px-5 text-xs sm:text-sm font-semibold cursor-pointer"
             >
               <Link to="/quero-saber-mais" onClick={() => onOpenChange(false)}>
                 Quero Participar

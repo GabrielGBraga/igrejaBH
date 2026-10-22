@@ -1,47 +1,5 @@
 import { useState } from "react"
-
-export interface LandscapeImage {
-  id: string
-  title: string
-  src: string
-  fallbackSrc: string
-  alt: string
-}
-
-export const BH_LANDSCAPES: LandscapeImage[] = [
-  {
-    id: "serra-do-curral",
-    title: "Serra do Curral & Skyline",
-    src: "/images/landscapes/bh-serra-do-curral.jpg",
-    fallbackSrc:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Belo_Horizonte_view_081610.jpg/1920px-Belo_Horizonte_view_081610.jpg",
-    alt: "Vista panorâmica da cidade de Belo Horizonte com a Serra do Curral ao fundo",
-  },
-  {
-    id: "praca-do-papa",
-    title: "Praça do Papa & Serra das Mangabeiras",
-    src: "/images/landscapes/bh-praca-do-papa.jpg",
-    fallbackSrc:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Praca_do_Papa%2C_Belo_Horizonte_%28cropped%292.jpg/1280px-Praca_do_Papa%2C_Belo_Horizonte_%28cropped%292.jpg",
-    alt: "Mirante da Praça do Papa com ampla vista panorâmica de Belo Horizonte",
-  },
-  {
-    id: "lagoa-da-pampulha",
-    title: "Orla e Lagoa da Pampulha",
-    src: "/images/landscapes/bh-lagoa-pampulha.jpg",
-    fallbackSrc:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Panorama_Mineir%C3%A3o_Pampulha_%28cropped%29.jpg/1280px-Panorama_Mineir%C3%A3o_Pampulha_%28cropped%29.jpg",
-    alt: "Paisagem panorâmica da Orla da Lagoa da Pampulha",
-  },
-  {
-    id: "panorama-centro",
-    title: "Panorama Urbano e Centro de BH",
-    src: "/images/landscapes/bh-panorama-centro.jpg",
-    fallbackSrc:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Belo_Horizonte%2C_Brasil.jpg/1280px-Belo_Horizonte%2C_Brasil.jpg",
-    alt: "Vista do centro urbano e horizonte de Belo Horizonte",
-  },
-]
+import { BH_LANDSCAPES } from "@/data/landingData"
 
 export function LandingLandscapeCarousel() {
   // Select a landscape image randomly on initial page load / reload only

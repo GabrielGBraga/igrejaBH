@@ -12,20 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
-
-export interface NavItem {
-  label: string
-  href: string
-  isRoute?: boolean
-}
-
-export const LANDING_NAV_ITEMS: NavItem[] = [
-  { label: "Notícias", href: "#noticias" },
-  { label: "Agenda", href: "#agenda" },
-  { label: "Ensinos", href: "/ensinos", isRoute: true },
-  { label: "Quem Somos", href: "#quem-somos" },
-  { label: "Quero Saber Mais", href: "/quero-saber-mais", isRoute: true },
-]
+import { LANDING_NAV_ITEMS, type NavItem } from "@/data/landingData"
 
 export function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -66,7 +53,7 @@ export function LandingHeader() {
         {/* Desktop Navigation Links */}
         <nav
           aria-label="Navegação Principal"
-          className="hidden items-center gap-7 md:flex"
+          className="hidden items-center gap-5 md:flex"
         >
           {LANDING_NAV_ITEMS.map((item) => {
             if (item.isRoute) {
@@ -74,7 +61,7 @@ export function LandingHeader() {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md py-1 px-1.5"
+                  className="inline-flex min-h-[44px] items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-2"
                 >
                   {item.label}
                 </Link>
@@ -85,7 +72,7 @@ export function LandingHeader() {
                 key={item.label}
                 href={item.href}
                 onClick={(e) => handleNavClick(e, item)}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md py-1 px-1.5"
+                className="inline-flex min-h-[44px] items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md px-2"
               >
                 {item.label}
               </a>

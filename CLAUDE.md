@@ -48,6 +48,11 @@ Você é um agente encarregado de criar componentes (React, Tailwind, shadcn/ui)
 * **Conceito:** A igreja não é um clube ou instituição associativa; portanto, não possui "membros" estáticos, mas sim discípulos em constante processo de formação e aprendizado prático.
 * **Aplicação no Design/UI:** O agente está terminantemente proibido de usar jargões institucionais. Ao gerar botões, formulários de contato ou seções de engajamento, substitua frases institucionais como "Torne-se um membro", "Seja membro" ou "Cadastre-se" por convites relacionais, como "Caminhe conosco", "Inicie seu discipulado" ou "Junte-se a nós".
 
+### 8. Higiene Visual e Arquitetura Anti-Clichês de IA (Anti-AI Slop)
+* **Banimento de Clichês Visuais:** É proibido usar o ícone `Sparkles` (`✨`), gradientes coloridos de Bento Grid SaaS (`from-emerald-...`, `from-amber-...`, `from-teal-...`), empilhamento de badges/kickers/hashtags ou molduras decorativas de pôster (logos repetidos dentro de cards, badges não-clicáveis com verbos de ação, rodapés internos repetindo datas).
+* **Fluxo Único e Rotas Públicas Seguras:** Nunca crie botões concorrentes que abram formulários de contato duplicados na mesma seção. Nunca aponte CTAs de páginas públicas para rotas protegidas por `<ProtectedRoute>` (como `/eventos`).
+* **Copywriting Limpo:** Nunca use a palavra *"instituição"* para descrever a igreja, nunca vaze termos do banco de dados na UI (ex: *"Publicações Públicas"*), nunca use links *"clique aqui"* e nunca insira links de redes sociais apontando para domínios genéricos (`youtube.com`, `instagram.com`).
+
 ---
 
 ## 🛠️ Stack e Padrões Técnicos

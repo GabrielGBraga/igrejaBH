@@ -1,4 +1,4 @@
-import { Phone, Edit, MessageSquare, Shield, Baby, Users } from "lucide-react"
+import { Phone, Edit, MessageSquare, Shield, Baby, Users, BookOpen, UserCheck } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ export interface DiscipleCardProps {
   fellowshipNames?: string[]
   onEdit: (disciple: Profile) => void
   onTransformChild?: (disciple: Profile) => void
+  onTransformToLinked?: (disciple: Profile) => void
 }
 
 export function DiscipleCard({
@@ -28,6 +29,7 @@ export function DiscipleCard({
   fellowshipNames = [],
   onEdit,
   onTransformChild,
+  onTransformToLinked,
 }: DiscipleCardProps) {
   const isChild = !!(disciple.father_id || disciple.mother_id) && !disciple.baptism_date
   const cleanPhone = disciple.phone?.replace(/\D/g, "")
@@ -127,68 +129,84 @@ export function DiscipleCard({
           </div>
         </div>
 
-        {/* Bloco Juntas e Ligamentos (Vínculos de Cuidado) */}
-        <div className="mt-3.5 space-y-2 rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5 font-medium text-foreground/80">
-            <Users className="h-3.5 w-3.5 text-primary" />
-            <span>Juntas e Ligamentos</span>
+        {/* Bloco Juntas e Ligamentos (Vínculos de Cuidado) OU Informativo para Usuários de Estudo */}
+        {!disciple.is_church_linked ? (
+          <div className="mt-3.5 space-y-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-xs">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-400">
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>Conta de Estudos (Não Vinculado)</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Cadastrado para acesso aos ensinos. Não possui juntas nem vínculos com a igreja local.
+            </p>
           </div>
+        ) : (
+          <div className="mt-3.5 space-y-2 rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 font-medium text-foreground/80">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              <span>Juntas e Ligamentos</span>
+            </div>
 
-          {!isChild ? (
-            <>
-              {/* Discipulador */}
-              <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
-                <span className="shrink-0 text-muted-foreground">Discipulador(a):</span>
-                <span className="font-medium text-right text-foreground">
-                  {disciplerName ? (
-                    disciplerName
-                  ) : (
-                    <span className="text-amber-600 dark:text-amber-400 font-normal italic">
-                      Pendente definir
-                    </span>
-                  )}
-                </span>
-              </div>
-
-              {/* Cônjuge */}
-              {spouseName && (
+            {!isChild ? (
+              <>
+                {/* Discipulador */}
                 <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
-                  <span className="shrink-0 text-muted-foreground">Cônjuge:</span>
-                  <span className="font-medium text-right text-foreground">{spouseName}</span>
-                </div>
-              )}
-
-              {/* Companheiros de Obra */}
-              {fellowshipNames.length > 0 && (
-                <div className="border-t border-border/40 pt-1.5">
-                  <span className="text-muted-foreground">Companheiro(s) de obra:</span>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {fellowshipNames.map((name, idx) => (
-                      <span
-                        key={idx}
-                        className="rounded bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground border border-border/50"
-                      >
-                        {name}
+                  <span className="shrink-0 text-muted-foreground">Discipulador(a):</span>
+                  <span className="font-medium text-right text-foreground">
+                    {disciplerName ? (
+                      disciplerName
+                    ) : disciple.is_presbyter ? (
+                      <span className="text-primary font-medium">
+                        Discipulado Mútuo
                       </span>
-                    ))}
-                  </div>
+                    ) : (
+                      <span className="text-amber-600 dark:text-amber-400 font-normal italic">
+                        Pendente definir
+                      </span>
+                    )}
+                  </span>
                 </div>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Vínculo de Criança: Pais */}
-              <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
-                <span className="shrink-0 text-muted-foreground">Pais / Responsáveis:</span>
-                <span className="font-medium text-right text-foreground">
-                  {[fatherName, motherName].filter(Boolean).join(" & ") || (
-                    <span className="italic text-muted-foreground">Não informado</span>
-                  )}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
+
+                {/* Cônjuge */}
+                {spouseName && (
+                  <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
+                    <span className="shrink-0 text-muted-foreground">Cônjuge:</span>
+                    <span className="font-medium text-right text-foreground">{spouseName}</span>
+                  </div>
+                )}
+
+                {/* Companheiros de Obra */}
+                {fellowshipNames.length > 0 && (
+                  <div className="border-t border-border/40 pt-1.5">
+                    <span className="text-muted-foreground">Companheiro(s) de obra:</span>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {fellowshipNames.map((name, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded bg-background px-1.5 py-0.5 text-[11px] font-medium text-foreground border border-border/50"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {/* Vínculo de Criança: Pais */}
+                <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
+                  <span className="shrink-0 text-muted-foreground">Pais / Responsáveis:</span>
+                  <span className="font-medium text-right text-foreground">
+                    {[fatherName, motherName].filter(Boolean).join(" & ") || (
+                      <span className="italic text-muted-foreground">Não informado</span>
+                    )}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Ação rápida para Crianças: Registrar Batismo */}
         {isChild && onTransformChild && (
@@ -203,7 +221,7 @@ export function DiscipleCard({
         )}
       </div>
 
-      {/* Ações Diretas: WhatsApp e Editar (Touch targets >= 44px) */}
+      {/* Ações Diretas: WhatsApp e Editar / Vincular (Touch targets >= 44px) */}
       <div className="mt-4 flex items-center gap-2 border-t border-border/60 pt-3">
         {whatsappUrl ? (
           <Button
@@ -227,13 +245,23 @@ export function DiscipleCard({
           </Button>
         )}
 
-        <Button
-          onClick={() => onEdit(disciple)}
-          className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs font-medium"
-        >
-          <Edit className="h-4 w-4" />
-          <span>Editar</span>
-        </Button>
+        {disciple.is_church_linked !== false ? (
+          <Button
+            onClick={() => onEdit(disciple)}
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs font-medium cursor-pointer"
+          >
+            <Edit className="h-4 w-4" />
+            <span>Editar</span>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => (onTransformToLinked ? onTransformToLinked(disciple) : onEdit(disciple))}
+            className="h-11 min-h-[44px] flex-1 gap-1.5 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-600 dark:hover:bg-amber-700 dark:text-white cursor-pointer shadow-xs transition-colors"
+          >
+            <UserCheck className="h-4 w-4" />
+            <span>Transformar em Vinculado</span>
+          </Button>
+        )}
       </div>
     </div>
   )

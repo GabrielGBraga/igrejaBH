@@ -1,29 +1,82 @@
 /**
  * @file landingData.ts
- * @description Dataset for dynamic landing page:
- * - Daily rotating catechesis/scriptures (Propósito Eterno, Sacerdócio Universal, Juntas e Ligamentos)
- * - Initial/fallback news, ministrações, and articles matching the initial design mockup
- * - Recurring calendar events and rhythms of the church in Belo Horizonte
+ * @description Dataset for the public landing page:
+ * - Daily rotating scriptures (Propósito Eterno, Sacerdócio Universal, Juntas e Ligamentos)
+ * - Fallback ministrações and public updates
+ * - Recurring calendar events and teaching categories
  */
+
+export interface NavItem {
+  label: string
+  href: string
+  isRoute?: boolean
+}
+
+export const LANDING_NAV_ITEMS: NavItem[] = [
+  { label: "Notícias", href: "#noticias" },
+  { label: "Agenda", href: "#agenda" },
+  { label: "Ensinos", href: "/ensinos", isRoute: true },
+  { label: "Quem Somos", href: "#quem-somos" },
+  { label: "Quero Saber Mais", href: "/quero-saber-mais", isRoute: true },
+]
+
+export interface LandscapeImage {
+  id: string
+  title: string
+  src: string
+  fallbackSrc: string
+  alt: string
+}
+
+export const BH_LANDSCAPES: LandscapeImage[] = [
+  {
+    id: "serra-do-curral",
+    title: "Serra do Curral & Skyline",
+    src: "/images/landscapes/bh-serra-do-curral.jpg",
+    fallbackSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Belo_Horizonte_view_081610.jpg/1920px-Belo_Horizonte_view_081610.jpg",
+    alt: "Vista panorâmica da cidade de Belo Horizonte com a Serra do Curral ao fundo",
+  },
+  {
+    id: "praca-do-papa",
+    title: "Praça do Papa & Serra das Mangabeiras",
+    src: "/images/landscapes/bh-praca-do-papa.jpg",
+    fallbackSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Praca_do_Papa%2C_Belo_Horizonte_%28cropped%292.jpg/1280px-Praca_do_Papa%2C_Belo_Horizonte_%28cropped%292.jpg",
+    alt: "Mirante da Praça do Papa com ampla vista panorâmica de Belo Horizonte",
+  },
+  {
+    id: "lagoa-da-pampulha",
+    title: "Orla e Lagoa da Pampulha",
+    src: "/images/landscapes/bh-lagoa-pampulha.jpg",
+    fallbackSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Panorama_Mineir%C3%A3o_Pampulha_%28cropped%29.jpg/1280px-Panorama_Mineir%C3%A3o_Pampulha_%28cropped%29.jpg",
+    alt: "Paisagem panorâmica da Orla da Lagoa da Pampulha",
+  },
+  {
+    id: "panorama-centro",
+    title: "Panorama Urbano e Centro de BH",
+    src: "/images/landscapes/bh-panorama-centro.jpg",
+    fallbackSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Belo_Horizonte%2C_Brasil.jpg/1280px-Belo_Horizonte%2C_Brasil.jpg",
+    alt: "Vista do centro urbano e horizonte de Belo Horizonte",
+  },
+]
 
 export interface DailyVerse {
   quote: string
   reference: string
   theme: string
-  reflection?: string
 }
 
 export interface NewsHighlight {
   id: string
   type: "video" | "article" | "event" | "mission"
   title: string
-  categoryTitle?: string
   speakerOrAuthor?: string
   dateLabel: string
-  duration?: string
   description: string
   badgeText: string
-  tags: string[]
   imageUrl: string
   videoUrl?: string
   linkUrl: string
@@ -48,14 +101,24 @@ export interface TeachingModule {
   description: string
   iconName: "book" | "mic" | "fileText" | "graduationCap"
   buttonText: string
-  badgeText?: string
-  isLocked?: boolean
   link: string
-  bgPattern: string
 }
 
+export const REGIONS_BH: string[] = [
+  "Barreiro / Oeste (Buritis, Barreiro, Estoril, Gutierrez)",
+  "Pampulha / São Gabriel (Ouro Preto, Castelo, Dona Clara)",
+  "Centro / Sul (Savassi, Lourdes, Funcionários, Santo Agostinho)",
+  "Leste / Nordeste (Santa Inês, Sagrada Família, Cidade Nova)",
+  "Noroeste (Padre Eustáquio, Caiçara, Carlos Prates)",
+  "Venda Nova (Planalto, Letícia, Mantiqueira, Candelária)",
+  "Santa Luzia / Ribeirão das Neves (Cristina, São Benedito)",
+  "Contagem (Eldorado, Industrial, Novo Eldorado, Cabral)",
+  "Betim (Centro Betim, Jardim Alterosa, PTB, Imbiruçu)",
+  "Outra Região da RMBH",
+]
+
 // ==========================================
-// 1. CATEQUESE DO DIA (ROTAÇÃO DIÁRIA)
+// 1. ESCRITURA DO DIA (ROTAÇÃO DIÁRIA)
 // ==========================================
 export const DAILY_CATECHESIS: DailyVerse[] = [
   {
@@ -63,56 +126,42 @@ export const DAILY_CATECHESIS: DailyVerse[] = [
       "Porquanto aos que de antemão conheceu, também os predestinou para serem conformes à imagem de seu Filho, a fim de que Ele seja o primogênito entre muitos irmãos.",
     reference: "Romanos 8:29",
     theme: "O Propósito Eterno",
-    reflection:
-      "O propósito de Deus antes da fundação do mundo não era apenas salvar o homem do pecado, mas formar uma grande família de muitos filhos que expressem o caráter e a semelhança de Jesus Cristo.",
   },
   {
     quote:
       "Vós, porém, sois raça eleita, sacerdócio real, nação santa, povo de propriedade exclusiva de Deus, a fim de proclamardes as virtudes daquele que vos chamou das trevas para a sua maravilhosa luz.",
     reference: "1 Pedro 2:9",
     theme: "Sacerdócio Universal",
-    reflection:
-      "Não há clero nem leigos no Corpo de Cristo. Cada discípulo é constituído sacerdote para servir a Deus e edificar os irmãos no cotidiano da vida.",
   },
   {
     quote:
       "De quem todo o corpo, bem ajustado e consolidado pelo auxílio de todas as juntas, segundo a justa cooperação de cada parte, efetua o seu próprio crescimento para a edificação de si mesmo no amor.",
     reference: "Efésios 4:16",
     theme: "Juntas e Ligamentos",
-    reflection:
-      "O crescimento espiritual genuíno não acontece em isolamento ou assistindo a sermões passivamente, mas pela vida partilhada e relacionamentos profundos de discipulado.",
   },
   {
     quote:
       "E todos os dias, no templo e de casa em casa, não cessavam de ensinar e de pregar a Jesus, o Cristo.",
     reference: "Atos 5:42",
     theme: "Nas Casas e nas Ruas",
-    reflection:
-      "A igreja são as pessoas salvas, não quatro paredes. Nos reunimos nas casas para comunhão e treinamento, e vamos às ruas proclamar o Evangelho do Reino.",
   },
   {
     quote:
       "Nisto é glorificado meu Pai: que deis muito fruto; e assim vos tornareis meus discípulos.",
     reference: "João 15:8",
     theme: "Evangelismo e Frutos",
-    reflection:
-      "Dar fruto é reproduzir a vida de Cristo em outros. O amor genuíno por Jesus se expressa em acolher pessoas e gerar novos discípulos.",
   },
   {
     quote:
       "Rogo-vos, irmãos, pelo nome de nosso Senhor Jesus Cristo, que faleis todos a mesma coisa e que não haja entre vós divisões; antes, sejais inteiramente unidos, na mesma disposição mental e no mesmo parecer.",
     reference: "1 Coríntios 1:10",
     theme: "Unidade do Corpo Único",
-    reflection:
-      "Cristo não tem várias igrejas ou marcas concorrentes em Belo Horizonte. Seu Corpo é um só, e nos reconhecemos como irmãos de todos os que foram lavados pelo sangue do Cordeiro.",
   },
   {
     quote:
       "E perseveravam na doutrina dos apóstolos e na comunhão, no partir do pão e nas orações.",
     reference: "Atos 2:42",
     theme: "Vida Comum",
-    reflection:
-      "A vida da igreja primitiva era simples e contínua: ensino das ordens do Senhor, partir o pão ao redor da mesa, orações mútuas e cuidado recíproco.",
   },
 ]
 
@@ -140,7 +189,7 @@ export function getYoutubeVideoId(url?: string): string | null {
 }
 
 /**
- * Retorna a thumbnail real oficial do YouTube em alta definição (hqdefault / maxresdefault)
+ * Retorna a thumbnail oficial do YouTube em alta definição
  */
 export function getYoutubeThumbnail(url?: string): string {
   const videoId = getYoutubeVideoId(url)
@@ -156,15 +205,12 @@ export function getYoutubeThumbnail(url?: string): string {
 export const FALLBACK_FEATURED_VIDEO: NewsHighlight = {
   id: "video-ressurreicao-2026",
   type: "video",
-  title: "A ESPERANÇA DA RESSURREIÇÃO",
-  categoryTitle: "Nova mensagem publicada",
+  title: "A Esperança da Ressurreição",
   speakerOrAuthor: "Reginaldo Moraes",
   dateLabel: "05/08/2026",
-  duration: "1:00:21",
   description:
-    "Confira a mensagem ministrada por Reginaldo Moraes no canal oficial dos Discípulos em Belo Horizonte, abordando os fundamentos da fé a respeito da Ressurreição de Jesus e a viva esperança.",
-  badgeText: "Vídeo Oficial",
-  tags: ["#Fundamentos", "#Esperança", "#EncontroGeral"],
+    "Mensagem compartilhada entre os discípulos em Belo Horizonte sobre os fundamentos da fé a respeito da ressurreição de Jesus e a viva esperança da igreja.",
+  badgeText: "Ministração",
   imageUrl: "https://i.ytimg.com/vi/UXNHb2KRLJo/maxresdefault.jpg",
   videoUrl: "https://www.youtube.com/watch?v=UXNHb2KRLJo",
   linkUrl: "#video-player",
@@ -174,12 +220,11 @@ export const FALLBACK_NEWS_CARDS: NewsHighlight[] = [
   {
     id: "art-juntas-ligamentos",
     type: "article",
-    title: "Novo artigo publicado: Juntas e Ligamentos no corpo",
+    title: "Juntas e Ligamentos no Corpo de Cristo",
     description:
-      "A edificação e o funcionamento de cada junta no Corpo de Cristo. Entenda como o discipulado 'vida na vida' sustenta o crescimento orgânico da igreja.",
+      "A edificação e o funcionamento de cada junta no Corpo. Entenda como o discipulado 'vida na vida' sustenta o crescimento orgânico da igreja.",
     dateLabel: "Outubro 2026",
-    badgeText: "Artigo",
-    tags: ["#Edificação", "#Vida Comum"],
+    badgeText: "Estudo",
     imageUrl:
       "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=800&auto=format&fit=crop",
     linkUrl: "/ensinos?tab=artigos",
@@ -187,25 +232,23 @@ export const FALLBACK_NEWS_CARDS: NewsHighlight[] = [
   {
     id: "ret-solteiros-2027",
     type: "event",
-    title: "Retiro de Solteiros 2027 — Inscrições abertas",
+    title: "Retiro de Solteiros e Jovens — Comunhão e Ensino",
     description:
-      "Um tempo de comunhão, santidade e busca pelo Senhor. Vagas limitadas para discípulos solteiros da Grande BH e regiões metropolitanas.",
-    dateLabel: "Carnaval 2027",
-    badgeText: "Inscrições Abertas",
-    tags: ["#Retiro", "#Setor", "#Vida Comum"],
+      "Um tempo de comunhão fraterna, santidade e busca pelo Senhor para discípulos solteiros da Grande BH.",
+    dateLabel: "Outubro 2026",
+    badgeText: "Encontro",
     imageUrl:
       "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=800&auto=format&fit=crop",
-    linkUrl: "/eventos",
+    linkUrl: "/quero-saber-mais",
   },
   {
     id: "mis-para-2026",
     type: "mission",
-    title: "Missão Pará — confira o que Deus está fazendo",
+    title: "Envio e Serviço no Pará — Relato dos Irmãos",
     description:
-      "Acompanhe o impacto de nosso envio aos lugares necessitados e a formação de novos discípulos no norte do país.",
-    dateLabel: "Relatório de Missão",
+      "Acompanhe o testemunho do serviço de irmãos enviados ao norte do país na formação de novos discípulos.",
+    dateLabel: "Relato de Missão",
     badgeText: "Missões",
-    tags: ["#Missões", "#Evangelismo"],
     imageUrl:
       "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop",
     linkUrl: "/ensinos?tab=artigos",
@@ -265,51 +308,39 @@ export const DEFAULT_MONTHLY_EVENTS: AgendaEvent[] = [
 // ==========================================
 export const TEACHING_MODULES: TeachingModule[] = [
   {
+    id: "mod-trilhas",
+    title: "Trilhas de Estudo",
+    description:
+      "Jornadas bíblicas estruturadas passo a passo sobre o Propósito Eterno, Juntas e Ligamentos e a vida nas casas.",
+    iconName: "graduationCap",
+    buttonText: "Explorar trilhas",
+    link: "/ensinos?tab=trilhas",
+  },
+  {
     id: "mod-apostilas",
     title: "Apostilas",
     description:
-      "Cadernos temáticos de formação bíblica, fundamentos da fé e manuais de discipulado prático para leitura livre.",
+      "Cadernos temáticos de formação bíblica, fundamentos da fé e manuais de discipulado prático em PDF.",
     iconName: "book",
-    buttonText: "Acessar",
-    badgeText: "Acesso Livre",
-    isLocked: false,
+    buttonText: "Ler apostilas",
     link: "/ensinos?tab=apostilas",
-    bgPattern: "from-emerald-950/20 to-emerald-900/10",
   },
   {
     id: "mod-ministracoes",
     title: "Ministrações",
     description:
-      "Áudios e vídeos de mensagens gravadas nos Encontros Gerais, retiros e palestras de edificação comunitária.",
+      "Mensagens em vídeo e áudio compartilhadas nos encontros gerais e retiros para edificação do Corpo.",
     iconName: "mic",
-    buttonText: "Acessar",
-    badgeText: "Acesso Livre",
-    isLocked: false,
+    buttonText: "Ouvir mensagens",
     link: "/ensinos?tab=ministracoes",
-    bgPattern: "from-amber-950/20 to-amber-900/10",
   },
   {
     id: "mod-artigos",
-    title: "Artigos",
+    title: "Artigos e Textos",
     description:
-      "Textos reflexivos, estudos bíblicos pontuais e testemunhos da vida diária da igreja de casa em casa.",
+      "Estudos bíblicos, reflexões e testemunhos práticos da caminhada diária de casa em casa.",
     iconName: "fileText",
-    buttonText: "Ver mais",
-    badgeText: "Acesso Livre",
-    isLocked: false,
+    buttonText: "Ler textos",
     link: "/ensinos?tab=artigos",
-    bgPattern: "from-teal-950/20 to-teal-900/10",
-  },
-  {
-    id: "mod-trilhas",
-    title: "Trilhas de Estudo",
-    description:
-      "Jornadas estruturadas passo a passo com anotações e progresso de aprendizado para caminhar no discipulado.",
-    iconName: "graduationCap",
-    buttonText: "Acessar",
-    badgeText: "Apenas para usuários logados",
-    isLocked: true,
-    link: "/entrar",
-    bgPattern: "from-zinc-900/30 to-zinc-800/10",
   },
 ]

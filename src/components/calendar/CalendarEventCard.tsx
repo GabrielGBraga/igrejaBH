@@ -83,7 +83,7 @@ export function CalendarEventCard({
   }
 
   return (
-    <Link to={event.type === "retiro" ? "/eventos" : "/quero-saber-mais"}>
+    <Link to="/quero-saber-mais">
       {cardContent}
     </Link>
   )

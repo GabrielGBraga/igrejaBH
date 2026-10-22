@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react"
 import supabase from "@/lib/supabase"
-import { Sparkles } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { HomeGroupSideCard } from "@/components/home/HomeGroupSideCard"
 import { DiscipleshipSideCard } from "@/components/home/DiscipleshipSideCard"
@@ -277,7 +277,7 @@ export default function Home() {
         <div className="rounded-xl border border-border/70 border-l-4 border-l-primary bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <BookOpen className="h-3.5 w-3.5 text-primary" />
               Versículo do Dia • {todaysVerse.theme}
             </span>
             <Badge variant="outline" className="border-border text-[10px] font-semibold text-muted-foreground">

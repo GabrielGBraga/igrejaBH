@@ -7,7 +7,7 @@ import {
   MapPin,
   BookOpen,
   ClipboardList,
-  Sparkles,
+  Calendar,
   ArrowRight,
   Globe,
   Lock,
@@ -56,7 +56,7 @@ export function NewsCard({
       case "encontro":
         return { label: "Encontro", icon: MapPin }
       case "evento":
-        return { label: "Evento / Retiro", icon: Sparkles }
+        return { label: "Evento / Retiro", icon: Calendar }
       case "estudo":
         return { label: "Estudo", icon: BookOpen }
       case "formulario":
@@ -150,7 +150,7 @@ export function NewsCard({
 
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                   {!post.is_public && (
-                    <span title="Apenas membros vinculados" className="flex items-center text-muted-foreground">
+                    <span title="Apenas discípulos vinculados" className="flex items-center text-muted-foreground">
                       <Lock className="h-3 w-3 mr-0.5" />
                     </span>
                   )}
