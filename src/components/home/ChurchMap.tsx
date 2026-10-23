@@ -115,10 +115,17 @@ export interface ChurchMapProps {
   getGroupLeadersName?: (hg: HomeGroupData) => string;
   groupMemberCounts?: Map<string, number> | Record<string, number>;
   hideHeader?: boolean;
+  scrollWheelZoom?: boolean;
 }
 
 // Subcomponente interno que recalibra o tamanho e enquadramento do mapa
-function MapController({ homeGroups }: { homeGroups: HomeGroupData[] }) {
+function MapController({
+  homeGroups,
+  scrollWheelZoom = true,
+}: {
+  homeGroups: HomeGroupData[];
+  scrollWheelZoom?: boolean;
+}) {
   const map = useMap();
 
   useEffect(() => {
@@ -134,6 +141,14 @@ function MapController({ homeGroups }: { homeGroups: HomeGroupData[] }) {
       clearTimeout(t3);
     };
   }, [map]);
+
+  useEffect(() => {
+    if (scrollWheelZoom) {
+      map.scrollWheelZoom.enable();
+    } else {
+      map.scrollWheelZoom.disable();
+    }
+  }, [map, scrollWheelZoom]);
 
   useEffect(() => {
     const valid = homeGroups.filter(
@@ -159,6 +174,7 @@ export function ChurchMap({
   getGroupLeadersName,
   groupMemberCounts,
   hideHeader = false,
+  scrollWheelZoom = true,
 }: ChurchMapProps) {
   const [internalHomeGroups, setInternalHomeGroups] = useState<HomeGroupData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -226,11 +242,11 @@ export function ChurchMap({
             <MapContainer
               center={centerPosition}
               zoom={12}
-              scrollWheelZoom={false}
+              scrollWheelZoom={scrollWheelZoom}
               className="h-full w-full z-0"
               style={{ height: "100%", width: "100%", minHeight: "450px" }}
             >
-              <MapController homeGroups={homeGroups} />
+              <MapController homeGroups={homeGroups} scrollWheelZoom={scrollWheelZoom} />
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

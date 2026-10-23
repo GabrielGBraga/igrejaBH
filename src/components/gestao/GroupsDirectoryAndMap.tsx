@@ -134,6 +134,7 @@ export function GroupsDirectoryAndMap({
           hideHeader={false}
           getGroupLeadersName={(hg) => getGroupTitle(hg)}
           groupMemberCounts={groupMemberCounts}
+          scrollWheelZoom={true}
         />
       </div>
 
