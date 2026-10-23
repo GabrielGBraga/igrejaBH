@@ -243,7 +243,7 @@ export function SearchableSelect({
           <div
             ref={triggerRef}
             className={cn(
-              "group relative flex h-11 min-h-[44px] w-full items-center rounded-xl border border-input bg-background px-3 transition-colors",
+              "group relative flex min-h-[44px] w-full items-center rounded-xl border border-input bg-background pl-3 pr-1 transition-colors",
               "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30",
               disabled && "cursor-not-allowed opacity-50 bg-muted/40",
               triggerClassName
@@ -263,7 +263,7 @@ export function SearchableSelect({
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               autoComplete="off"
-              className="h-full flex-1 bg-transparent text-xs sm:text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="min-h-[44px] flex-1 min-w-0 bg-transparent text-xs sm:text-sm text-foreground outline-none placeholder:text-muted-foreground"
             />
 
             <div className="flex items-center shrink-0 ml-1">
@@ -273,7 +273,7 @@ export function SearchableSelect({
                   onClick={handleClear}
                   tabIndex={-1}
                   aria-label="Limpar seleção"
-                  className="flex h-11 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -292,7 +292,7 @@ export function SearchableSelect({
                   }
                 }}
                 aria-label="Abrir opções"
-                className="flex h-11 w-9 items-center justify-center rounded-md text-muted-foreground transition-transform duration-200"
+                className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground transition-transform duration-200"
               >
                 <ChevronDown
                   className={cn(

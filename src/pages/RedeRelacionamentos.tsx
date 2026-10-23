@@ -295,6 +295,11 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     return null
   }, [singleGroupMode, selectedGroupFilter, homeGroups, myHomeGroup])
 
+  const presbyterIds = useMemo(
+    () => new Set(profiles.filter((p) => p.is_presbyter).map((p) => p.id)),
+    [profiles]
+  )
+
   // KPIs consolidados da igreja para quando "Todos da Igreja" estiver selecionado
   const churchKpis = useMemo(() => {
     // Apenas discípulos vinculados à igreja (usuários de estudo não entram na contagem do Corpo)
@@ -304,9 +309,16 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     const adultCount = adultDisciples.length
     const childrenCount = churchProfiles.filter((p) => checkIsChild(p)).length
 
-    // Presbíteros funcionam em discipulado mútuo e são descontados ao verificar se alguém não tem discipulador
-    const withDiscipler = adultDisciples.filter((p) => !!p.discipler_id || p.is_presbyter).length
-    const withoutDiscipler = adultDisciples.filter((p) => !p.discipler_id && !p.is_presbyter).length
+    // Presbíteros e esposas de presbíteros (raízes do discipulado feminino) possuem cobertura mútua no Presbitério
+    const isCoveredRoot = (p: Profile) =>
+      !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
+
+    const withDiscipler = adultDisciples.filter(
+      (p) => !!p.discipler_id || isCoveredRoot(p)
+    ).length
+    const withoutDiscipler = adultDisciples.filter(
+      (p) => !p.discipler_id && !isCoveredRoot(p)
+    ).length
     const discipleshipRate = adultCount > 0 ? Math.round((withDiscipler / adultCount) * 100) : 0
 
     // Quantos discipuladores existem no Corpo
@@ -342,7 +354,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       totalFellowships,
       brothersWithCompanions,
     }
-  }, [profiles, homeGroups, sectors, fellowships])
+  }, [profiles, homeGroups, sectors, fellowships, presbyterIds])
 
   // Lista de irmãos filtrada
   const filteredDisciples = useMemo(() => {
@@ -379,11 +391,12 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
       // 3. Filtro de Discipulador
       const isChild = checkIsChild(p)
+      const isCoveredRoot =
+        !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
       if (filterDisciplerStatus === "with") {
-        if (isChild || (!p.discipler_id && !p.is_presbyter)) return false
+        if (isChild || (!p.discipler_id && !isCoveredRoot)) return false
       } else if (filterDisciplerStatus === "without") {
-        // Presbíteros descontados ao verificar quem não tem discipulador (possuem discipulado mútuo)
-        if (isChild || p.discipler_id || p.is_presbyter) return false
+        if (isChild || p.discipler_id || isCoveredRoot) return false
       }
 
       return true
@@ -396,6 +409,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     selectedGroupFilter,
     searchName,
     filterDisciplerStatus,
+    presbyterIds,
   ])
 
   // Contadores para chips de status
@@ -413,13 +427,18 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       return p.is_church_linked !== false
     })
 
+    const isCoveredRoot = (p: Profile) =>
+      !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
     const total = baseList.length
-    const withDiscipler = baseList.filter((p) => !checkIsChild(p) && (!!p.discipler_id || p.is_presbyter)).length
-    // Presbíteros descontados ao verificar se alguém não tem discipulador
-    const withoutDiscipler = baseList.filter((p) => !checkIsChild(p) && !p.discipler_id && !p.is_presbyter).length
+    const withDiscipler = baseList.filter(
+      (p) => !checkIsChild(p) && (!!p.discipler_id || isCoveredRoot(p))
+    ).length
+    const withoutDiscipler = baseList.filter(
+      (p) => !checkIsChild(p) && !p.discipler_id && !isCoveredRoot(p)
+    ).length
 
     return { total, withDiscipler, withoutDiscipler }
-  }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter])
+  }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter, presbyterIds])
 
   // Opções para o seletor com pesquisa de Grupo Caseiro
   const groupFilterOptions: SearchableSelectOption[] = useMemo(() => {
@@ -637,6 +656,16 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
           fellowships={fellowships}
           sectors={sectors}
           leaderIds={leaderIds}
+          initialGroupId={
+            requestedGroupId ||
+            (activeTab === "meu_grupo"
+              ? myHomeGroup?.id
+              : selectedGroupFilter !== "all" &&
+                selectedGroupFilter !== "unlinked" &&
+                selectedGroupFilter !== "my_or_all"
+              ? selectedGroupFilter
+              : undefined)
+          }
           onSelectDisciple={handleOpenEditDisciple}
           onClose={() => setShowGraphView(false)}
         />

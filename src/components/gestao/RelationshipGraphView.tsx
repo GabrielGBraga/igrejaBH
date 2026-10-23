@@ -19,10 +19,18 @@ import {
   Filter,
   Eye,
   UserCheck,
+  Layers,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   SearchableSelect,
   type SearchableSelectOption,
@@ -32,6 +40,7 @@ import {
   RELATIONSHIP_NODE_COLORS,
   GRAPH_LINK_COLORS,
   GRAPH_CANVAS_COLORS,
+  GRAPH_UI_CLASSES,
   THEME_CLASSES,
   type RelationshipNodeRole,
 } from "@/constants/colors"
@@ -119,6 +128,7 @@ interface TidyTreeNode {
   children: TidyTreeNode[]
   depth: number
   subtreeWidth: number
+  maxSubtreeHeight: number
   x: number
   y: number
 }
@@ -149,16 +159,25 @@ function createsTreeCycle(parent: TidyTreeNode, candidateChild: TidyTreeNode): b
 }
 
 /**
- * 1. LAYOUT HIERÁRQUICO (Árvore de Discipulado - Tidy Tree Bottom-Up + Top-Down)
- * Garante espaçamento horizontal real por largura de subárvore (zero sobreposição)
+ * 1. LAYOUT HIERÁRQUICO (Árvore de Discipulado - Tidy Tree Bottom-Up + Top-Down com Compactação de Folhas)
+ * Garante espaçamento horizontal real por largura de subárvore (zero sobreposição),
+ * empilha grupos de folhas verticalmente em 2 colunas para reduzir a largura extrema
  * e organiza múltiplas árvores raízes em grade balanceada com zonas identificadas.
  */
-function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
+function computeTidyHierarchyLayout(
+  nodes: GraphNode[],
+  options?: { maxDepth?: number | null; lineageRootId?: string }
+): LayoutResult {
   if (nodes.length === 0) return { nodes: [], zones: [] }
 
-  const NODE_SPACING_X = 92
-  const SIBLING_GAP = 16
-  const LEVEL_HEIGHT = 128
+  const NODE_SPACING_X = 88
+  const SIBLING_GAP = 14
+  const LEVEL_HEIGHT = 122
+  const LEAF_COL_GAP = 86
+  const LEAF_ROW_GAP = 66
+
+  const maxDepth = options?.maxDepth ?? null
+  const lineageRootId = options?.lineageRootId ?? "all"
 
   const nodeMap = new Map<string, GraphNode>(nodes.map((n) => [n.id, n]))
   const treeNodeMap = new Map<string, TidyTreeNode>()
@@ -171,6 +190,7 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
       children: [],
       depth: 0,
       subtreeWidth: NODE_SPACING_X,
+      maxSubtreeHeight: 0,
       x: 0,
       y: 0,
     })
@@ -218,7 +238,7 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
   const allRoots = Array.from(treeNodeMap.values()).filter((tn) => tn.parent === null)
 
   // Separar raízes que possuem subárvore (ou são presbíteros/liderança) de nós soltos
-  const activeTreeRoots: TidyTreeNode[] = []
+  let activeTreeRoots: TidyTreeNode[] = []
   const standaloneNoDiscipler: TidyTreeNode[] = []
   const standaloneCoveredOutsideView: TidyTreeNode[] = []
 
@@ -236,7 +256,28 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
     }
   })
 
-  // Ordenar raízes de árvores: parear Presbítero + Esposa quando ambos presentes, ou ordenar por gênero/tamanho
+  // Se o usuário filtrou por uma Linhagem Raiz específica
+  if (lineageRootId !== "all") {
+    const selectedRoot = treeNodeMap.get(lineageRootId)
+    if (selectedRoot) {
+      selectedRoot.parent = null
+      activeTreeRoots = [selectedRoot]
+      standaloneNoDiscipler.length = 0
+      standaloneCoveredOutsideView.length = 0
+    }
+  }
+
+  // Podar árvore se houver limite de profundidade de geração (maxDepth)
+  const pruneAtDepth = (tn: TidyTreeNode, depth: number) => {
+    tn.depth = depth
+    if (maxDepth !== null && depth >= maxDepth) {
+      tn.children = []
+      return
+    }
+    tn.children.forEach((c) => pruneAtDepth(c, depth + 1))
+  }
+  activeTreeRoots.forEach((r) => pruneAtDepth(r, 0))
+
   const countDescendants = (tn: TidyTreeNode): number =>
     1 + tn.children.reduce((acc, c) => acc + countDescendants(c), 0)
 
@@ -249,23 +290,59 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
     return countDescendants(b) - countDescendants(a)
   })
 
-  // Passo 1: Cálculo Bottom-Up da largura real de cada subárvore
-  const computeWidth = (tn: TidyTreeNode, depth: number): { width: number; maxDepth: number } => {
+  // Passo 1: Cálculo Bottom-Up da largura e altura real de cada subárvore
+  // Quando todos os filhos de um nó são folhas (>= 2), empilhamos em 2 colunas compactas
+  const isCompactLeafGroup = (tn: TidyTreeNode): boolean =>
+    tn.children.length >= 2 && tn.children.every((c) => c.children.length === 0)
+
+  const computeMetrics = (
+    tn: TidyTreeNode,
+    depth: number
+  ): { width: number; maxDepth: number; maxYOffset: number } => {
     tn.depth = depth
+    const selfYOffset = depth * LEVEL_HEIGHT
+
     if (tn.children.length === 0) {
       tn.subtreeWidth = NODE_SPACING_X
-      return { width: NODE_SPACING_X, maxDepth: depth }
+      tn.maxSubtreeHeight = selfYOffset
+      return { width: NODE_SPACING_X, maxDepth: depth, maxYOffset: selfYOffset }
     }
+
+    if (isCompactLeafGroup(tn)) {
+      const cols = Math.min(2, tn.children.length)
+      const rows = Math.ceil(tn.children.length / cols)
+      tn.children.forEach((c) => {
+        c.depth = depth + 1
+        c.subtreeWidth = NODE_SPACING_X
+        c.maxSubtreeHeight = (depth + 1) * LEVEL_HEIGHT
+      })
+      tn.subtreeWidth = Math.max(
+        NODE_SPACING_X,
+        cols * LEAF_COL_GAP + 14
+      )
+      const maxLeafY =
+        (depth + 1) * LEVEL_HEIGHT + Math.max(0, rows - 1) * LEAF_ROW_GAP
+      tn.maxSubtreeHeight = maxLeafY
+      return {
+        width: tn.subtreeWidth,
+        maxDepth: depth + 1,
+        maxYOffset: maxLeafY,
+      }
+    }
+
     let totalW = 0
     let maxD = depth
+    let maxY = selfYOffset
     tn.children.forEach((c, idx) => {
-      const childStats = computeWidth(c, depth + 1)
+      const childStats = computeMetrics(c, depth + 1)
       totalW += childStats.width
       if (idx > 0) totalW += SIBLING_GAP
       if (childStats.maxDepth > maxD) maxD = childStats.maxDepth
+      if (childStats.maxYOffset > maxY) maxY = childStats.maxYOffset
     })
     tn.subtreeWidth = Math.max(NODE_SPACING_X, totalW)
-    return { width: tn.subtreeWidth, maxDepth: maxD }
+    tn.maxSubtreeHeight = maxY
+    return { width: tn.subtreeWidth, maxDepth: maxD, maxYOffset: maxY }
   }
 
   // Passo 2: Posicionamento Top-Down sem sobreposição
@@ -275,6 +352,26 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
       tn.x = leftX + tn.subtreeWidth / 2
       return
     }
+
+    if (isCompactLeafGroup(tn)) {
+      const centerX = leftX + tn.subtreeWidth / 2
+      tn.x = centerX
+      const cols = Math.min(2, tn.children.length)
+      const baseChildY = topY + (tn.depth + 1) * LEVEL_HEIGHT
+      tn.children.forEach((c, idx) => {
+        const col = idx % cols
+        const row = Math.floor(idx / cols)
+        const isSingleInLastRow =
+          idx === tn.children.length - 1 && tn.children.length % 2 === 1
+        const offsetX = isSingleInLastRow
+          ? 0
+          : (col - (cols - 1) / 2) * LEAF_COL_GAP
+        c.x = centerX + offsetX
+        c.y = baseChildY + row * LEAF_ROW_GAP
+      })
+      return
+    }
+
     let cursorX = leftX
     tn.children.forEach((c) => {
       assignCoords(c, cursorX, topY)
@@ -288,24 +385,31 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
   const zones: ClusterZone[] = []
   const resultNodes: GraphNode[] = []
 
-  // Empacotar árvores em linhas balanceadas para evitar aspect-ratio extremo
+  // Empacotar árvores em linhas balanceadas para um aspect-ratio próximo de 16:9
   const treeMetrics = activeTreeRoots.map((root) => {
-    const stats = computeWidth(root, 0)
+    const stats = computeMetrics(root, 0)
     const totalCount = countDescendants(root)
     return {
       root,
       width: stats.width,
       levels: stats.maxDepth + 1,
-      height: (stats.maxDepth + 1) * LEVEL_HEIGHT + 70,
+      height: stats.maxYOffset + 145,
       totalCount,
     }
   })
 
-  const totalTreesWidth = treeMetrics.reduce((acc, m) => acc + m.width + 80, 0)
-  const targetRowMaxWidth = Math.max(1800, Math.min(4200, Math.sqrt(totalTreesWidth * 2200)))
+  const maxSingleTreeWidth = treeMetrics.reduce(
+    (maxW, m) => Math.max(maxW, m.width + 80),
+    1500
+  )
+  const totalTreesWidth = treeMetrics.reduce((acc, m) => acc + m.width + 72, 0)
+  const targetRowMaxWidth = Math.max(
+    maxSingleTreeWidth,
+    Math.min(3600, Math.sqrt(totalTreesWidth * 2100))
+  )
 
   let currentX = 80
-  let currentY = 90
+  let currentY = 80
   let currentRowMaxHeight = 0
 
   const flattenTree = (tn: TidyTreeNode) => {
@@ -319,22 +423,27 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
   }
 
   treeMetrics.forEach((tm) => {
-    if (currentX > 80 && currentX + tm.width > targetRowMaxWidth) {
+    if (currentX > 80 && currentX + tm.width + 72 > targetRowMaxWidth) {
       currentX = 80
-      currentY += currentRowMaxHeight + 110
+      currentY += currentRowMaxHeight + 90
       currentRowMaxHeight = 0
     }
 
-    const zonePaddingX = 36
-    const zoneWidth = Math.max(220, tm.width + zonePaddingX * 2)
-    const zoneHeight = tm.height + 24
+    const zonePaddingX = 34
+    const zoneWidth = Math.max(240, tm.width + zonePaddingX * 2)
+    const zoneHeight = tm.height
+    const fullLineageTotal = tm.root.graphNode.totalLineageCount + 1
+    const depthLabel =
+      maxDepth !== null && fullLineageTotal > tm.totalCount
+        ? `${tm.totalCount} de ${fullLineageTotal} irmãos (até ${maxDepth}ª ger.)`
+        : `${tm.totalCount} ${tm.totalCount === 1 ? "irmão" : "irmãos"} • ${tm.levels} ${
+            tm.levels === 1 ? "geração" : "gerações"
+          }`
 
     zones.push({
       id: `tree_${tm.root.id}`,
       title: `Linhagem: ${tm.root.graphNode.name}`,
-      subtitle: `${tm.totalCount} ${tm.totalCount === 1 ? "irmão" : "irmãos"} • ${tm.levels} ${
-        tm.levels === 1 ? "geração" : "gerações"
-      }`,
+      subtitle: depthLabel,
       x: currentX,
       y: currentY,
       width: zoneWidth,
@@ -343,10 +452,10 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
     })
 
     const treeStartLeft = currentX + (zoneWidth - tm.width) / 2
-    assignCoords(tm.root, treeStartLeft, currentY + 86)
+    assignCoords(tm.root, treeStartLeft, currentY + 84)
     flattenTree(tm.root)
 
-    currentX += zoneWidth + 60
+    currentX += zoneWidth + 54
     if (zoneHeight > currentRowMaxHeight) {
       currentRowMaxHeight = zoneHeight
     }
@@ -354,7 +463,7 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
 
   // Posicionar irmãos cujo discipulador está fora do filtro atual (ex: em outro GC)
   let nextSectionY =
-    treeMetrics.length > 0 ? currentY + currentRowMaxHeight + 100 : 90
+    treeMetrics.length > 0 ? currentY + currentRowMaxHeight + 90 : 80
 
   if (standaloneCoveredOutsideView.length > 0) {
     const cols = Math.min(10, Math.max(4, Math.ceil(Math.sqrt(standaloneCoveredOutsideView.length * 2))))
@@ -433,7 +542,8 @@ function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
 
 /**
  * 2. LAYOUT POR GRUPOS CASEIROS (Clusters de Oikos)
- * Agrupa irmãos por Grupo Caseiro em círculos comunitários organizados.
+ * Agrupa irmãos por Grupo Caseiro em círculos comunitários organizados,
+ * reservando folga vertical superior para o título e intercalando anéis.
  */
 function computeGroupsClusterLayout(nodes: GraphNode[]): LayoutResult {
   if (nodes.length === 0) return { nodes: [], zones: [] }
@@ -466,32 +576,53 @@ function computeGroupsClusterLayout(nodes: GraphNode[]): LayoutResult {
     return a.name.localeCompare(b.name)
   })
 
-  const cols = Math.max(1, Math.ceil(Math.sqrt(clusters.length * 1.35)))
+  const cols = Math.max(1, Math.ceil(Math.sqrt(clusters.length * 1.45)))
   const zones: ClusterZone[] = []
   const resultNodes: GraphNode[] = []
 
-  // Calcular raio de cada cluster baseado no número de irmãos
-  const clusterRadii = clusters.map((c) => {
+  // Calcular anéis concêntricos de cada cluster garantindo distância mínima de arco >= 56px
+  // e folga superior suficiente para o cabeçalho do círculo não colidir com o nó das 12h.
+  const clusterRingPlans = clusters.map((c) => {
     const count = c.members.length
-    if (count <= 8) return 135
-    if (count <= 16) return 175
-    return Math.min(260, 175 + (count - 16) * 7)
+    if (count <= 1) {
+      return { outerRadius: 130, rings: [0] }
+    }
+    if (count <= 10) {
+      const r = Math.max(82, count * 11)
+      return { outerRadius: r + 64, rings: [r] }
+    }
+    const rings: number[] = []
+    let remaining = count
+    let currentR = 76
+    while (remaining > 0) {
+      const cap = Math.max(6, Math.floor((2 * Math.PI * currentR) / 56))
+      rings.push(currentR)
+      remaining -= cap
+      if (remaining > 0) currentR += 72
+    }
+    return { outerRadius: currentR + 68, rings }
   })
 
-  const maxRadius = Math.max(...clusterRadii, 160)
-  const cellSpacingX = maxRadius * 2 + 120
-  const cellSpacingY = maxRadius * 2 + 140
+  const maxRadius = Math.max(...clusterRingPlans.map((p) => p.outerRadius), 160)
+  const cellSpacingX = maxRadius * 2 + 64
+  const cellSpacingY = maxRadius * 2 + 72
 
   clusters.forEach((cluster, cIdx) => {
     const col = cIdx % cols
     const row = Math.floor(cIdx / cols)
-    const radius = clusterRadii[cIdx]
-    const centerX = 100 + radius + col * cellSpacingX
-    const centerY = 120 + radius + row * cellSpacingY
+    const plan = clusterRingPlans[cIdx]
+    const radius = plan.outerRadius
+    const centerX = 90 + radius + col * cellSpacingX
+    const centerY = 100 + radius + row * cellSpacingY
+
+    const cleanGroupTitle =
+      clusters.length > 4
+        ? cluster.name.replace(/^Grupo de\s+/i, "GC ")
+        : cluster.name
 
     zones.push({
       id: `gc_${cluster.id}`,
-      title: cluster.name,
+      title: cleanGroupTitle,
       subtitle: `${cluster.sector} • ${cluster.members.length} ${
         cluster.members.length === 1 ? "irmão" : "irmãos"
       }`,
@@ -526,43 +657,41 @@ function computeGroupsClusterLayout(nodes: GraphNode[]): LayoutResult {
       }
     })
 
+    const ringCenterY = centerY + 22
     const count = ordered.length
     if (count === 1) {
-      resultNodes.push({ ...ordered[0], x: centerX, y: centerY + 10 })
-    } else if (count <= 12) {
-      const ringR = Math.max(65, radius - 48)
+      resultNodes.push({ ...ordered[0], x: centerX, y: ringCenterY })
+    } else if (plan.rings.length === 1) {
+      const ringR = plan.rings[0]
       ordered.forEach((node, idx) => {
         const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / count
         resultNodes.push({
           ...node,
           x: centerX + Math.cos(angle) * ringR,
-          y: centerY + 12 + Math.sin(angle) * ringR,
+          y: ringCenterY + Math.sin(angle) * ringR,
         })
       })
     } else {
-      // Dois anéis concêntricos: anel interno (liderança/casais principais) e anel externo
-      const innerCount = Math.min(6, Math.floor(count / 3))
-      const outerCount = count - innerCount
-      const innerR = Math.max(58, (radius - 45) * 0.44)
-      const outerR = Math.max(115, radius - 42)
+      let cursor = 0
+      plan.rings.forEach((ringR, rIdx) => {
+        const isLastRing = rIdx === plan.rings.length - 1
+        const cap = Math.max(6, Math.floor((2 * Math.PI * ringR) / 56))
+        const sliceCount = isLastRing
+          ? ordered.length - cursor
+          : Math.min(cap, ordered.length - cursor)
+        const slice = ordered.slice(cursor, cursor + sliceCount)
+        cursor += sliceCount
 
-      ordered.forEach((node, idx) => {
-        if (idx < innerCount) {
-          const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / innerCount
+        // Intercalar ângulo inicial entre anéis pares e ímpares para evitar colisão de rótulos
+        const phaseOffset = rIdx % 2 === 1 ? Math.PI / Math.max(1, slice.length) : 0
+        slice.forEach((node, idx) => {
+          const angle = -Math.PI / 2 + phaseOffset + (idx * 2 * Math.PI) / slice.length
           resultNodes.push({
             ...node,
-            x: centerX + Math.cos(angle) * innerR,
-            y: centerY + 12 + Math.sin(angle) * innerR,
+            x: centerX + Math.cos(angle) * ringR,
+            y: ringCenterY + Math.sin(angle) * ringR,
           })
-        } else {
-          const outerIdx = idx - innerCount
-          const angle = -Math.PI / 2 + (outerIdx * 2 * Math.PI) / outerCount
-          resultNodes.push({
-            ...node,
-            x: centerX + Math.cos(angle) * outerR,
-            y: centerY + 12 + Math.sin(angle) * outerR,
-          })
-        }
+        })
       })
     }
   })
@@ -571,124 +700,172 @@ function computeGroupsClusterLayout(nodes: GraphNode[]): LayoutResult {
 }
 
 /**
- * 3. LAYOUT REDE DE COMPANHEIRISMO (Anéis de Aliança Horizontal por Gênero/Maturidade)
- * Separa hemisfério masculino (esquerda) e feminino (direita) pois as juntas de
- * companheirismo ocorrem entre irmãos do mesmo gênero.
+ * Ordena nós por adjacência de companheirismo (Greedy Neighbor Walk) para que
+ * companheiros de obra fiquem lado a lado no anel e formem arcos curtos locais.
+ */
+function orderByFellowshipAdjacency(bandNodes: GraphNode[]): GraphNode[] {
+  const byId = new Map(bandNodes.map((n) => [n.id, n]))
+  const visited = new Set<string>()
+  const ordered: GraphNode[] = []
+
+  const seeds = [...bandNodes].sort(
+    (a, b) =>
+      a.sector.localeCompare(b.sector) ||
+      (a.homeGroupName || "").localeCompare(b.homeGroupName || "") ||
+      b.fellowshipsCount - a.fellowshipsCount ||
+      a.name.localeCompare(b.name)
+  )
+
+  seeds.forEach((seed) => {
+    if (visited.has(seed.id)) return
+    const queue: GraphNode[] = [seed]
+    visited.add(seed.id)
+    while (queue.length > 0) {
+      const curr = queue.shift()!
+      ordered.push(curr)
+      curr.fellowshipPartnerIds.forEach((pid) => {
+        const partner = byId.get(pid)
+        if (partner && !visited.has(partner.id)) {
+          visited.add(partner.id)
+          queue.push(partner)
+        }
+      })
+    }
+  })
+
+  return ordered
+}
+
+/**
+ * 3. LAYOUT REDE DE COMPANHEIRISMO (Rodas de Aliança Horizontal Conectadas)
+ * Agrupa irmãos em Rodas de Companheirismo de anel único (10–16 irmãos conectados
+ * por vínculos reais de companheirismo via busca em largura), eliminando teias cruzadas
+ * e destacando duplas, trios e quartetos de cuidado mútuo.
  */
 function computeFellowshipNetworkLayout(nodes: GraphNode[]): LayoutResult {
   if (nodes.length === 0) return { nodes: [], zones: [] }
 
-  const centerX = 900
-  const centerY = 750
   const resultNodes: GraphNode[] = []
   const zones: ClusterZone[] = []
 
-  if (nodes.length <= 36) {
-    const radius = Math.max(180, nodes.length * 16)
-    const sorted = [...nodes].sort((a, b) => {
-      if (a.gender !== b.gender) return (a.gender || "").localeCompare(b.gender || "")
-      return a.sector.localeCompare(b.sector) || a.name.localeCompare(b.name)
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  const visited = new Set<string>()
+  const MAX_WHEEL_SIZE = 14
+  const MIN_WHEEL_MERGE = 6
+
+  const roleSortWeight = (n: GraphNode) =>
+    n.isPresbyter ? 0 : n.isPresbyterSpouse ? 1 : n.isDeacon ? 2 : n.isLeader ? 3 : 4
+
+  const seeds = [...nodes].sort(
+    (a, b) =>
+      (a.gender || "").localeCompare(b.gender || "") ||
+      roleSortWeight(a) - roleSortWeight(b) ||
+      b.fellowshipsCount - a.fellowshipsCount ||
+      a.name.localeCompare(b.name)
+  )
+
+  const rawGroups: { gender: string; members: GraphNode[] }[] = []
+
+  seeds.forEach((seed) => {
+    if (visited.has(seed.id)) return
+    const group: GraphNode[] = []
+    const queue: GraphNode[] = [seed]
+    visited.add(seed.id)
+
+    while (queue.length > 0 && group.length < MAX_WHEEL_SIZE) {
+      const curr = queue.shift()!
+      group.push(curr)
+      curr.fellowshipPartnerIds.forEach((pid) => {
+        if (group.length + queue.length >= MAX_WHEEL_SIZE) return
+        const partner = byId.get(pid)
+        if (
+          partner &&
+          !visited.has(partner.id) &&
+          partner.gender === seed.gender
+        ) {
+          visited.add(partner.id)
+          queue.push(partner)
+        }
+      })
+    }
+
+    rawGroups.push({ gender: seed.gender || "M", members: group })
+  })
+
+  // Consolidar micro-grupos do mesmo gênero para manter rodas equilibradas (8–15 irmãos)
+  const wheels: { gender: string; members: GraphNode[] }[] = []
+  rawGroups.forEach((g) => {
+    const target = wheels.find(
+      (w) =>
+        w.gender === g.gender &&
+        w.members.length < MIN_WHEEL_MERGE &&
+        w.members.length + g.members.length <= MAX_WHEEL_SIZE
+    )
+    if (target) {
+      target.members.push(...g.members)
+    } else {
+      wheels.push({ gender: g.gender, members: [...g.members] })
+    }
+  })
+
+  const cols = Math.max(1, Math.ceil(Math.sqrt(wheels.length * 1.45)))
+
+  const wheelRadii = wheels.map((w) => {
+    const count = w.members.length
+    const ringR = count <= 1 ? 0 : Math.max(78, count * 9.8)
+    return { ringR, outerRadius: Math.max(132, ringR + 62) }
+  })
+
+  const maxRadius = Math.max(...wheelRadii.map((r) => r.outerRadius), 155)
+  const cellSpacingX = maxRadius * 2 + 64
+  const cellSpacingY = maxRadius * 2 + 72
+
+  wheels.forEach((wheel, wIdx) => {
+    const col = wIdx % cols
+    const row = Math.floor(wIdx / cols)
+    const { ringR, outerRadius } = wheelRadii[wIdx]
+    const cx = 90 + outerRadius + col * cellSpacingX
+    const cy = 100 + outerRadius + row * cellSpacingY
+
+    const ordered = orderByFellowshipAdjacency(wheel.members)
+    const anchor = ordered[0]
+    const genderTag = wheel.gender === "F" ? "Irmãs (F)" : "Irmãos (M)"
+
+    // Contar vínculos internos reais dentro desta roda
+    const memberSet = new Set(ordered.map((m) => m.id))
+    let internalBonds = 0
+    ordered.forEach((m) => {
+      m.fellowshipPartnerIds.forEach((pid) => {
+        if (m.id < pid && memberSet.has(pid)) internalBonds++
+      })
     })
 
     zones.push({
-      id: "fellowship_ring_single",
-      title: "Roda de Companheirismo",
-      subtitle: `${nodes.length} irmãos no recorte atual`,
-      x: centerX,
-      y: centerY,
-      width: (radius + 65) * 2,
-      height: (radius + 65) * 2,
+      id: `fellowship_wheel_${wIdx}`,
+      title: anchor ? `Roda: ${anchor.shortName} & Pares` : `Roda #${wIdx + 1}`,
+      subtitle: `${genderTag} • ${ordered.length} irmãos • ${internalBonds} alianças`,
+      x: cx,
+      y: cy,
+      width: outerRadius * 2,
+      height: outerRadius * 2,
       shape: "circle",
-      radius: radius + 65,
+      radius: outerRadius,
     })
 
-    sorted.forEach((n, idx) => {
-      const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / sorted.length
-      resultNodes.push({
-        ...n,
-        x: centerX + Math.cos(angle) * radius,
-        y: centerY + Math.sin(angle) * radius,
+    const ringCenterY = cy + 20
+    if (ordered.length === 1) {
+      resultNodes.push({ ...ordered[0], x: cx, y: ringCenterY })
+    } else {
+      ordered.forEach((n, idx) => {
+        const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / ordered.length
+        resultNodes.push({
+          ...n,
+          x: cx + Math.cos(angle) * ringR,
+          y: ringCenterY + Math.sin(angle) * ringR,
+        })
       })
-    })
-
-    return { nodes: resultNodes, zones }
-  }
-
-  // Para volumes maiores: 3 anéis concêntricos divididos em Hemisfério M (esquerdo) e Hemisfério F (direito)
-  const ring1 = nodes.filter(
-    (n) => n.isPresbyter || n.isPresbyterSpouse || n.isDeacon || n.isLeader
-  )
-  const ring2 = nodes.filter(
-    (n) =>
-      !n.isPresbyter &&
-      !n.isPresbyterSpouse &&
-      !n.isDeacon &&
-      !n.isLeader &&
-      n.fellowshipsCount > 0
-  )
-  const ring3 = nodes.filter(
-    (n) =>
-      !n.isPresbyter &&
-      !n.isPresbyterSpouse &&
-      !n.isDeacon &&
-      !n.isLeader &&
-      n.fellowshipsCount === 0
-  )
-
-  const placeRing = (ringNodes: GraphNode[], baseRadius: number) => {
-    if (ringNodes.length === 0) return
-    const males = ringNodes
-      .filter((n) => n.gender === "M")
-      .sort((a, b) => a.sector.localeCompare(b.sector) || (a.homeGroupName || "").localeCompare(b.homeGroupName || ""))
-    const females = ringNodes
-      .filter((n) => n.gender !== "M")
-      .sort((a, b) => a.sector.localeCompare(b.sector) || (a.homeGroupName || "").localeCompare(b.homeGroupName || ""))
-
-    // Hemisfério esquerdo (M): de 100° a 260° (em radianos: 0.56*PI a 1.44*PI)
-    males.forEach((n, idx) => {
-      const t = males.length === 1 ? 0.5 : idx / (males.length - 1)
-      const angle = Math.PI * 0.56 + t * Math.PI * 0.88
-      resultNodes.push({
-        ...n,
-        x: centerX + Math.cos(angle) * baseRadius,
-        y: centerY + Math.sin(angle) * baseRadius,
-      })
-    })
-
-    // Hemisfério direito (F): de -80° a +80° (em radianos: -0.44*PI a +0.44*PI)
-    females.forEach((n, idx) => {
-      const t = females.length === 1 ? 0.5 : idx / (females.length - 1)
-      const angle = -Math.PI * 0.44 + t * Math.PI * 0.88
-      resultNodes.push({
-        ...n,
-        x: centerX + Math.cos(angle) * baseRadius,
-        y: centerY + Math.sin(angle) * baseRadius,
-      })
-    })
-  }
-
-  const r1 = Math.max(220, ring1.length * 9)
-  const r2 = Math.max(r1 + 210, ring2.length * 5.2)
-  const r3 = ring3.length > 0 ? Math.max(r2 + 170, ring3.length * 8) : r2
-
-  const outerRadius = (ring3.length > 0 ? r3 : r2) + 80
-  zones.push({
-    id: "fellowship_hemispheres",
-    title: "Malha de Companheirismo (Esquerda: Irmãos • Direita: Irmãs)",
-    subtitle: "Centro: Presbitério, Diaconato e Liderança de GC • Anel Médio: Juntas Ativas",
-    x: centerX,
-    y: centerY,
-    width: outerRadius * 2,
-    height: outerRadius * 2,
-    shape: "circle",
-    radius: outerRadius,
+    }
   })
-
-  placeRing(ring1, r1)
-  placeRing(ring2, r2)
-  if (ring3.length > 0) {
-    placeRing(ring3, r3)
-  }
 
   return { nodes: resultNodes, zones }
 }
@@ -696,11 +873,12 @@ function computeFellowshipNetworkLayout(nodes: GraphNode[]): LayoutResult {
 /**
  * 4. LAYOUT DE ISOLAMENTO DE JUNTA (Ego-Network / Raio-X Completo de 1 Irmão)
  * Posiciona a cadeia ascendente (quem discipula), o irmão ao centro com cônjuge e
- * companheiros de obra ao lado, e toda a árvore descendente abaixo.
+ * companheiros de obra ao lado, e a árvore descendente abaixo.
  */
 function computeIsolatedJuntaLayout(
   focusId: string,
-  allNodes: GraphNode[]
+  allNodes: GraphNode[],
+  expandFullLineage = false
 ): LayoutResult {
   const nodeMap = new Map(allNodes.map((n) => [n.id, n]))
   const centerNode = nodeMap.get(focusId)
@@ -718,7 +896,7 @@ function computeIsolatedJuntaLayout(
     visitedAncestors.add(currDisciplerId)
     const anc = nodeMap.get(currDisciplerId)
     if (anc) {
-      ancestors.unshift(anc) // Do mais antigo (topo) para o discipulador direto
+      ancestors.unshift(anc)
       includedIds.add(anc.id)
       currDisciplerId = anc.disciplerId
     } else {
@@ -726,23 +904,8 @@ function computeIsolatedJuntaLayout(
     }
   }
 
-  // 2. Cônjuge e Companheiros de Obra (Nível Horizontal)
-  const spouseNode =
-    centerNode.spouseId && nodeMap.has(centerNode.spouseId)
-      ? nodeMap.get(centerNode.spouseId)!
-      : null
-  if (spouseNode) includedIds.add(spouseNode.id)
-
-  const companions: GraphNode[] = []
-  centerNode.fellowshipPartnerIds.forEach((fid) => {
-    const comp = nodeMap.get(fid)
-    if (comp && !includedIds.has(comp.id)) {
-      includedIds.add(comp.id)
-      companions.push(comp)
-    }
-  })
-
-  // 3. Descendentes de Discipulado (Árvore abaixo do irmão focado) + Filhos
+  // 2. Mapear descendentes diretos primeiro para que um discípulo direto que também seja
+  // companheiro não tenha sua subárvore descendente suprimida
   const childrenMap = new Map<string, GraphNode[]>()
   allNodes.forEach((n) => {
     if (n.disciplerId) {
@@ -755,9 +918,29 @@ function computeIsolatedJuntaLayout(
       childrenMap.set(focusId, list)
     }
   })
+  const directDiscipleIds = new Set((childrenMap.get(focusId) || []).map((c) => c.id))
 
+  // 3. Cônjuge e Companheiros de Obra (Nível Horizontal)
+  const spouseNode =
+    centerNode.spouseId && nodeMap.has(centerNode.spouseId)
+      ? nodeMap.get(centerNode.spouseId)!
+      : null
+  if (spouseNode && !directDiscipleIds.has(spouseNode.id)) {
+    includedIds.add(spouseNode.id)
+  }
+
+  const companions: GraphNode[] = []
+  centerNode.fellowshipPartnerIds.forEach((fid) => {
+    const comp = nodeMap.get(fid)
+    if (comp && !includedIds.has(comp.id) && !directDiscipleIds.has(comp.id)) {
+      includedIds.add(comp.id)
+      companions.push(comp)
+    }
+  })
+
+  const ANCESTOR_GAP_Y = 148
   const centerX = 600
-  const centerY = 120 + ancestors.length * 125
+  const centerY = 115 + ancestors.length * ANCESTOR_GAP_Y
 
   // Posicionar ancestrais acima do nó central
   ancestors.forEach((anc, idx) => {
@@ -765,7 +948,7 @@ function computeIsolatedJuntaLayout(
       ...anc,
       level: idx,
       x: centerX,
-      y: 100 + idx * 125,
+      y: 115 + idx * ANCESTOR_GAP_Y,
     })
   })
 
@@ -778,11 +961,11 @@ function computeIsolatedJuntaLayout(
   })
 
   // Posicionar Cônjuge à esquerda imediata
-  if (spouseNode) {
+  if (spouseNode && !directDiscipleIds.has(spouseNode.id)) {
     resultNodes.push({
       ...spouseNode,
       level: ancestors.length,
-      x: centerX - 125,
+      x: centerX - 130,
       y: centerY,
     })
   }
@@ -797,26 +980,37 @@ function computeIsolatedJuntaLayout(
     })
   })
 
-  const horizontalSpanLeft = spouseNode ? centerX - 190 : centerX - 90
+  const horizontalSpanLeft =
+    spouseNode && !directDiscipleIds.has(spouseNode.id) ? centerX - 205 : centerX - 125
   const horizontalSpanRight =
     companions.length > 0
-      ? centerX + 135 + (companions.length - 1) * 115 + 90
-      : centerX + 90
+      ? centerX + 135 + (companions.length - 1) * 115 + 115
+      : centerX + 125
+
+  const maxDescendantDepth =
+    expandFullLineage || centerNode.totalLineageCount <= 12 ? 99 : 2
 
   zones.push({
     id: "ego_focus_zone",
     title: `Junta Central de ${centerNode.name}`,
     subtitle: `${
       spouseNode ? "Cônjuge + " : ""
-    }${companions.length} companheiro(s) de obra no eixo horizontal`,
+    }${companions.length} companheiro(s) no eixo horizontal${
+      maxDescendantDepth === 2 && centerNode.totalLineageCount > 12
+        ? " • Exibindo 1ª e 2ª Geração"
+        : ""
+    }`,
     x: horizontalSpanLeft,
-    y: centerY - 58,
-    width: horizontalSpanRight - horizontalSpanLeft,
-    height: 112,
+    y: centerY - 82,
+    width: Math.max(320, horizontalSpanRight - horizontalSpanLeft),
+    height: 146,
     shape: "rect",
   })
 
-  // Construir subárvore descendente com Tidy Tree
+  // Construir subárvore descendente com Tidy Tree e compactação de folhas em 2 colunas
+  const LEAF_COL_GAP = 88
+  const LEAF_ROW_GAP = 68
+
   const buildSubtree = (
     node: GraphNode,
     depth: number,
@@ -828,9 +1022,13 @@ function computeIsolatedJuntaLayout(
       parent: null,
       children: [],
       depth,
-      subtreeWidth: 105,
+      subtreeWidth: 96,
+      maxSubtreeHeight: 0,
       x: 0,
       y: 0,
+    }
+    if (depth >= maxDescendantDepth) {
+      return tn
     }
     const rawChildren = childrenMap.get(node.id) || []
     rawChildren.forEach((c) => {
@@ -842,11 +1040,17 @@ function computeIsolatedJuntaLayout(
         tn.children.push(childTN)
       }
     })
-    if (tn.children.length > 0) {
+    if (
+      tn.children.length >= 2 &&
+      tn.children.every((ch) => ch.children.length === 0)
+    ) {
+      const cols = Math.min(2, tn.children.length)
+      tn.subtreeWidth = Math.max(96, cols * LEAF_COL_GAP + 16)
+    } else if (tn.children.length > 0) {
       const totalW =
         tn.children.reduce((acc, ch) => acc + ch.subtreeWidth, 0) +
-        (tn.children.length - 1) * 20
-      tn.subtreeWidth = Math.max(105, totalW)
+        (tn.children.length - 1) * 18
+      tn.subtreeWidth = Math.max(96, totalW)
     }
     return tn
   }
@@ -854,15 +1058,39 @@ function computeIsolatedJuntaLayout(
   const rootTN = buildSubtree(centerNode, 0, new Set(includedIds))
   if (rootTN.children.length > 0) {
     const assignDescendantCoords = (tn: TidyTreeNode, leftX: number) => {
+      const isCompactLeaves =
+        tn.children.length >= 2 &&
+        tn.children.every((ch) => ch.children.length === 0)
+
       if (tn.depth > 0) {
-        tn.y = centerY + tn.depth * 135
+        tn.y = centerY + tn.depth * 138
         if (tn.children.length === 0) {
           tn.x = leftX + tn.subtreeWidth / 2
+        } else if (isCompactLeaves) {
+          const midX = leftX + tn.subtreeWidth / 2
+          tn.x = midX
+          const cols = Math.min(2, tn.children.length)
+          const baseChildY = centerY + (tn.depth + 1) * 138
+          tn.children.forEach((c, idx) => {
+            const col = idx % cols
+            const row = Math.floor(idx / cols)
+            const isSingleLast =
+              idx === tn.children.length - 1 && tn.children.length % 2 === 1
+            const offsetX = isSingleLast ? 0 : (col - (cols - 1) / 2) * LEAF_COL_GAP
+            c.x = midX + offsetX
+            c.y = baseChildY + row * LEAF_ROW_GAP
+            resultNodes.push({
+              ...c.graphNode,
+              level: ancestors.length + c.depth,
+              x: c.x,
+              y: c.y,
+            })
+          })
         } else {
           let cursor = leftX
           tn.children.forEach((c) => {
             assignDescendantCoords(c, cursor)
-            cursor += c.subtreeWidth + 20
+            cursor += c.subtreeWidth + 18
           })
           tn.x = (tn.children[0].x + tn.children[tn.children.length - 1].x) / 2
         }
@@ -876,7 +1104,7 @@ function computeIsolatedJuntaLayout(
         let cursor = centerX - tn.subtreeWidth / 2
         tn.children.forEach((c) => {
           assignDescendantCoords(c, cursor)
-          cursor += c.subtreeWidth + 20
+          cursor += c.subtreeWidth + 18
         })
       }
     }
@@ -891,6 +1119,7 @@ interface RelationshipGraphCanvasProps {
   zones: ClusterZone[]
   links: GraphLink[]
   layoutMode: GraphLayoutMode
+  layoutKey: string
   searchName: string
   diagnosticFilter: DiagnosticFilter
   selectedNodeId: string | null
@@ -908,6 +1137,7 @@ function RelationshipGraphCanvas({
   zones,
   links,
   layoutMode,
+  layoutKey,
   searchName,
   diagnosticFilter,
   selectedNodeId,
@@ -1098,25 +1328,49 @@ function RelationshipGraphCanvas({
       ctx.stroke()
       ctx.setLineDash([])
 
-      // Cabeçalho da Zona
+      // Cabeçalho da Zona com escala adaptativa ao zoom e truncamento seguro
+      const titleFontSize = Math.round(
+        Math.max(13, Math.min(20, 12.5 / Math.pow(zoom, 0.42)))
+      )
+      const subFontSize = Math.round(
+        Math.max(11, Math.min(15, 10.5 / Math.pow(zoom, 0.42)))
+      )
       const headerX = zone.shape === "circle" ? zone.x : zone.x + zone.width / 2
       const headerY =
         zone.shape === "circle" && zone.radius
-          ? zone.y - zone.radius + 26
-          : zone.y + 24
+          ? zone.y - zone.radius + Math.max(26, titleFontSize + 9)
+          : zone.y + Math.max(24, titleFontSize + 9)
+
+      const maxHeaderWidth =
+        zone.shape === "circle" && zone.radius
+          ? Math.max(120, zone.radius * 1.18)
+          : Math.max(140, zone.width - 28)
+
+      const fitZoneText = (text: string, maxW: number): string => {
+        if (ctx.measureText(text).width <= maxW) return text
+        let trimmed = text
+        while (trimmed.length > 4 && ctx.measureText(`${trimmed}…`).width > maxW) {
+          trimmed = trimmed.slice(0, -1)
+        }
+        return `${trimmed}…`
+      }
 
       ctx.textAlign = "center"
-      ctx.font = "600 13px Geist, sans-serif"
+      ctx.font = `600 ${titleFontSize}px Geist, sans-serif`
       ctx.fillStyle = isDark
         ? GRAPH_CANVAS_COLORS.clusterTitle.dark
         : GRAPH_CANVAS_COLORS.clusterTitle.light
-      ctx.fillText(zone.title, headerX, headerY)
+      ctx.fillText(fitZoneText(zone.title, maxHeaderWidth), headerX, headerY)
 
-      ctx.font = "400 11px Geist, sans-serif"
+      ctx.font = `400 ${subFontSize}px Geist, sans-serif`
       ctx.fillStyle = isDark
         ? GRAPH_CANVAS_COLORS.clusterSubtitle.dark
         : GRAPH_CANVAS_COLORS.clusterSubtitle.light
-      ctx.fillText(zone.subtitle, headerX, headerY + 16)
+      ctx.fillText(
+        fitZoneText(zone.subtitle, maxHeaderWidth + 24),
+        headerX,
+        headerY + Math.max(16, subFontSize + 4)
+      )
       ctx.restore()
     })
 
@@ -1158,10 +1412,23 @@ function RelationshipGraphCanvas({
         return
       }
 
+      // No modo Rede de Companheirismo em visão de Rodas de Companheirismo, ocultar links entre rodas
+      // distintas quando não destacados para que as alianças internas de cada roda fiquem nítidas.
+      const linkDist = Math.hypot(s.x - t.x, s.y - t.y)
+      if (
+        layoutMode === "fellowships" &&
+        !isolatedNodeId &&
+        !isHighlighted &&
+        nodes.length > 20 &&
+        (linkDist > 340 || link.type === "discipler")
+      ) {
+        return
+      }
+
       // Se há um irmão focado/selecionado, esmaecer links não pertencentes à junta dele
       let alpha = 1
       if (highlightedLinkSet) {
-        alpha = isHighlighted ? 1 : 0.07
+        alpha = isHighlighted ? 1 : 0.06
       } else if (hasSearchFilter || hasDiagFilter) {
         const sMatch =
           (!hasSearchFilter || isNodeSearchMatch(s)) &&
@@ -1169,9 +1436,18 @@ function RelationshipGraphCanvas({
         const tMatch =
           (!hasSearchFilter || isNodeSearchMatch(t)) &&
           (!hasDiagFilter || isNodeDiagnosticMatch(t))
-        alpha = sMatch || tMatch ? 0.9 : 0.08
-      } else if (layoutMode === "fellowships" && link.type === "fellowship" && nodes.length > 80) {
-        alpha = 0.35
+        alpha = sMatch || tMatch ? 0.9 : 0.07
+      } else if (
+        layoutMode === "hierarchy" &&
+        !isolatedNodeId &&
+        link.type === "fellowship" &&
+        nodes.length > 45
+      ) {
+        // Na visão macro da Árvore de Discipulado, manter juntas horizontais entre árvores
+        // discretas ao fundo até que o usuário passe o mouse ou selecione um irmão
+        alpha = s.level === 0 && t.level === 0 ? 0.65 : 0.12
+      } else if (layoutMode === "fellowships" && !isolatedNodeId) {
+        alpha = link.type === "fellowship" ? 0.85 : 0.18
       }
 
       ctx.save()
@@ -1256,7 +1532,7 @@ function RelationshipGraphCanvas({
         const dx = t.x - s.x
         const dy = t.y - s.y
         const dist = Math.hypot(dx, dy)
-        const arcOffset = Math.min(55, dist * 0.18)
+        const arcOffset = Math.min(44, dist * 0.16)
         const midX = (s.x + t.x) / 2
         const midY = (s.y + t.y) / 2 - arcOffset
         ctx.moveTo(s.x, s.y)
@@ -1458,7 +1734,13 @@ function RelationshipGraphCanvas({
     isNodeDiagnosticMatch,
   ])
 
+  const drawCanvasRef = useRef(drawCanvas)
+  useEffect(() => {
+    drawCanvasRef.current = drawCanvas
+  }, [drawCanvas])
+
   // Auto-enquadrar todos os nós visíveis na tela (Fit-to-Screen)
+  // Desacoplado de drawCanvas para nunca resetar o zoom ao passar o mouse, selecionar ou filtrar diagnóstico
   const fitToScreen = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || nodes.length === 0) return
@@ -1494,47 +1776,59 @@ function RelationshipGraphCanvas({
 
     const contentW = Math.max(200, maxX - minX)
     const contentH = Math.max(200, maxY - minY)
-    const pad = 48
+    const padX = 34
+    const topInset = 52
+    const bottomInset = 58
 
-    const scaleX = (rect.width - pad * 2) / contentW
-    const scaleY = (rect.height - pad * 2) / contentH
-    const nextZoom = Math.max(0.14, Math.min(1.35, Math.min(scaleX, scaleY)))
+    const scaleX = Math.max(120, rect.width - padX * 2) / contentW
+    const scaleY = Math.max(120, rect.height - topInset - bottomInset) / contentH
+    const nextZoom = Math.max(0.05, Math.min(1.35, Math.min(scaleX, scaleY)))
 
     const centerContentX = (minX + maxX) / 2
     const centerContentY = (minY + maxY) / 2
+    const viewportCenterY = topInset + (rect.height - topInset - bottomInset) / 2
 
     zoomRef.current = nextZoom
     panRef.current = {
       x: rect.width / 2 - centerContentX * nextZoom,
-      y: rect.height / 2 - centerContentY * nextZoom,
+      y: viewportCenterY - centerContentY * nextZoom,
     }
-    drawCanvas()
-  }, [nodes, zones, drawCanvas])
+    drawCanvasRef.current()
+  }, [nodes, zones])
 
-  // Centralizar em um irmão específico quando solicitado
+  const fitToScreenRef = useRef(fitToScreen)
   useEffect(() => {
-    if (!focusTargetId || !canvasRef.current) return
-    const target = nodes.find((n) => n.id === focusTargetId)
-    if (target) {
-      const rect = canvasRef.current.getBoundingClientRect()
-      const nextZoom = Math.max(zoomRef.current, 1.15)
-      zoomRef.current = nextZoom
-      panRef.current = {
-        x: rect.width / 2 - target.x * nextZoom,
-        y: rect.height / 2 - target.y * nextZoom,
-      }
-      drawCanvas()
-    }
-    onFocusHandled()
-  }, [focusTargetId, nodes, drawCanvas, onFocusHandled])
+    fitToScreenRef.current = fitToScreen
+  }, [fitToScreen])
 
-  // Re-enquadrar sempre que o conjunto de nós ou modo de layout mudar
+  // Re-enquadrar APENAS quando a estrutura de layout (layoutKey) mudar
   useEffect(() => {
     const id = requestAnimationFrame(() => {
-      fitToScreen()
+      fitToScreenRef.current()
     })
     return () => cancelAnimationFrame(id)
-  }, [nodes, layoutMode, isolatedNodeId, fitToScreen])
+  }, [layoutKey])
+
+  // Centralizar em um irmão específico quando solicitado (executado após eventual mudança de layout)
+  useEffect(() => {
+    if (!focusTargetId || !canvasRef.current) return
+    const id = requestAnimationFrame(() => {
+      if (!canvasRef.current) return
+      const target = nodes.find((n) => n.id === focusTargetId)
+      if (target) {
+        const rect = canvasRef.current.getBoundingClientRect()
+        const nextZoom = Math.max(zoomRef.current, 1.15)
+        zoomRef.current = nextZoom
+        panRef.current = {
+          x: rect.width / 2 - target.x * nextZoom,
+          y: rect.height / 2 - target.y * nextZoom,
+        }
+        drawCanvasRef.current()
+      }
+      onFocusHandled()
+    })
+    return () => cancelAnimationFrame(id)
+  }, [focusTargetId, nodes, onFocusHandled])
 
   useEffect(() => {
     drawCanvas()
@@ -1545,12 +1839,12 @@ function RelationshipGraphCanvas({
     const container = containerRef.current
     if (!container) return
     const ro = new ResizeObserver(() => {
-      drawCanvas()
+      drawCanvasRef.current()
     })
     ro.observe(container)
 
     const mo = new MutationObserver(() => {
-      drawCanvas()
+      drawCanvasRef.current()
     })
     mo.observe(document.documentElement, {
       attributes: true,
@@ -1561,7 +1855,7 @@ function RelationshipGraphCanvas({
       ro.disconnect()
       mo.disconnect()
     }
-  }, [drawCanvas])
+  }, [])
 
   const findNodeAtClientPos = (clientX: number, clientY: number): GraphNode | null => {
     const canvas = canvasRef.current
@@ -1590,15 +1884,15 @@ function RelationshipGraphCanvas({
       const mouseX = e.clientX - rect.left
       const mouseY = e.clientY - rect.top
       const currentZoom = zoomRef.current
-      const newZoom = Math.max(0.12, Math.min(currentZoom * factor, 3.5))
+      const newZoom = Math.max(0.05, Math.min(currentZoom * factor, 3.5))
       panRef.current = {
         x: mouseX - (mouseX - panRef.current.x) * (newZoom / currentZoom),
         y: mouseY - (mouseY - panRef.current.y) * (newZoom / currentZoom),
       }
       zoomRef.current = newZoom
-      drawCanvas()
+      drawCanvasRef.current()
     },
-    [drawCanvas]
+    []
   )
 
   const canvasCallback = useCallback(
@@ -1636,7 +1930,7 @@ function RelationshipGraphCanvas({
         x: e.clientX - startPanRef.current.x,
         y: e.clientY - startPanRef.current.y,
       }
-      drawCanvas()
+      drawCanvasRef.current()
       return
     }
 
@@ -1646,7 +1940,7 @@ function RelationshipGraphCanvas({
     if (prevId !== nextId) {
       hoveredNodeIdRef.current = nextId
       setHoveredNode(hit)
-      drawCanvas()
+      drawCanvasRef.current()
     }
   }
 
@@ -1698,7 +1992,7 @@ function RelationshipGraphCanvas({
         x: t.clientX - startPanRef.current.x,
         y: t.clientY - startPanRef.current.y,
       }
-      drawCanvas()
+      drawCanvasRef.current()
     } else if (e.touches.length === 2 && touchPinchDistRef.current) {
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
@@ -1712,13 +2006,13 @@ function RelationshipGraphCanvas({
       const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left
       const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
       const currentZoom = zoomRef.current
-      const nextZoom = Math.max(0.12, Math.min(currentZoom * factor, 3.5))
+      const nextZoom = Math.max(0.05, Math.min(currentZoom * factor, 3.5))
       panRef.current = {
         x: midX - (midX - panRef.current.x) * (nextZoom / currentZoom),
         y: midY - (midY - panRef.current.y) * (nextZoom / currentZoom),
       }
       zoomRef.current = nextZoom
-      drawCanvas()
+      drawCanvasRef.current()
     }
   }
 
@@ -1801,15 +2095,15 @@ function RelationshipGraphCanvas({
         ))}
         <span className="h-3 w-px bg-border" />
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 bg-emerald-600 dark:bg-emerald-400" />
+          <span className={`h-0.5 w-4 ${GRAPH_UI_CLASSES.legendLineDiscipler}`} />
           <span>Discipulado</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 border-t-2 border-dashed border-violet-600 dark:border-violet-400" />
+          <span className={`h-0.5 w-4 ${GRAPH_UI_CLASSES.legendLineFellowship}`} />
           <span>Companheirismo</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 border-t-2 border-dotted border-pink-600 dark:border-pink-400" />
+          <span className={`h-0.5 w-4 ${GRAPH_UI_CLASSES.legendLineMarriage}`} />
           <span>Casamento</span>
         </span>
       </div>
@@ -1823,7 +2117,7 @@ function RelationshipGraphCanvas({
           aria-label="Aproximar grafo"
           onClick={() => {
             zoomRef.current = Math.min(zoomRef.current * 1.25, 3.5)
-            drawCanvas()
+            drawCanvasRef.current()
           }}
           className="h-11 w-11 min-h-[44px] min-w-[44px] rounded-xl"
         >
@@ -1835,8 +2129,8 @@ function RelationshipGraphCanvas({
           title="Afastar"
           aria-label="Afastar grafo"
           onClick={() => {
-            zoomRef.current = Math.max(zoomRef.current * 0.8, 0.14)
-            drawCanvas()
+            zoomRef.current = Math.max(zoomRef.current * 0.8, 0.05)
+            drawCanvasRef.current()
           }}
           className="h-11 w-11 min-h-[44px] min-w-[44px] rounded-xl"
         >
@@ -1898,6 +2192,10 @@ export function RelationshipGraphView({
     initialGroupId && initialGroupId !== "unlinked" ? initialGroupId : "all"
   )
   const [genderFilter, setGenderFilter] = useState<"all" | "M" | "F">("all")
+  const [lineageFilter, setLineageFilter] = useState<string>("all")
+  const [treeDepthLimit, setTreeDepthLimit] = useState<number | null>(
+    initialGroupId && initialGroupId !== "unlinked" ? null : 2
+  )
   const [diagnosticFilter, setDiagnosticFilter] = useState<DiagnosticFilter>("all")
   const [searchName, setSearchName] = useState<string>("")
 
@@ -1910,6 +2208,7 @@ export function RelationshipGraphView({
   // Seleção e isolamento de junta
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [isolatedNodeId, setIsolatedNodeId] = useState<string | null>(null)
+  const [isolatedFullLineage, setIsolatedFullLineage] = useState<boolean>(false)
   const [focusTargetId, setFocusTargetId] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
 
@@ -2052,6 +2351,28 @@ export function RelationshipGraphView({
     })
   }, [allChurchNodes, showChildren, sectorFilter, groupFilter, genderFilter])
 
+  // Opções de Linhagens Raízes (Presbíteros / Raízes da Árvore) no escopo atual
+  const lineageRootNodes = useMemo(() => {
+    const scopedSet = new Set(scopedNodes.map((n) => n.id))
+    return scopedNodes
+      .filter(
+        (n) =>
+          (!n.disciplerId || !scopedSet.has(n.disciplerId)) &&
+          (n.isPresbyter || n.isPresbyterSpouse || n.totalLineageCount > 0)
+      )
+      .sort((a, b) => {
+        if (a.gender !== b.gender) {
+          return (a.gender || "").localeCompare(b.gender || "")
+        }
+        return b.totalLineageCount - a.totalLineageCount || a.name.localeCompare(b.name)
+      })
+  }, [scopedNodes])
+
+  const effectiveLineageFilter = useMemo(() => {
+    if (lineageFilter === "all") return "all"
+    return lineageRootNodes.some((r) => r.id === lineageFilter) ? lineageFilter : "all"
+  }, [lineageFilter, lineageRootNodes])
+
   // Estatísticas de Saúde das Juntas no Escopo Atual
   const juntaStats = useMemo(() => {
     const adults = scopedNodes.filter((n) => !n.isChild)
@@ -2082,7 +2403,11 @@ export function RelationshipGraphView({
   // Calcular Layout Ativo (Árvore, Grupos, Companheirismo ou Junta Isolada)
   const { layoutNodes, layoutZones } = useMemo(() => {
     if (isolatedNodeId) {
-      const res = computeIsolatedJuntaLayout(isolatedNodeId, allChurchNodes)
+      const res = computeIsolatedJuntaLayout(
+        isolatedNodeId,
+        allChurchNodes,
+        isolatedFullLineage
+      )
       return { layoutNodes: res.nodes, layoutZones: res.zones }
     }
     if (layoutMode === "groups") {
@@ -2093,9 +2418,22 @@ export function RelationshipGraphView({
       const res = computeFellowshipNetworkLayout(scopedNodes)
       return { layoutNodes: res.nodes, layoutZones: res.zones }
     }
-    const res = computeTidyHierarchyLayout(scopedNodes)
+    const res = computeTidyHierarchyLayout(scopedNodes, {
+      maxDepth: treeDepthLimit,
+      lineageRootId: effectiveLineageFilter,
+    })
     return { layoutNodes: res.nodes, layoutZones: res.zones }
-  }, [isolatedNodeId, layoutMode, scopedNodes, allChurchNodes])
+  }, [
+    isolatedNodeId,
+    isolatedFullLineage,
+    layoutMode,
+    scopedNodes,
+    allChurchNodes,
+    treeDepthLimit,
+    effectiveLineageFilter,
+  ])
+
+  const layoutKey = `${layoutMode}|${isolatedNodeId || "macro"}|${isolatedFullLineage}|${sectorFilter}|${groupFilter}|${genderFilter}|${showChildren}|${effectiveLineageFilter}|${treeDepthLimit ?? "all"}`
 
   // Construir Links para os nós presentes no layout
   const activeLinks = useMemo(() => {
@@ -2107,7 +2445,10 @@ export function RelationshipGraphView({
     const showMarr = isolatedNodeId ? true : showMarriageLinks || layoutMode === "groups"
 
     layoutNodes.forEach((n) => {
-      if (showDisc && n.disciplerId && visibleSet.has(n.disciplerId)) {
+      const isSelectedSide =
+        selectedNodeId !== null &&
+        (n.id === selectedNodeId || n.disciplerId === selectedNodeId)
+      if ((showDisc || isSelectedSide) && n.disciplerId && visibleSet.has(n.disciplerId)) {
         links.push({
           source: n.disciplerId,
           target: n.id,
@@ -2126,7 +2467,15 @@ export function RelationshipGraphView({
           })
         }
       }
-      if (showMarr && n.spouseId && n.id < n.spouseId && visibleSet.has(n.spouseId)) {
+      const isSelectedSpouse =
+        selectedNodeId !== null &&
+        (n.id === selectedNodeId || n.spouseId === selectedNodeId)
+      if (
+        (showMarr || isSelectedSpouse) &&
+        n.spouseId &&
+        n.id < n.spouseId &&
+        visibleSet.has(n.spouseId)
+      ) {
         links.push({
           source: n.id,
           target: n.spouseId,
@@ -2135,23 +2484,29 @@ export function RelationshipGraphView({
       }
     })
 
-    if (showFell) {
-      fellowships.forEach((f) => {
-        if (visibleSet.has(f.member_a_id) && visibleSet.has(f.member_b_id)) {
-          links.push({
-            source: f.member_a_id,
-            target: f.member_b_id,
-            type: "fellowship",
-          })
-        }
-      })
-    }
+    fellowships.forEach((f) => {
+      const isSelectedFell =
+        selectedNodeId !== null &&
+        (f.member_a_id === selectedNodeId || f.member_b_id === selectedNodeId)
+      if (
+        (showFell || isSelectedFell) &&
+        visibleSet.has(f.member_a_id) &&
+        visibleSet.has(f.member_b_id)
+      ) {
+        links.push({
+          source: f.member_a_id,
+          target: f.member_b_id,
+          type: "fellowship",
+        })
+      }
+    })
 
     return links
   }, [
     layoutNodes,
     fellowships,
     isolatedNodeId,
+    selectedNodeId,
     layoutMode,
     showDiscipleshipLinks,
     showFellowshipLinks,
@@ -2212,9 +2567,13 @@ export function RelationshipGraphView({
     const spouse = node.spouseId
       ? allChurchNodes.find((n) => n.id === node.spouseId) || null
       : null
-    const children = allChurchNodes.filter(
-      (n) => n.fatherId === node.id || n.motherId === node.id
-    )
+    const parents = [node.fatherId, node.motherId]
+      .filter((pid): pid is string => Boolean(pid))
+      .map((pid) => allChurchNodes.find((n) => n.id === pid))
+      .filter((n): n is GraphNode => Boolean(n))
+    const children = allChurchNodes
+      .filter((n) => n.fatherId === node.id || n.motherId === node.id)
+      .sort((a, b) => a.name.localeCompare(b.name))
 
     return {
       node,
@@ -2223,11 +2582,12 @@ export function RelationshipGraphView({
       directDisciples,
       companions,
       spouse,
+      parents,
       children,
     }
   }, [selectedNodeId, allChurchNodes, profileMap])
 
-  // Lista rápida de resultados para o filtro de diagnóstico ativo ou busca
+  // Lista rápida de resultados para o filtro de diagnóstico ativo ou busca textual
   const diagnosticMatchedNodes = useMemo(() => {
     if (diagnosticFilter === "no_discipler") return juntaStats.withoutDiscipler
     if (diagnosticFilter === "no_fellowship") return juntaStats.withoutFellowship
@@ -2236,15 +2596,60 @@ export function RelationshipGraphView({
     return []
   }, [diagnosticFilter, juntaStats])
 
+  const searchMatchedNodes = useMemo(() => {
+    const q = searchName.trim().toLowerCase()
+    if (!q) return []
+    return scopedNodes
+      .filter(
+        (n) =>
+          n.name.toLowerCase().includes(q) ||
+          (n.homeGroupName?.toLowerCase().includes(q) ?? false) ||
+          n.sector.toLowerCase().includes(q)
+      )
+      .slice(0, 24)
+  }, [searchName, scopedNodes])
+
   const handleJumpToBrother = (id: string) => {
+    const target = allChurchNodes.find((n) => n.id === id)
+    if (!target) return
+
+    // Se o irmão alvo está oculto pelos filtros atuais, reconciliar filtros automaticamente
+    if (target.isChild && !showChildren) {
+      setShowChildren(true)
+    }
+    if (genderFilter !== "all" && target.gender !== genderFilter) {
+      setGenderFilter("all")
+    }
+    if (groupFilter !== "all" && target.homeGroupId !== groupFilter) {
+      setGroupFilter("all")
+    }
+    if (sectorFilter !== "all" && target.sectorId !== sectorFilter) {
+      setSectorFilter("all")
+    }
+    if (!isolatedNodeId && effectiveLineageFilter !== "all") {
+      const visibleInLayout = layoutNodes.some((n) => n.id === id)
+      if (!visibleInLayout) {
+        setLineageFilter("all")
+      }
+    }
+    if (!isolatedNodeId && treeDepthLimit !== null) {
+      const visibleInLayout = layoutNodes.some((n) => n.id === id)
+      if (!visibleInLayout) {
+        setTreeDepthLimit(null)
+      }
+    }
+    if (isolatedNodeId && !layoutNodes.some((n) => n.id === id)) {
+      setIsolatedNodeId(id)
+    }
+
     setSelectedNodeId(id)
     setFocusTargetId(id)
   }
 
   return (
     <div className="space-y-4">
-      {/* 1. Cartões de Diagnóstico Rápido das Juntas (Interativos / Clicáveis) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+      {/* 1. Cartões de Diagnóstico Rápido das Juntas (Interativos / Mobile-First 320px Seguro) */}
+      <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-2.5">
         <button
           type="button"
           onClick={() => setDiagnosticFilter("all")}
@@ -2254,16 +2659,16 @@ export function RelationshipGraphView({
               : "border-border/80 bg-card hover:border-border"
           }`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
             <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-primary" />
-              Irmãos no Grafo
+              <Users className="h-3.5 w-3.5 shrink-0 text-primary" />
+              <span>Irmãos no Grafo</span>
             </span>
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">
               {juntaStats.coveragePct}% cobertos
             </Badge>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
+          <div className="mt-2 flex items-baseline justify-between gap-2">
             <span className="text-xl font-bold text-foreground">
               {juntaStats.totalVisible}
             </span>
@@ -2286,10 +2691,10 @@ export function RelationshipGraphView({
               : "border-border/80 bg-card hover:border-border"
           }`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
             <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <AlertCircle className="h-3.5 w-3.5 text-destructive" />
-              Sem Discipulador
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-destructive" />
+              <span>Sem Discipulador</span>
             </span>
             <Badge
               variant="outline"
@@ -2302,7 +2707,7 @@ export function RelationshipGraphView({
               {juntaStats.withoutDiscipler.length > 0 ? "Atenção" : "100% Em Dia"}
             </Badge>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
+          <div className="mt-2 flex items-baseline justify-between gap-2">
             <span className="text-xl font-bold text-foreground">
               {juntaStats.withoutDiscipler.length}
             </span>
@@ -2321,20 +2726,20 @@ export function RelationshipGraphView({
           }
           className={`flex min-h-[76px] flex-col justify-between rounded-xl border p-3.5 text-left transition-colors cursor-pointer ${
             diagnosticFilter === "no_fellowship"
-              ? "border-amber-500 bg-amber-500/10"
+              ? GRAPH_UI_CLASSES.kpiWarningActive
               : "border-border/80 bg-card hover:border-border"
           }`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
             <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <HeartHandshake className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-              Sem Companheiro
+              <HeartHandshake className={`h-3.5 w-3.5 shrink-0 ${GRAPH_UI_CLASSES.kpiWarningIcon}`} />
+              <span>Sem Companheiro</span>
             </span>
             <Badge variant="outline" className={THEME_CLASSES.badgeWarning}>
               Junta Horizontal
             </Badge>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
+          <div className="mt-2 flex items-baseline justify-between gap-2">
             <span className="text-xl font-bold text-foreground">
               {juntaStats.withoutFellowship.length}
             </span>
@@ -2357,16 +2762,16 @@ export function RelationshipGraphView({
               : "border-border/80 bg-card hover:border-border"
           }`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
             <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              <GitBranch className="h-3.5 w-3.5 text-primary" />
-              Carga ≥ 4 Discípulos
+              <GitBranch className="h-3.5 w-3.5 shrink-0 text-primary" />
+              <span>Carga ≥ 4 Discípulos</span>
             </span>
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">
               {juntaStats.potentialDisciplers.length} disponíveis
             </Badge>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
+          <div className="mt-2 flex items-baseline justify-between gap-2">
             <span className="text-xl font-bold text-foreground">
               {juntaStats.overloaded.length}
             </span>
@@ -2389,6 +2794,7 @@ export function RelationshipGraphView({
               variant={layoutMode === "hierarchy" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
+                setIsolatedFullLineage(false)
                 setLayoutMode("hierarchy")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2403,6 +2809,7 @@ export function RelationshipGraphView({
               variant={layoutMode === "groups" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
+                setIsolatedFullLineage(false)
                 setLayoutMode("groups")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2417,6 +2824,7 @@ export function RelationshipGraphView({
               variant={layoutMode === "fellowships" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
+                setIsolatedFullLineage(false)
                 setLayoutMode("fellowships")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2426,26 +2834,48 @@ export function RelationshipGraphView({
             </Button>
 
             {isolatedNodeId && (
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={() => setIsolatedNodeId(null)}
-                className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/10 text-primary"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>Sair da Junta Isolada</span>
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsolatedNodeId(null)
+                    setIsolatedFullLineage(false)
+                  }}
+                  className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/10 text-primary"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Sair da Junta Isolada</span>
+                </Button>
+
+                {selectedNodeData && selectedNodeData.node.totalLineageCount > 12 && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={isolatedFullLineage ? "default" : "outline"}
+                    onClick={() => setIsolatedFullLineage((v) => !v)}
+                    className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
+                  >
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>
+                      {isolatedFullLineage
+                        ? "Focar 1ª e 2ª Geração"
+                        : `Expandir Toda a Linhagem (${selectedNodeData.node.totalLineageCount})`}
+                    </span>
+                  </Button>
+                )}
+              </>
             )}
           </div>
 
           {/* Filtro Rápido por Gênero (Essencial pois discipulado e companheirismo são por gênero) + Fechar */}
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex rounded-xl border border-border bg-muted/40 p-1">
+            <div className="inline-flex flex-wrap rounded-xl border border-border bg-muted/40 p-1">
               <button
                 type="button"
                 onClick={() => setGenderFilter("all")}
-                className={`h-9 min-h-[36px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                className={`h-11 min-h-[44px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                   genderFilter === "all"
                     ? "bg-background text-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -2456,7 +2886,7 @@ export function RelationshipGraphView({
               <button
                 type="button"
                 onClick={() => setGenderFilter("M")}
-                className={`h-9 min-h-[36px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                className={`h-11 min-h-[44px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                   genderFilter === "M"
                     ? "bg-background text-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -2467,7 +2897,7 @@ export function RelationshipGraphView({
               <button
                 type="button"
                 onClick={() => setGenderFilter("F")}
-                className={`h-9 min-h-[36px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                className={`h-11 min-h-[44px] px-3 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                   genderFilter === "F"
                     ? "bg-background text-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -2491,26 +2921,34 @@ export function RelationshipGraphView({
           </div>
         </div>
 
-        {/* Linha 2: Filtros de Setor, Grupo Caseiro, Busca por Nome e Camadas de Linhas */}
+        {/* Linha 2: Filtros de Setor, Grupo Caseiro e Busca por Nome */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 pt-2 border-t border-border/60">
-          {/* Setor */}
+          {/* Setor via shadcn Select */}
           <div className="lg:col-span-3">
-            <select
+            <Select
               value={sectorFilter}
-              onChange={(e) => {
-                setSectorFilter(e.target.value)
+              onValueChange={(val) => {
+                setSectorFilter(val)
                 setGroupFilter("all")
               }}
-              aria-label="Filtrar por Setor"
-              className="h-11 min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
             >
-              <option value="all">Todos os Setores ({sectors.length})</option>
-              {sectors.map((s) => (
-                <option key={s.id} value={s.id}>
-                  Setor: {s.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                aria-label="Filtrar por Setor"
+                className="h-11 min-h-[44px] w-full rounded-xl text-xs font-medium"
+              >
+                <SelectValue placeholder="Filtrar por Setor..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  Todos os Setores ({sectors.length})
+                </SelectItem>
+                {sectors.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    Setor: {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Grupo Caseiro */}
@@ -2518,9 +2956,14 @@ export function RelationshipGraphView({
             <SearchableSelect
               options={groupSelectOptions}
               value={groupFilter}
-              onValueChange={(val) => setGroupFilter(val || "all")}
+              onValueChange={(val) => {
+                const nextGroup = val || "all"
+                setGroupFilter(nextGroup)
+                setTreeDepthLimit(nextGroup === "all" ? 2 : null)
+              }}
               placeholder="Filtrar por Grupo Caseiro..."
               clearable={false}
+              triggerClassName="h-11 min-h-[44px] rounded-xl text-xs"
             />
           </div>
 
@@ -2531,20 +2974,81 @@ export function RelationshipGraphView({
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               placeholder="Buscar irmão por nome para destacar..."
-              className="h-11 min-h-[44px] w-full rounded-xl pl-9 pr-9 text-xs"
+              className="h-11 min-h-[44px] w-full rounded-xl pl-9 pr-12 text-xs"
             />
             {searchName && (
               <button
                 type="button"
                 onClick={() => setSearchName("")}
                 aria-label="Limpar busca"
-                className="absolute top-1/2 right-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="absolute top-1/2 right-0.5 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
         </div>
+
+        {/* Linha 2.5 (Exclusiva para Árvore de Discipulado): Recorte por Linhagem Raiz e Profundidade */}
+        {layoutMode === "hierarchy" && !isolatedNodeId && (
+          <div className="flex flex-col gap-2 pt-2 border-t border-border/50 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <Layers className="h-3.5 w-3.5 text-primary" />
+                Linhagem Raiz:
+              </span>
+              <div className="w-full sm:w-64">
+                <Select
+                  value={effectiveLineageFilter}
+                  onValueChange={(val) => setLineageFilter(val)}
+                >
+                  <SelectTrigger
+                    aria-label="Filtrar por Linhagem de Discipulado"
+                    className="h-11 min-h-[44px] w-full rounded-xl text-xs font-medium"
+                  >
+                    <SelectValue placeholder="Todas as Linhagens" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      Todas as Linhagens ({lineageRootNodes.length})
+                    </SelectItem>
+                    {lineageRootNodes.map((root) => (
+                      <SelectItem key={root.id} value={root.id}>
+                        {root.name} ({root.totalLineageCount + 1} na rede)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground mr-1">
+                Profundidade:
+              </span>
+              {(
+                [
+                  { label: "Todas Ger.", value: null },
+                  { label: "Até 2ª Ger.", value: 2 },
+                  { label: "Até 3ª Ger.", value: 3 },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  onClick={() => setTreeDepthLimit(opt.value)}
+                  className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                    treeDepthLimit === opt.value
+                      ? GRAPH_UI_CLASSES.layerTogglePotentialActive
+                      : GRAPH_UI_CLASSES.layerToggleInactive
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Linha 3: Camadas Visíveis (Toggles de Juntas) */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
@@ -2556,10 +3060,10 @@ export function RelationshipGraphView({
             <button
               type="button"
               onClick={() => setShowDiscipleshipLinks((v) => !v)}
-              className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                 showDiscipleshipLinks
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                  : "border-border bg-muted/30 text-muted-foreground"
+                  ? GRAPH_UI_CLASSES.layerToggleDisciplerActive
+                  : GRAPH_UI_CLASSES.layerToggleInactive
               }`}
             >
               Discipulado
@@ -2567,10 +3071,10 @@ export function RelationshipGraphView({
             <button
               type="button"
               onClick={() => setShowFellowshipLinks((v) => !v)}
-              className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                 showFellowshipLinks
-                  ? "border-violet-500/40 bg-violet-500/10 text-violet-700 dark:text-violet-300"
-                  : "border-border bg-muted/30 text-muted-foreground"
+                  ? GRAPH_UI_CLASSES.layerToggleFellowshipActive
+                  : GRAPH_UI_CLASSES.layerToggleInactive
               }`}
             >
               Companheirismo
@@ -2578,10 +3082,10 @@ export function RelationshipGraphView({
             <button
               type="button"
               onClick={() => setShowMarriageLinks((v) => !v)}
-              className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                 showMarriageLinks || layoutMode === "groups"
-                  ? "border-pink-500/40 bg-pink-500/10 text-pink-700 dark:text-pink-300"
-                  : "border-border bg-muted/30 text-muted-foreground"
+                  ? GRAPH_UI_CLASSES.layerToggleMarriageActive
+                  : GRAPH_UI_CLASSES.layerToggleInactive
               }`}
             >
               Casais
@@ -2589,10 +3093,10 @@ export function RelationshipGraphView({
             <button
               type="button"
               onClick={() => setShowChildren((v) => !v)}
-              className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                 showChildren
-                  ? "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300"
-                  : "border-border bg-muted/30 text-muted-foreground"
+                  ? GRAPH_UI_CLASSES.layerToggleChildActive
+                  : GRAPH_UI_CLASSES.layerToggleInactive
               }`}
             >
               Incluir Crianças
@@ -2606,10 +3110,10 @@ export function RelationshipGraphView({
                     : "potential_disciplers"
                 )
               }
-              className={`min-h-[38px] rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                 diagnosticFilter === "potential_disciplers"
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-border bg-muted/30 text-muted-foreground"
+                  ? GRAPH_UI_CLASSES.layerTogglePotentialActive
+                  : GRAPH_UI_CLASSES.layerToggleInactive
               }`}
             >
               Potenciais Discipuladores ({juntaStats.potentialDisciplers.length})
@@ -2619,6 +3123,8 @@ export function RelationshipGraphView({
           {(sectorFilter !== "all" ||
             groupFilter !== "all" ||
             genderFilter !== "all" ||
+            effectiveLineageFilter !== "all" ||
+            treeDepthLimit !== null ||
             diagnosticFilter !== "all" ||
             searchName.trim() !== "" ||
             isolatedNodeId !== null) && (
@@ -2630,12 +3136,15 @@ export function RelationshipGraphView({
                 setSectorFilter("all")
                 setGroupFilter("all")
                 setGenderFilter("all")
+                setLineageFilter("all")
+                setTreeDepthLimit(null)
                 setDiagnosticFilter("all")
                 setSearchName("")
                 setIsolatedNodeId(null)
+                setIsolatedFullLineage(false)
                 setSelectedNodeId(null)
               }}
-              className="h-9 min-h-[38px] text-xs text-muted-foreground hover:text-foreground"
+              className="h-11 min-h-[44px] rounded-xl text-xs text-muted-foreground hover:text-foreground"
             >
               <Filter className="mr-1.5 h-3.5 w-3.5" />
               Limpar Filtros
@@ -2643,44 +3152,53 @@ export function RelationshipGraphView({
           )}
         </div>
 
-        {/* Barra de resultados rápidos quando um filtro de diagnóstico está ativo */}
-        {diagnosticFilter !== "all" && diagnosticMatchedNodes.length > 0 && (
+        {/* Barra de resultados rápidos quando um filtro de diagnóstico ou busca textual está ativo */}
+        {((diagnosticFilter !== "all" && diagnosticMatchedNodes.length > 0) ||
+          (searchName.trim() !== "" && searchMatchedNodes.length > 0)) && (
           <div className="rounded-xl border border-border/80 bg-muted/30 p-2.5">
-            <div className="mb-1.5 flex items-center justify-between text-xs">
+            <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1 text-xs">
               <span className="font-semibold text-foreground">
-                {diagnosticFilter === "no_discipler" &&
-                  `Irmãos sem Discipulador (${diagnosticMatchedNodes.length}):`}
-                {diagnosticFilter === "no_fellowship" &&
-                  `Irmãos sem Companheiro de Obra (${diagnosticMatchedNodes.length}):`}
-                {diagnosticFilter === "overloaded" &&
-                  `Discipuladores com 4+ Discípulos Diretos (${diagnosticMatchedNodes.length}):`}
-                {diagnosticFilter === "potential_disciplers" &&
-                  `Maduros (≥2 anos de batismo) que ainda não discipulam (${diagnosticMatchedNodes.length}):`}
+                {searchName.trim() !== "" ? (
+                  `Resultados para "${searchName.trim()}" (${searchMatchedNodes.length}):`
+                ) : (
+                  <>
+                    {diagnosticFilter === "no_discipler" &&
+                      `Irmãos sem Discipulador (${diagnosticMatchedNodes.length}):`}
+                    {diagnosticFilter === "no_fellowship" &&
+                      `Irmãos sem Companheiro de Obra (${diagnosticMatchedNodes.length}):`}
+                    {diagnosticFilter === "overloaded" &&
+                      `Discipuladores com 4+ Discípulos Diretos (${diagnosticMatchedNodes.length}):`}
+                    {diagnosticFilter === "potential_disciplers" &&
+                      `Maduros (≥2 anos de batismo) que ainda não discipulam (${diagnosticMatchedNodes.length}):`}
+                  </>
+                )}
               </span>
               <span className="text-[11px] text-muted-foreground">
-                Clique em um nome para localizar no grafo
+                Clique em um nome para centralizar e inspecionar
               </span>
             </div>
-            <div className="flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
-              {diagnosticMatchedNodes.map((n) => (
-                <button
-                  key={n.id}
-                  type="button"
-                  onClick={() => handleJumpToBrother(n.id)}
-                  className={`inline-flex min-h-[34px] items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                    selectedNodeId === n.id
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <span>{n.name}</span>
-                  {n.directDisciplesCount > 0 && (
-                    <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
-                      {n.directDisciplesCount}
-                    </span>
-                  )}
-                </button>
-              ))}
+            <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
+              {(searchName.trim() !== "" ? searchMatchedNodes : diagnosticMatchedNodes).map(
+                (n) => (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => handleJumpToBrother(n.id)}
+                    className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                      selectedNodeId === n.id
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <span>{n.name}</span>
+                    {n.directDisciplesCount > 0 && (
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                        {n.directDisciplesCount}
+                      </span>
+                    )}
+                  </button>
+                )
+              )}
             </div>
           </div>
         )}
@@ -2694,6 +3212,7 @@ export function RelationshipGraphView({
             zones={layoutZones}
             links={activeLinks}
             layoutMode={layoutMode}
+            layoutKey={layoutKey}
             searchName={searchName}
             diagnosticFilter={diagnosticFilter}
             selectedNodeId={selectedNodeId}
@@ -2702,6 +3221,7 @@ export function RelationshipGraphView({
             onSelectNode={setSelectedNodeId}
             onDoubleClickNode={(id) => {
               setSelectedNodeId(id)
+              setIsolatedFullLineage(false)
               setIsolatedNodeId((prev) => (prev === id ? null : id))
             }}
             onFocusHandled={() => setFocusTargetId(null)}
@@ -2717,8 +3237,8 @@ export function RelationshipGraphView({
             <div className="flex items-start justify-between gap-2 border-b border-border/60 pb-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold text-sm text-white ${
-                    RELATIONSHIP_NODE_COLORS[selectedNodeData.node.role].dotClass
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold text-sm ${
+                    RELATIONSHIP_NODE_COLORS[selectedNodeData.node.role].avatarClass
                   }`}
                 >
                   {selectedNodeData.node.initials}
@@ -2742,7 +3262,7 @@ export function RelationshipGraphView({
                 variant="ghost"
                 aria-label="Fechar painel do irmão"
                 onClick={() => setSelectedNodeId(null)}
-                className="h-9 w-9 shrink-0 rounded-lg"
+                className="h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 rounded-xl"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -2756,11 +3276,12 @@ export function RelationshipGraphView({
                   isolatedNodeId === selectedNodeData.node.id ? "default" : "outline"
                 }
                 size="sm"
-                onClick={() =>
+                onClick={() => {
+                  setIsolatedFullLineage(false)
                   setIsolatedNodeId((prev) =>
                     prev === selectedNodeData.node.id ? null : selectedNodeData.node.id
                   )
-                }
+                }}
                 className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
               >
                 <Focus className="h-4 w-4" />
@@ -2775,7 +3296,7 @@ export function RelationshipGraphView({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setFocusTargetId(selectedNodeData.node.id)}
+                onClick={() => handleJumpToBrother(selectedNodeData.node.id)}
                 className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
               >
                 <UserCheck className="h-4 w-4" />
@@ -2796,7 +3317,7 @@ export function RelationshipGraphView({
                 <button
                   type="button"
                   onClick={() => handleJumpToBrother(selectedNodeData.discipler!.id)}
-                  className="flex min-h-[44px] w-full items-center justify-between rounded-lg border border-border/80 bg-background px-3 py-2 text-left transition-colors hover:border-primary cursor-pointer"
+                  className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border/80 bg-background px-3 py-2 text-left transition-colors hover:border-primary cursor-pointer"
                 >
                   <div>
                     <div className="text-[10px] text-muted-foreground">
@@ -2810,11 +3331,11 @@ export function RelationshipGraphView({
                 </button>
               ) : selectedNodeData.node.isPresbyter ||
                 selectedNodeData.node.isPresbyterSpouse ? (
-                <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-primary font-medium">
+                <div className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-primary font-medium">
                   Prestação de contas e discipulado mútuo no Presbitério
                 </div>
               ) : (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive font-medium">
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive font-medium">
                   Sem discipulador definido — necessita vinculação
                 </div>
               )}
@@ -2835,13 +3356,13 @@ export function RelationshipGraphView({
               </div>
 
               {selectedNodeData.directDisciples.length > 0 ? (
-                <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                   {selectedNodeData.directDisciples.map((disc) => (
                     <button
                       key={disc.id}
                       type="button"
                       onClick={() => handleJumpToBrother(disc.id)}
-                      className="flex min-h-[40px] w-full items-center justify-between rounded-lg border border-border/70 bg-background px-2.5 py-1.5 text-left transition-colors hover:border-primary cursor-pointer"
+                      className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border/70 bg-background px-3 py-2 text-left transition-colors hover:border-primary cursor-pointer"
                     >
                       <div className="min-w-0">
                         <div className="truncate font-medium text-foreground">
@@ -2883,7 +3404,7 @@ export function RelationshipGraphView({
                       key={comp.id}
                       type="button"
                       onClick={() => handleJumpToBrother(comp.id)}
-                      className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-border/80 bg-background px-2.5 py-1 text-xs font-medium text-foreground hover:border-primary cursor-pointer"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary cursor-pointer"
                     >
                       <span>{comp.name}</span>
                       <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
@@ -2891,23 +3412,26 @@ export function RelationshipGraphView({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-700 dark:text-amber-300 font-medium">
+                <div className={`rounded-xl border px-3 py-2 font-medium ${GRAPH_UI_CLASSES.inspectorWarningBox}`}>
                   Sem companheiro de obra registrado
                 </div>
               )}
             </div>
 
-            {/* Seção 4: Vínculo Familiar */}
-            {(selectedNodeData.spouse || selectedNodeData.children.length > 0) && (
+            {/* Seção 4: Vínculo Familiar (Cônjuge, Pais e Filhos) */}
+            {(selectedNodeData.spouse ||
+              selectedNodeData.parents.length > 0 ||
+              selectedNodeData.children.length > 0) && (
               <div className="space-y-2 rounded-xl bg-muted/40 p-3 text-xs">
                 <span className="font-semibold text-foreground block">
                   4. Família na Comunhão
                 </span>
+
                 {selectedNodeData.spouse && (
                   <button
                     type="button"
                     onClick={() => handleJumpToBrother(selectedNodeData.spouse!.id)}
-                    className="flex min-h-[40px] w-full items-center justify-between rounded-lg border border-border/70 bg-background px-2.5 py-1.5 text-left hover:border-primary cursor-pointer"
+                    className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border/70 bg-background px-3 py-2 text-left hover:border-primary cursor-pointer"
                   >
                     <span>
                       <span className="text-muted-foreground">Cônjuge: </span>
@@ -2918,6 +3442,40 @@ export function RelationshipGraphView({
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </button>
                 )}
+
+                {selectedNodeData.parents.map((parent) => (
+                  <button
+                    key={parent.id}
+                    type="button"
+                    onClick={() => handleJumpToBrother(parent.id)}
+                    className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border/70 bg-background px-3 py-2 text-left hover:border-primary cursor-pointer"
+                  >
+                    <span>
+                      <span className="text-muted-foreground">
+                        {parent.gender === "F" ? "Mãe: " : "Pai: "}
+                      </span>
+                      <strong className="text-foreground">{parent.name}</strong>
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                ))}
+
+                {selectedNodeData.children.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => handleJumpToBrother(child.id)}
+                    className="flex min-h-[44px] w-full items-center justify-between rounded-xl border border-border/70 bg-background px-3 py-2 text-left hover:border-primary cursor-pointer"
+                  >
+                    <span>
+                      <span className="text-muted-foreground">
+                        {child.gender === "F" ? "Filha: " : "Filho: "}
+                      </span>
+                      <strong className="text-foreground">{child.name}</strong>
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                ))}
               </div>
             )}
 

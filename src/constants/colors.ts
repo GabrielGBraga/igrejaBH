@@ -192,6 +192,7 @@ export const RELATIONSHIP_NODE_COLORS: Record<
     light: { fill: string; stroke: string; text: string };
     dark: { fill: string; stroke: string; text: string };
     dotClass: string;
+    avatarClass: string;
   }
 > = {
   presbyter: {
@@ -199,37 +200,70 @@ export const RELATIONSHIP_NODE_COLORS: Record<
     light: { fill: "#5b21b6", stroke: "#4c1d95", text: "#ffffff" },
     dark: { fill: "#a78bfa", stroke: "#ddd6fe", text: "#09090b" },
     dotClass: "bg-violet-700 dark:bg-violet-400",
+    avatarClass:
+      "bg-violet-700 text-white dark:bg-violet-400 dark:text-zinc-950",
   },
   deacon: {
     label: "Diácono",
     light: { fill: "#b45309", stroke: "#78350f", text: "#ffffff" },
     dark: { fill: "#fbbf24", stroke: "#fde68a", text: "#09090b" },
     dotClass: "bg-amber-700 dark:bg-amber-400",
+    avatarClass: "bg-amber-700 text-white dark:bg-amber-400 dark:text-zinc-950",
   },
   leader: {
     label: "Discipulador de GC",
     light: { fill: "#15803d", stroke: "#14532d", text: "#ffffff" },
     dark: { fill: "#4ade80", stroke: "#bbf7d0", text: "#09090b" },
     dotClass: "bg-green-700 dark:bg-green-400",
+    avatarClass: "bg-green-700 text-white dark:bg-green-400 dark:text-zinc-950",
   },
   discipler: {
     label: "Discipulador",
     light: { fill: "#0369a1", stroke: "#0c4a6e", text: "#ffffff" },
     dark: { fill: "#38bdf8", stroke: "#bae6fd", text: "#09090b" },
     dotClass: "bg-sky-700 dark:bg-sky-400",
+    avatarClass: "bg-sky-700 text-white dark:bg-sky-400 dark:text-zinc-950",
   },
   disciple: {
     label: "Discípulo",
     light: { fill: "#f4f4f5", stroke: "#71717a", text: "#18181b" },
     dark: { fill: "#27272a", stroke: "#a1a1aa", text: "#fafafa" },
     dotClass: "bg-zinc-400 dark:bg-zinc-500",
+    avatarClass:
+      "bg-zinc-200 text-zinc-900 border border-zinc-400 dark:bg-zinc-800 dark:text-zinc-50 dark:border-zinc-600",
   },
   child: {
     label: "Criança",
     light: { fill: "#e0f2fe", stroke: "#0284c7", text: "#0c4a6e" },
     dark: { fill: "#082f49", stroke: "#38bdf8", text: "#e0f2fe" },
     dotClass: "bg-sky-300 dark:bg-sky-800",
+    avatarClass:
+      "bg-sky-100 text-sky-900 border border-sky-400 dark:bg-sky-950 dark:text-sky-100 dark:border-sky-700",
   },
+} as const;
+
+export const GRAPH_UI_CLASSES = {
+  layerToggleDisciplerActive:
+    "border-emerald-600/40 bg-emerald-500/15 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-500/15 dark:text-emerald-300",
+  layerToggleFellowshipActive:
+    "border-violet-600/40 bg-violet-500/15 text-violet-800 dark:border-violet-400/40 dark:bg-violet-500/15 dark:text-violet-300",
+  layerToggleMarriageActive:
+    "border-pink-600/40 bg-pink-500/15 text-pink-800 dark:border-pink-400/40 dark:bg-pink-500/15 dark:text-pink-300",
+  layerToggleChildActive:
+    "border-sky-600/40 bg-sky-500/15 text-sky-800 dark:border-sky-400/40 dark:bg-sky-500/15 dark:text-sky-300",
+  layerTogglePotentialActive:
+    "border-primary bg-primary/15 text-primary",
+  layerToggleInactive:
+    "border-border bg-muted/30 text-muted-foreground hover:text-foreground",
+  legendLineDiscipler: "bg-emerald-600 dark:bg-emerald-400",
+  legendLineFellowship:
+    "border-t-2 border-dashed border-violet-600 dark:border-violet-400",
+  legendLineMarriage:
+    "border-t-2 border-dotted border-pink-600 dark:border-pink-400",
+  kpiWarningActive: "border-amber-500 bg-amber-500/10",
+  kpiWarningIcon: "text-amber-600 dark:text-amber-400",
+  inspectorWarningBox:
+    "border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300",
 } as const;
 
 export const GRAPH_LINK_COLORS = {
@@ -303,6 +337,7 @@ export const GRAPH_COLORS = {
   nodes: RELATIONSHIP_NODE_COLORS,
   link: GRAPH_LINK_COLORS,
   canvas: GRAPH_CANVAS_COLORS,
+  ui: GRAPH_UI_CLASSES,
 } as const;
 
 // ==========================================
