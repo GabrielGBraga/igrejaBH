@@ -56,19 +56,14 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
         );
     }
 
-    let frontmatter: string[] = [];
     let markdownBody = content;
 
     const normalizedContent = content.replace(/\r\n/g, "\n");
+    // Strip technical YAML frontmatter header if present
     if (normalizedContent.startsWith("---")) {
         const secondDashIndex = normalizedContent.indexOf("\n---", 3);
         if (secondDashIndex !== -1) {
-            const fmPart = normalizedContent.slice(0, secondDashIndex + 4);
-            frontmatter = fmPart
-                .split("\n")
-                .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
-                .map((line) => line.trimEnd());
-            markdownBody = normalizedContent.slice(secondDashIndex + 4);
+            markdownBody = normalizedContent.slice(secondDashIndex + 4).trimStart();
         }
     }
 
@@ -98,20 +93,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
     }
 
     return (
-        <div className="space-y-4 text-foreground dark:text-zinc-300 leading-relaxed font-sans max-h-[65vh] overflow-y-auto pr-3 scrollbar-thin">
-            {frontmatter.length > 0 && (
-                <div className="bg-muted/40 border border-border/80 rounded-2xl p-4 mb-4 text-xs font-mono space-y-1.5 opacity-90">
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border/40 pb-1 mb-2 select-none">
-                        Propriedades / Metadados
-                    </div>
-                    {frontmatter.map((line, fIdx) => (
-                        <div key={fIdx} className="text-muted-foreground/90 dark:text-zinc-400">
-                            {line}
-                        </div>
-                    ))}
-                </div>
-            )}
-
+        <div className="space-y-4 text-foreground leading-relaxed font-sans max-h-[65vh] overflow-y-auto pr-3 scrollbar-thin">
             {processedLines.map((item, idx) => {
                 if (item.type === "blockquote") {
                     let isBibleQuote = false;
@@ -149,7 +131,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
                             {isBibleQuote && (
                                 <div className="flex items-center gap-1.5 text-primary font-semibold text-xs mb-2 not-italic select-none">
                                     <BookOpenIcon className="h-3.5 w-3.5" />
-                                    <span>Bíblia</span>
+                                    <span>Texto Bíblico</span>
                                 </div>
                             )}
                             <div className="space-y-1">
@@ -192,7 +174,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
                     return (
                         <p
                             key={idx}
-                            className="text-center text-muted-foreground dark:text-zinc-400 text-sm leading-relaxed"
+                            className="text-center text-muted-foreground text-sm leading-relaxed"
                         >
                             {parseInlineMarkdown(centerMatch[1])}
                         </p>
@@ -202,7 +184,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
                     return (
                         <p
                             key={idx}
-                            className="text-justify text-muted-foreground dark:text-zinc-400 text-sm leading-relaxed"
+                            className="text-justify text-muted-foreground text-sm leading-relaxed"
                         >
                             {parseInlineMarkdown(justifyMatch[1])}
                         </p>
@@ -327,7 +309,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
                 return (
                     <p
                         key={idx}
-                        className="text-muted-foreground dark:text-zinc-400 text-sm leading-relaxed"
+                        className="text-muted-foreground text-sm leading-relaxed"
                     >
                         {parseInlineMarkdown(line)}
                     </p>

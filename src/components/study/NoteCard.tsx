@@ -8,7 +8,6 @@ import {
     EyeIcon, 
     StickyNoteIcon 
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,20 +61,11 @@ export function NoteCard({
         }
     };
 
-    const getTypeBadgeClass = () => {
-        switch (note.typeLabel) {
-            case "Estudo": return "border-primary/30 text-primary bg-primary/5";
-            case "Vídeo": return "border-destructive/30 text-destructive bg-destructive/5";
-            case "PDF": return "border-red-500/30 text-red-500 bg-red-500/5";
-            case "Texto": return "border-amber-500/30 text-amber-600 dark:text-amber-500 bg-amber-500/5";
-        }
-    };
-
     return (
-        <Card className="flex flex-col justify-between overflow-hidden rounded-2xl border-border/60 bg-card/40 backdrop-blur-sm shadow-xs transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+        <Card className="flex flex-col justify-between overflow-hidden rounded-2xl border-border/70 bg-card/60 backdrop-blur-xs shadow-2xs card-hover-elevation transition-all duration-300">
             <CardHeader className="p-5 pb-3">
                 <div className="flex items-start justify-between gap-3 mb-2">
-                    <Badge variant="outline" className={cn("gap-1 font-semibold text-xs py-1 px-2.5 rounded-full", getTypeBadgeClass())}>
+                    <Badge variant="outline" className="gap-1 font-semibold text-xs py-1 px-2.5 rounded-full border-primary/20 bg-primary/10 text-primary">
                         {getTypeIcon()}
                         <span>{note.typeLabel}</span>
                     </Badge>
@@ -85,8 +75,9 @@ export function NoteCard({
                             variant="ghost"
                             size="icon"
                             onClick={onEdit}
-                            className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl cursor-pointer"
+                            className="btn-tactile active:scale-90 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl cursor-pointer"
                             title="Editar Anotação"
+                            aria-label="Editar Anotação"
                         >
                             <PencilIcon className="h-4 w-4" />
                         </Button>
@@ -94,8 +85,9 @@ export function NoteCard({
                             variant="ghost"
                             size="icon"
                             onClick={onDelete}
-                            className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl cursor-pointer"
+                            className="btn-tactile active:scale-90 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl cursor-pointer"
                             title="Excluir Anotação"
+                            aria-label="Excluir Anotação"
                         >
                             <Trash2Icon className="h-4 w-4" />
                         </Button>
@@ -129,7 +121,7 @@ export function NoteCard({
                             variant="ghost"
                             size="sm"
                             onClick={onOpenMaterial}
-                            className="min-h-[44px] text-xs gap-1 rounded-xl cursor-pointer hover:bg-primary/5 hover:text-primary"
+                            className="btn-tactile active:scale-95 min-h-[44px] text-xs gap-1 rounded-xl cursor-pointer hover:bg-primary/5 hover:text-primary"
                         >
                             <EyeIcon className="h-3.5 w-3.5" />
                             <span>Ver Material</span>
@@ -139,7 +131,7 @@ export function NoteCard({
                         variant="outline"
                         size="sm"
                         onClick={onEdit}
-                        className="min-h-[44px] text-xs gap-1.5 rounded-xl cursor-pointer border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
+                        className="btn-tactile active:scale-95 min-h-[44px] text-xs gap-1.5 rounded-xl cursor-pointer border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
                     >
                         <StickyNoteIcon className="h-3.5 w-3.5" />
                         <span>Editar</span>

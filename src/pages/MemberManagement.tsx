@@ -1331,11 +1331,15 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                     <option value="">Selecione o Discipulador...</option>
                                                     {members
                                                         .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id) && (!watchedGender || m.gender === watchedGender))
-                                                        .map(member => (
-                                                            <option key={member.id} value={member.id}>
-                                                                {member.full_name}
-                                                            </option>
-                                                        ))
+                                                        .map(member => {
+                                                            const group = member.home_group_id ? homeGroups.find(g => g.id === member.home_group_id) : null;
+                                                            const groupLabel = group ? getGroupLabel(group) : (member.home_groups?.location_text || null);
+                                                            return (
+                                                                <option key={member.id} value={member.id}>
+                                                                    {member.full_name}{groupLabel ? ` — ${groupLabel}` : ""}
+                                                                </option>
+                                                            );
+                                                        })
                                                     }
                                                 </select>
                                                 <FieldError errors={[fieldState.error]} />
@@ -1589,11 +1593,15 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <option value="">Selecione o Discipulador...</option>
                                                 {members
                                                     .filter(m => m.is_church_linked && (!linkingMember || m.id !== linkingMember.id))
-                                                    .map(member => (
-                                                        <option key={member.id} value={member.id}>
-                                                            {member.full_name}
-                                                        </option>
-                                                    ))
+                                                    .map(member => {
+                                                        const group = member.home_group_id ? homeGroups.find(g => g.id === member.home_group_id) : null;
+                                                        const groupLabel = group ? getGroupLabel(group) : (member.home_groups?.location_text || null);
+                                                        return (
+                                                            <option key={member.id} value={member.id}>
+                                                                {member.full_name}{groupLabel ? ` — ${groupLabel}` : ""}
+                                                            </option>
+                                                        );
+                                                    })
                                                 }
                                             </select>
                                             <FieldError errors={[fieldState.error]} />

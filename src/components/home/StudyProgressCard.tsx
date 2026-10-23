@@ -56,7 +56,7 @@ export function StudyProgressCard({ studyInfo, loading = false }: StudyProgressC
             asChild
             variant="ghost"
             size="sm"
-            className="h-8 gap-1 text-xs font-semibold text-primary hover:text-primary/90"
+            className="min-h-[44px] gap-1 text-xs font-semibold text-primary hover:text-primary/90"
           >
             <Link to="/ensinos">
               Ver todas as trilhas
@@ -99,7 +99,7 @@ export function StudyProgressCard({ studyInfo, loading = false }: StudyProgressC
 
             {studyInfo.nextStepTitle && (
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-semibold text-muted-foreground block">
                   Próxima Lição
                 </span>
                 <h4 className="text-sm font-semibold text-foreground leading-snug">
@@ -115,7 +115,7 @@ export function StudyProgressCard({ studyInfo, loading = false }: StudyProgressC
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/40">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 {percent === 100 ? (
-                  <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="flex items-center gap-1 font-semibold text-primary">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     Trilha Concluída!
                   </span>
@@ -127,7 +127,7 @@ export function StudyProgressCard({ studyInfo, loading = false }: StudyProgressC
               <Button
                 asChild
                 size="sm"
-                className="btn-tactile min-h-[44px] sm:min-h-[38px] justify-center gap-1.5 text-xs font-semibold shadow-xs"
+                className="btn-tactile min-h-[44px] justify-center gap-1.5 text-xs font-semibold shadow-xs"
               >
                 <Link to="/ensinos">
                   <Play className="h-3.5 w-3.5 fill-current" />

@@ -95,17 +95,14 @@ export function StudyLessonModal({
     useEffect(() => {
         const isOpen = Boolean(step);
         if (isOpen && !prevOpenRef.current) {
-            // First opening of modal: respect initialNotesOpen
             setIsSideBySideNotesOpen(initialNotesOpen);
             setMobileTab(initialNotesOpen ? "notes" : "content");
             prevInitialNotesOpenRef.current = initialNotesOpen;
         } else if (isOpen && initialNotesOpen !== prevInitialNotesOpenRef.current) {
-            // Explicit trigger to open or close notes from parent prop update
             setIsSideBySideNotesOpen(initialNotesOpen);
             setMobileTab(initialNotesOpen ? "notes" : "content");
             prevInitialNotesOpenRef.current = initialNotesOpen;
         } else if (!isOpen && prevOpenRef.current) {
-            // Modal closed
             setIsSideBySideNotesOpen(false);
             setMobileTab("content");
             prevInitialNotesOpenRef.current = false;
@@ -116,10 +113,9 @@ export function StudyLessonModal({
     if (!step) return null;
 
     const resObj = step.media_resource;
-    const isStudyStep = Boolean(step.id); // false if individual media preview
+    const isStudyStep = Boolean(step.id);
     const isStepCompleted = isStudyStep && userProgress.some((p) => p.step_id === step.id);
 
-    // Current step index and navigation targets
     const currentIndex = allStudySteps.findIndex((s) => s.id === step.id);
     const hasPrevious = currentIndex > 0;
     const hasNext = currentIndex >= 0 && currentIndex < allStudySteps.length - 1;
@@ -141,7 +137,7 @@ export function StudyLessonModal({
             if (ytId) {
                 return (
                     <div className="w-full shrink-0 flex justify-center">
-                        <div className="aspect-video w-full max-h-[58vh] max-w-[calc(58vh*16/9)] bg-black/95 rounded-2xl overflow-hidden shadow-sm border border-border/40">
+                        <div className="aspect-video w-full max-h-[58vh] max-w-[calc(58vh*16/9)] bg-black/95 rounded-2xl overflow-hidden shadow-2xs border border-border/40">
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -158,13 +154,13 @@ export function StudyLessonModal({
             }
             return (
                 <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 text-center">
-                    <YoutubeIcon className="h-10 w-10 sm:h-12 sm:w-12 text-destructive mb-3" />
+                    <YoutubeIcon className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-3" />
                     <h5 className="font-semibold text-sm sm:text-base mb-1">Vídeo Externo</h5>
                     <p className="text-xs text-muted-foreground max-w-sm mb-4">
                         Este vídeo está hospedado externamente.
                     </p>
                     <a href={resObj.url} target="_blank" rel="noopener noreferrer">
-                        <Button className="rounded-xl gap-2 min-h-[44px]">
+                        <Button className="btn-tactile rounded-xl gap-2 min-h-[44px]">
                             <PlayIcon className="h-4 w-4" />
                             Abrir no YouTube
                         </Button>
@@ -176,8 +172,8 @@ export function StudyLessonModal({
         if (resObj.type === "pdf") {
             return (
                 <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 sm:p-10 text-center min-h-[280px]">
-                    <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-3">
-                        <FileTextIcon className="h-8 w-8 text-red-500" />
+                    <div className="w-16 h-16 rounded-2xl border border-primary/20 bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                        <FileTextIcon className="h-8 w-8" />
                     </div>
                     <h5 className="font-bold text-base sm:text-lg mb-1 text-foreground">
                         Apostila / Documento PDF
@@ -187,7 +183,7 @@ export function StudyLessonModal({
                     </p>
                     <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto justify-center">
                         <a href={resObj.url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                            <Button className="rounded-xl gap-2 w-full px-5 min-h-[44px] shadow-xs cursor-pointer">
+                            <Button className="btn-tactile rounded-xl gap-2 w-full px-5 min-h-[44px] shadow-2xs cursor-pointer">
                                 <EyeIcon className="h-4 w-4" />
                                 Visualizar PDF
                             </Button>
@@ -237,8 +233,8 @@ export function StudyLessonModal({
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                                <Badge variant="secondary" className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5">
-                                    {resObj.type === "video" ? "Vídeo" : resObj.type === "pdf" ? "Apostila PDF" : "Leitura"}
+                                <Badge variant="secondary" className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground">
+                                    {resObj.type === "video" ? "Vídeo" : resObj.type === "pdf" ? "Apostila PDF" : "Texto Bíblico"}
                                 </Badge>
                                 {isStudyStep && (
                                     <span className="text-[11px] text-muted-foreground font-medium truncate max-w-[200px] sm:max-w-none">
@@ -246,7 +242,7 @@ export function StudyLessonModal({
                                     </span>
                                 )}
                                 {isStepCompleted && (
-                                    <Badge variant="outline" className="text-[10px] text-green-600 border-green-500/30 bg-green-500/10 font-semibold gap-1">
+                                    <Badge variant="outline" className="text-[10px] text-primary border-primary/30 bg-primary/10 font-semibold gap-1">
                                         <CheckIcon className="h-3 w-3 stroke-[3]" /> Concluída
                                     </Badge>
                                 )}
@@ -263,7 +259,6 @@ export function StudyLessonModal({
 
                         {/* Top Action Buttons */}
                         <div className="flex items-center gap-2 shrink-0">
-                            {/* The SINGLE Notes Toggle Button */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -297,7 +292,7 @@ export function StudyLessonModal({
                         </div>
                     </div>
 
-                    {/* Mobile Segmented Switcher (Visible on < lg screens only when notes are open) */}
+                    {/* Mobile Segmented Switcher */}
                     {isSideBySideNotesOpen && (
                         <div className="flex lg:hidden rounded-xl border border-border/60 bg-muted/30 p-1">
                             <button
@@ -339,7 +334,7 @@ export function StudyLessonModal({
                         ? "flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:overflow-hidden"
                         : "flex flex-col gap-4 sm:gap-6"
                 )}>
-                    {/* Media Column (Left) - PERSISTENT IN DOM, NEVER REMOUNTED */}
+                    {/* Media Column (Left) */}
                     <div className={cn(
                         "flex flex-col space-y-4 transition-all duration-300",
                         isSideBySideNotesOpen
@@ -351,7 +346,7 @@ export function StudyLessonModal({
 
                         {resObj.description && resObj.type !== "markdown" && (
                             <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 sm:p-5 text-xs sm:text-sm text-muted-foreground shrink-0">
-                                <p className="font-bold text-foreground mb-1 text-xs uppercase tracking-wider text-muted-foreground/80">Sobre esta ministração</p>
+                                <p className="font-bold text-foreground mb-1 text-xs text-muted-foreground/80">Sobre esta ministração</p>
                                 <p className="leading-relaxed text-foreground/90">{resObj.description}</p>
                             </div>
                         )}
@@ -389,7 +384,7 @@ export function StudyLessonModal({
                                         variant="outline"
                                         size="sm"
                                         onClick={() => onEditTextResource(resObj)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold text-amber-600 border-amber-600/20 hover:bg-amber-500/10 cursor-pointer"
+                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 hover:bg-muted cursor-pointer"
                                     >
                                         <PencilIcon className="h-3.5 w-3.5" />
                                         <span>Editar Texto</span>
@@ -403,10 +398,10 @@ export function StudyLessonModal({
                                         onClick={handleCompleteStep}
                                         disabled={isTogglingComplete}
                                         className={cn(
-                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer transition-all",
+                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-2xs cursor-pointer transition-all",
                                             isStepCompleted
-                                                ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/15"
-                                                : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                                ? "btn-tactile bg-primary text-primary-foreground"
+                                                : "btn-tactile"
                                         )}
                                     >
                                         {isStepCompleted ? (

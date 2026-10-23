@@ -141,9 +141,9 @@ export function CreateStudyModal({
 
     const getResourceIcon = (type: string) => {
         switch (type) {
-            case "video": return <YoutubeIcon className="h-3.5 w-3.5 text-destructive" />;
-            case "pdf": return <FileTextIcon className="h-3.5 w-3.5 text-red-500" />;
-            case "markdown": return <BookOpenIcon className="h-3.5 w-3.5 text-amber-500" />;
+            case "video": return <YoutubeIcon className="h-3.5 w-3.5 text-primary" />;
+            case "pdf": return <FileTextIcon className="h-3.5 w-3.5 text-primary" />;
+            case "markdown": return <BookOpenIcon className="h-3.5 w-3.5 text-primary" />;
             default: return <BookOpenIcon className="h-3.5 w-3.5 text-primary" />;
         }
     };
@@ -155,7 +155,7 @@ export function CreateStudyModal({
                     <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
                         {editingStudy ? "Editar Trilha de Estudo" : "Criar Nova Trilha de Estudo"}
                     </DialogTitle>
-                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {editingStudy
                             ? "Modifique o título, descrição ou a ordem dos recursos desta trilha."
                             : "Estruture um percurso formativo combinando vídeos, apostilas e leituras de forma sequencial."}
@@ -244,7 +244,7 @@ export function CreateStudyModal({
                                                     placeholder="Pesquisar por título..."
                                                     value={resourceSearch}
                                                     onChange={(e) => setResourceSearch(e.target.value)}
-                                                    className="h-8 text-xs pl-8 rounded-lg"
+                                                    className="h-9 text-xs pl-8 rounded-lg"
                                                 />
                                             </div>
                                         </div>
@@ -257,8 +257,8 @@ export function CreateStudyModal({
                                             if (dbVideos.length === 0) return null;
                                             return (
                                                 <>
-                                                    <div className="px-2 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-1">
-                                                        🎥 Vídeos do Acervo
+                                                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground mt-1">
+                                                        Vídeos do Acervo
                                                     </div>
                                                     {dbVideos.map((r) => (
                                                         <SelectItem key={r.id} value={r.id} disabled={selectedResources.some((s) => s.id === r.id)}>
@@ -277,8 +277,8 @@ export function CreateStudyModal({
                                             if (dbPDFs.length === 0) return null;
                                             return (
                                                 <>
-                                                    <div className="px-2 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-2 border-t border-border/40 pt-1.5">
-                                                        📄 Apostilas PDF
+                                                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground mt-2 border-t border-border/40 pt-1.5">
+                                                        Apostilas PDF
                                                     </div>
                                                     {dbPDFs.map((r) => (
                                                         <SelectItem key={r.id} value={r.id} disabled={selectedResources.some((s) => s.id === r.id)}>
@@ -297,8 +297,8 @@ export function CreateStudyModal({
                                             if (dbTextos.length === 0) return null;
                                             return (
                                                 <>
-                                                    <div className="px-2 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-2 border-t border-border/40 pt-1.5">
-                                                        📝 Textos e Leituras
+                                                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground mt-2 border-t border-border/40 pt-1.5">
+                                                        Textos e Leituras Bíblicas
                                                     </div>
                                                     {dbTextos.map((r) => (
                                                         <SelectItem key={r.id} value={r.id} disabled={selectedResources.some((s) => s.id === r.id)}>
@@ -317,18 +317,17 @@ export function CreateStudyModal({
                                             if (ytVideos.length === 0) return null;
                                             return (
                                                 <>
-                                                    <div className="px-2 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-2 border-t border-border/40 pt-1.5 flex items-center gap-1">
-                                                        <YoutubeIcon className="h-3.5 w-3.5 text-destructive" />
-                                                        Canal YouTube da Igreja
+                                                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground mt-2 border-t border-border/40 pt-1.5 flex items-center gap-1">
+                                                        Canal da Igreja no YouTube
                                                     </div>
                                                     {ytVideos.map((v) => (
                                                         <SelectItem
-                                                            key={v.id}
-                                                            value={`yt_${v.id}`}
-                                                            disabled={selectedResources.some((s) => s.url.includes(v.id))}
-                                                        >
-                                                            🔴 {v.title}
-                                                        </SelectItem>
+                                                             key={v.id}
+                                                             value={`yt_${v.id}`}
+                                                             disabled={selectedResources.some((s) => s.url.includes(v.id))}
+                                                         >
+                                                             {v.title}
+                                                         </SelectItem>
                                                     ))}
                                                 </>
                                             );
@@ -364,8 +363,9 @@ export function CreateStudyModal({
                                                     size="icon"
                                                     disabled={index === 0}
                                                     onClick={() => moveStep(index, "up")}
-                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-lg disabled:opacity-30 cursor-pointer min-h-[36px] min-w-[36px]"
+                                                    className="h-11 w-11 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground rounded-lg disabled:opacity-30 cursor-pointer"
                                                     title="Mover para cima"
+                                                    aria-label="Mover para cima"
                                                 >
                                                     <ArrowUpIcon className="h-4 w-4" />
                                                 </Button>
@@ -376,8 +376,9 @@ export function CreateStudyModal({
                                                     size="icon"
                                                     disabled={index === selectedResources.length - 1}
                                                     onClick={() => moveStep(index, "down")}
-                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-lg disabled:opacity-30 cursor-pointer min-h-[36px] min-w-[36px]"
+                                                    className="h-11 w-11 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground rounded-lg disabled:opacity-30 cursor-pointer"
                                                     title="Mover para baixo"
+                                                    aria-label="Mover para baixo"
                                                 >
                                                     <ArrowDownIcon className="h-4 w-4" />
                                                 </Button>
@@ -387,8 +388,9 @@ export function CreateStudyModal({
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => removeStep(index)}
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer min-h-[36px] min-w-[36px]"
+                                                    className="h-11 w-11 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
                                                     title="Remover etapa"
+                                                    aria-label="Remover etapa"
                                                 >
                                                     <Trash2Icon className="h-4 w-4" />
                                                 </Button>
@@ -417,7 +419,7 @@ export function CreateStudyModal({
                         <Button
                             type="submit"
                             disabled={selectedResources.length === 0 || isSubmitting}
-                            className="min-h-[44px] rounded-xl px-6 bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs sm:text-sm font-semibold shadow-sm cursor-pointer"
+                            className="btn-tactile min-h-[44px] rounded-xl px-6 text-xs sm:text-sm font-semibold shadow-2xs cursor-pointer"
                         >
                             {isSubmitting ? "Salvando Trilha..." : editingStudy ? "Salvar Alterações" : "Criar Trilha de Estudo"}
                         </Button>

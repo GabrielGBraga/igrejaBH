@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import {
   getHomeGroupDisplayName,
+  getHomeGroupFullLabel,
   getHomeGroupSearchKeywords,
 } from "@/lib/homeGroupUtils"
 import {
@@ -262,6 +263,12 @@ export function DiscipleEditorDialog({
     return map
   }, [allProfiles])
 
+  const homeGroupMap = useMemo(() => {
+    const map = new Map<string, (typeof homeGroups)[0]>()
+    homeGroups.forEach((hg) => map.set(hg.id, hg))
+    return map
+  }, [homeGroups])
+
   const leaderIds = useMemo(() => {
     const set = new Set<string>()
     homeGroups.forEach((g) => {
@@ -285,19 +292,24 @@ export function DiscipleEditorDialog({
     })
   }, [homeGroups, profileMap])
 
-  // Opções de Discipulador
+  // Opções de Discipulador (exibindo o grupo caseiro no lugar do telefone/número)
   const disciplerOptions = useMemo(() => {
     return [
       { value: "none", label: "Nenhum no momento", keywords: "nenhum sem discipulador" },
-      ...availableDisciplers.map((p) => ({
-        value: p.id,
-        label: p.full_name,
-        description: p.phone ? formatPhone(p.phone) : undefined,
-        badge: p.is_presbyter ? "Presbítero" : leaderIds.has(p.id) ? "Líder de GC" : undefined,
-        keywords: p.phone || "",
-      })),
+      ...availableDisciplers.map((p) => {
+        const hg = p.home_group_id ? homeGroupMap.get(p.home_group_id) : undefined
+        const hgLabel = hg ? getHomeGroupFullLabel(hg, profileMap) : "Sem Grupo Caseiro"
+        const hgKeywords = hg ? getHomeGroupSearchKeywords(hg, profileMap) : "sem grupo caseiro"
+        return {
+          value: p.id,
+          label: p.full_name,
+          description: hgLabel,
+          badge: p.is_presbyter ? "Presbítero" : leaderIds.has(p.id) ? "Líder de GC" : undefined,
+          keywords: `${hgLabel} ${hgKeywords} ${p.phone || ""}`.trim(),
+        }
+      }),
     ]
-  }, [availableDisciplers, leaderIds])
+  }, [availableDisciplers, leaderIds, homeGroupMap, profileMap])
 
   // Opções de Cônjuge
   const spouseOptions = useMemo(() => {
@@ -796,6 +808,18 @@ export function DiscipleEditorDialog({
                       placeholder={gender === "M" ? "Buscar discipulador pelo nome..." : "Buscar discipuladora pelo nome..."}
                       clearable={true}
                     />
+                    {disciplerId && disciplerId !== "none" && (() => {
+                      const dProf = profileMap.get(disciplerId)
+                      if (!dProf) return null
+                      const dHg = dProf.home_group_id ? homeGroupMap.get(dProf.home_group_id) : undefined
+                      const dHgName = dHg ? getHomeGroupFullLabel(dHg, profileMap) : "Sem Grupo Caseiro"
+                      return (
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                          <span className="font-medium text-foreground/80">Grupo Caseiro:</span>
+                          <span className="text-muted-foreground truncate">{dHgName}</span>
+                        </p>
+                      )
+                    })()}
                   </div>
 
                   {/* Cônjuge (somente gênero oposto) */}

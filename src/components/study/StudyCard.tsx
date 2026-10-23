@@ -49,7 +49,7 @@ export function StudyCard({
     const getStatusBadge = () => {
         if (isCompleted) {
             return (
-                <Badge variant="outline" className="gap-1 border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400 text-[11px] font-semibold">
+                <Badge variant="outline" className="gap-1 border-primary/30 bg-primary/10 text-primary text-[11px] font-semibold">
                     <CheckCircle2Icon className="h-3 w-3" />
                     Concluído
                 </Badge>
@@ -73,13 +73,13 @@ export function StudyCard({
     return (
         <Card
             onClick={onClick}
-            className="group flex flex-col justify-between overflow-hidden rounded-2xl border-border/60 bg-card/40 backdrop-blur-sm shadow-xs transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 cursor-pointer relative"
+            className="group flex flex-col justify-between overflow-hidden rounded-2xl border-border/70 bg-card/60 backdrop-blur-xs shadow-2xs card-hover-elevation transition-all duration-300 hover:border-primary/50 cursor-pointer relative active:scale-[0.99]"
         >
             <CardHeader className="p-5 pb-3">
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-1.5">
                         {getStatusBadge()}
-                        <Badge variant="secondary" className="gap-1 text-[11px] font-medium bg-muted/50 text-muted-foreground border-transparent">
+                        <Badge variant="secondary" className="gap-1 text-[11px] font-medium bg-muted/60 text-muted-foreground border-transparent">
                             <LayersIcon className="h-3 w-3" />
                             {totalSteps} {totalSteps === 1 ? "etapa" : "etapas"}
                         </Badge>
@@ -91,12 +91,13 @@ export function StudyCard({
                             size="icon"
                             onClick={onOpenNote}
                             className={cn(
-                                "min-h-[44px] min-w-[44px] rounded-xl transition-all cursor-pointer",
+                                "btn-tactile min-h-[44px] min-w-[44px] rounded-xl transition-all cursor-pointer active:scale-90",
                                 studyNote
                                     ? "text-primary bg-primary/10 hover:bg-primary/20"
                                     : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                             )}
                             title={studyNote ? "Ver reflexões deste estudo" : "Fazer anotações neste estudo"}
+                            aria-label={studyNote ? "Ver reflexões deste estudo" : "Fazer anotações neste estudo"}
                         >
                             <StickyNoteIcon className="h-4 w-4" />
                         </Button>
@@ -107,8 +108,9 @@ export function StudyCard({
                                     variant="ghost"
                                     size="icon"
                                     onClick={onEdit}
-                                    className="min-h-[44px] min-w-[44px] rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                                    className="btn-tactile min-h-[44px] min-w-[44px] rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer active:scale-90"
                                     title="Editar Trilha"
+                                    aria-label="Editar Trilha"
                                 >
                                     <PencilIcon className="h-4 w-4" />
                                 </Button>
@@ -116,8 +118,9 @@ export function StudyCard({
                                     variant="ghost"
                                     size="icon"
                                     onClick={onDelete}
-                                    className="min-h-[44px] min-w-[44px] rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                    className="btn-tactile min-h-[44px] min-w-[44px] rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer active:scale-90"
                                     title="Excluir Trilha"
+                                    aria-label="Excluir Trilha"
                                 >
                                     <Trash2Icon className="h-4 w-4" />
                                 </Button>
@@ -126,7 +129,7 @@ export function StudyCard({
                     </div>
                 </div>
 
-                <CardTitle className="mt-2 text-base font-bold text-foreground transition-colors group-hover:text-primary sm:text-lg leading-snug">
+                <CardTitle className="mt-2 text-base font-bold text-foreground transition-colors duration-200 group-hover:text-primary sm:text-lg leading-snug">
                     {study.title}
                 </CardTitle>
 
@@ -136,39 +139,31 @@ export function StudyCard({
             </CardHeader>
 
             <CardContent className="px-5 py-2">
-                <div className="space-y-1.5 rounded-xl border border-border/40 bg-muted/20 p-3">
+                <div className="space-y-1.5 rounded-xl border border-border/40 bg-muted/20 p-3 transition-colors duration-200 group-hover:border-primary/20">
                     <div className="flex justify-between text-xs">
                         <span className="text-muted-foreground font-medium">
                             {completedSteps} de {totalSteps} {totalSteps === 1 ? "etapa concluída" : "etapas concluídas"}
                         </span>
                         <div className="flex items-center gap-1.5 font-bold">
                             {studyNote && (
-                                <span className="text-[10px] text-primary flex items-center gap-0.5">
+                                <span className="text-[10px] text-primary flex items-center gap-0.5 animate-in fade-in duration-200">
                                     <StickyNoteIcon className="h-3 w-3" /> Anotado
                                 </span>
                             )}
                             <span className="text-foreground">{percent}%</span>
                         </div>
                     </div>
-                    <Progress value={percent} className="h-2 bg-muted/70" />
+                    <Progress value={percent} className="h-2 bg-muted/70 transition-all duration-500 ease-out" />
                 </div>
             </CardContent>
 
             <CardFooter className="p-5 pt-3 border-t border-border/40">
-                <Button
-                    variant={isCompleted ? "outline" : "default"}
-                    className={cn(
-                        "w-full min-h-[44px] gap-2 rounded-xl text-xs font-semibold transition-all cursor-pointer",
-                        isCompleted
-                            ? "border-border/60 hover:bg-primary hover:text-primary-foreground"
-                            : "bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                    )}
-                >
+                <div className="flex w-full items-center justify-between text-xs font-semibold text-primary transition-colors group-hover:text-primary/90">
                     <span>
                         {isCompleted ? "Revisar Trilha" : isStarted ? "Continuar Trilha" : "Iniciar Trilha"}
                     </span>
-                    <ChevronRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+                    <ChevronRightIcon className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1.5" />
+                </div>
             </CardFooter>
         </Card>
     );
