@@ -54,6 +54,58 @@ export function SearchableSelect({
 
   const inputRef = React.useRef<HTMLInputElement | null>(null)
   const listRef = React.useRef<HTMLDivElement | null>(null)
+  const triggerRef = React.useRef<HTMLDivElement | null>(null)
+  const contentNodeRef = React.useRef<HTMLDivElement | null>(null)
+
+  // Manipulador nativo de rolagem para o seletor embutido:
+  // Garante que o scroll aconteça somente quando o mouse estiver sobre o seletor,
+  // impedindo que o react-remove-scroll do Radix Dialog cancele a rolagem e evitando que o modal pai role junto.
+  const handleWheel = React.useCallback((e: WheelEvent) => {
+    e.stopPropagation()
+
+    const list = listRef.current
+    if (!list) return
+
+    let delta = e.deltaY
+    if (e.deltaMode === 1) {
+      delta *= 24 // linhas (Firefox)
+    } else if (e.deltaMode === 2) {
+      delta *= 200 // páginas
+    }
+
+    list.scrollTop += delta
+    e.preventDefault()
+  }, [])
+
+  const handleTouchMove = React.useCallback((e: TouchEvent) => {
+    e.stopPropagation()
+  }, [])
+
+  const setContentRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (contentNodeRef.current) {
+        contentNodeRef.current.removeEventListener("wheel", handleWheel)
+        contentNodeRef.current.removeEventListener("touchmove", handleTouchMove)
+      }
+      contentNodeRef.current = node
+      if (node) {
+        node.addEventListener("wheel", handleWheel, { passive: false })
+        node.addEventListener("touchmove", handleTouchMove, { passive: true })
+      }
+    },
+    [handleWheel, handleTouchMove]
+  )
+
+  // Quando o seletor está aberto, rolar com o mouse sobre o próprio input/trigger também rola a lista de opções
+  React.useEffect(() => {
+    const triggerEl = triggerRef.current
+    if (!triggerEl || !open) return
+
+    triggerEl.addEventListener("wheel", handleWheel, { passive: false })
+    return () => {
+      triggerEl.removeEventListener("wheel", handleWheel)
+    }
+  }, [open, handleWheel])
 
   // Opção atualmente selecionada
   const selectedOption = React.useMemo(() => {
@@ -189,6 +241,7 @@ export function SearchableSelect({
       >
         <PopoverAnchor asChild>
           <div
+            ref={triggerRef}
             className={cn(
               "group relative flex h-11 min-h-[44px] w-full items-center rounded-xl border border-input bg-background px-3 transition-colors",
               "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30",
@@ -259,74 +312,76 @@ export function SearchableSelect({
           onCloseAutoFocus={(e) => e.preventDefault()}
           className="z-100 w-[var(--radix-popover-trigger-width)] min-w-[min(280px,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] p-1.5 rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-xl backdrop-blur-md overflow-hidden"
         >
-          {/* Contador de opções quando filtrando */}
-          {isTyping && typedQuery.trim() && (
-            <div className="px-2.5 py-1 text-[11px] font-medium text-muted-foreground border-b border-border/50 mb-1 flex items-center justify-between">
-              <span>Buscando por &ldquo;{typedQuery}&rdquo;</span>
-              <span>{filteredOptions.length} resultado(s)</span>
-            </div>
-          )}
-
-          <div
-            ref={listRef}
-            className="no-scrollbar max-h-60 overflow-y-auto space-y-0.5"
-          >
-            {filteredOptions.length === 0 ? (
-              <div className="py-6 px-3 text-center text-xs text-muted-foreground">
-                <Search className="mx-auto h-5 w-5 mb-1.5 opacity-40" />
-                <p>{emptyMessage}</p>
-                <p className="text-[10px] opacity-75 mt-0.5">
-                  Tente digitar outro termo ou verifique a ortografia.
-                </p>
+          <div ref={setContentRef} className="w-full flex flex-col">
+            {/* Contador de opções quando filtrando */}
+            {isTyping && typedQuery.trim() && (
+              <div className="px-2.5 py-1 text-[11px] font-medium text-muted-foreground border-b border-border/50 mb-1 flex items-center justify-between shrink-0">
+                <span>Buscando por &ldquo;{typedQuery}&rdquo;</span>
+                <span>{filteredOptions.length} resultado(s)</span>
               </div>
-            ) : (
-              filteredOptions.map((opt, index) => {
-                const isSelected = value === opt.value
-                const isHighlighted = highlightedIndex === index
+            )}
 
-                return (
-                  <div
-                    key={opt.value}
-                    onMouseDown={(e) => {
-                      // Evita que o input perca o foco antes do clique registrar
-                      e.preventDefault()
-                    }}
-                    onClick={() => handleSelect(opt)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    className={cn(
-                      "relative flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs sm:text-sm transition-colors",
-                      isHighlighted
-                        ? "bg-accent text-accent-foreground"
-                        : "hover:bg-muted/60 text-foreground",
-                      isSelected && "font-medium bg-primary/10 text-primary hover:bg-primary/15"
-                    )}
-                  >
-                    <div className="flex flex-col min-w-0 pr-2">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate">{opt.label}</span>
-                        {opt.badge && (
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-1.5 py-0 font-normal shrink-0 border-primary/30 bg-primary/10 text-primary"
-                          >
-                            {opt.badge}
-                          </Badge>
+            <div
+              ref={listRef}
+              className="selector-scrollbar max-h-60 overflow-y-auto overscroll-contain pr-1.5 space-y-0.5"
+            >
+              {filteredOptions.length === 0 ? (
+                <div className="py-6 px-3 text-center text-xs text-muted-foreground">
+                  <Search className="mx-auto h-5 w-5 mb-1.5 opacity-40" />
+                  <p>{emptyMessage}</p>
+                  <p className="text-[10px] opacity-75 mt-0.5">
+                    Tente digitar outro termo ou verifique a ortografia.
+                  </p>
+                </div>
+              ) : (
+                filteredOptions.map((opt, index) => {
+                  const isSelected = value === opt.value
+                  const isHighlighted = highlightedIndex === index
+
+                  return (
+                    <div
+                      key={opt.value}
+                      onMouseDown={(e) => {
+                        // Evita que o input perca o foco antes do clique registrar
+                        e.preventDefault()
+                      }}
+                      onClick={() => handleSelect(opt)}
+                      onMouseEnter={() => setHighlightedIndex(index)}
+                      className={cn(
+                        "relative flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs sm:text-sm transition-colors",
+                        isHighlighted
+                          ? "bg-accent text-accent-foreground"
+                          : "hover:bg-muted/60 text-foreground",
+                        isSelected && "font-medium bg-primary/10 text-primary hover:bg-primary/15"
+                      )}
+                    >
+                      <div className="flex flex-col min-w-0 pr-2">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate">{opt.label}</span>
+                          {opt.badge && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0 font-normal shrink-0 border-primary/30 bg-primary/10 text-primary"
+                            >
+                              {opt.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        {opt.description && (
+                          <span className="text-[11px] text-muted-foreground truncate mt-0.5">
+                            {opt.description}
+                          </span>
                         )}
                       </div>
-                      {opt.description && (
-                        <span className="text-[11px] text-muted-foreground truncate mt-0.5">
-                          {opt.description}
-                        </span>
+
+                      {isSelected && (
+                        <Check className="h-4 w-4 shrink-0 text-primary ml-2" />
                       )}
                     </div>
-
-                    {isSelected && (
-                      <Check className="h-4 w-4 shrink-0 text-primary ml-2" />
-                    )}
-                  </div>
-                )
-              })
-            )}
+                  )
+                })
+              )}
+            </div>
           </div>
         </PopoverContent>
       </Popover>
