@@ -154,6 +154,14 @@ export type GraphNodeRole =
   | "visitante"
   | "inativo";
 
+export type RelationshipNodeRole =
+  | "presbyter"
+  | "deacon"
+  | "leader"
+  | "discipler"
+  | "disciple"
+  | "child";
+
 export const GRAPH_NODE_COLORS = {
   discipulador: {
     light: { stroke: "#e11d48", fill: "rgba(225, 29, 72, 0.12)" },
@@ -177,15 +185,124 @@ export const GRAPH_NODE_COLORS = {
   },
 } as const;
 
+export const RELATIONSHIP_NODE_COLORS: Record<
+  RelationshipNodeRole,
+  {
+    label: string;
+    light: { fill: string; stroke: string; text: string };
+    dark: { fill: string; stroke: string; text: string };
+    dotClass: string;
+  }
+> = {
+  presbyter: {
+    label: "Presbítero",
+    light: { fill: "#5b21b6", stroke: "#4c1d95", text: "#ffffff" },
+    dark: { fill: "#a78bfa", stroke: "#ddd6fe", text: "#09090b" },
+    dotClass: "bg-violet-700 dark:bg-violet-400",
+  },
+  deacon: {
+    label: "Diácono",
+    light: { fill: "#b45309", stroke: "#78350f", text: "#ffffff" },
+    dark: { fill: "#fbbf24", stroke: "#fde68a", text: "#09090b" },
+    dotClass: "bg-amber-700 dark:bg-amber-400",
+  },
+  leader: {
+    label: "Discipulador de GC",
+    light: { fill: "#15803d", stroke: "#14532d", text: "#ffffff" },
+    dark: { fill: "#4ade80", stroke: "#bbf7d0", text: "#09090b" },
+    dotClass: "bg-green-700 dark:bg-green-400",
+  },
+  discipler: {
+    label: "Discipulador",
+    light: { fill: "#0369a1", stroke: "#0c4a6e", text: "#ffffff" },
+    dark: { fill: "#38bdf8", stroke: "#bae6fd", text: "#09090b" },
+    dotClass: "bg-sky-700 dark:bg-sky-400",
+  },
+  disciple: {
+    label: "Discípulo",
+    light: { fill: "#f4f4f5", stroke: "#71717a", text: "#18181b" },
+    dark: { fill: "#27272a", stroke: "#a1a1aa", text: "#fafafa" },
+    dotClass: "bg-zinc-400 dark:bg-zinc-500",
+  },
+  child: {
+    label: "Criança",
+    light: { fill: "#e0f2fe", stroke: "#0284c7", text: "#0c4a6e" },
+    dark: { fill: "#082f49", stroke: "#38bdf8", text: "#e0f2fe" },
+    dotClass: "bg-sky-300 dark:bg-sky-800",
+  },
+} as const;
+
 export const GRAPH_LINK_COLORS = {
-  default: { light: "#e4e4e7", dark: "#27272a" },
+  default: { light: "#94a3b8", dark: "#52525b" },
   active: { light: "#6366f1", dark: "#818cf8" },
-  arrow: { light: "#a1a1aa", dark: "#71717a" },
+  arrow: { light: "#64748b", dark: "#71717a" },
+  discipler: {
+    default: { light: "#94a3b8", dark: "#52525b" },
+    highlighted: { light: "#15803d", dark: "#4ade80" },
+  },
+  fellowship: {
+    default: { light: "#a78bfa", dark: "#7c3aed" },
+    highlighted: { light: "#6d28d9", dark: "#c084fc" },
+  },
+  marriage: {
+    default: { light: "#f472b6", dark: "#be185d" },
+    highlighted: { light: "#db2777", dark: "#f472b6" },
+  },
+  parent: {
+    default: { light: "#cbd5e1", dark: "#3f3f46" },
+    highlighted: { light: "#0369a1", dark: "#38bdf8" },
+  },
+} as const;
+
+export const GRAPH_CANVAS_COLORS = {
+  background: { light: "#fafafa", dark: "#09090b" },
+  gridDot: {
+    light: "rgba(161, 161, 170, 0.25)",
+    dark: "rgba(82, 82, 91, 0.3)",
+  },
+  clusterFill: {
+    light: "rgba(244, 244, 245, 0.7)",
+    dark: "rgba(24, 24, 27, 0.7)",
+  },
+  clusterStroke: { light: "#d4d4d8", dark: "#27272a" },
+  clusterHeaderBg: {
+    light: "rgba(255, 255, 255, 0.92)",
+    dark: "rgba(24, 24, 27, 0.92)",
+  },
+  clusterTitle: { light: "#18181b", dark: "#f4f4f5" },
+  clusterSubtitle: { light: "#52525b", dark: "#a1a1aa" },
+  warningZoneFill: {
+    light: "rgba(217, 119, 6, 0.06)",
+    dark: "rgba(245, 158, 11, 0.08)",
+  },
+  warningZoneStroke: {
+    light: "rgba(217, 119, 6, 0.4)",
+    dark: "rgba(245, 158, 11, 0.45)",
+  },
+  labelBg: {
+    light: "rgba(255, 255, 255, 0.92)",
+    dark: "rgba(9, 9, 11, 0.9)",
+  },
+  labelBorder: {
+    light: "rgba(212, 212, 216, 0.8)",
+    dark: "rgba(63, 63, 70, 0.8)",
+  },
+  labelBgSelected: { light: "#18181b", dark: "#fafafa" },
+  labelText: { light: "#18181b", dark: "#f4f4f5" },
+  labelTextSelected: { light: "#fafafa", dark: "#09090b" },
+  selectionRing: { light: "#2563eb", dark: "#60a5fa" },
+  searchMatchRing: { light: "#d97706", dark: "#fbbf24" },
+  alertNoDiscipler: { light: "#dc2626", dark: "#f87171" },
+  alertNoFellowship: { light: "#d97706", dark: "#fbbf24" },
+  countBadgeBg: { light: "#18181b", dark: "#f4f4f5" },
+  countBadgeText: { light: "#fafafa", dark: "#09090b" },
 } as const;
 
 export const GRAPH_COLORS = {
   ...GRAPH_NODE_COLORS,
+  nodes: RELATIONSHIP_NODE_COLORS,
   link: GRAPH_LINK_COLORS,
+  canvas: GRAPH_CANVAS_COLORS,
 } as const;
 
 // ==========================================
