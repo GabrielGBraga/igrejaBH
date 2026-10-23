@@ -1,6 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "@/lib/supabase";
+import {
+  isRestrictedGroupMode,
+  enableRestrictedGroupMode,
+  disableRestrictedGroupMode,
+} from "./lib/restrictedMode";
+import { RestrictedGroupLayout } from "./components/layout/RestrictedGroupLayout";
 import { Loader2 } from "lucide-react";
 import Landing from "./pages/Landing.tsx";
 import QueroSaberMais from "./pages/QueroSaberMais.tsx";
@@ -56,6 +62,45 @@ const PermissionGuard = ({
   </ProtectedRoute>
 )
 
+// Global guard: ensures that users in restricted group mode cannot escape to other pages
+function RestrictedModeGuard({ children }: { children: ReactNode }) {
+  const location = useLocation()
+  const isRestrictedTarget =
+    location.pathname === "/meu-grupo" ||
+    location.pathname === "/gestao-grupo"
+
+  if (isRestrictedTarget) {
+    enableRestrictedGroupMode()
+  }
+
+  const restricted = isRestrictedGroupMode()
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        disableRestrictedGroupMode()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (restricted) {
+    const isAllowedPath =
+      location.pathname === "/meu-grupo" ||
+      location.pathname === "/gestao-grupo" ||
+      location.pathname === "/entrar" ||
+      location.pathname === "/login"
+
+    if (!isAllowedPath) {
+      return <Navigate to="/meu-grupo" replace />
+    }
+  }
+
+  return <>{children}</>
+}
+
 // Root route dispatcher: landing page for unlogged users, dashboard for authenticated users
 function RootRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -92,7 +137,14 @@ function RootRoute() {
   }
 
   if (isAuthenticated) {
+    if (isRestrictedGroupMode()) {
+      return <Navigate to="/meu-grupo" replace />
+    }
     return <Navigate to="/dashboard" replace />
+  }
+
+  if (isRestrictedGroupMode()) {
+    return <Navigate to="/meu-grupo" replace />
   }
 
   return <Landing />
@@ -134,6 +186,10 @@ function EnsinosRoute() {
     )
   }
 
+  if (isRestrictedGroupMode()) {
+    return <Navigate to="/meu-grupo" replace />
+  }
+
   if (isAuthenticated) {
     return (
       <Layout>
@@ -156,55 +212,71 @@ function EnsinosRoute() {
 function App() {
   return (
     <BrowserRouter>
-      <Toaster />
-      <Routes>
-        <Route path="/" element={<RootRoute />} />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/quero-saber-mais" element={<QueroSaberMais />} />
-        <Route path="/quero-conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
-        <Route path="/conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
-        <Route path="/ensinos" element={<EnsinosRoute />} />
-        <Route path="/entrar" element={<SignIn />} />
-        <Route path="/cadastro" element={<SignUp />} />
-        <Route path="/formularios/responder/:formId" element={<FormResponder />} />
-        <Route path="/formularios/:formId" element={<FormResponder />} />
+      <RestrictedModeGuard>
+        <Toaster />
+        <Routes>
+          <Route path="/" element={<RootRoute />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/quero-saber-mais" element={<QueroSaberMais />} />
+          <Route path="/quero-conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
+          <Route path="/conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
+          <Route path="/ensinos" element={<EnsinosRoute />} />
+          <Route path="/entrar" element={<SignIn />} />
+          <Route path="/login" element={<Navigate to="/entrar" replace />} />
+          <Route path="/cadastro" element={<SignUp />} />
+          <Route path="/formularios/responder/:formId" element={<FormResponder />} />
+          <Route path="/formularios/:formId" element={<FormResponder />} />
 
-        {/* Protected Routes inside shared Layout */}
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Home />} />
-          <Route path="/noticias/nova" element={<CreatePost />} />
-          <Route path="/perfil" element={<Profile />} />
-          <Route path="/eventos" element={<Events />} />
-          <Route path="/mensagens" element={<Messages />} />
+          {/* Rota do Modo Link Exclusivo do Grupo */}
+          <Route
+            path="/meu-grupo"
+            element={
+              <ProtectedRoute>
+                <RestrictedGroupLayout>
+                  <RedeRelacionamentos singleGroupMode={true} />
+                </RestrictedGroupLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/gestao-grupo" element={<Navigate to="/meu-grupo" replace />} />
 
-          <Route path="/grupos-caseiros" element={
-            <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>
-          } />
-          
-          <Route path="/gestao/vinculados" element={<Navigate to="/gestao/grafo" replace />} />
-          
-          <Route path="/gestao/grafo" element={
-            <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
-          } />
-          
-          <Route path="/manage-events" element={
-            <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
-          } />
-          
-          <Route path="/manage-events/:eventId" element={
-            <PermissionGuard requireManagement><ManageEventDetail /></PermissionGuard>
-          } />
+          {/* Protected Routes inside shared Layout */}
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<Home />} />
+            <Route path="/noticias/nova" element={<CreatePost />} />
+            <Route path="/perfil" element={<Profile />} />
+            <Route path="/eventos" element={<Events />} />
+            <Route path="/mensagens" element={<Messages />} />
 
-          <Route path="/gestao/eventos" element={<Navigate to="/manage-events" replace />} />
-          <Route path="/gestao/eventos/:eventId" element={<Navigate to="/manage-events" replace />} />
-          
-          <Route path="/gestao/formularios" element={
-            <PermissionGuard requireCanPost><FormBuilder /></PermissionGuard>
-          } />
-        </Route>
+            <Route path="/grupos-caseiros" element={
+              <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>
+            } />
+            
+            <Route path="/gestao" element={
+              <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
+            } />
+            <Route path="/gestao/vinculados" element={<Navigate to="/gestao" replace />} />
+            <Route path="/gestao/grafo" element={<Navigate to="/gestao" replace />} />
+            
+            <Route path="/manage-events" element={
+              <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
+            } />
+            
+            <Route path="/manage-events/:eventId" element={
+              <PermissionGuard requireManagement><ManageEventDetail /></PermissionGuard>
+            } />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            <Route path="/gestao/eventos" element={<Navigate to="/manage-events" replace />} />
+            <Route path="/gestao/eventos/:eventId" element={<Navigate to="/manage-events" replace />} />
+            
+            <Route path="/gestao/formularios" element={
+              <PermissionGuard requireCanPost><FormBuilder /></PermissionGuard>
+            } />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </RestrictedModeGuard>
     </BrowserRouter>
   )
 }

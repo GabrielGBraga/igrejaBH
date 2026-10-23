@@ -1,40 +1,55 @@
-import { CatequeseDiaria } from "@/components/study/CatequeseDiaria"
+import { Link } from "react-router-dom"
+import { ArrowRight, BookOpen } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { LandingLandscapeCarousel } from "@/components/landing/LandingLandscapeCarousel"
+import { LandingCatequeseQuote } from "@/components/landing/LandingCatequeseQuote"
 
 export function LandingHero() {
   return (
-    <section className="relative w-full border-b border-border/40 pb-12 pt-0 sm:pb-16">
-      {/* 1. Panoramic Banner of Belo Horizonte */}
-      <div className="w-full relative overflow-hidden h-[240px] sm:h-[320px] md:h-[400px] lg:h-[460px]">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Belo_Horizonte_view_081610.jpg/1920px-Belo_Horizonte_view_081610.jpg"
-          alt="Vista panorâmica da cidade de Belo Horizonte com a Serra do Curral ao fundo"
-          className="w-full h-full object-cover object-center"
-          loading="eager"
-        />
-        {/* Subtle gradient vignette to blend into content */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-black/30" />
-      </div>
+    <section className="relative w-full border-b border-border/40 pt-0 pb-12 sm:pb-16">
+      {/* 1. Panoramic Carousel of Belo Horizonte Landscapes */}
+      <LandingLandscapeCarousel />
 
       {/* 2. Hero Content Container */}
-      <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8 mt-8 sm:mt-12 animate-section-enter">
-        {/* Main Title */}
+      <div className="animate-section-enter mx-auto mt-6 max-w-4xl px-4 text-center sm:mt-8 md:mt-10 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-          Discípulos de Jesus em Belo Horizonte
+          Igreja em Belo Horizonte
         </h1>
 
-        {/* Biblical mandate subtitle */}
-        <p className="mx-auto mt-3 max-w-2xl text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
-          Atendendo a ordem do nosso mestre:{" "}
-          <span className="italic text-foreground/90 font-serif">
-            &ldquo;Ide e fazei discípulos de todas as nações...&rdquo; (Mt 28:19)
-          </span>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Discípulos de Jesus reunidos de casa em casa e nas ruas da cidade, buscando viver como família à semelhança de Cristo.
         </p>
 
-        {/* 3. Real Interactive Catequese Diária Component */}
-        <div className="mt-8 text-left">
-          <CatequeseDiaria className="w-full max-w-3xl mx-auto shadow-sm" />
+        {/* Primary Relational Actions */}
+        <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button
+            asChild
+            size="lg"
+            className="min-h-[44px] w-full rounded-full px-7 text-sm font-semibold sm:w-auto"
+          >
+            <Link to="/quero-saber-mais">
+              Caminhe Conosco
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="min-h-[44px] w-full rounded-full px-7 text-sm font-medium sm:w-auto"
+          >
+            <Link to="/ensinos">
+              <BookOpen className="mr-2 h-4 w-4" />
+              Acessar Ensinos
+            </Link>
+          </Button>
         </div>
+
+        {/* Simple, understated Catechesis Scripture Quote (rotates on each page load) */}
+        <LandingCatequeseQuote />
       </div>
     </section>
   )
 }
+

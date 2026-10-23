@@ -288,7 +288,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     const [homeGroups, setHomeGroups] = useState<HomeGroupOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [churchLinkFilter, setChurchLinkFilter] = useState<"all" | "linked" | "unlinked">("all");
+    const [churchLinkFilter, setChurchLinkFilter] = useState<"all" | "linked" | "unlinked">("linked");
     
     // Modal states
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -334,6 +334,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     });
 
     const registrationType = form.watch("registrationType");
+    const watchedGender = form.watch("gender");
 
     const fetchData = async (isInitial = false) => {
         if (isInitial) setLoading(true);
@@ -413,6 +414,10 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
     };
 
     const handleEditClick = (member: ProfileWithGroup) => {
+        if (!member.is_church_linked) {
+            handleOpenLinkDialog(member);
+            return;
+        }
         setSelectedMember(member);
         const isChild = !!(member.father_id || member.mother_id) && !member.baptism_date;
         form.reset({
@@ -734,28 +739,8 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                 </div>
             )}
 
-            {/* Filter Tabs: Todos / Vinculados / Apenas Estudos */}
+            {/* Filter Tabs: Vinculados / Apenas Estudos / Todos os Cadastros */}
             <div className="flex flex-wrap items-center gap-2">
-                <button
-                    type="button"
-                    onClick={() => setChurchLinkFilter("all")}
-                    className={`px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
-                        churchLinkFilter === "all"
-                            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-sm"
-                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
-                    }`}
-                >
-                    <UsersIcon className="w-3.5 h-3.5" />
-                    <span>Todos</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                        churchLinkFilter === "all"
-                            ? "bg-zinc-800 text-zinc-300 dark:bg-zinc-200 dark:text-zinc-800"
-                            : "bg-background/80 text-muted-foreground"
-                    }`}>
-                        {totalCount}
-                    </span>
-                </button>
-
                 <button
                     type="button"
                     onClick={() => setChurchLinkFilter("linked")}
@@ -793,6 +778,26 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                             : "bg-background/80 text-muted-foreground"
                     }`}>
                         {unlinkedCount}
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setChurchLinkFilter("all")}
+                    className={`px-3.5 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                        churchLinkFilter === "all"
+                            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-sm"
+                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
+                    }`}
+                >
+                    <UsersIcon className="w-3.5 h-3.5" />
+                    <span>Todos os Cadastros</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                        churchLinkFilter === "all"
+                            ? "bg-zinc-800 text-zinc-300 dark:bg-zinc-200 dark:text-zinc-800"
+                            : "bg-background/80 text-muted-foreground"
+                    }`}>
+                        {totalCount}
                     </span>
                 </button>
             </div>
@@ -889,21 +894,23 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                     )}
                                     {!member.user_id && (
                                         <>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-                                                onClick={() => handleEditClick(member)}
-                                                title="Editar Perfil Vinculado"
-                                            >
-                                                <Edit2Icon className="w-3.5 h-3.5" />
-                                            </Button>
+                                            {member.is_church_linked && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                                                    onClick={() => handleEditClick(member)}
+                                                    title="Editar Perfil Vinculado"
+                                                >
+                                                    <Edit2Icon className="w-3.5 h-3.5" />
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer"
                                                 onClick={() => handleDeleteClick(member.id)}
-                                                title="Remover Perfil Vinculado"
+                                                title="Remover Perfil"
                                             >
                                                 <Trash2Icon className="w-3.5 h-3.5" />
                                             </Button>
@@ -1323,12 +1330,16 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 >
                                                     <option value="">Selecione o Discipulador...</option>
                                                     {members
-                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id))
-                                                        .map(member => (
-                                                            <option key={member.id} value={member.id}>
-                                                                {member.full_name}
-                                                            </option>
-                                                        ))
+                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id) && (!watchedGender || m.gender === watchedGender))
+                                                        .map(member => {
+                                                            const group = member.home_group_id ? homeGroups.find(g => g.id === member.home_group_id) : null;
+                                                            const groupLabel = group ? getGroupLabel(group) : (member.home_groups?.location_text || null);
+                                                            return (
+                                                                <option key={member.id} value={member.id}>
+                                                                    {member.full_name}{groupLabel ? ` — ${groupLabel}` : ""}
+                                                                </option>
+                                                            );
+                                                        })
                                                     }
                                                 </select>
                                                 <FieldError errors={[fieldState.error]} />
@@ -1582,11 +1593,15 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <option value="">Selecione o Discipulador...</option>
                                                 {members
                                                     .filter(m => m.is_church_linked && (!linkingMember || m.id !== linkingMember.id))
-                                                    .map(member => (
-                                                        <option key={member.id} value={member.id}>
-                                                            {member.full_name}
-                                                        </option>
-                                                    ))
+                                                    .map(member => {
+                                                        const group = member.home_group_id ? homeGroups.find(g => g.id === member.home_group_id) : null;
+                                                        const groupLabel = group ? getGroupLabel(group) : (member.home_groups?.location_text || null);
+                                                        return (
+                                                            <option key={member.id} value={member.id}>
+                                                                {member.full_name}{groupLabel ? ` — ${groupLabel}` : ""}
+                                                            </option>
+                                                        );
+                                                    })
                                                 }
                                             </select>
                                             <FieldError errors={[fieldState.error]} />

@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react"
 import supabase from "@/lib/supabase"
-import { Sparkles } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { HomeGroupCard } from "@/components/home/HomeGroupCard"
-import { DiscipleshipCard } from "@/components/home/DiscipleshipCard"
+import { HomeGroupSideCard } from "@/components/home/HomeGroupSideCard"
+import { DiscipleshipSideCard } from "@/components/home/DiscipleshipSideCard"
 import { StudyProgressCard, type ActiveStudyInfo } from "@/components/home/StudyProgressCard"
 import { CommunityCalendarCard } from "@/components/home/CommunityCalendarCard"
 import { NewsTimeline } from "@/components/home/NewsTimeline"
@@ -247,25 +247,37 @@ export default function Home() {
   }, [])
 
   const firstName = profile?.full_name ? profile.full_name.split(" ")[0] : ""
+  const isChurchLinked = Boolean(profile?.is_church_linked)
 
   return (
-    <div className="mx-auto max-w-5xl animate-in space-y-8 pb-12 duration-500 fade-in slide-in-from-bottom-4">
+    <div className="mx-auto max-w-6xl animate-in space-y-8 pb-12 duration-500 fade-in slide-in-from-bottom-4">
       {/* 1. Header Fraternal & Versículo do Dia */}
       <header className="space-y-4 border-b border-border/60 pb-6">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-            {profile ? `Bem-vindo(a), ${firstName}` : "Bem-vindo(a)"}
-          </h1>
-          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-            Portal de Vida Comum • A Igreja em Belo Horizonte
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+              {profile ? `Bem-vindo(a), ${firstName}` : "Bem-vindo(a)"}
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+              Portal de Vida Comum • A Igreja em Belo Horizonte
+            </p>
+          </div>
+
+          {!loading && !isChurchLinked && (
+            <Badge
+              variant="outline"
+              className="self-start sm:self-auto border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2.5 py-1"
+            >
+              Conta de Estudos
+            </Badge>
+          )}
         </div>
 
         {/* Card Sutil do Versículo do Dia (Propósito Eterno) */}
         <div className="rounded-xl border border-border/70 border-l-4 border-l-primary bg-card/60 p-4 shadow-2xs backdrop-blur-xs">
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <BookOpen className="h-3.5 w-3.5 text-primary" />
               Versículo do Dia • {todaysVerse.theme}
             </span>
             <Badge variant="outline" className="border-border text-[10px] font-semibold text-muted-foreground">
@@ -278,71 +290,57 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. Grid Principal: 4 Eixos da Vida Orgânica */}
-      <section aria-label="Eixos da Vida Comum">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {profile?.is_church_linked === false ? (
-            <>
-              {/* Para usuários não vinculados, o foco principal é o estudo da Palavra e encontros da cidade */}
-              <StudyProgressCard
-                studyInfo={studyInfo}
-                loading={loading}
-              />
-              <CommunityCalendarCard
-                loading={loading}
-                isChurchLinked={false}
-              />
-              <HomeGroupCard
-                homeGroup={homeGroup}
-                members={groupMembers}
-                loading={loading}
-                isChurchLinked={false}
-              />
-              <DiscipleshipCard
-                discipler={discipler}
-                disciples={disciples}
-                fellows={fellows}
-                loading={loading}
-                isChurchLinked={false}
-              />
-            </>
-          ) : (
-            <>
-              {/* Card 1: Meu Grupo Caseiro (Oikos) */}
-              <HomeGroupCard
-                homeGroup={homeGroup}
-                members={groupMembers}
-                loading={loading}
-                isChurchLinked={true}
-              />
+      {/* 2. Conteúdo Central: Discípulos Vinculados recebem painel lateral de vínculos; Usuários de Estudo recebem layout focado */}
+      {isChurchLinked ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
+          {/* Coluna Principal (Esquerda - lg:col-span-8) */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            <StudyProgressCard
+              studyInfo={studyInfo}
+              loading={loading}
+            />
 
-              {/* Card 2: Juntas e Ligamentos (Rede de Discipulado) */}
-              <DiscipleshipCard
-                discipler={discipler}
-                disciples={disciples}
-                fellows={fellows}
-                loading={loading}
-                isChurchLinked={true}
-              />
+            <CommunityCalendarCard
+              loading={loading}
+              isChurchLinked={true}
+            />
+          </div>
 
-              {/* Card 3: Catequese & Ensinos */}
-              <StudyProgressCard
-                studyInfo={studyInfo}
-                loading={loading}
-              />
+          {/* Coluna Lateral (Direita - lg:col-span-4): Informações Rápidas e Simples de Visualizar (Juntas & Oikos) */}
+          <aside aria-label="Vínculos e Comunhão no Corpo" className="lg:col-span-4 flex flex-col gap-6">
+            <HomeGroupSideCard
+              homeGroup={homeGroup}
+              members={groupMembers}
+              loading={loading}
+              isChurchLinked={true}
+            />
 
-              {/* Card 4: Agenda & Calendário da Igreja */}
-              <CommunityCalendarCard
-                loading={loading}
-                isChurchLinked={true}
-              />
-            </>
-          )}
+            <DiscipleshipSideCard
+              discipler={discipler}
+              disciples={disciples}
+              fellows={fellows}
+              loading={loading}
+              isChurchLinked={true}
+            />
+          </aside>
         </div>
-      </section>
+      ) : (
+        /* Para usuários de estudo, componentes de juntas e ligamentos não se aplicam e são omitidos */
+        <div className="flex flex-col gap-6">
+          <StudyProgressCard
+            studyInfo={studyInfo}
+            loading={loading}
+          />
 
-      {/* 3. Rodapé: Timeline Simples de Avisos da Comunidade */}
-      <section id="mural" aria-label="Avisos e Comunicados" className="pt-2">
+          <CommunityCalendarCard
+            loading={loading}
+            isChurchLinked={false}
+          />
+        </div>
+      )}
+
+      {/* 3. Rodapé: Timeline de Avisos da Comunidade (Full Width - 100% da largura, sem espaço em branco lateral) */}
+      <section id="mural" aria-label="Avisos e Comunicados" className="w-full pt-4 border-t border-border/50">
         <NewsTimeline />
       </section>
     </div>

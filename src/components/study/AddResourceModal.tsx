@@ -128,7 +128,7 @@ export function AddResourceModal({
                     <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
                         Adicionar Novo Recurso
                     </DialogTitle>
-                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         Disponibilize ministrações em vídeo, apostilas em PDF ou leituras bíblicas no acervo.
                     </DialogDescription>
                 </DialogHeader>
@@ -186,19 +186,19 @@ export function AddResourceModal({
                                         <SelectContent className="rounded-2xl shadow-xl">
                                             <SelectItem value="video">
                                                 <div className="flex items-center gap-2">
-                                                    <YoutubeIcon className="h-4 w-4 text-destructive" />
+                                                    <YoutubeIcon className="h-4 w-4 text-primary" />
                                                     <span>Vídeo (YouTube)</span>
                                                 </div>
                                             </SelectItem>
                                             <SelectItem value="pdf">
                                                 <div className="flex items-center gap-2">
-                                                    <FileTextIcon className="h-4 w-4 text-red-500" />
+                                                    <FileTextIcon className="h-4 w-4 text-primary" />
                                                     <span>Apostila (Documento PDF)</span>
                                                 </div>
                                             </SelectItem>
                                             <SelectItem value="markdown">
                                                 <div className="flex items-center gap-2">
-                                                    <BookOpenIcon className="h-4 w-4 text-amber-500" />
+                                                    <BookOpenIcon className="h-4 w-4 text-primary" />
                                                     <span>Texto / Leitura (Markdown .md)</span>
                                                 </div>
                                             </SelectItem>
@@ -233,7 +233,7 @@ export function AddResourceModal({
 
                                 {ytId && (
                                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                        <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
                                             <PlayIcon className="h-3.5 w-3.5 text-primary fill-primary" />
                                             Pré-visualização do Vídeo
                                         </span>
@@ -270,7 +270,7 @@ export function AddResourceModal({
                                                 setSelectedFile(files[0]);
                                             }
                                         }}
-                                        className="rounded-xl file:bg-zinc-900 file:text-zinc-50 dark:file:bg-zinc-50 dark:file:text-zinc-900 file:border-0 file:rounded-lg file:px-3 file:py-1.5 file:mr-3 file:text-xs file:font-semibold file:cursor-pointer cursor-pointer text-xs"
+                                        className="rounded-xl file:bg-primary file:text-primary-foreground file:border-0 file:rounded-lg file:px-3 file:py-1.5 file:mr-3 file:text-xs file:font-semibold file:cursor-pointer cursor-pointer text-xs"
                                     />
                                     {selectedFile && (
                                         <p className="mt-2 text-xs font-bold text-primary truncate">
@@ -287,10 +287,10 @@ export function AddResourceModal({
                                 <div className="space-y-0.5">
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                                         <Bell className="h-4 w-4 text-primary" />
-                                        <span>Avisar no Mural da Igreja</span>
+                                        <span>Avisar no Mural da Comunhão</span>
                                     </div>
                                     <p className="text-[11px] text-muted-foreground">
-                                        Publica automaticamente uma notícia informando a igreja sobre este novo estudo.
+                                        Publica uma mensagem no mural informando os irmãos sobre este novo estudo.
                                     </p>
                                 </div>
                                 <Controller
@@ -341,12 +341,12 @@ export function AddResourceModal({
                                                         {field.value ? (
                                                             <>
                                                                 <Globe className="h-3.5 w-3.5 text-primary" />
-                                                                <span>Visível na Landing Page (Público)</span>
+                                                                <span>Visível a todos os visitantes</span>
                                                             </>
                                                         ) : (
                                                             <>
                                                                 <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                                                                <span>Apenas Discípulos Vinculados</span>
+                                                                <span>Apenas para a comunhão interna</span>
                                                             </>
                                                         )}
                                                     </label>
@@ -372,7 +372,7 @@ export function AddResourceModal({
                         <Button
                             type="submit"
                             disabled={uploading}
-                            className="min-h-[44px] rounded-xl px-6 bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs sm:text-sm font-semibold shadow-sm cursor-pointer"
+                            className="btn-tactile min-h-[44px] rounded-xl px-6 text-xs sm:text-sm font-semibold shadow-2xs cursor-pointer"
                         >
                             {uploading ? (
                                 <>

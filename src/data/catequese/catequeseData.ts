@@ -824,3 +824,54 @@ export function getRandomCatequeseItem(excludeId?: string): CatequeseItem {
 export function getCatequeseItemById(id: string): CatequeseItem | undefined {
   return CATEQUESE_ITEMS.find((item) => item.id === id);
 }
+
+export interface CatequeseVerseEntry {
+  quote: string;
+  reference: string;
+  theme: string;
+  trackTitle: string;
+  lessonTitle: string;
+  url?: string;
+}
+
+/**
+ * Retorna todos os versículos bíblicos da catequese da igreja,
+ * mapeados com temas limpos (sem anotações editoriais redundantes como "(1ª parte)").
+ * Por padrão remove duplicatas idênticas de texto e referência.
+ */
+export function getAllCatequeseVerses(uniqueOnly = true): CatequeseVerseEntry[] {
+  const cleanTheme = (title: string) =>
+    title.replace(/\s*\((?:1ª|2ª|Parte)\s*\d*.*?\)/i, "").trim();
+
+  const entries: CatequeseVerseEntry[] = [];
+  const seen = new Set<string>();
+
+  for (const item of CATEQUESE_ITEMS) {
+    for (const verse of item.verses) {
+      const key = `${verse.reference}::${verse.text}`;
+      if (uniqueOnly && seen.has(key)) continue;
+      seen.add(key);
+
+      entries.push({
+        quote: verse.text,
+        reference: verse.reference,
+        theme: cleanTheme(verse.label || item.lessonTitle),
+        trackTitle: item.trackTitle,
+        lessonTitle: item.lessonTitle,
+        url: verse.url,
+      });
+    }
+  }
+
+  return entries;
+}
+
+/**
+ * Retorna um versículo aleatório da catequese a cada chamada (ideal para rotação a cada page load / reload).
+ */
+export function getRandomCatequeseVerse(): CatequeseVerseEntry {
+  const all = getAllCatequeseVerses();
+  const randomIndex = Math.floor(Math.random() * all.length);
+  return all[randomIndex] || all[0];
+}
+

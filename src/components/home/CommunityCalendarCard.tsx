@@ -69,7 +69,7 @@ export function CommunityCalendarCard({
 
   return (
     <>
-      <Card className="flex flex-col justify-between rounded-2xl border-border/80 bg-card/70 shadow-xs backdrop-blur-xs transition-colors hover:border-primary/30 overflow-hidden">
+      <Card className="rounded-xl border-border/80 bg-card/70 shadow-xs backdrop-blur-xs transition-colors hover:border-primary/30 overflow-hidden">
         <CardHeader className="space-y-2.5 pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="space-y-1">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { 
     GraduationCapIcon, 
@@ -27,6 +27,7 @@ import { StudyDetailModal } from "@/components/study/StudyDetailModal";
 import { StudyLessonModal } from "@/components/study/StudyLessonModal";
 import { CreateStudyModal, type StudyFormValues } from "@/components/study/CreateStudyModal";
 import { AddResourceModal, type ResourceFormValues } from "@/components/study/AddResourceModal";
+import { CatequeseDiaria } from "@/components/study/CatequeseDiaria";
 
 type MediaResource = Database["public"]["Tables"]["media_resources"]["Row"];
 type Study = Database["public"]["Tables"]["studies"]["Row"];
@@ -63,24 +64,20 @@ const normalizeTabParam = (paramVal: string | null): TabType | null => {
 
 export default function Ensinos() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const initialTab = normalizeTabParam(searchParams.get("tab")) || "estudos";
-    const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+    const activeTab: TabType = normalizeTabParam(searchParams.get("tab")) || "estudos";
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("todos");
-
-    // Synchronize tab state if URL query params change
-    useEffect(() => {
-        const urlTab = normalizeTabParam(searchParams.get("tab"));
-        if (urlTab && urlTab !== activeTab) {
-            setActiveTab(urlTab);
-        }
-    }, [searchParams]);
 
     const handleTabChange = (newTab: TabType) => {
-        setActiveTab(newTab);
-        setSearchParams({ tab: newTab });
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev);
+                next.set("tab", newTab);
+                return next;
+            },
+            { replace: true }
+        );
     };
 
     // Database content states
@@ -89,7 +86,7 @@ export default function Ensinos() {
     const [studySteps, setStudySteps] = useState<StudyStep[]>([]);
     const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
     const [notes, setNotes] = useState<StudyNote[]>([]);
-    const [loadingData, setLoadingData] = useState(true);
+    const [loadingData, setLoadingData] = useState(false);
 
     // YouTube state
     const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
@@ -117,58 +114,8 @@ export default function Ensinos() {
     const [isNoteEditorOpen, setIsNoteEditorOpen] = useState(false);
     const [notesFilter, setNotesFilter] = useState<"todos" | "estudos" | "videos" | "pdfs" | "textos">("todos");
 
-    useEffect(() => {
-        async function fetchProfileAndData() {
-            try {
-                setLoading(true);
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session?.user) {
-                    const { data: profData } = await supabase
-                        .from("profiles")
-                        .select("id, is_presbyter, is_deacon, is_dev")
-                        .eq("user_id", session.user.id)
-                        .maybeSingle();
-
-                    if (profData) {
-                        const profObj = {
-                            id: profData.id,
-                            is_presbyter: Boolean(profData.is_presbyter),
-                            is_deacon: Boolean(profData.is_deacon),
-                            is_dev: Boolean(profData.is_dev),
-                        };
-                        setProfile(profObj);
-                        await loadDatabaseData(profObj.id);
-
-                        setLoadingYoutube(true);
-                        const fetched = await fetchLatestVideos();
-                        setYoutubeVideos(fetched);
-                        setLoadingYoutube(false);
-                        return;
-                    }
-                }
-
-                // Guest visitor flow (unauthenticated access to written and video materials)
-                setProfile(null);
-                await loadDatabaseData(undefined);
-                setLoadingYoutube(true);
-                const fetched = await fetchLatestVideos();
-                setYoutubeVideos(fetched);
-                setLoadingYoutube(false);
-            } catch (err) {
-                console.error("Error fetching initial profile data:", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchProfileAndData();
-    }, []);
-
-    async function loadDatabaseData(profileId?: string, isSilent = false) {
+    const loadDatabaseData = useCallback(async (profileId?: string, isSilent = false) => {
         try {
-            if (!isSilent) {
-                setLoadingData(true);
-            }
-
             // 1. Fetch Media Resources (PDFs, Markdown texts, Videos)
             const { data: resData } = await supabase
                 .from("media_resources")
@@ -217,7 +164,53 @@ export default function Ensinos() {
                 setLoadingData(false);
             }
         }
-    }
+    }, []);
+
+    useEffect(() => {
+        async function fetchProfileAndData() {
+            try {
+                setLoading(true);
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    const { data: profData } = await supabase
+                        .from("profiles")
+                        .select("id, is_presbyter, is_deacon, is_dev")
+                        .eq("user_id", session.user.id)
+                        .maybeSingle();
+
+                    if (profData) {
+                        const profObj = {
+                            id: profData.id,
+                            is_presbyter: Boolean(profData.is_presbyter),
+                            is_deacon: Boolean(profData.is_deacon),
+                            is_dev: Boolean(profData.is_dev),
+                        };
+                        setProfile(profObj);
+                        await loadDatabaseData(profObj.id, true);
+
+                        setLoadingYoutube(true);
+                        const fetched = await fetchLatestVideos();
+                        setYoutubeVideos(fetched);
+                        setLoadingYoutube(false);
+                        return;
+                    }
+                }
+
+                // Guest visitor flow (unauthenticated access to written and video materials)
+                setProfile(null);
+                await loadDatabaseData(undefined, true);
+                setLoadingYoutube(true);
+                const fetched = await fetchLatestVideos();
+                setYoutubeVideos(fetched);
+                setLoadingYoutube(false);
+            } catch (err) {
+                console.error("Error fetching initial profile data:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchProfileAndData();
+    }, [loadDatabaseData]);
 
     const canAddMaterial = Boolean(profile?.is_presbyter || profile?.is_deacon || profile?.is_dev);
 
@@ -248,7 +241,7 @@ export default function Ensinos() {
                 const { error } = await supabase.from("media_resources").insert(videosToInsert);
                 if (error) throw error;
 
-                await loadDatabaseData(profile.id);
+                await loadDatabaseData(profile.id, true);
                 toast.success(`${videosToInsert.length} novos vídeos do YouTube sincronizados!`);
             } catch (err) {
                 console.error("Error auto-syncing youtube videos:", err);
@@ -257,7 +250,7 @@ export default function Ensinos() {
             }
         }
         autoSyncYoutubeVideos();
-    }, [youtubeVideos, resources, profile, canAddMaterial]);
+    }, [youtubeVideos, resources, profile, canAddMaterial, loadDatabaseData]);
 
     // Helper to keep noteTarget in sync with any active step/lesson
     const syncNoteTargetForStep = (step: StudyStep | null) => {
@@ -696,9 +689,7 @@ export default function Ensinos() {
                 const currentStudySteps = studySteps.filter((s) => s.study_id === activeStudyId);
                 const currentCompletedCount = (progData || []).filter((p) => p.study_id === activeStudyId).length;
                 if (!isCompleted && currentCompletedCount === currentStudySteps.length && currentStudySteps.length > 0) {
-                    toast.success("Parabéns! Você concluiu com sucesso esta trilha de edificação! 🎉", {
-                        duration: 6000,
-                    });
+                    toast.success("Trilha de estudo concluída com sucesso. Que o Senhor continue edificando Sua vida no Corpo.");
                 }
             }
         } catch (err: unknown) {
@@ -944,17 +935,7 @@ export default function Ensinos() {
 
     const filteredStudies = studies.filter((std) => {
         const query = searchQuery.toLowerCase();
-        const matchesSearch = std.title.toLowerCase().includes(query) || (std.description && std.description.toLowerCase().includes(query));
-        if (!matchesSearch) return false;
-
-        if (selectedCategory === "todos") return true;
-        const text = `${std.title} ${std.description || ""}`.toLowerCase();
-        if (selectedCategory === "fundamentos") return text.includes("fundament") || text.includes("reino") || text.includes("fé");
-        if (selectedCategory === "casas") return text.includes("casa") || text.includes("oikos") || text.includes("grupo");
-        if (selectedCategory === "oracao") return text.includes("oraç") || text.includes("intercess");
-        if (selectedCategory === "sacerdocio") return text.includes("sacerd") || text.includes("minist");
-        if (selectedCategory === "evangelho") return text.includes("evangelh") || text.includes("arrepend");
-        return true;
+        return std.title.toLowerCase().includes(query) || (std.description && std.description.toLowerCase().includes(query));
     });
 
     const tabVideos = filteredResources.filter((r) => r.type === "video");
@@ -1026,7 +1007,7 @@ export default function Ensinos() {
     const { total: totalCourses, completed: completedCourses, percent: overallPercent, active: activeCourses } = getOverallCoursesProgress();
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
+        <div className="space-y-8 pb-16">
             {/* 1. Header with Theological Tone & Action Controls */}
             <StudyHeader
                 canAddMaterial={canAddMaterial}
@@ -1062,19 +1043,19 @@ export default function Ensinos() {
                                 Acesso Livre aos Ensinos e Apostilas
                             </h3>
                             <p className="mt-1 text-xs text-muted-foreground leading-relaxed max-w-2xl">
-                                Você está navegando como visitante. Todas as nossas apostilas, artigos bíblicos e ministrações gravadas estão com acesso livre para a sua edificação. Para salvar anotações e acompanhar o progresso das suas trilhas de estudo, faça login ou cadastre-se.
+                                Você está navegando com acesso livre. Todas as nossas apostilas, artigos bíblicos e ministrações estão abertos para a sua edificação. Para registrar anotações pessoais e acompanhar o progresso das suas trilhas, faça login ou junte-se a nós.
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 self-stretch sm:self-auto shrink-0">
-                        <Button asChild className="min-h-[44px] w-full sm:w-auto rounded-full font-bold bg-primary text-primary-foreground hover:bg-primary/90 px-5">
-                            <Link to="/entrar">Entrar / Criar Conta</Link>
+                        <Button asChild className="btn-tactile min-h-[44px] w-full sm:w-auto rounded-full font-bold px-5">
+                            <Link to="/entrar">Acessar / Caminhe conosco</Link>
                         </Button>
                     </div>
                 </div>
             )}
 
-            {/* 3. Navigation Tabs, Search & Category Filters */}
+            {/* 3. Navigation Tabs, Search & Filters */}
             <StudyTabsNav
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
@@ -1087,8 +1068,6 @@ export default function Ensinos() {
                     textos: resources.filter((r) => r.type === "markdown").length,
                     anotacoes: notes.length,
                 }}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
             />
 
             {/* 4. Tab Content Area */}
@@ -1101,7 +1080,18 @@ export default function Ensinos() {
                     <>
                         {/* TAB: TRILHAS DE ESTUDO */}
                         {activeTab === "estudos" && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="space-y-6 animate-in fade-in duration-200">
+                                <div
+                                    className={cn(
+                                        "transition-all duration-300 ease-out overflow-hidden",
+                                        searchQuery.trim()
+                                            ? "max-h-0 opacity-0 mb-0 pointer-events-none scale-95"
+                                            : "max-h-[800px] opacity-100 scale-100"
+                                    )}
+                                >
+                                    <CatequeseDiaria />
+                                </div>
+
                                 {filteredStudies.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {filteredStudies.map((study) => {
@@ -1144,11 +1134,11 @@ export default function Ensinos() {
                                             <GraduationCapIcon className="h-8 w-8 text-muted-foreground/40" />
                                         </div>
                                         <h3 className="text-base sm:text-lg font-bold text-foreground">
-                                            {searchQuery || selectedCategory !== "todos" ? "Nenhuma trilha encontrada" : "Nenhuma trilha cadastrada"}
+                                            {searchQuery ? "Nenhuma trilha encontrada" : "Nenhuma trilha cadastrada"}
                                         </h3>
                                         <p className="text-muted-foreground mt-1.5 max-w-sm mx-auto text-xs sm:text-sm leading-relaxed">
-                                            {searchQuery || selectedCategory !== "todos"
-                                                ? "Tente ajustar os filtros ou termos da busca."
+                                            {searchQuery
+                                                ? "Tente ajustar os termos da busca."
                                                 : "As trilhas ordenadas para edificação serão disponibilizadas aqui pela liderança servidora."}
                                         </p>
                                     </div>
@@ -1158,7 +1148,7 @@ export default function Ensinos() {
 
                         {/* TAB: VÍDEOS */}
                         {activeTab === "videos" && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="space-y-8 animate-in fade-in duration-200">
                                 {tabVideos.length > 0 && (
                                     <div className="space-y-4">
                                         <h3 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
@@ -1242,7 +1232,7 @@ export default function Ensinos() {
                                         </div>
                                         <h3 className="text-base sm:text-lg font-bold text-foreground">Nenhum vídeo disponível</h3>
                                         <p className="text-muted-foreground mt-1 max-w-sm mx-auto text-xs sm:text-sm">
-                                            As ministrações e ensinos gravados aparecerão aqui.
+                                             As ministrações e ensinos gravados aparecerão aqui.
                                         </p>
                                     </div>
                                 )}
@@ -1251,7 +1241,7 @@ export default function Ensinos() {
 
                         {/* TAB: PDFS */}
                         {activeTab === "pdfs" && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="animate-in fade-in duration-200">
                                 {tabPDFs.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {tabPDFs.map((pdf) => {
@@ -1288,7 +1278,7 @@ export default function Ensinos() {
 
                         {/* TAB: TEXTOS / MD */}
                         {activeTab === "textos" && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="animate-in fade-in duration-200">
                                 {tabTextos.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {tabTextos.map((txt) => {
@@ -1330,7 +1320,7 @@ export default function Ensinos() {
 
                         {/* TAB: MINHAS ANOTAÇÕES */}
                         {activeTab === "anotacoes" && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                            <div className="animate-in fade-in duration-200 space-y-6">
                                 {!profile ? (
                                     <div className="text-center py-20 bg-card/40 backdrop-blur-sm border border-dashed border-border/80 rounded-3xl p-6 sm:p-8 max-w-lg mx-auto">
                                         <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20">
@@ -1343,8 +1333,8 @@ export default function Ensinos() {
                                             Faça login para registrar anotações exclusivas ao ler apostilas, artigos ou assistir a ministrações. Suas notas ficam salvas de forma segura e pessoal.
                                         </p>
                                         <div className="mt-6 flex justify-center">
-                                            <Button asChild className="min-h-[44px] rounded-full font-bold px-6 bg-primary text-primary-foreground hover:bg-primary/90">
-                                                <Link to="/entrar">Fazer Login / Cadastre-se</Link>
+                                            <Button asChild className="btn-tactile min-h-[44px] rounded-full font-bold px-6">
+                                                <Link to="/entrar">Acessar / Caminhe conosco</Link>
                                             </Button>
                                         </div>
                                     </div>
@@ -1390,9 +1380,9 @@ export default function Ensinos() {
                                                     key={filter.id}
                                                     onClick={() => setNotesFilter(filter.id)}
                                                     className={cn(
-                                                        "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap min-h-[44px] cursor-pointer",
+                                                        "btn-tactile active:scale-95 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 whitespace-nowrap min-h-[44px] cursor-pointer",
                                                         notesFilter === filter.id
-                                                            ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-xs"
+                                                            ? "bg-foreground text-background shadow-2xs font-semibold"
                                                             : "bg-muted/40 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                                                     )}
                                                 >

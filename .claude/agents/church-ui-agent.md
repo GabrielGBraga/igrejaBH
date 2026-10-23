@@ -11,3 +11,4 @@ Este agente é responsável pela concepção, implementação e revisão de comp
 6. **Não-denominacional:** Corpo único, design neutro focado na cidade (ex: "Igreja em Belo Horizonte").
 7. **Vocabulário:** Discípulos em vez de membros. Convites relacionais ("Caminhe conosco", "Inicie seu discipulado").
 8. **Mobile-First e Acessibilidade:** Layouts fluidos a partir de 320px, alvos de toque de 44x44px, contraste WCAG AA/AAA via `src/constants/colors.ts`.
+9. **Anti-AI Slop e Higiene de UI:** Proibido usar ícone `Sparkles`, gradientes multicor de SaaS Bento Grid, empilhamento de badges/hashtags, molduras decorativas de pôster, links "clique aqui", vazamento de termos de banco ("Publicações Públicas"), CTAs duplicados ou links públicos apontando para rotas protegidas (`ProtectedRoute`).

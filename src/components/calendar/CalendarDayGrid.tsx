@@ -55,7 +55,7 @@ export function CalendarDayGrid({
             variant="ghost"
             size="icon"
             onClick={onPrevMonth}
-            className="h-8 w-8 rounded-full"
+            className="min-h-[44px] min-w-[44px] rounded-full"
             aria-label="Mês anterior"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -65,7 +65,7 @@ export function CalendarDayGrid({
             variant="ghost"
             size="icon"
             onClick={onNextMonth}
-            className="h-8 w-8 rounded-full"
+            className="min-h-[44px] min-w-[44px] rounded-full"
             aria-label="Próximo mês"
           >
             <ChevronRight className="h-4 w-4" />
@@ -89,7 +89,7 @@ export function CalendarDayGrid({
       <div className="grid grid-cols-7 gap-1 text-center">
         {/* Empty slots for month start offset */}
         {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
-          <div key={`empty-${idx}`} className="h-8 sm:h-9 w-full" />
+          <div key={`empty-${idx}`} className="min-h-[44px] w-full" />
         ))}
 
         {/* Real Days */}
@@ -103,9 +103,9 @@ export function CalendarDayGrid({
               key={`day-${dayNumber}`}
               type="button"
               onClick={() => onSelectDay(selectedDay === dayNumber ? null : dayNumber)}
-              className={`relative flex h-8 sm:h-9 w-full items-center justify-center rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              className={`relative flex min-h-[44px] w-full items-center justify-center rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                 isSelected
-                  ? "bg-primary text-primary-foreground font-bold shadow-xs scale-105"
+                  ? "bg-primary text-primary-foreground font-bold shadow-xs"
                   : hasEvents
                   ? "bg-primary/10 text-primary font-bold hover:bg-primary/20 ring-1 ring-primary/30"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -114,7 +114,7 @@ export function CalendarDayGrid({
             >
               <span>{dayNumber}</span>
               {hasEvents && !isSelected && (
-                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-amber-600 dark:bg-amber-400" />
+                <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-amber-600 dark:bg-amber-400" />
               )}
             </button>
           )
@@ -123,12 +123,12 @@ export function CalendarDayGrid({
 
       {/* Selection Filter Indicator */}
       {selectedDay && (
-        <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-lg">
+        <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground bg-muted/40 px-3 py-1 rounded-lg">
           <span>Filtrando dia {selectedDay}</span>
           <button
             type="button"
             onClick={() => onSelectDay(null)}
-            className="text-primary hover:underline font-semibold cursor-pointer"
+            className="min-h-[44px] px-2 text-primary hover:underline font-semibold cursor-pointer"
           >
             Ver todos
           </button>

@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { Loader2, Sparkles, MapPin, Send } from "lucide-react"
+import { Loader2, MapPin, Send } from "lucide-react"
 import supabase from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -136,7 +136,7 @@ export function VisitorWelcomeDialog({
       <DialogContent className="max-w-md p-6">
         <DialogHeader className="text-left space-y-1.5">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
-            <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+
             Portas Abertas nos Lares
           </div>
           <DialogTitle className="text-xl font-bold tracking-tight">

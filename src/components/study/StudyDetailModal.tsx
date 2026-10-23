@@ -71,18 +71,18 @@ export function StudyDetailModal({
     });
 
     if (nextStepIndex === -1 && steps.length > 0) {
-        nextStepIndex = 0; // If all completed or none, point to first
+        nextStepIndex = 0;
     }
     const nextStep = steps[nextStepIndex];
 
     const getResourceIcon = (type: string) => {
         switch (type) {
             case "video":
-                return <YoutubeIcon className="h-4 w-4 text-destructive" />;
+                return <YoutubeIcon className="h-4 w-4 text-primary" />;
             case "pdf":
-                return <FileTextIcon className="h-4 w-4 text-red-500" />;
+                return <FileTextIcon className="h-4 w-4 text-primary" />;
             case "markdown":
-                return <BookOpenIcon className="h-4 w-4 text-amber-500" />;
+                return <BookOpenIcon className="h-4 w-4 text-primary" />;
             default:
                 return <BookOpenIcon className="h-4 w-4 text-primary" />;
         }
@@ -92,7 +92,7 @@ export function StudyDetailModal({
         switch (type) {
             case "video": return "Vídeo";
             case "pdf": return "Apostila PDF";
-            case "markdown": return "Leitura";
+            case "markdown": return "Texto Bíblico";
             default: return "Recurso";
         }
     };
@@ -109,7 +109,7 @@ export function StudyDetailModal({
                                     Trilha de Discipulado
                                 </Badge>
                                 {percent === 100 && (
-                                    <Badge variant="outline" className="border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400 text-[10px] font-semibold">
+                                    <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px] font-semibold">
                                         Concluído
                                     </Badge>
                                 )}
@@ -117,7 +117,7 @@ export function StudyDetailModal({
                             <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
                                 {study.title}
                             </DialogTitle>
-                            <DialogDescription className="text-xs sm:text-sm text-muted-foreground line-clamp-3">
+                            <DialogDescription className="text-xs sm:text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                                 {study.description || "Nenhuma descrição fornecida."}
                             </DialogDescription>
                         </div>
@@ -170,7 +170,7 @@ export function StudyDetailModal({
                             <div className="pt-2">
                                 <Button
                                     onClick={() => onSelectStep(nextStep)}
-                                    className="w-full min-h-[44px] gap-2 rounded-xl bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
+                                    className="btn-tactile w-full min-h-[44px] gap-2 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-2xs"
                                 >
                                     <PlayIcon className="h-4 w-4 fill-current" />
                                     <span>
@@ -184,7 +184,7 @@ export function StudyDetailModal({
                     {/* Steps Timeline Journey */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                            <h4 className="text-xs font-bold text-muted-foreground">
                                 Roteiro de Etapas ({total})
                             </h4>
                             <span className="text-[11px] text-muted-foreground">
@@ -221,7 +221,7 @@ export function StudyDetailModal({
                                                     className={cn(
                                                         "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-transform",
                                                         isStepCompleted
-                                                            ? "bg-green-500 text-white shadow-xs"
+                                                            ? "bg-primary text-primary-foreground shadow-2xs"
                                                             : isUnlocked
                                                             ? "bg-primary/10 text-primary group-hover:scale-105"
                                                             : "bg-muted text-muted-foreground"
@@ -247,7 +247,7 @@ export function StudyDetailModal({
                                                             </span>
                                                         )}
                                                         {isStepCompleted && (
-                                                            <span className="text-[10px] font-bold text-green-600 dark:text-green-400">
+                                                            <span className="text-[10px] font-bold text-primary">
                                                                 Concluída
                                                             </span>
                                                         )}
@@ -268,7 +268,7 @@ export function StudyDetailModal({
 
                                             {/* Action Control */}
                                             {isUnlocked && (
-                                                <div className="flex items-center gap-1 shrink-0">
+                                                <div className="flex items-center gap-2 shrink-0">
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
@@ -284,18 +284,14 @@ export function StudyDetailModal({
                                                                 : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                                                         )}
                                                         title={stepNote ? "Ver reflexões deste material" : "Fazer anotações"}
+                                                        aria-label={stepNote ? "Ver reflexões deste material" : "Fazer anotações"}
                                                     >
                                                         <StickyNoteIcon className="h-4 w-4" />
                                                     </Button>
 
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="min-h-[44px] rounded-xl gap-1 text-xs font-semibold group-hover:bg-primary group-hover:text-primary-foreground transition-all"
-                                                    >
-                                                        <span className="hidden sm:inline">Acessar</span>
-                                                        <ChevronRightIcon className="h-3.5 w-3.5" />
-                                                    </Button>
+                                                    <div className="flex items-center text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">
+                                                        <ChevronRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

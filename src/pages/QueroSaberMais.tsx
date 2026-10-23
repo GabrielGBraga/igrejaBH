@@ -12,9 +12,9 @@ import {
   Send,
   Loader2,
   CheckCircle2,
-  Sparkles,
 } from "lucide-react"
 import supabase from "@/lib/supabase"
+import { REGIONS_BH } from "@/data/landingData"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Button } from "@/components/ui/button"
@@ -28,7 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
-import { Badge } from "@/components/ui/badge"
 import { LandingFooter } from "@/components/landing/LandingFooter"
 
 const contactSchema = z.object({
@@ -43,19 +42,6 @@ const contactSchema = z.object({
 })
 
 type ContactFormValues = z.infer<typeof contactSchema>
-
-const regionsBH = [
-  "Barreiro / Oeste (Buritis, Barreiro, Estoril, Gutierrez)",
-  "Pampulha / São Gabriel (Ouro Preto, Castelo, Dona Clara)",
-  "Centro / Sul (Savassi, Lourdes, Funcionários, Santo Agostinho)",
-  "Leste / Nordeste (Santa Inês, Sagrada Família, Cidade Nova)",
-  "Noroeste (Padre Eustáquio, Caiçara, Carlos Prates)",
-  "Venda Nova (Planalto, Letícia, Mantiqueira, Candelária)",
-  "Santa Luzia / Ribeirão das Neves (Cristina, São Benedito)",
-  "Contagem (Eldorado, Industrial, Novo Eldorado, Cabral)",
-  "Betim (Centro Betim, Jardim Alterosa, PTB, Imbiruçu)",
-  "Outra Região da RMBH",
-]
 
 export default function QueroSaberMais() {
   const [submitting, setSubmitting] = useState(false)
@@ -155,24 +141,19 @@ export default function QueroSaberMais() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           {/* Hero Welcome */}
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary text-xs font-semibold px-3 py-1 gap-1.5 rounded-full">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-              Portas e Lares Abertos na Cidade
-            </Badge>
-
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-              Quer saber mais sobre nós?
+              Caminhe conosco
             </h1>
 
             <p className="text-xs sm:text-sm md:text-base leading-relaxed text-muted-foreground">
-              A congregação do Senhor em Belo Horizonte não é uma empresa ou templo de tijolos, mas uma família de discípulos reunida de casa em casa. Não achamos que é suficiente apenas convidar para uma reunião passiva: queremos te ouvir, tomar um café e conversar com calma.
+              A Igreja em Belo Horizonte não é uma empresa ou templo de tijolos, mas uma família de discípulos reunida de casa em casa. Não achamos suficiente apenas convidar para uma reunião: queremos ouvir você, tomar um café e conversar com calma.
             </p>
           </div>
 
           {/* 3 Step Relational Cards */}
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-2xs">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary mb-3">
+            <div className="rounded-xl border border-border/60 bg-card p-5 shadow-2xs">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
                 <HeartHandshake className="h-5 w-5" />
               </div>
               <h2 className="text-base font-bold text-foreground">1. Contato Acolhedor</h2>
@@ -181,18 +162,18 @@ export default function QueroSaberMais() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-2xs">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 mb-3">
+            <div className="rounded-xl border border-border/60 bg-card p-5 shadow-2xs">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
                 <Coffee className="h-5 w-5" />
               </div>
               <h2 className="text-base font-bold text-foreground">2. Um Café ou Conversa</h2>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                Marcamos um bate-papo informal para nos conhecermos, tirarmos dúvidas sobre as escrituras e compartilharmos a vida de Cristo.
+                Marcamos um bate-papo informal para nos conhecermos, tirarmos dúvidas sobre as Escrituras e compartilharmos a vida de Cristo.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-2xs">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 mb-3">
+            <div className="rounded-xl border border-border/60 bg-card p-5 shadow-2xs">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
                 <Home className="h-5 w-5" />
               </div>
               <h2 className="text-base font-bold text-foreground">3. A Mesa nos Lares</h2>
@@ -203,7 +184,7 @@ export default function QueroSaberMais() {
           </div>
 
           {/* Contact Form Card */}
-          <div className="mt-10 rounded-3xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm">
+          <div className="mt-10 rounded-xl border border-border/80 bg-card p-6 sm:p-10 shadow-xs">
             {submitted ? (
               <div className="text-center py-8 space-y-4 animate-section-enter">
                 <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -301,7 +282,7 @@ export default function QueroSaberMais() {
                             <SelectValue placeholder="Selecione o setor mais próximo de sua casa" />
                           </SelectTrigger>
                           <SelectContent>
-                            {regionsBH.map((reg) => (
+                            {REGIONS_BH.map((reg) => (
                               <SelectItem key={reg} value={reg}>
                                 {reg}
                               </SelectItem>

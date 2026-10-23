@@ -6,7 +6,7 @@ Este arquivo é a referência central e mandatória para todos os agentes de IA 
 
 ## 📌 Regras Obrigatórias de Inicialização do Agente
 1. **Leitura Proativa de Regras:** O agente deve SEMPRE proativamente ler, verificar e seguir todas as regras definidas neste arquivo (`CLAUDE.md`), em `.claude/agents/` e na pasta `.agents/rules/`.
-2. **Leitura Proativa de Documentação:** O agente deve SEMPRE proativamente ler e utilizar os arquivos dentro da pasta `docs/` (ex: `docs/DIRETRIZES_CONTEUDO_DESIGN.md`, `docs/DATABASE_SEEDING.md` e `docs/EVENT_WAITLIST.md`) para compreender funcionalidades, arquitetura e requisitos do sistema.
+2. **Leitura Proativa de Documentação:** O agente deve SEMPRE proativamente ler e utilizar os arquivos dentro da pasta `docs/` (ex: `docs/DIRETRIZES_CONTEUDO_DESIGN.md`, `docs/DATABASE_SEEDING.md`, `docs/EVENT_WAITLIST.md` e `docs/RELATIONSHIP_GRAPH_ARCHITECTURE.md`) para compreender funcionalidades, arquitetura e requisitos do sistema.
 3. **Mobile-First & UI/UX Responsivo:**
    - Estilização mobile-first obrigatória.
    - Layouts fluidos (Flexbox / CSS Grid).
@@ -47,6 +47,11 @@ Você é um agente encarregado de criar componentes (React, Tailwind, shadcn/ui)
 ### 7. Vocabulário: Discípulos em vez de Membros
 * **Conceito:** A igreja não é um clube ou instituição associativa; portanto, não possui "membros" estáticos, mas sim discípulos em constante processo de formação e aprendizado prático.
 * **Aplicação no Design/UI:** O agente está terminantemente proibido de usar jargões institucionais. Ao gerar botões, formulários de contato ou seções de engajamento, substitua frases institucionais como "Torne-se um membro", "Seja membro" ou "Cadastre-se" por convites relacionais, como "Caminhe conosco", "Inicie seu discipulado" ou "Junte-se a nós".
+
+### 8. Higiene Visual e Arquitetura Anti-Clichês de IA (Anti-AI Slop)
+* **Banimento de Clichês Visuais:** É proibido usar o ícone `Sparkles` (`✨`), gradientes coloridos de Bento Grid SaaS (`from-emerald-...`, `from-amber-...`, `from-teal-...`), empilhamento de badges/kickers/hashtags ou molduras decorativas de pôster (logos repetidos dentro de cards, badges não-clicáveis com verbos de ação, rodapés internos repetindo datas).
+* **Fluxo Único e Rotas Públicas Seguras:** Nunca crie botões concorrentes que abram formulários de contato duplicados na mesma seção. Nunca aponte CTAs de páginas públicas para rotas protegidas por `<ProtectedRoute>` (como `/eventos`).
+* **Copywriting Limpo:** Nunca use a palavra *"instituição"* para descrever a igreja, nunca vaze termos do banco de dados na UI (ex: *"Publicações Públicas"*), nunca use links *"clique aqui"* e nunca insira links de redes sociais apontando para domínios genéricos (`youtube.com`, `instagram.com`).
 
 ---
 

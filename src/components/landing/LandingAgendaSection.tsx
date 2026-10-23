@@ -1,42 +1,32 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import {
-  Calendar as CalendarIcon,
-  ArrowRight,
-  HeartHandshake,
-} from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ChurchLogo } from "@/components/icons/ChurchLogo"
 import { useChurchCalendar, type CalendarEventItem } from "@/hooks/useChurchCalendar"
 import { CalendarDayGrid } from "@/components/calendar/CalendarDayGrid"
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard"
 import { CalendarEventDetailDialog } from "@/components/calendar/CalendarEventDetailDialog"
 
 const MONTH_NAMES = [
-  "JANEIRO",
-  "FEVEREIRO",
-  "MARÇO",
-  "ABRIL",
-  "MAIO",
-  "JUNHO",
-  "JULHO",
-  "AGOSTO",
-  "SETEMBRO",
-  "OUTUBRO",
-  "NOVEMBRO",
-  "DEZEMBRO",
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
 ]
 
-interface LandingAgendaSectionProps {
-  onOpenWelcomeDialog?: () => void
-}
-
-export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSectionProps) {
+export function LandingAgendaSection() {
   const [detailEvent, setDetailEvent] = useState<CalendarEventItem | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const now = new Date()
 
-  // Hook centralizado com sincronia de dados e timezone-safe
   const {
     filteredEvents,
     eventDaysMap,
@@ -50,8 +40,8 @@ export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSecti
     handleNextMonth,
   } = useChurchCalendar({
     publicOnly: true,
-    initialMonth: 10,
-    initialYear: 2026,
+    initialMonth: now.getMonth() + 1,
+    initialYear: now.getFullYear(),
   })
 
   const handleOpenDetail = (event: CalendarEventItem) => {
@@ -68,27 +58,12 @@ export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSecti
             Agenda
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-            Fique atento às datas dos nossos próximos eventos e encontros!
+            Acompanhe as datas dos próximos encontros na cidade e retiros comunitários.
           </p>
         </div>
 
-        {/* The Stylized Calendar Card (Exact match to design mockup) */}
-        <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm">
-          {/* Card Top Bar with Logo & Action */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 px-5 sm:px-8 py-4 bg-muted/20">
-            <ChurchLogo size="sm" />
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="outline"
-                className="gap-1 border-primary/30 bg-primary/5 text-primary text-[11px] font-semibold px-2.5 py-1"
-              >
-                <CalendarIcon className="h-3 w-3" />
-                Ver Programação
-              </Badge>
-            </div>
-          </div>
-
-          {/* Calendar Body: 2 Columns on Desktop */}
+        {/* Clean Calendar Card without poster chrome */}
+        <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xs">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-5 sm:p-8">
             {/* Left Column: Mini Calendar Grid */}
             <div className="md:col-span-6 border-b md:border-b-0 md:border-r border-border/40 pb-6 md:pb-0 md:pr-6">
@@ -108,15 +83,15 @@ export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSecti
             {/* Right Column: Event List */}
             <div className="md:col-span-6 flex flex-col justify-between space-y-4">
               <div className="space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {selectedDay
-                    ? `Programação do Dia ${selectedDay}`
-                    : `Programação de ${MONTH_NAMES[currentMonth - 1]}`}
-                </span>
+                    ? `Encontros do dia ${selectedDay} de ${MONTH_NAMES[currentMonth - 1]}`
+                    : `Encontros em ${MONTH_NAMES[currentMonth - 1]}`}
+                </h3>
 
                 {filteredEvents.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border/60 p-6 text-center text-xs text-muted-foreground">
-                    Nenhum evento agendado para este dia.
+                    Nenhum encontro geral agendado para este período.
                   </div>
                 ) : (
                   <div className="space-y-2.5">
@@ -131,49 +106,24 @@ export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSecti
                 )}
               </div>
 
-              {/* CTAs matching mockup */}
-              <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-border/40">
+              {/* Clean House-Church Context & Action */}
+              <div className="pt-4 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Além dos encontros gerais, nos reunimos semanalmente nas casas pela cidade.
+                </p>
                 <Button
                   asChild
-                  className="min-h-[44px] flex-1 justify-center text-xs sm:text-sm font-semibold rounded-full bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-[44px] shrink-0 rounded-full px-4 text-xs font-semibold"
                 >
-                  <Link to="/eventos">
-                    Acessar o Portal de Eventos
-                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  <Link to="/quero-saber-mais">
+                    Caminhe conosco
+                    <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                   </Link>
                 </Button>
-
-                {onOpenWelcomeDialog ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onOpenWelcomeDialog}
-                    className="min-h-[44px] flex-1 justify-center text-xs sm:text-sm font-semibold rounded-full border-border hover:bg-muted cursor-pointer"
-                  >
-                    <HeartHandshake className="mr-1.5 h-4 w-4 text-primary" />
-                    Quero Conhecer um Grupo Caseiro
-                  </Button>
-                ) : (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="min-h-[44px] flex-1 justify-center text-xs sm:text-sm font-semibold rounded-full border-border hover:bg-muted cursor-pointer"
-                  >
-                    <Link to="/quero-saber-mais">
-                      <HeartHandshake className="mr-1.5 h-4 w-4 text-primary" />
-                      Quero Conhecer um Grupo Caseiro
-                    </Link>
-                  </Button>
-                )}
               </div>
             </div>
-          </div>
-
-          {/* Footer Bar of the Agenda Card */}
-          <div className="border-t border-border/40 bg-muted/20 px-5 sm:px-8 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
-            <span>+ IGREJA EM BH</span>
-            <span>PROGRAMAÇÃO</span>
-            <span>{MONTH_NAMES[currentMonth - 1]} {currentYear}</span>
           </div>
         </div>
       </div>
@@ -183,6 +133,7 @@ export function LandingAgendaSection({ onOpenWelcomeDialog }: LandingAgendaSecti
         event={detailEvent}
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
+        isPublicView
       />
     </section>
   )
