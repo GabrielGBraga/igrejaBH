@@ -19,7 +19,7 @@ export const LANDING_NAV_ITEMS: NavItem[] = [
   { label: "Agenda", href: "#agenda" },
   { label: "Ensinos", href: "/ensinos", isRoute: true },
   { label: "Quem Somos", href: "#quem-somos" },
-  { label: "Quero Saber Mais", href: "/quero-saber-mais", isRoute: true },
+  { label: "Nossa Fé", href: "/quem-somos", isRoute: true },
 ]
 
 export interface LandscapeImage {
@@ -237,7 +237,7 @@ export const FALLBACK_NEWS_CARDS: NewsHighlight[] = [
     badgeText: "Encontro",
     imageUrl:
       "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=800&auto=format&fit=crop",
-    linkUrl: "/quero-saber-mais",
+    linkUrl: "#contato",
   },
   {
     id: "mis-para-2026",

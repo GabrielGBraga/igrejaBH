@@ -1,3 +1,7 @@
+import { Link } from "react-router-dom"
+import { ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
 const FOUNDATIONS = [
   {
     title: "O Propósito Eterno",
@@ -43,7 +47,7 @@ export function LandingAboutSection() {
           </p>
 
           <p>
-            Usamos a expressão &ldquo;Igreja em Belo Horizonte&rdquo; apenas como identificação geográfica da nossa comunhão local, reconhecendo que o Corpo de Cristo na cidade é um só e não está dividido em denominações. Somos irmãos de todos os que pertencem ao Senhor Jesus em nossa região.
+            Usamos a expressão &ldquo;Discípulos de Jesus em Belo Horizonte&rdquo; como identificação bíblica da nossa comunhão local, reconhecendo que o Corpo de Cristo na cidade é um só e não está dividido em denominações. Somos irmãos de todos os que pertencem ao Senhor Jesus em nossa região.
           </p>
         </div>
 
@@ -67,6 +71,20 @@ export function LandingAboutSection() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Dedicated Page Action Button */}
+        <div className="mt-10 flex justify-center">
+          <Button
+            asChild
+            size="lg"
+            className="min-h-[44px] rounded-full px-8 text-sm font-semibold shadow-xs bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Link to="/quem-somos">
+              Conheça nossa fé em detalhes
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

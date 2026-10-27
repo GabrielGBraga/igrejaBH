@@ -83,7 +83,7 @@ export function CalendarEventCard({
   }
 
   return (
-    <Link to="/quero-saber-mais">
+    <Link to="/#contato">
       {cardContent}
     </Link>
   )

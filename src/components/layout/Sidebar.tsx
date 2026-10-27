@@ -149,9 +149,6 @@ export function Sidebar() {
                     <span className="truncate text-base font-bold tracking-tight text-foreground leading-none">
                       Igreja em BH
                     </span>
-                    <span className="truncate text-[10px] uppercase tracking-wider text-muted-foreground font-medium mt-0.5">
-                      A Igreja na Cidade
-                    </span>
                   </div>
                 )}
               </Link>

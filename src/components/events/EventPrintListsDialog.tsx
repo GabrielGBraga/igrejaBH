@@ -73,7 +73,7 @@ function OfficialPrintHeader({
               Igreja em Belo Horizonte
             </h1>
             <p className="text-[10px] uppercase tracking-wider text-black font-semibold">
-              A Igreja na Cidade • Vida Comum nas Casas e nas Ruas
+              Igreja em BH • Vida Comum nas Casas e nas Ruas
             </p>
           </div>
         </div>

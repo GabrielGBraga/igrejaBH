@@ -81,7 +81,7 @@ export function DiscipleshipCard({
               No Corpo de Cristo, a edificação não ocorre de forma passiva, mas através de relacionamentos reais de discipulado — vida na vida. Todos nós somos chamados a crescer à semelhança de Jesus.
             </p>
             <p className="leading-relaxed">
-              Acompanhe os estudos bíblicos e as mensagens da igreja na cidade. Se desejar caminhar junto em discipulado, fale conosco!
+              Acompanhe os estudos bíblicos e as mensagens da Igreja em BH. Se desejar caminhar junto em discipulado, fale conosco!
             </p>
           </div>
         </CardContent>

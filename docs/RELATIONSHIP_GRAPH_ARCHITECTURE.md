@@ -57,10 +57,10 @@ O componente `RelationshipGraphView.tsx` opera em 4 modos estruturais:
 * **Propósito:** Visualizar as cadeias verticais de paternidade espiritual e reprodução de discípulos.
 * **Funcionamento:**
   - Monta a floresta de árvores baseada estritamente em `discipler_id`.
-  - Calcula a largura de cada ramo de forma recursiva de baixo para cima (`subtreeWidth`), aplicando `NODE_SPACING_X = 92` e `SIBLING_GAP = 16`.
-  - Quebra linhas automaticamente (`MAX_ROW_WIDTH = 2600`) para manter o mapa compacto e navegável.
-  - Possui controle de profundidade (*Todas as Gerações*, *Até 2ª Geração*, *Até 3ª Geração*).
-  - Inclui filtro de **Linhagem Raiz** para focar em uma cadeia específica.
+  - Calcula a largura de cada ramo de forma recursiva de baixo para cima (`subtreeWidth`), aplicando `NODE_SPACING_X = 88` e `SIBLING_GAP = 14`.
+  - Quebra linhas automaticamente para manter o mapa compacto, balanceado e navegável.
+  - Exibe **sempre todas as gerações** de discipulado de forma completa e contínua (sem corte de profundidade).
+  - Mantém a separação topológica espacial entre diferentes ramos de discipulado de forma fluida, sem caixas decorativas de linhagem no canvas e sem filtro de linhagem.
   - Discípulos adultos sem discipulador são posicionados em uma **Zona de Alerta** com borda tracejada, facilitando a triagem.
 
 ### 3.2. Juntas por Grupo Caseiro (`computeGroupsClusterLayout`)
@@ -89,8 +89,7 @@ O componente `RelationshipGraphView.tsx` opera em 4 modos estruturais:
 * **Estrutura:**
   - **Eixo Superior:** Cadeia ascendente direta de discipuladores até a cobertura presbiteral.
   - **Eixo Central:** O irmão em foco, ladeado pelo cônjuge e seus companheiros de obra.
-  - **Eixo Inferior:** Todas as gerações de discípulos acompanhados por ele.
-  - Botão de alternância entre *"Focar 1ª e 2ª Geração"* e *"Expandir Toda a Linhagem"*.
+  - **Eixo Inferior:** Todas as gerações de discípulos acompanhados por ele de forma integral e sem corte.
 
 ---
 

@@ -9,7 +9,7 @@ import {
 import { RestrictedGroupLayout } from "./components/layout/RestrictedGroupLayout";
 import { Loader2 } from "lucide-react";
 import Landing from "./pages/Landing.tsx";
-import QueroSaberMais from "./pages/QueroSaberMais.tsx";
+import QuemSomos from "./pages/QuemSomos.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Home from "./pages/Home.tsx";
@@ -217,9 +217,10 @@ function App() {
         <Routes>
           <Route path="/" element={<RootRoute />} />
           <Route path="/landing" element={<Landing />} />
-          <Route path="/quero-saber-mais" element={<QueroSaberMais />} />
-          <Route path="/quero-conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
-          <Route path="/conhecer" element={<Navigate to="/quero-saber-mais" replace />} />
+          <Route path="/quem-somos" element={<QuemSomos />} />
+          <Route path="/quero-saber-mais" element={<Navigate to="/quem-somos" replace />} />
+          <Route path="/quero-conhecer" element={<Navigate to="/quem-somos" replace />} />
+          <Route path="/conhecer" element={<Navigate to="/quem-somos" replace />} />
           <Route path="/ensinos" element={<EnsinosRoute />} />
           <Route path="/entrar" element={<SignIn />} />
           <Route path="/login" element={<Navigate to="/entrar" replace />} />

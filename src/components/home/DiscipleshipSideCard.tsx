@@ -73,7 +73,7 @@ export function DiscipleshipSideCard({
             No Corpo de Cristo, a edificação ocorre através de relacionamentos de cuidado pessoal e aprendizado mútuo.
           </p>
           <div className="rounded-lg border border-border/60 bg-muted/30 p-2.5 text-[11px] leading-relaxed">
-            <span className="font-semibold text-foreground">Caminhe conosco:</span> Ao se conectar à vida da igreja na cidade, você é acolhido em discipulado e companheirismo.
+            <span className="font-semibold text-foreground">Caminhe conosco:</span> Ao se conectar à vida da Igreja em BH, você é acolhido em discipulado e companheirismo.
           </div>
         </CardContent>
         <CardFooter className="pt-2">

@@ -57,7 +57,7 @@ export function NewsTimeline() {
             <span>Mural da Comunidade</span>
           </h2>
           <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-            Acompanhe comunicados, pedidos de oração, novos ensinos e a vida da igreja na cidade.
+            Acompanhe comunicados, pedidos de oração, novos ensinos e a vida da Igreja em BH.
           </p>
         </div>
 

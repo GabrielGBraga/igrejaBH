@@ -97,7 +97,7 @@ export function CalendarEventDetailDialog({
               </p>
             ) : (
               <p>
-                Reunião aberta da igreja na cidade. Não há necessidade de inscrição prévia — basta comparecer com sua família ou irmãos próximos.
+                Reunião aberta da Igreja em BH. Não há necessidade de inscrição prévia — basta comparecer com sua família ou irmãos próximos.
               </p>
             )}
           </div>
@@ -129,7 +129,7 @@ export function CalendarEventDetailDialog({
               variant={isRetreat ? "default" : "outline"}
               className="min-h-[44px] rounded-xl px-5 text-xs sm:text-sm font-semibold cursor-pointer"
             >
-              <Link to="/quero-saber-mais" onClick={() => onOpenChange(false)}>
+              <Link to="/#contato" onClick={() => onOpenChange(false)}>
                 Quero Participar
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>

@@ -19,7 +19,6 @@ import {
   Filter,
   Eye,
   UserCheck,
-  Layers,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -164,10 +163,7 @@ function createsTreeCycle(parent: TidyTreeNode, candidateChild: TidyTreeNode): b
  * empilha grupos de folhas verticalmente em 2 colunas para reduzir a largura extrema
  * e organiza múltiplas árvores raízes em grade balanceada com zonas identificadas.
  */
-function computeTidyHierarchyLayout(
-  nodes: GraphNode[],
-  options?: { maxDepth?: number | null; lineageRootId?: string }
-): LayoutResult {
+function computeTidyHierarchyLayout(nodes: GraphNode[]): LayoutResult {
   if (nodes.length === 0) return { nodes: [], zones: [] }
 
   const NODE_SPACING_X = 88
@@ -175,9 +171,6 @@ function computeTidyHierarchyLayout(
   const LEVEL_HEIGHT = 122
   const LEAF_COL_GAP = 86
   const LEAF_ROW_GAP = 66
-
-  const maxDepth = options?.maxDepth ?? null
-  const lineageRootId = options?.lineageRootId ?? "all"
 
   const nodeMap = new Map<string, GraphNode>(nodes.map((n) => [n.id, n]))
   const treeNodeMap = new Map<string, TidyTreeNode>()
@@ -238,7 +231,7 @@ function computeTidyHierarchyLayout(
   const allRoots = Array.from(treeNodeMap.values()).filter((tn) => tn.parent === null)
 
   // Separar raízes que possuem subárvore (ou são presbíteros/liderança) de nós soltos
-  let activeTreeRoots: TidyTreeNode[] = []
+  const activeTreeRoots: TidyTreeNode[] = []
   const standaloneNoDiscipler: TidyTreeNode[] = []
   const standaloneCoveredOutsideView: TidyTreeNode[] = []
 
@@ -255,28 +248,6 @@ function computeTidyHierarchyLayout(
       standaloneCoveredOutsideView.push(r)
     }
   })
-
-  // Se o usuário filtrou por uma Linhagem Raiz específica
-  if (lineageRootId !== "all") {
-    const selectedRoot = treeNodeMap.get(lineageRootId)
-    if (selectedRoot) {
-      selectedRoot.parent = null
-      activeTreeRoots = [selectedRoot]
-      standaloneNoDiscipler.length = 0
-      standaloneCoveredOutsideView.length = 0
-    }
-  }
-
-  // Podar árvore se houver limite de profundidade de geração (maxDepth)
-  const pruneAtDepth = (tn: TidyTreeNode, depth: number) => {
-    tn.depth = depth
-    if (maxDepth !== null && depth >= maxDepth) {
-      tn.children = []
-      return
-    }
-    tn.children.forEach((c) => pruneAtDepth(c, depth + 1))
-  }
-  activeTreeRoots.forEach((r) => pruneAtDepth(r, 0))
 
   const countDescendants = (tn: TidyTreeNode): number =>
     1 + tn.children.reduce((acc, c) => acc + countDescendants(c), 0)
@@ -429,35 +400,17 @@ function computeTidyHierarchyLayout(
       currentRowMaxHeight = 0
     }
 
-    const zonePaddingX = 34
-    const zoneWidth = Math.max(240, tm.width + zonePaddingX * 2)
-    const zoneHeight = tm.height
-    const fullLineageTotal = tm.root.graphNode.totalLineageCount + 1
-    const depthLabel =
-      maxDepth !== null && fullLineageTotal > tm.totalCount
-        ? `${tm.totalCount} de ${fullLineageTotal} irmãos (até ${maxDepth}ª ger.)`
-        : `${tm.totalCount} ${tm.totalCount === 1 ? "irmão" : "irmãos"} • ${tm.levels} ${
-            tm.levels === 1 ? "geração" : "gerações"
-          }`
+    const treePaddingX = 34
+    const treeSlotWidth = Math.max(200, tm.width + treePaddingX * 2)
+    const treeHeight = tm.height
 
-    zones.push({
-      id: `tree_${tm.root.id}`,
-      title: `Linhagem: ${tm.root.graphNode.name}`,
-      subtitle: depthLabel,
-      x: currentX,
-      y: currentY,
-      width: zoneWidth,
-      height: zoneHeight,
-      shape: "rect",
-    })
-
-    const treeStartLeft = currentX + (zoneWidth - tm.width) / 2
-    assignCoords(tm.root, treeStartLeft, currentY + 84)
+    const treeStartLeft = currentX + (treeSlotWidth - tm.width) / 2
+    assignCoords(tm.root, treeStartLeft, currentY + 24)
     flattenTree(tm.root)
 
-    currentX += zoneWidth + 54
-    if (zoneHeight > currentRowMaxHeight) {
-      currentRowMaxHeight = zoneHeight
+    currentX += treeSlotWidth + 54
+    if (treeHeight > currentRowMaxHeight) {
+      currentRowMaxHeight = treeHeight
     }
   })
 
@@ -877,8 +830,7 @@ function computeFellowshipNetworkLayout(nodes: GraphNode[]): LayoutResult {
  */
 function computeIsolatedJuntaLayout(
   focusId: string,
-  allNodes: GraphNode[],
-  expandFullLineage = false
+  allNodes: GraphNode[]
 ): LayoutResult {
   const nodeMap = new Map(allNodes.map((n) => [n.id, n]))
   const centerNode = nodeMap.get(focusId)
@@ -987,19 +939,12 @@ function computeIsolatedJuntaLayout(
       ? centerX + 135 + (companions.length - 1) * 115 + 115
       : centerX + 125
 
-  const maxDescendantDepth =
-    expandFullLineage || centerNode.totalLineageCount <= 12 ? 99 : 2
-
   zones.push({
     id: "ego_focus_zone",
     title: `Junta Central de ${centerNode.name}`,
     subtitle: `${
       spouseNode ? "Cônjuge + " : ""
-    }${companions.length} companheiro(s) no eixo horizontal${
-      maxDescendantDepth === 2 && centerNode.totalLineageCount > 12
-        ? " • Exibindo 1ª e 2ª Geração"
-        : ""
-    }`,
+    }${companions.length} companheiro(s) no eixo horizontal`,
     x: horizontalSpanLeft,
     y: centerY - 82,
     width: Math.max(320, horizontalSpanRight - horizontalSpanLeft),
@@ -1026,9 +971,6 @@ function computeIsolatedJuntaLayout(
       maxSubtreeHeight: 0,
       x: 0,
       y: 0,
-    }
-    if (depth >= maxDescendantDepth) {
-      return tn
     }
     const rawChildren = childrenMap.get(node.id) || []
     rawChildren.forEach((c) => {
@@ -1164,7 +1106,7 @@ function RelationshipGraphCanvas({
 
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null)
 
-  // Conjunto de nós na junta/linhagem do irmão selecionado (ou sob o mouse)
+  // Conjunto de nós na junta/rede de cuidado do irmão selecionado (ou sob o mouse)
   const activeHighlightId = selectedNodeId || hoveredNode?.id || null
 
   const { highlightedNodeIds, highlightedLinkSet } = useMemo(() => {
@@ -2056,7 +1998,7 @@ function RelationshipGraphCanvas({
             </span>
           ) : (
             <span>
-              Clique em um irmão para destacar suas juntas • Duplo clique para isolar a linhagem
+              Clique em um irmão para destacar suas juntas • Duplo clique para isolar a junta
             </span>
           )}
         </div>
@@ -2192,10 +2134,6 @@ export function RelationshipGraphView({
     initialGroupId && initialGroupId !== "unlinked" ? initialGroupId : "all"
   )
   const [genderFilter, setGenderFilter] = useState<"all" | "M" | "F">("all")
-  const [lineageFilter, setLineageFilter] = useState<string>("all")
-  const [treeDepthLimit, setTreeDepthLimit] = useState<number | null>(
-    initialGroupId && initialGroupId !== "unlinked" ? null : 2
-  )
   const [diagnosticFilter, setDiagnosticFilter] = useState<DiagnosticFilter>("all")
   const [searchName, setSearchName] = useState<string>("")
 
@@ -2208,7 +2146,6 @@ export function RelationshipGraphView({
   // Seleção e isolamento de junta
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [isolatedNodeId, setIsolatedNodeId] = useState<string | null>(null)
-  const [isolatedFullLineage, setIsolatedFullLineage] = useState<boolean>(false)
   const [focusTargetId, setFocusTargetId] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
 
@@ -2351,28 +2288,6 @@ export function RelationshipGraphView({
     })
   }, [allChurchNodes, showChildren, sectorFilter, groupFilter, genderFilter])
 
-  // Opções de Linhagens Raízes (Presbíteros / Raízes da Árvore) no escopo atual
-  const lineageRootNodes = useMemo(() => {
-    const scopedSet = new Set(scopedNodes.map((n) => n.id))
-    return scopedNodes
-      .filter(
-        (n) =>
-          (!n.disciplerId || !scopedSet.has(n.disciplerId)) &&
-          (n.isPresbyter || n.isPresbyterSpouse || n.totalLineageCount > 0)
-      )
-      .sort((a, b) => {
-        if (a.gender !== b.gender) {
-          return (a.gender || "").localeCompare(b.gender || "")
-        }
-        return b.totalLineageCount - a.totalLineageCount || a.name.localeCompare(b.name)
-      })
-  }, [scopedNodes])
-
-  const effectiveLineageFilter = useMemo(() => {
-    if (lineageFilter === "all") return "all"
-    return lineageRootNodes.some((r) => r.id === lineageFilter) ? lineageFilter : "all"
-  }, [lineageFilter, lineageRootNodes])
-
   // Estatísticas de Saúde das Juntas no Escopo Atual
   const juntaStats = useMemo(() => {
     const adults = scopedNodes.filter((n) => !n.isChild)
@@ -2403,11 +2318,7 @@ export function RelationshipGraphView({
   // Calcular Layout Ativo (Árvore, Grupos, Companheirismo ou Junta Isolada)
   const { layoutNodes, layoutZones } = useMemo(() => {
     if (isolatedNodeId) {
-      const res = computeIsolatedJuntaLayout(
-        isolatedNodeId,
-        allChurchNodes,
-        isolatedFullLineage
-      )
+      const res = computeIsolatedJuntaLayout(isolatedNodeId, allChurchNodes)
       return { layoutNodes: res.nodes, layoutZones: res.zones }
     }
     if (layoutMode === "groups") {
@@ -2418,22 +2329,16 @@ export function RelationshipGraphView({
       const res = computeFellowshipNetworkLayout(scopedNodes)
       return { layoutNodes: res.nodes, layoutZones: res.zones }
     }
-    const res = computeTidyHierarchyLayout(scopedNodes, {
-      maxDepth: treeDepthLimit,
-      lineageRootId: effectiveLineageFilter,
-    })
+    const res = computeTidyHierarchyLayout(scopedNodes)
     return { layoutNodes: res.nodes, layoutZones: res.zones }
   }, [
     isolatedNodeId,
-    isolatedFullLineage,
     layoutMode,
     scopedNodes,
     allChurchNodes,
-    treeDepthLimit,
-    effectiveLineageFilter,
   ])
 
-  const layoutKey = `${layoutMode}|${isolatedNodeId || "macro"}|${isolatedFullLineage}|${sectorFilter}|${groupFilter}|${genderFilter}|${showChildren}|${effectiveLineageFilter}|${treeDepthLimit ?? "all"}`
+  const layoutKey = `${layoutMode}|${isolatedNodeId || "macro"}|${sectorFilter}|${groupFilter}|${genderFilter}|${showChildren}`
 
   // Construir Links para os nós presentes no layout
   const activeLinks = useMemo(() => {
@@ -2626,18 +2531,6 @@ export function RelationshipGraphView({
     if (sectorFilter !== "all" && target.sectorId !== sectorFilter) {
       setSectorFilter("all")
     }
-    if (!isolatedNodeId && effectiveLineageFilter !== "all") {
-      const visibleInLayout = layoutNodes.some((n) => n.id === id)
-      if (!visibleInLayout) {
-        setLineageFilter("all")
-      }
-    }
-    if (!isolatedNodeId && treeDepthLimit !== null) {
-      const visibleInLayout = layoutNodes.some((n) => n.id === id)
-      if (!visibleInLayout) {
-        setTreeDepthLimit(null)
-      }
-    }
     if (isolatedNodeId && !layoutNodes.some((n) => n.id === id)) {
       setIsolatedNodeId(id)
     }
@@ -2794,7 +2687,6 @@ export function RelationshipGraphView({
               variant={layoutMode === "hierarchy" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
-                setIsolatedFullLineage(false)
                 setLayoutMode("hierarchy")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2809,7 +2701,6 @@ export function RelationshipGraphView({
               variant={layoutMode === "groups" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
-                setIsolatedFullLineage(false)
                 setLayoutMode("groups")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2824,7 +2715,6 @@ export function RelationshipGraphView({
               variant={layoutMode === "fellowships" && !isolatedNodeId ? "default" : "outline"}
               onClick={() => {
                 setIsolatedNodeId(null)
-                setIsolatedFullLineage(false)
                 setLayoutMode("fellowships")
               }}
               className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
@@ -2834,38 +2724,18 @@ export function RelationshipGraphView({
             </Button>
 
             {isolatedNodeId && (
-              <>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setIsolatedNodeId(null)
-                    setIsolatedFullLineage(false)
-                  }}
-                  className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/10 text-primary"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  <span>Sair da Junta Isolada</span>
-                </Button>
-
-                {selectedNodeData && selectedNodeData.node.totalLineageCount > 12 && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={isolatedFullLineage ? "default" : "outline"}
-                    onClick={() => setIsolatedFullLineage((v) => !v)}
-                    className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
-                  >
-                    <Layers className="h-3.5 w-3.5" />
-                    <span>
-                      {isolatedFullLineage
-                        ? "Focar 1ª e 2ª Geração"
-                        : `Expandir Toda a Linhagem (${selectedNodeData.node.totalLineageCount})`}
-                    </span>
-                  </Button>
-                )}
-              </>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setIsolatedNodeId(null)
+                }}
+                className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border border-primary/30 bg-primary/10 text-primary"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Sair da Junta Isolada</span>
+              </Button>
             )}
           </div>
 
@@ -2957,9 +2827,7 @@ export function RelationshipGraphView({
               options={groupSelectOptions}
               value={groupFilter}
               onValueChange={(val) => {
-                const nextGroup = val || "all"
-                setGroupFilter(nextGroup)
-                setTreeDepthLimit(nextGroup === "all" ? 2 : null)
+                setGroupFilter(val || "all")
               }}
               placeholder="Filtrar por Grupo Caseiro..."
               clearable={false}
@@ -2988,67 +2856,6 @@ export function RelationshipGraphView({
             )}
           </div>
         </div>
-
-        {/* Linha 2.5 (Exclusiva para Árvore de Discipulado): Recorte por Linhagem Raiz e Profundidade */}
-        {layoutMode === "hierarchy" && !isolatedNodeId && (
-          <div className="flex flex-col gap-2 pt-2 border-t border-border/50 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                <Layers className="h-3.5 w-3.5 text-primary" />
-                Linhagem Raiz:
-              </span>
-              <div className="w-full sm:w-64">
-                <Select
-                  value={effectiveLineageFilter}
-                  onValueChange={(val) => setLineageFilter(val)}
-                >
-                  <SelectTrigger
-                    aria-label="Filtrar por Linhagem de Discipulado"
-                    className="h-11 min-h-[44px] w-full rounded-xl text-xs font-medium"
-                  >
-                    <SelectValue placeholder="Todas as Linhagens" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      Todas as Linhagens ({lineageRootNodes.length})
-                    </SelectItem>
-                    {lineageRootNodes.map((root) => (
-                      <SelectItem key={root.id} value={root.id}>
-                        {root.name} ({root.totalLineageCount + 1} na rede)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground mr-1">
-                Profundidade:
-              </span>
-              {(
-                [
-                  { label: "Todas Ger.", value: null },
-                  { label: "Até 2ª Ger.", value: 2 },
-                  { label: "Até 3ª Ger.", value: 3 },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={String(opt.value)}
-                  type="button"
-                  onClick={() => setTreeDepthLimit(opt.value)}
-                  className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
-                    treeDepthLimit === opt.value
-                      ? GRAPH_UI_CLASSES.layerTogglePotentialActive
-                      : GRAPH_UI_CLASSES.layerToggleInactive
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Linha 3: Camadas Visíveis (Toggles de Juntas) */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
@@ -3123,8 +2930,6 @@ export function RelationshipGraphView({
           {(sectorFilter !== "all" ||
             groupFilter !== "all" ||
             genderFilter !== "all" ||
-            effectiveLineageFilter !== "all" ||
-            treeDepthLimit !== null ||
             diagnosticFilter !== "all" ||
             searchName.trim() !== "" ||
             isolatedNodeId !== null) && (
@@ -3136,12 +2941,9 @@ export function RelationshipGraphView({
                 setSectorFilter("all")
                 setGroupFilter("all")
                 setGenderFilter("all")
-                setLineageFilter("all")
-                setTreeDepthLimit(null)
                 setDiagnosticFilter("all")
                 setSearchName("")
                 setIsolatedNodeId(null)
-                setIsolatedFullLineage(false)
                 setSelectedNodeId(null)
               }}
               className="h-11 min-h-[44px] rounded-xl text-xs text-muted-foreground hover:text-foreground"
@@ -3221,7 +3023,6 @@ export function RelationshipGraphView({
             onSelectNode={setSelectedNodeId}
             onDoubleClickNode={(id) => {
               setSelectedNodeId(id)
-              setIsolatedFullLineage(false)
               setIsolatedNodeId((prev) => (prev === id ? null : id))
             }}
             onFocusHandled={() => setFocusTargetId(null)}
@@ -3277,7 +3078,6 @@ export function RelationshipGraphView({
                 }
                 size="sm"
                 onClick={() => {
-                  setIsolatedFullLineage(false)
                   setIsolatedNodeId((prev) =>
                     prev === selectedNodeData.node.id ? null : selectedNodeData.node.id
                   )
@@ -3350,7 +3150,7 @@ export function RelationshipGraphView({
                 {selectedNodeData.node.totalLineageCount >
                   selectedNodeData.directDisciples.length && (
                   <Badge variant="outline" className="text-[10px]">
-                    {selectedNodeData.node.totalLineageCount} na linhagem
+                    {selectedNodeData.node.totalLineageCount} descendentes
                   </Badge>
                 )}
               </div>

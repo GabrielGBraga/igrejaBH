@@ -1,10 +1,9 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { Loader2, Send, CheckCircle2, ArrowRight } from "lucide-react"
+import { Loader2, Send, CheckCircle2 } from "lucide-react"
 import supabase from "@/lib/supabase"
 import { REGIONS_BH } from "@/data/landingData"
 import { Button } from "@/components/ui/button"
@@ -65,7 +64,7 @@ export function LandingContactSection() {
   const onSubmit = async (values: QuickContactValues) => {
     setSubmitting(true)
     try {
-      const submissionId = `sub-visitor-${Date.now()}`
+      const submissionId = `sub-quick-${Date.now()}`
       const payload = {
         id: submissionId,
         form_id: "form-apoio-diaconal",
@@ -75,8 +74,8 @@ export function LandingContactSection() {
           grupo_caseiro: `Acolhimento - ${values.region}`,
           tipo_necessidade: "Acolhimento / Conhecer Grupo Caseiro",
           urgencia: "Média (Nesta semana)",
-          detalhes: values.message?.trim() || "Deseja conhecer a congregação e os lares em BH.",
-          source: "Landing Page - Quer Saber Mais",
+          detalhes: values.message?.trim() || "Deseja conhecer a comunhão nos lares em BH.",
+          source: "Landing Page Hero / Contato Rápido",
         },
         submitted_at: new Date().toISOString(),
       }
@@ -229,22 +228,11 @@ export function LandingContactSection() {
                 />
               </Field>
 
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <Button
-                  asChild
-                  variant="link"
-                  className="min-h-[44px] px-0 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <Link to="/quero-saber-mais">
-                    Saiba como funcionam os encontros nas casas
-                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="min-h-[44px] w-full sm:w-auto px-6 rounded-full font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="min-h-[44px] w-full sm:w-auto px-8 rounded-full font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   {submitting ? (
                     <>

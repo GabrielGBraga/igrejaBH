@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Instagram, Youtube } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -167,8 +167,30 @@ export function LandingHeader() {
                     className="min-h-[44px] w-full justify-center text-sm font-medium rounded-full"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link to="/quero-saber-mais">Quero Conhecer</Link>
+                    <Link to="/quem-somos">Conheça Nossa Fé</Link>
                   </Button>
+                </div>
+
+                {/* Mobile Social Links */}
+                <div className="pt-2 border-t border-border/40 flex items-center justify-center gap-4">
+                  <a
+                    href="https://www.instagram.com/discipulos.bh"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram dos Discípulos em BH"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-muted/50 text-foreground transition-colors hover:bg-[#E1306C] hover:text-white"
+                  >
+                    <Instagram className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@discipulosembelohorizonte4776"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube Discípulos de Jesus em BH"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-muted/50 text-foreground transition-colors hover:bg-[#FF0000] hover:text-white"
+                  >
+                    <Youtube className="h-4 w-4" />
+                  </a>
                 </div>
               </div>
             </SheetContent>

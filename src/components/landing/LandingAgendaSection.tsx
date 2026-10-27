@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useChurchCalendar, type CalendarEventItem } from "@/hooks/useChurchCalendar"
@@ -117,10 +116,10 @@ export function LandingAgendaSection() {
                   size="sm"
                   className="min-h-[44px] shrink-0 rounded-full px-4 text-xs font-semibold"
                 >
-                  <Link to="/quero-saber-mais">
+                  <a href="#contato">
                     Caminhe conosco
                     <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                  </Link>
+                  </a>
                 </Button>
               </div>
             </div>

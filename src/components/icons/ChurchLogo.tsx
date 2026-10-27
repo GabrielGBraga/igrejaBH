@@ -62,9 +62,6 @@ export function ChurchLogo({
           <span className="font-bold tracking-tight text-foreground text-sm sm:text-base leading-none">
             Igreja em BH
           </span>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mt-0.5">
-            A Igreja na Cidade
-          </span>
         </div>
       )}
     </div>
