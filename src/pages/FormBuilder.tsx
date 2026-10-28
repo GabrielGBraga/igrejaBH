@@ -3074,7 +3074,7 @@ function FloatingAddBlockButton({ onAdd }: FloatingAddBlockButtonProps) {
           <Button
             size="icon"
             variant="outline"
-            className="z-10 h-7 w-7 cursor-pointer rounded-full border-border bg-background opacity-25 shadow-sm transition-all group-hover/fab:opacity-100 hover:scale-110 hover:border-primary hover:text-primary hover:opacity-100 focus:opacity-100"
+            className="z-10 h-7 w-7 cursor-pointer rounded-full border-border bg-background opacity-25 shadow-sm transition-all group-hover/fab:opacity-100 hover:border-primary hover:text-primary hover:opacity-100 focus:opacity-100"
             title="Inserir campo aqui"
           >
             <Plus className="h-4 w-4" />
