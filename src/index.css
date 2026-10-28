@@ -121,6 +121,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-background text-foreground min-h-screen relative;
@@ -130,6 +131,8 @@
   }
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
   }
 
   /* Autofill styling override for browser/Google autofill */
@@ -196,6 +199,18 @@
 
 @utility glass-darker {
   @apply bg-card/50 backdrop-blur-xl border border-border/50 shadow-md;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@utility min-h-dvh {
+  min-height: 100dvh;
 }
 
 @utility no-scrollbar {

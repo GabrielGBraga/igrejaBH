@@ -9,7 +9,7 @@ export default function Messages() {
       <h1 className="text-2xl font-bold tracking-tight">Página de Mensagens</h1>
       <p className="mt-2 max-w-sm text-muted-foreground">
         Esta página está em desenvolvimento. Em breve você poderá trocar
-        mensagens com outros membros aqui!
+        mensagens com outros irmãos aqui!
       </p>
     </div>
   )

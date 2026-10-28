@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Sparkles,
+  LayoutTemplate,
   Plus,
   Trash2,
   Clock,
@@ -127,7 +127,7 @@ export function FormPresentationEditor({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <LayoutTemplate className="w-5 h-5 text-primary" />
             <h3 className="text-sm font-bold text-foreground">
               Página de Apresentação Prévia do Evento
             </h3>
@@ -156,7 +156,7 @@ export function FormPresentationEditor({
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
-            {current.enabled ? "Página Ativada (Clique para Desativar)" : "Ativar Página de Apresentação"}
+            {current.enabled ? "Página Ativada (Desativar)" : "Ativar Página de Apresentação"}
           </button>
         </div>
       </div>
@@ -287,7 +287,7 @@ export function FormPresentationEditor({
                   <div className="space-y-3 pt-1">
                     {(current.infoItems || []).length === 0 ? (
                       <p className="text-xs text-muted-foreground italic text-center py-4">
-                        Nenhum cartão de destaque adicionado. Clique no botão acima para adicionar.
+                        Nenhum cartão de destaque adicionado. Use o botão acima para adicionar.
                       </p>
                     ) : (
                       current.infoItems!.map((item, idx) => (
@@ -302,7 +302,7 @@ export function FormPresentationEditor({
                             <button
                               type="button"
                               onClick={() => handleRemoveItem(item.id)}
-                              className="text-red-500 hover:text-red-600 p-1.5 rounded cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                              className="text-red-500 hover:text-red-600 p-2 rounded cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                               title="Remover destaque"
                             >
                               <Trash2 className="w-4 h-4" />

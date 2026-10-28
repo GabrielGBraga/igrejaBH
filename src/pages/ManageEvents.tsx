@@ -287,7 +287,7 @@ export default function ManageEvents() {
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 {searchQuery || statusFilter !== "todos"
                   ? "Tente ajustar os filtros ou o termo de busca para encontrar o encontro desejado."
-                  : "Nenhum retiro cadastrado no momento. Clique no botão acima para criar o primeiro encontro da comunidade."}
+                  : "Nenhum retiro cadastrado no momento. Use o botão acima para criar o primeiro encontro da comunidade."}
               </p>
             </div>
             {!searchQuery && statusFilter === "todos" && (

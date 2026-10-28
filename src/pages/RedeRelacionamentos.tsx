@@ -17,6 +17,10 @@ import {
   Filter,
   Link2,
   ShieldAlert,
+  Cake,
+  AlertCircle,
+  HeartHandshake,
+  Baby,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -63,6 +67,15 @@ const checkIsChild = (p: Profile) => {
   return !p.baptism_date && !!(p.father_id || p.mother_id)
 }
 
+const isBirthdayThisMonth = (birthDateStr?: string | null) => {
+  if (!birthDateStr) return false
+  const parts = birthDateStr.split("-")
+  if (parts.length < 3) return false
+  const birthMonth = parseInt(parts[1], 10)
+  const currentMonth = new Date().getMonth() + 1
+  return birthMonth === currentMonth
+}
+
 interface RedeRelacionamentosProps {
   singleGroupMode?: boolean
 }
@@ -95,7 +108,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
   // Filtros da lista de irmãos
   const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>("my_or_all")
   const [searchName, setSearchName] = useState<string>("")
-  const [filterDisciplerStatus, setFilterDisciplerStatus] = useState<"all" | "with" | "without">("all")
+  const [filterCategory, setFilterCategory] = useState<
+    "all" | "without_discipler" | "birthdays" | "children" | "adults"
+  >("all")
 
   // Modais de Edição
   const [editingDisciple, setEditingDisciple] = useState<Profile | null>(null)
@@ -341,6 +356,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     const brothersWithCompanions = profilesWithCompanion.size
     const totalFellowships = fellowships.length
 
+    const birthdaysCount = churchProfiles.filter((p) => isBirthdayThisMonth(p.birth_date)).length
+
     return {
       totalDisciples,
       adultCount,
@@ -353,6 +370,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       totalSectors,
       totalFellowships,
       brothersWithCompanions,
+      birthdaysCount,
     }
   }, [profiles, homeGroups, sectors, fellowships, presbyterIds])
 
@@ -389,14 +407,18 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         if (!matchesName && !matchesPhone) return false
       }
 
-      // 3. Filtro de Discipulador
+      // 3. Filtro por Categoria
       const isChild = checkIsChild(p)
       const isCoveredRoot =
         !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
-      if (filterDisciplerStatus === "with") {
-        if (isChild || (!p.discipler_id && !isCoveredRoot)) return false
-      } else if (filterDisciplerStatus === "without") {
+      if (filterCategory === "without_discipler") {
         if (isChild || p.discipler_id || isCoveredRoot) return false
+      } else if (filterCategory === "birthdays") {
+        if (!isBirthdayThisMonth(p.birth_date)) return false
+      } else if (filterCategory === "children") {
+        if (!isChild) return false
+      } else if (filterCategory === "adults") {
+        if (isChild) return false
       }
 
       return true
@@ -408,7 +430,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     myHomeGroup,
     selectedGroupFilter,
     searchName,
-    filterDisciplerStatus,
+    filterCategory,
     presbyterIds,
   ])
 
@@ -436,8 +458,11 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     const withoutDiscipler = baseList.filter(
       (p) => !checkIsChild(p) && !p.discipler_id && !isCoveredRoot(p)
     ).length
+    const birthdays = baseList.filter((p) => isBirthdayThisMonth(p.birth_date)).length
+    const children = baseList.filter((p) => checkIsChild(p)).length
+    const adults = baseList.filter((p) => !checkIsChild(p)).length
 
-    return { total, withDiscipler, withoutDiscipler }
+    return { total, withDiscipler, withoutDiscipler, birthdays, children, adults }
   }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter, presbyterIds])
 
   // Opções para o seletor com pesquisa de Grupo Caseiro
@@ -596,16 +621,22 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
               variant="outline"
               className="border-primary/30 bg-primary/10 text-primary text-[11px] font-medium"
             >
-              {isTier3 ? "Presbitério & Diaconato" : "Líder de GC"}
+              {singleGroupMode
+                ? "Acesso Exclusivo do Grupo"
+                : isTier3
+                ? "Visão Geral do Corpo"
+                : myHomeGroup
+                ? getHomeGroupDisplayName(myHomeGroup, profileMap)
+                : "Seu Grupo Caseiro"}
             </Badge>
           </div>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Gestão do Corpo
+            Gestão do Corpo e Cuidado Mútuo
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {isTier3
-              ? "Coordenação dos Grupos Caseiros e cuidado mútuo na vida da igreja."
-              : "Cuidado dos irmãos do Grupo Caseiro e fortalecimento das juntas e ligamentos."}
+              ? "Acompanhamento fraternal dos irmãos, grupos caseiros e cuidado com cada vida na cidade."
+              : "Cuidado dos irmãos do Grupo Caseiro e fortalecimento da comunhão no dia a dia."}
           </p>
         </div>
 
@@ -639,8 +670,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 </>
               ) : (
                 <>
-                  <Network className="h-4 w-4" />
-                  <span>Ver em Grafo</span>
+                  <Network className="h-4 w-4 text-primary" />
+                  <span>Mapa Visual da Rede</span>
                 </>
               )}
             </Button>
@@ -734,7 +765,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         Igreja em Belo Horizonte
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Panorama Geral do Corpo
+                        Panorama da Comunhão
                       </span>
                     </div>
                     <span className="text-xs font-semibold text-foreground">
@@ -744,11 +775,19 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
                   <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3">
                     {/* KPI 1: Discípulos */}
-                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("all")}
+                      className={`text-left rounded-2xl border p-4 shadow-2xs flex flex-col justify-between transition-all hover:border-primary/50 cursor-pointer ${
+                        filterCategory === "all"
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border/80 bg-card hover:bg-muted/40"
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                           <Users className="h-3.5 w-3.5 text-primary" />
-                          Discípulos
+                          Irmãos no Corpo
                         </span>
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
                           Total
@@ -762,12 +801,16 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           {churchKpis.adultCount} adultos • {churchKpis.childrenCount} crianças
                         </p>
                       </div>
-                    </div>
+                    </button>
 
                     {/* KPI 2: Grupos Caseiros */}
-                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("outros_grupos")}
+                      className="text-left rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between transition-all hover:border-primary/50 hover:bg-muted/40 cursor-pointer"
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5 text-primary" />
                           Grupos Caseiros
                         </span>
@@ -780,58 +823,71 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           {churchKpis.totalGroups}
                         </div>
                         <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                          Igrejas nas casas pela cidade
+                          Ver no mapa e diretório →
                         </p>
                       </div>
-                    </div>
+                    </button>
 
-                    {/* KPI 3: Cobertura de Discipulado */}
-                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                    {/* KPI 3: Precisam de Discipulador */}
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("without_discipler")}
+                      className={`text-left rounded-2xl border p-4 shadow-2xs flex flex-col justify-between transition-all hover:border-amber-500/60 cursor-pointer ${
+                        filterCategory === "without_discipler"
+                          ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/40"
+                          : "border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10"
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                          <Network className="h-3.5 w-3.5 text-primary" />
-                          Discipulado
+                        <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                          <HeartHandshake className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                          Sem Discipulador
                         </span>
                         <Badge
                           variant="outline"
-                          className="text-[10px] px-1.5 py-0 font-medium border-primary/30 bg-primary/10 text-primary"
+                          className="text-[10px] px-1.5 py-0 font-semibold border-amber-500/40 bg-amber-500/20 text-amber-800 dark:text-amber-300"
                         >
-                          {churchKpis.totalDisciplers} {churchKpis.totalDisciplers === 1 ? "discipulador" : "discipuladores"}
+                          Atenção
                         </Badge>
                       </div>
                       <div className="mt-2.5">
-                        <div className="text-2xl font-bold tracking-tight text-foreground">
-                          {churchKpis.withDiscipler}{" "}
-                          <span className="text-xs font-normal text-muted-foreground">
-                            / {churchKpis.adultCount}
-                          </span>
+                        <div className="text-2xl font-bold tracking-tight text-amber-900 dark:text-amber-200">
+                          {churchKpis.withoutDiscipler}
                         </div>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                          {churchKpis.discipleshipRate}% acompanhados • {churchKpis.withoutDiscipler} sem discipulador
+                        <p className="mt-0.5 text-[11px] text-amber-700/80 dark:text-amber-300/80 truncate">
+                          {churchKpis.discipleshipRate}% acompanhados • clique para filtrar
                         </p>
                       </div>
-                    </div>
+                    </button>
 
-                    {/* KPI 4: Companheiros de Obra */}
-                    <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex flex-col justify-between">
+                    {/* KPI 4: Aniversariantes do Mês */}
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("birthdays")}
+                      className={`text-left rounded-2xl border p-4 shadow-2xs flex flex-col justify-between transition-all hover:border-primary/50 cursor-pointer ${
+                        filterCategory === "birthdays"
+                          ? "border-primary bg-primary/10 ring-1 ring-primary/40"
+                          : "border-border/80 bg-card hover:bg-muted/40"
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                          <Users className="h-3.5 w-3.5 text-primary" />
-                          Companheiros de Obra
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Cake className="h-3.5 w-3.5 text-primary" />
+                          Aniversariantes
                         </span>
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
-                          {churchKpis.totalFellowships} juntas
+                          Este mês
                         </Badge>
                       </div>
                       <div className="mt-2.5">
                         <div className="text-2xl font-bold tracking-tight text-foreground">
-                          {churchKpis.brothersWithCompanions}
+                          {churchKpis.birthdaysCount}
                         </div>
                         <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                          Irmãos em parcerias de serviço
+                          Para parabenizar e orar juntos
                         </p>
                       </div>
-                    </div>
+                    </button>
                   </div>
                 </div>
               ) : selectedGroupFilter === "unlinked" ? (
@@ -855,7 +911,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                   </p>
                 </div>
               ) : currentFocusedGroup ? (
-                <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-sm">
+                <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-sm space-y-3">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -904,18 +960,60 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       <span>Editar Dados do Grupo</span>
                     </Button>
                   </div>
+
+                  {/* 3 mini cards rápidos do grupo */}
+                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border/50">
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("all")}
+                      className={`rounded-xl p-2.5 text-center border transition-all cursor-pointer ${
+                        filterCategory === "all"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      <div className="text-lg font-bold text-foreground">{counts.total}</div>
+                      <div className="text-[11px]">Irmãos no Grupo</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("without_discipler")}
+                      className={`rounded-xl p-2.5 text-center border transition-all cursor-pointer ${
+                        filterCategory === "without_discipler"
+                          ? "border-amber-500 bg-amber-500/15 text-amber-800 dark:text-amber-300 font-semibold"
+                          : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      <div className="text-lg font-bold text-amber-700 dark:text-amber-400">{counts.withoutDiscipler}</div>
+                      <div className="text-[11px]">Sem Discipulador</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFilterCategory("birthdays")}
+                      className={`rounded-xl p-2.5 text-center border transition-all cursor-pointer ${
+                        filterCategory === "birthdays"
+                          ? "border-primary bg-primary/15 text-primary font-semibold"
+                          : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      <div className="text-lg font-bold text-foreground">{counts.birthdays}</div>
+                      <div className="text-[11px]">Aniversariantes</div>
+                    </button>
+                  </div>
                 </div>
               ) : null}
 
-              {/* Botão Grande "+ Adicionar Irmão" (Min Height 48px) */}
+              {/* Botão Grande "+ Cadastrar Novo Irmão" (Min Height 48px) */}
               <Button
                 type="button"
                 onClick={handleOpenAddDisciple}
-                className="h-12 min-h-[48px] w-full gap-2 rounded-xl text-sm font-semibold shadow-sm"
+                className="h-12 min-h-[48px] w-full gap-2 rounded-xl text-sm font-semibold shadow-xs"
               >
                 <Plus className="h-5 w-5" />
                 <span>
-                  {currentFocusedGroup ? "Adicionar Irmão ao Grupo" : "Adicionar Irmão"}
+                  {currentFocusedGroup ? "Cadastrar Novo Irmão no Grupo" : "Cadastrar Novo Irmão"}
                 </span>
               </Button>
 
@@ -931,13 +1029,13 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                   />
                 </div>
 
-                {/* Chips de Filtro (Touch targets >= 44px) */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {/* Chips de Filtro Simples e Diretos (Touch targets >= 44px) */}
+                <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
                   <button
                     type="button"
-                    onClick={() => setFilterDisciplerStatus("all")}
-                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-                      filterDisciplerStatus === "all"
+                    onClick={() => setFilterCategory("all")}
+                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                      filterCategory === "all"
                         ? "bg-foreground text-background shadow-xs"
                         : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
                     }`}
@@ -947,42 +1045,84 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
                   <button
                     type="button"
-                    onClick={() => setFilterDisciplerStatus("with")}
-                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-                      filterDisciplerStatus === "with"
-                        ? "bg-foreground text-background shadow-xs"
-                        : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
+                    onClick={() => setFilterCategory("without_discipler")}
+                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
+                      filterCategory === "without_discipler"
+                        ? "bg-amber-600 text-white shadow-xs"
+                        : "border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20"
                     }`}
                   >
-                    Com Discipulador ({counts.withDiscipler})
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    <span>Sem Discipulador ({counts.withoutDiscipler})</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setFilterDisciplerStatus("without")}
-                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-all ${
-                      filterDisciplerStatus === "without"
+                    onClick={() => setFilterCategory("birthdays")}
+                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
+                      filterCategory === "birthdays"
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
+                    }`}
+                  >
+                    <Cake className="h-3.5 w-3.5" />
+                    <span>Aniversariantes do Mês ({counts.birthdays})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterCategory("children")}
+                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
+                      filterCategory === "children"
                         ? "bg-foreground text-background shadow-xs"
                         : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
                     }`}
                   >
-                    Pendente Discipulador ({counts.withoutDiscipler})
+                    <Baby className="h-3.5 w-3.5" />
+                    <span>Crianças ({counts.children})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterCategory("adults")}
+                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                      filterCategory === "adults"
+                        ? "bg-foreground text-background shadow-xs"
+                        : "border border-border/80 bg-card text-muted-foreground hover:bg-muted/60"
+                    }`}
+                  >
+                    Adultos ({counts.adults})
                   </button>
                 </div>
               </div>
 
               {/* Lista de Cards dos Irmãos */}
               {filteredDisciples.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border p-8 text-center">
+                <div className="rounded-2xl border border-dashed border-border p-8 text-center space-y-3">
                   <Users className="mx-auto h-10 w-10 text-muted-foreground/50" />
-                  <h3 className="mt-2 text-sm font-semibold text-foreground">
-                    Nenhum irmão encontrado
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {searchName
-                      ? "Nenhum irmão corresponde aos termos da busca."
-                      : "Adicione o primeiro irmão para iniciar o acompanhamento deste grupo."}
-                  </p>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Nenhum irmão encontrado
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {searchName || filterCategory !== "all"
+                        ? "Nenhum irmão corresponde aos filtros aplicados."
+                        : "Cadastre o primeiro irmão para iniciar o acompanhamento deste grupo."}
+                    </p>
+                  </div>
+                  {(searchName || filterCategory !== "all") && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setSearchName("")
+                        setFilterCategory("all")
+                      }}
+                      className="h-11 min-h-[44px] text-xs font-semibold rounded-xl"
+                    >
+                      Limpar Filtros e Ver Todos
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1009,6 +1149,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         ? getHomeGroupDisplayName(discipleGroup, profileMap)
                         : null
 
+                    const isCoveredRoot =
+                      !!disciple.is_presbyter || !!(disciple.spouse_id && presbyterIds.has(disciple.spouse_id))
+
                     return (
                       <DiscipleCard
                         key={disciple.id}
@@ -1020,6 +1163,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         motherName={mother}
                         fellowshipNames={companions}
                         groupName={groupName}
+                        isCoveredRoot={isCoveredRoot}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
                         onTransformToLinked={handleOpenTransformToLinked}

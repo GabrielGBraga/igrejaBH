@@ -292,7 +292,7 @@ export function EventFinanceTab({
               <Receipt className="w-12 h-12 text-muted-foreground mx-auto" />
               <h4 className="font-bold text-foreground text-sm">Nenhum gasto ou despesa lançada</h4>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                Clique no botão "Lançar Nova Despesa" acima para manter a prestação de contas do evento atualizada.
+                Use o botão "Lançar Nova Despesa" acima para manter a prestação de contas do evento atualizada.
               </p>
             </div>
           ) : (

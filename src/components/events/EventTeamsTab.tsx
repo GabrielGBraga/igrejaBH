@@ -418,7 +418,7 @@ export function EventTeamsTab({
             Visão Geral das Equipes
           </h3>
           <span className="text-[11px] text-zinc-500">
-            Clique em uma equipe para filtrar
+            Selecione uma equipe para filtrar
           </span>
         </div>
 
@@ -482,7 +482,7 @@ export function EventTeamsTab({
                       e.stopPropagation();
                       handleCopyTeamSchedule(team);
                     }}
-                    className="min-h-[32px] px-1.5 py-1 text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    className="min-h-[44px] px-2 py-1 text-primary hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     {copiedTeamId === team.id ? (
                       <Check className="w-3 h-3 text-emerald-500" />

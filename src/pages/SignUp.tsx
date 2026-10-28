@@ -582,7 +582,7 @@ export default function SignUp() {
                                         <button 
                                             type="button" 
                                             onClick={clearAvatar}
-                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 shadow-lg hover:scale-110 transition-transform z-20 min-h-[28px] min-w-[28px] flex items-center justify-center"
+                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-2 shadow-lg transition-colors z-20 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
                                             aria-label="Remover foto"
                                         >
                                             <XIcon className="h-3 w-3" />
@@ -880,13 +880,13 @@ export default function SignUp() {
                                     <button 
                                         type="button" 
                                         onClick={clearAvatar}
-                                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 shadow-lg hover:scale-110 transition-transform z-20"
+                                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-2 shadow-lg transition-colors z-20 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
                                     >
                                         <XIcon className="h-3 w-3" />
                                     </button>
                                 )}
                             </div>
-                            <p className="text-xs text-muted-foreground">Clique na imagem para carregar sua foto</p>
+                            <p className="text-xs text-muted-foreground">Toque na imagem para carregar sua foto</p>
 
 
                             <input 

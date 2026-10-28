@@ -178,7 +178,7 @@ export default function QuemSomos() {
             </h1>
 
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
-              Somos discípulos de Jesus na cidade de Belo Horizonte e região metropolitana desde o início da década de 1980. Não somos uma instituição religiosa empresarial ou templo de tijolos, mas uma comunhão viva de irmãos que buscam cumprir o propósito eterno de Deus.
+              Somos discípulos de Jesus na cidade de Belo Horizonte e região metropolitana desde o início da década de 1980. Não somos uma denominação empresarial ou templo de tijolos, mas uma comunhão viva de irmãos que buscam cumprir o propósito eterno de Deus.
             </p>
           </header>
 

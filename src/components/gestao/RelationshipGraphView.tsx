@@ -1994,11 +1994,11 @@ function RelationshipGraphCanvas({
         <div className="rounded-xl border border-border/80 bg-background/90 px-3 py-1.5 text-[11px] text-muted-foreground shadow-xs backdrop-blur-xs">
           {isolatedNodeId ? (
             <span className="font-medium text-foreground">
-              Modo Junta Isolada • Clique em um irmão para inspecionar
+              Modo Junta Isolada • Selecione um irmão para inspecionar
             </span>
           ) : (
             <span>
-              Clique em um irmão para destacar suas juntas • Duplo clique para isolar a junta
+              Toque em um irmão para destacar suas juntas • Toque duplo para isolar a junta
             </span>
           )}
         </div>
@@ -2605,7 +2605,7 @@ export function RelationshipGraphView({
               {juntaStats.withoutDiscipler.length}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              Clique para destacar
+              Toque para destacar
             </span>
           </div>
         </button>
@@ -2976,7 +2976,7 @@ export function RelationshipGraphView({
                 )}
               </span>
               <span className="text-[11px] text-muted-foreground">
-                Clique em um nome para centralizar e inspecionar
+                Selecione um nome para centralizar e inspecionar
               </span>
             </div>
             <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">

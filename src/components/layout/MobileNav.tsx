@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Menu } from "lucide-react"
+import { Menu, LogOut, User, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -10,58 +10,25 @@ import {
 } from "@/components/ui/sheet"
 import { navItems } from "./NavItems"
 import { cn } from "@/lib/utils"
-import supabase from "@/lib/supabase"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ChurchLogo } from "@/components/icons/ChurchLogo"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useCurrentUserProfile } from "@/hooks/useCurrentUserProfile"
+import supabase from "@/lib/supabase"
 
-export function MobileNav() {
+interface MobileNavProps {
+  menuOpen?: boolean
+  onMenuOpenChange?: (open: boolean) => void
+}
+
+export function MobileNav({ menuOpen: controlledOpen, onMenuOpenChange: setControlledOpen }: MobileNavProps) {
   const location = useLocation()
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [isManagement, setIsManagement] = useState(false)
-  const [canPost, setCanPost] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const { profile, isAdmin, isManagement, canPost } = useCurrentUserProfile()
 
-  useEffect(() => {
-    async function fetchUserData() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (session?.user) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("id, is_dev, is_presbyter, is_deacon, can_post")
-          .eq("user_id", session.user.id)
-          .single()
-
-        if (profileData) {
-          setIsAdmin(!!(profileData.is_dev || profileData.is_presbyter))
-          setCanPost(
-            !!(
-              profileData.is_dev ||
-              profileData.is_presbyter ||
-              profileData.can_post
-            )
-          )
-
-          const { count } = await supabase
-            .from("home_groups")
-            .select("*", { count: "exact", head: true })
-            .or(
-              `leader_1_id.eq.${profileData.id},leader_2_id.eq.${profileData.id}`
-            )
-
-          setIsManagement(
-            !!(
-              profileData.is_dev ||
-              profileData.is_presbyter ||
-              profileData.is_deacon ||
-              (count || 0) > 0
-            )
-          )
-        }
-      }
-    }
-    fetchUserData()
-  }, [])
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setIsOpen = setControlledOpen !== undefined ? setControlledOpen : setInternalOpen
 
   const filteredNavItems = navItems.filter((item) => {
     if (item.requireAdmin && !isAdmin) return false
@@ -70,48 +37,163 @@ export function MobileNav() {
     return true
   })
 
+  const getInitials = (name?: string) => {
+    if (!name) return "D"
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const handleLogout = async () => {
+    setIsOpen(false)
+    await supabase.auth.signOut()
+  }
+
   return (
-    <div className="sticky top-0 z-50 flex items-center justify-between border-b bg-background/80 p-4 backdrop-blur-md md:hidden">
-      <Link to="/dashboard">
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border/80 bg-background/90 px-4 pt-safe backdrop-blur-md md:hidden">
+      {/* Brand Logo */}
+      <Link
+        to="/dashboard"
+        className="flex min-h-[44px] items-center outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+        aria-label="Ir para o início"
+      >
         <ChurchLogo size="sm" />
       </Link>
 
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[300px] p-0 sm:w-[350px]">
-          <SheetHeader className="border-b p-6">
-            <SheetTitle>
-              <ChurchLogo size="md" />
-            </SheetTitle>
-          </SheetHeader>
-          <nav className="flex flex-col gap-1 p-4">
-            {filteredNavItems.map((item) => {
-              const Icon = item.icon
-              const isActive = location.pathname === item.href
+      {/* Header Actions: ThemeToggle + UserAvatar + Menu Trigger */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <ThemeToggle />
 
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </SheetContent>
-      </Sheet>
-    </div>
+        {/* User Profile Avatar Link */}
+        <Link
+          to="/perfil"
+          aria-label="Meu Perfil"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Avatar className="h-8 w-8 border border-border shadow-2xs">
+            <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "Perfil"} />
+            <AvatarFallback className="bg-primary/20 text-xs font-bold text-primary">
+              {getInitials(profile?.full_name)}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
+
+        {/* Drawer Sheet Menu */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="min-h-[44px] min-w-[44px] rounded-xl text-foreground"
+              aria-label="Abrir menu de navegação"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] p-0 sm:w-[350px] flex flex-col justify-between">
+            <div>
+              <SheetHeader className="border-b border-border/60 p-5 text-left">
+                <SheetTitle className="flex items-center justify-between">
+                  <ChurchLogo size="sm" />
+                </SheetTitle>
+
+                {/* Perfil Compacto no Drawer */}
+                {profile && (
+                  <Link
+                    to="/perfil"
+                    onClick={() => setIsOpen(false)}
+                    className="mt-3 flex items-center gap-3 rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-colors hover:bg-muted/60"
+                  >
+                    <Avatar className="h-10 w-10 border border-border">
+                      <AvatarImage src={profile.avatar_url || undefined} />
+                      <AvatarFallback className="bg-primary/20 text-sm font-bold text-primary">
+                        {getInitials(profile.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col min-w-0">
+                      <span className="truncate text-sm font-bold text-foreground">
+                        {profile.full_name}
+                      </span>
+                      <span className="truncate text-[11px] text-muted-foreground">
+                        Ver meu perfil
+                      </span>
+                    </div>
+                  </Link>
+                )}
+              </SheetHeader>
+
+              {/* Lista de Navegação Principal */}
+              <nav className="flex flex-col gap-1 p-3">
+                <span className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Navegação do Portal
+                </span>
+                {filteredNavItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive =
+                    location.pathname === item.href ||
+                    (item.href !== "/dashboard" && location.pathname.startsWith(item.href))
+
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        "flex min-h-[44px] items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" />
+                      <span>{item.name}</span>
+                    </Link>
+                  )
+                })}
+
+                {/* Seção de Atalhos Adicionais */}
+                <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
+                  <span className="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Atalhos Pessoais
+                  </span>
+                  <Link
+                    to="/eventos"
+                    onClick={() => setIsOpen(false)}
+                    className="flex min-h-[44px] items-center gap-3 rounded-xl px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <Bell className="h-5 w-5 shrink-0" />
+                    <span>Inscrições em Retiros</span>
+                  </Link>
+                  <Link
+                    to="/perfil"
+                    onClick={() => setIsOpen(false)}
+                    className="flex min-h-[44px] items-center gap-3 rounded-xl px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <User className="h-5 w-5 shrink-0" />
+                    <span>Dados Pessoais & Senha</span>
+                  </Link>
+                </div>
+              </nav>
+            </div>
+
+            {/* Rodapé do Menu Drawer: Botão Sair */}
+            <div className="border-t border-border/60 p-4 pb-safe">
+              <Button
+                variant="outline"
+                onClick={handleLogout}
+                className="min-h-[44px] w-full justify-start gap-2.5 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sair da Conta</span>
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </header>
   )
 }

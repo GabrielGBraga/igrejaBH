@@ -885,7 +885,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 rounded-lg hover:bg-amber-500/10 text-amber-600 hover:text-amber-700 shrink-0 cursor-pointer"
+                                            className="min-h-[44px] min-w-[44px] rounded-lg hover:bg-amber-500/10 text-amber-600 hover:text-amber-700 shrink-0 cursor-pointer flex items-center justify-center"
                                             onClick={() => handleOpenLinkDialog(member)}
                                             title="Vincular à Igreja"
                                         >
@@ -898,7 +898,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                                                    className="min-h-[44px] min-w-[44px] rounded-lg hover:bg-zinc-500/10 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer flex items-center justify-center"
                                                     onClick={() => handleEditClick(member)}
                                                     title="Editar Perfil Vinculado"
                                                 >
@@ -908,7 +908,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer"
+                                                className="min-h-[44px] min-w-[44px] rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer flex items-center justify-center"
                                                 onClick={() => handleDeleteClick(member.id)}
                                                 title="Remover Perfil"
                                             >

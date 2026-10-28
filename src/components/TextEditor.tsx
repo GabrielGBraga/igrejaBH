@@ -393,7 +393,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("bold")}
                     title="Negrito"
                 >
@@ -403,7 +403,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("italic")}
                     title="Itálico"
                 >
@@ -413,7 +413,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("underline")}
                     title="Sublinhado"
                 >
@@ -427,7 +427,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("formatBlock", "<h1>")}
                     title="Título 1"
                 >
@@ -437,7 +437,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("formatBlock", "<h2>")}
                     title="Título 2"
                 >
@@ -447,7 +447,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("formatBlock", "<h3>")}
                     title="Título 3"
                 >
@@ -457,7 +457,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("formatBlock", "<h4>")}
                     title="Subtítulo"
                 >
@@ -480,7 +480,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("justifyLeft")}
                     title="Alinhar à Esquerda"
                 >
@@ -490,7 +490,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("justifyCenter")}
                     title="Centralizar"
                 >
@@ -500,7 +500,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("justifyFull")}
                     title="Justificar"
                 >
@@ -514,7 +514,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("formatBlock", "<blockquote>")}
                     title="Citação"
                 >
@@ -524,7 +524,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("insertUnorderedList")}
                     title="Lista com Marcadores"
                 >
@@ -534,7 +534,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("insertOrderedList")}
                     title="Lista Numerada"
                 >
@@ -548,7 +548,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={handleAddLink}
                     title="Inserir Link"
                 >
@@ -558,7 +558,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("removeFormat")}
                     title="Limpar Formatação"
                 >
@@ -572,7 +572,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("undo")}
                     title="Desfazer"
                 >
@@ -582,7 +582,7 @@ export function TextEditor({
                     type="button" 
                     variant="ghost" 
                     size="icon" 
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                    className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
                     onClick={() => executeCommand("redo")}
                     title="Refazer"
                 >

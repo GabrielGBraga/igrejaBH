@@ -86,7 +86,7 @@ export function CommunityCalendarCard({
               variant="outline"
               className="shrink-0 gap-1 rounded-full border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
             >
-              <Sparkles className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+              <CalendarDays className="h-3 w-3 text-primary" />
               Programação
             </Badge>
           </div>

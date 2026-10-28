@@ -28,7 +28,6 @@ import {
   XIcon,
   PlusIcon,
   MapPin,
-  Sparkles,
   Globe,
   Lock,
 } from "lucide-react"
@@ -295,7 +294,7 @@ export default function CreatePost() {
                   )}
                 />
 
-                {/* Switch de Visibilidade Pública vs Apenas Membros */}
+                {/* Switch de Visibilidade Pública vs Apenas Discípulos */}
                 <Controller
                   name="isPublic"
                   control={form.control}
@@ -311,7 +310,7 @@ export default function CreatePost() {
                           ) : (
                             <>
                               <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                              <span>Apenas Membros Vinculados</span>
+                              <span>Apenas Discípulos Vinculados</span>
                             </>
                           )}
                         </FieldLabel>
@@ -402,7 +401,7 @@ export default function CreatePost() {
               {selectedCategory === "evento" && (
                 <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 sm:p-5 space-y-4">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                    <Sparkles className="h-4 w-4" />
+                    <CalendarIcon className="h-4 w-4" />
                     <span>Vínculo ao Evento Oficial</span>
                   </div>
 
@@ -468,12 +467,12 @@ export default function CreatePost() {
                         <img
                           src={URL.createObjectURL(img.file)}
                           alt="Prévia"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="h-full w-full object-cover transition-opacity duration-300"
                         />
                         <button
                           type="button"
                           onClick={() => removeImage(img.id)}
-                          className="text-destructive-foreground absolute top-2 right-2 rounded-full bg-destructive/90 p-1.5 opacity-0 shadow-lg transition-all group-hover:opacity-100 hover:scale-110"
+                          className="text-destructive-foreground absolute top-2 right-2 rounded-full bg-destructive/90 p-1.5 opacity-0 shadow-lg transition-all group-hover:opacity-100 min-h-[32px] min-w-[32px] flex items-center justify-center"
                           aria-label="Remover foto"
                         >
                           <XIcon className="h-3.5 w-3.5" />

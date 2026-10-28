@@ -1443,7 +1443,7 @@ export default function Ensinos() {
                                                 <p className="text-muted-foreground mt-1 max-w-md mx-auto text-xs sm:text-sm leading-relaxed">
                                                     {searchQuery
                                                         ? "Nenhuma reflexão corresponde à busca ou filtro atual."
-                                                        : "Suas notas pessoais e reflexões bíblicas feitas nas ministrações aparecerão organizadas aqui. Clique no ícone de anotação em qualquer material para registrar."}
+                                                        : "Suas notas pessoais e reflexões bíblicas feitas nas ministrações aparecerão organizadas aqui. Selecione o ícone de anotação em qualquer material para registrar."}
                                                 </p>
                                             </div>
                                         )}

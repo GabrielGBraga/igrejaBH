@@ -154,7 +154,7 @@ export default function AddHomeGroup() {
         setLeaders(formattedUsers || []);
       } catch (error) {
         console.error("Error fetching leaders:", error);
-        toast.error("Erro ao carregar lista de membros.");
+        toast.error("Erro ao carregar lista de discípulos.");
       } finally {
         setLoadingLeaders(false);
       }
@@ -535,7 +535,7 @@ export default function AddHomeGroup() {
                               </ComboboxItem>
                             ))}
                           </ComboboxList>
-                          <ComboboxEmpty>Nenhum membro encontrado.</ComboboxEmpty>
+                          <ComboboxEmpty>Nenhum discípulo encontrado.</ComboboxEmpty>
                         </ComboboxContent>
                       </Combobox>
                       <FieldError errors={[fieldState.error]} />
@@ -567,7 +567,7 @@ export default function AddHomeGroup() {
                               </ComboboxItem>
                             ))}
                           </ComboboxList>
-                          <ComboboxEmpty>Nenhum membro encontrado.</ComboboxEmpty>
+                          <ComboboxEmpty>Nenhum discípulo encontrado.</ComboboxEmpty>
                         </ComboboxContent>
                       </Combobox>
                       <FieldError errors={[fieldState.error]} />

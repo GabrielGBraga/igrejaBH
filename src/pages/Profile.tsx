@@ -482,7 +482,7 @@ export default function Profile() {
     if (profile.is_dev) roles.push("Desenvolvedor")
     if (profile.is_presbyter) roles.push("Presbítero")
     if (profile.is_deacon) roles.push("Diácono")
-    if (roles.length === 0) roles.push("Membro")
+    if (roles.length === 0) roles.push("Discípulo")
     return roles.join(" • ")
   }
 
@@ -646,7 +646,7 @@ export default function Profile() {
             <div className="absolute top-0 left-0 h-32 w-full bg-linear-to-br from-primary/20 to-primary/5" />
             <div className="relative flex flex-col items-center gap-4">
               <div className="group relative">
-                <Avatar className="size-32 border-4 border-background shadow-2xl transition-transform duration-500 hover:scale-105">
+                <Avatar className="size-32 border-4 border-background shadow-2xl transition-all duration-300">
                   <AvatarImage src={profile.avatar_url} />
                   <AvatarFallback className="bg-primary text-4xl font-bold text-primary-foreground">
                     {getInitials(profile.full_name)}
@@ -811,7 +811,7 @@ export default function Profile() {
                             }}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <Avatar className="size-10 shrink-0 border border-border/60 transition-transform group-hover:scale-105">
+                              <Avatar className="size-10 shrink-0 border border-border/60">
                                 {child.avatar_url && (
                                   <AvatarImage
                                     src={child.avatar_url}
@@ -1046,7 +1046,7 @@ export default function Profile() {
           <DialogHeader>
             <DialogTitle>Vínculos Familiares</DialogTitle>
             <DialogDescription>
-              Selecione os membros da sua família cadastrados na igreja.
+              Selecione os familiares cadastrados na igreja.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
@@ -1087,7 +1087,7 @@ export default function Profile() {
                         </ComboboxItem>
                       ))}
                   </ComboboxList>
-                  <ComboboxEmpty>Nenhum membro encontrado.</ComboboxEmpty>
+                  <ComboboxEmpty>Nenhum irmão encontrado.</ComboboxEmpty>
                 </ComboboxContent>
               </Combobox>
             </Field>
@@ -1187,7 +1187,7 @@ export default function Profile() {
                   ))}
                 </div>
                 <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/30">
-                  O cadastro e vínculo de dependentes é gerenciado pastoralmente na gestão de membros.
+                  O cadastro e vínculo de dependentes é gerenciado pastoralmente na gestão do corpo.
                 </p>
               </div>
             )}

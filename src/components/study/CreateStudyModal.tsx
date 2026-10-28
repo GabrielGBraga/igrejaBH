@@ -231,7 +231,7 @@ export function CreateStudyModal({
                                             <SelectValue placeholder="Adicionar Recurso à Trilha..." />
                                         </div>
                                     </SelectTrigger>
-                                    <SelectContent position="popper" className="max-h-[320px] w-[320px] sm:w-[420px] overflow-y-auto rounded-2xl p-1.5 shadow-2xl">
+                                    <SelectContent position="popper" className="max-h-[320px] w-[calc(100vw-2rem)] sm:w-[420px] overflow-y-auto rounded-2xl p-1.5 shadow-2xl">
                                         {/* Dropdown Search */}
                                         <div
                                             className="p-1.5 border-b border-border/40 sticky top-0 bg-popover z-10"

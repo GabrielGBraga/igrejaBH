@@ -9,7 +9,7 @@ import {
   Info,
   Heart,
   ArrowRight,
-  Sparkles,
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FormPresentationPage } from "@/lib/forms";
@@ -87,7 +87,7 @@ export function FormPresentationView({
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white space-y-1.5">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm text-white">
-                <Sparkles className="w-3 h-3" />
+                <Info className="w-3 h-3" />
                 Informações do Encontro
               </span>
               <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-white leading-tight">
@@ -103,7 +103,7 @@ export function FormPresentationView({
         ) : (
           <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-950 text-white p-6 sm:p-8 space-y-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/10 text-zinc-300">
-              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <Info className="w-3 h-3 text-emerald-400" />
               Informações do Encontro
             </span>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-tight">

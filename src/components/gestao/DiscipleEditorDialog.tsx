@@ -20,7 +20,6 @@ import {
 import {
   User,
   Baby,
-  Users,
   Phone,
   ChevronDown,
   ChevronUp,
@@ -32,6 +31,7 @@ import {
   RotateCcw,
   Check,
   BookOpen,
+  HeartHandshake,
 } from "lucide-react"
 import { toast } from "sonner"
 import supabase from "@/lib/supabase"
@@ -149,10 +149,10 @@ export function DiscipleEditorDialog({
         setIsChurchLinked(shouldTransformLinked ? true : (disciple.is_church_linked !== false))
 
         if (shouldTransform) {
-          toast.info("Transição ativada! Defina o discipulador e confirme a data do batismo.")
+          toast.info("Defina o discipulador e confirme a data do batismo do irmão.")
         } else if (shouldTransformLinked) {
           setShowOptionalFields(true)
-          toast.info("Transição ativada! Defina o Grupo Caseiro e o Discipulador para vincular o irmão.")
+          toast.info("Defina o Grupo Caseiro e o Discipulador para vincular o irmão.")
         }
 
         // Carregar companheiros existentes
@@ -163,7 +163,7 @@ export function DiscipleEditorDialog({
           .map((f) => (f.member_a_id === disciple.id ? f.member_b_id : f.member_a_id))
         setSelectedFellowships(currentCompanions)
       } else {
-        // Reset for new creation
+        // Reset para novo cadastro
         setIsChild(false)
         setFullName("")
         setPhone("")
@@ -186,11 +186,11 @@ export function DiscipleEditorDialog({
     }
   }, [open, disciple, defaultHomeGroupId, homeGroups, fellowships, initialTransformToBaptized, initialTransformToLinked])
 
-  // Tratamento da mudança de gênero para auto-ajustar discipulador, cônjuge e companheiro(s) de obra
+  // Troca de gênero com auto-ajuste de discipulador e cônjuge
   const handleGenderChange = (newGender: "M" | "F") => {
     setGender(newGender)
 
-    // Se o discipulador selecionado não for do mesmo gênero, reseta
+    // Se o discipulador selecionado não for do mesmo sexo, reseta
     if (disciplerId !== "none") {
       const dProf = allProfiles.find((p) => p.id === disciplerId)
       if (dProf?.gender && dProf.gender !== newGender) {
@@ -198,7 +198,7 @@ export function DiscipleEditorDialog({
       }
     }
 
-    // Se o cônjuge selecionado não for do gênero oposto, reseta
+    // Se o cônjuge selecionado não for do sexo oposto, reseta
     if (spouseId !== "none") {
       const sProf = allProfiles.find((p) => p.id === spouseId)
       if (sProf?.gender && sProf.gender === newGender) {
@@ -206,7 +206,7 @@ export function DiscipleEditorDialog({
       }
     }
 
-    // Se houver companheiro(s) de obra com gênero diferente do novo, remove
+    // Filtra companheiros do mesmo sexo
     if (selectedFellowships.length > 0) {
       const validFellowships = selectedFellowships.filter((fid) => {
         const fProf = allProfiles.find((p) => p.id === fid)
@@ -218,7 +218,7 @@ export function DiscipleEditorDialog({
     }
   }
 
-  // Lista de irmãos disponíveis para discipulador (somente mesmo gênero)
+  // Lista de irmãos disponíveis para discipulador (mesmo sexo)
   const availableDisciplers = useMemo(() => {
     return allProfiles
       .filter((p) => {
@@ -230,7 +230,7 @@ export function DiscipleEditorDialog({
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, disciplerId, gender])
 
-  // Lista de irmãos disponíveis para cônjuge (somente gênero oposto)
+  // Lista de cônjuges disponíveis (sexo oposto)
   const availableSpouses = useMemo(() => {
     const oppositeGender = gender === "M" ? "F" : "M"
     return allProfiles
@@ -243,7 +243,7 @@ export function DiscipleEditorDialog({
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, spouseId, gender])
 
-  // Lista de irmãos disponíveis para companheiro(s) de obra (somente mesmo gênero)
+  // Lista de companheiros disponíveis (mesmo sexo)
   const availableCompanions = useMemo(() => {
     return allProfiles
       .filter(
@@ -256,7 +256,7 @@ export function DiscipleEditorDialog({
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, selectedFellowships, gender])
 
-  // Mapeamento rápido de perfis e líderes
+  // Mapeamentos rápidos
   const profileMap = useMemo(() => {
     const map = new Map<string, Profile>()
     allProfiles.forEach((p) => map.set(p.id, p))
@@ -278,7 +278,7 @@ export function DiscipleEditorDialog({
     return set
   }, [homeGroups])
 
-  // Opções para o Seletor com pesquisa de Grupo Caseiro (com nome dos líderes)
+  // Opções para o Seletor de Grupo Caseiro
   const homeGroupOptions = useMemo(() => {
     return homeGroups.map((hg) => {
       const displayName = getHomeGroupDisplayName(hg, profileMap)
@@ -292,10 +292,10 @@ export function DiscipleEditorDialog({
     })
   }, [homeGroups, profileMap])
 
-  // Opções de Discipulador (exibindo o grupo caseiro no lugar do telefone/número)
+  // Opções de Discipulador
   const disciplerOptions = useMemo(() => {
     return [
-      { value: "none", label: "Nenhum no momento", keywords: "nenhum sem discipulador" },
+      { value: "none", label: "Nenhum no momento (Pendente)", keywords: "nenhum sem discipulador" },
       ...availableDisciplers.map((p) => {
         const hg = p.home_group_id ? homeGroupMap.get(p.home_group_id) : undefined
         const hgLabel = hg ? getHomeGroupFullLabel(hg, profileMap) : "Sem Grupo Caseiro"
@@ -327,7 +327,7 @@ export function DiscipleEditorDialog({
   // Opções de Companheiro de Obra
   const companionOptions = useMemo(() => {
     return [
-      { value: "none", label: "Selecione para adicionar" },
+      { value: "none", label: "Selecione um irmão para adicionar" },
       ...availableCompanions.map((p) => ({
         value: p.id,
         label: p.full_name,
@@ -337,7 +337,7 @@ export function DiscipleEditorDialog({
     ]
   }, [availableCompanions])
 
-  // Opções de Pai (Crianças)
+  // Opções de Pais (Crianças)
   const fatherOptions = useMemo(() => {
     return [
       { value: "none", label: "Não informado" },
@@ -352,7 +352,6 @@ export function DiscipleEditorDialog({
     ]
   }, [allProfiles])
 
-  // Opções de Mãe (Crianças)
   const motherOptions = useMemo(() => {
     return [
       { value: "none", label: "Não informada" },
@@ -415,7 +414,6 @@ export function DiscipleEditorDialog({
       const cleanBaptism = baptismDate.trim() || null
 
       let finalBaptism = cleanBaptism
-      // Se o perfil era criança e foi marcado para transição como discípulo batizado, garantir data de batismo
       if (!isChild && disciple && checkIsChild(disciple) && !finalBaptism) {
         finalBaptism = new Date().toISOString().split("T")[0]
       }
@@ -443,7 +441,6 @@ export function DiscipleEditorDialog({
       let savedProfileId = disciple?.id
 
       if (isEditing && disciple) {
-        // Atualiza perfil existente
         const { error: updateError } = await supabase
           .from("profiles")
           .update(profilePayload)
@@ -451,7 +448,7 @@ export function DiscipleEditorDialog({
 
         if (updateError) throw updateError
 
-        // Se o cônjuge mudou, atualizar reciprocidade
+        // Reciprocidade de cônjuge
         if (disciple.spouse_id && disciple.spouse_id !== profilePayload.spouse_id) {
           await supabase
             .from("profiles")
@@ -465,7 +462,6 @@ export function DiscipleEditorDialog({
             .eq("id", profilePayload.spouse_id)
         }
       } else {
-        // Inserir novo perfil provisório
         const { data: inserted, error: insertError } = await supabase
           .from("profiles")
           .insert({
@@ -486,13 +482,12 @@ export function DiscipleEditorDialog({
         }
       }
 
-      // Sincronizar Comunhões / Companheiros (Fellowships)
+      // Sincronizar Companheiros (Fellowships)
       if (savedProfileId && !isChild) {
         const existingFellowships = fellowships.filter(
           (f) => f.member_a_id === savedProfileId || f.member_b_id === savedProfileId
         )
 
-        // Comunhões a remover
         const toDelete = existingFellowships.filter((f) => {
           const otherId =
             f.member_a_id === savedProfileId ? f.member_b_id : f.member_a_id
@@ -506,7 +501,6 @@ export function DiscipleEditorDialog({
             .match({ member_a_id: f.member_a_id, member_b_id: f.member_b_id })
         }
 
-        // Comunhões a adicionar
         const existingOtherIds = existingFellowships.map((f) =>
           f.member_a_id === savedProfileId ? f.member_b_id : f.member_a_id
         )
@@ -521,14 +515,14 @@ export function DiscipleEditorDialog({
           }))
           const { error: fErr } = await supabase.from("fellowships").insert(insertRows)
           if (fErr) {
-            console.warn("Aviso ao salvar comunhões:", fErr)
+            console.warn("Aviso ao salvar companheiros:", fErr)
           }
         }
       }
 
       toast.success(
         isEditing
-          ? "Dados e vínculos atualizados com sucesso!"
+          ? "Cadastro atualizado com sucesso!"
           : "Irmão adicionado com sucesso ao Grupo Caseiro!"
       )
       onSuccess()
@@ -549,7 +543,7 @@ export function DiscipleEditorDialog({
       const { error } = await supabase.from("profiles").delete().eq("id", disciple.id)
       if (error) throw error
 
-      toast.success("Perfil provisório removido com sucesso.")
+      toast.success("Cadastro removido com sucesso.")
       onSuccess()
       onOpenChange(false)
     } catch (err: unknown) {
@@ -563,36 +557,36 @@ export function DiscipleEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[90vh] sm:h-[85vh] max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
+      <DialogContent className="h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isTransformingLinked
               ? "Integrar Discípulo à Comunhão"
               : isEditing
-              ? "Editar Irmão e Vínculos"
-              : "Adicionar Irmão ao Grupo"}
+              ? "Editar Cadastro do Irmão"
+              : "Cadastrar Novo Irmão"}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             {isTransformingLinked
-              ? `Integre ${disciple?.full_name || "este irmão"} à comunhão da igreja local definindo seu Grupo Caseiro e discipulador para acompanhamento mútuo.`
+              ? `Integre ${disciple?.full_name || "este irmão"} à vida da igreja local definindo seu Grupo Caseiro e discipulador.`
               : isEditing
-              ? "Atualize os dados e os vínculos de cuidado mútuo (juntas e ligamentos) no Corpo."
-              : "Preencha as informações básicas para incluir o irmão na vida e comunhão do Grupo Caseiro."}
+              ? "Atualize o telefone, grupo caseiro e quem cuida deste irmão na fé."
+              : "Preencha os dados básicos e quem o acompanha para integrá-lo ao Grupo Caseiro."}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Corpo com Scroll Integrado ao Modal */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4 overscroll-contain">
-          {/* Banner de Acolhimento na Comunhão */}
+        {/* Corpo com Scroll Suave */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4.5 overscroll-contain">
+          {/* Banner de Acolhimento se for visitante */}
           {isTransformingLinked && (
             <div className="rounded-xl border border-border/80 bg-muted/40 p-3.5 text-xs text-foreground flex items-start gap-2.5">
               <BookOpen className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-foreground">
-                  Acolhimento na Comunhão da Igreja
+                  Acolhimento na Vida do Corpo
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                  Defina o Grupo Caseiro e o Discipulador para integrar este irmão plenamente na comunhão do Corpo.
+                  Defina o Grupo Caseiro e quem cuidará deste irmão no dia a dia.
                 </p>
               </div>
             </div>
@@ -602,7 +596,7 @@ export function DiscipleEditorDialog({
           {!isEditing && (
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Quem é a pessoa?
+                Quem você está cadastrando?
               </Label>
               <div className="mt-2 grid grid-cols-2 gap-3">
                 <Button
@@ -627,7 +621,7 @@ export function DiscipleEditorDialog({
             </div>
           )}
 
-          {/* 2. Banner de Batismo para Crianças */}
+          {/* Banner de Batismo para Crianças (ao editar) */}
           {isEditing && disciple && (checkIsChild(disciple) || (!isChild && checkIsChild(disciple))) && (
             <div
               className={`rounded-xl border p-3.5 transition-all ${
@@ -647,8 +641,8 @@ export function DiscipleEditorDialog({
                     </h5>
                     <p className="text-[11px] text-muted-foreground">
                       {isChild
-                        ? "Após o batismo, confirme para liberar os vínculos de discipulado."
-                        : "Vínculos de discipulador e companheiro(s) de obra liberados abaixo."}
+                        ? "Quando a pessoa for batizada, registre o batismo para liberar o discipulado."
+                        : "Vínculos de discipulador liberados abaixo."}
                     </p>
                   </div>
                 </div>
@@ -661,7 +655,7 @@ export function DiscipleEditorDialog({
                       if (!baptismDate) {
                         setBaptismDate(new Date().toISOString().split("T")[0])
                       }
-                      toast.success("Batismo registrado! Defina o discipulador e salve.")
+                      toast.success("Batismo registrado! Agora selecione o discipulador.")
                     }}
                     className="h-11 min-h-[44px] shrink-0 rounded-xl font-semibold text-xs shadow-xs px-4"
                   >
@@ -683,7 +677,6 @@ export function DiscipleEditorDialog({
                 )}
               </div>
 
-              {/* Campo Rápido de Data de Batismo quando em transição */}
               {!isChild && (
                 <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center gap-2.5">
                   <Label htmlFor="baptismDateQuick" className="text-xs font-medium text-foreground shrink-0">
@@ -701,17 +694,17 @@ export function DiscipleEditorDialog({
             </div>
           )}
 
-          {/* 3. Dados Básicos em Grid Amplo */}
-          <div className="space-y-4 rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          {/* SEÇÃO 1: Dados Pessoais (com WhatsApp em destaque imediato!) */}
+          <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
             <div className="flex items-center gap-2 border-b border-border/50 pb-2">
               <User className="h-4 w-4 text-primary" />
               <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                Dados Básicos
+                1. Dados Pessoais
               </h4>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Nome Completo (Obrigatório) */}
+              {/* Nome Completo */}
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="full_name" className="text-xs font-medium text-foreground">
                   Nome Completo <span className="text-destructive">*</span>
@@ -725,7 +718,24 @@ export function DiscipleEditorDialog({
                 />
               </div>
 
-              {/* Data de Nascimento (Obrigatório) */}
+              {/* WhatsApp / Telefone Direto */}
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-xs font-medium text-foreground">
+                  WhatsApp / Celular <span className="text-muted-foreground font-normal">(Essencial para contato)</span>
+                </Label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    placeholder="(31) 99999-9999"
+                    className="h-11 min-h-[44px] rounded-xl pl-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Data de Nascimento */}
               <div className="space-y-1.5">
                 <Label htmlFor="birth_date" className="text-xs font-medium text-foreground">
                   Data de Nascimento <span className="text-destructive">*</span>
@@ -742,7 +752,7 @@ export function DiscipleEditorDialog({
                 </div>
               </div>
 
-              {/* Sexo (Obrigatório) */}
+              {/* Sexo (Masculino / Feminino) */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-foreground">
                   Sexo <span className="text-destructive">*</span>
@@ -754,7 +764,7 @@ export function DiscipleEditorDialog({
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
                     onClick={() => handleGenderChange("M")}
                   >
-                    Masculino
+                    Masculino (Irmão)
                   </Button>
                   <Button
                     type="button"
@@ -762,13 +772,13 @@ export function DiscipleEditorDialog({
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
                     onClick={() => handleGenderChange("F")}
                   >
-                    Feminino
+                    Feminino (Irmã)
                   </Button>
                 </div>
               </div>
 
-              {/* Grupo Caseiro (Obrigatório) */}
-              <div className="space-y-1.5 sm:col-span-2">
+              {/* Grupo Caseiro */}
+              <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-foreground">
                   Grupo Caseiro <span className="text-destructive">*</span>
                 </Label>
@@ -776,7 +786,7 @@ export function DiscipleEditorDialog({
                   options={homeGroupOptions}
                   value={homeGroupId}
                   onValueChange={setHomeGroupId}
-                  placeholder="Buscar Grupo Caseiro por líder ou bairro..."
+                  placeholder="Buscar Grupo Caseiro por bairro ou líder..."
                   disabled={!isEditing && lockGroupSelectionOnCreate}
                   clearable={false}
                 />
@@ -784,149 +794,87 @@ export function DiscipleEditorDialog({
             </div>
           </div>
 
-          {/* 3. Juntas e Ligamentos em Grid Amplo */}
-          <div className="space-y-4 rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          {/* SEÇÃO 2: Acompanhamento Fraternal & Família */}
+          <div className="space-y-4 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
             <div className="flex items-center gap-2 border-b border-border/50 pb-2">
-              <Users className="h-4 w-4 text-primary" />
+              <HeartHandshake className="h-4 w-4 text-primary" />
               <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                Juntas e Ligamentos (Vínculos de Cuidado)
+                2. Acompanhamento & Família
               </h4>
             </div>
 
             {!isChild ? (
-              <>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {/* Discipulador (somente mesmo gênero) */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-foreground">
-                      Quem é o Discipulador(a)? <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <SearchableSelect
-                      options={disciplerOptions}
-                      value={disciplerId}
-                      onValueChange={setDisciplerId}
-                      placeholder={gender === "M" ? "Buscar discipulador pelo nome..." : "Buscar discipuladora pelo nome..."}
-                      clearable={true}
-                    />
-                    {disciplerId && disciplerId !== "none" && (() => {
-                      const dProf = profileMap.get(disciplerId)
-                      if (!dProf) return null
-                      const dHg = dProf.home_group_id ? homeGroupMap.get(dProf.home_group_id) : undefined
-                      const dHgName = dHg ? getHomeGroupFullLabel(dHg, profileMap) : "Sem Grupo Caseiro"
-                      return (
-                        <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                          <span className="font-medium text-foreground/80">Grupo Caseiro:</span>
-                          <span className="text-muted-foreground truncate">{dHgName}</span>
-                        </p>
-                      )
-                    })()}
-                  </div>
-
-                  {/* Cônjuge (somente gênero oposto) */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-foreground">
-                      É casado(a)? Cônjuge: <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <SearchableSelect
-                      options={spouseOptions}
-                      value={spouseId}
-                      onValueChange={setSpouseId}
-                      placeholder={gender === "M" ? "Buscar esposa pelo nome..." : "Buscar marido pelo nome..."}
-                      clearable={true}
-                    />
-                  </div>
-                </div>
-
-                {/* Companheiro(s) de Obra (somente mesmo gênero) */}
-                <div className="space-y-2.5 border-t border-border/60 pt-3">
-                  <Label className="text-xs font-medium text-foreground">
-                    Companheiro(s) de obra: <span className="text-muted-foreground font-normal">(Opcional)</span>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Discipulador */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground flex items-center justify-between">
+                    <span>Quem é o Discipulador(a)?</span>
+                    <span className="text-muted-foreground font-normal text-[11px]">(Quem cuida e ora)</span>
                   </Label>
-
-                  {/* Chips já adicionados */}
-                  {selectedFellowships.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedFellowships.map((fid) => {
-                        const companionProfile = allProfiles.find((p) => p.id === fid)
-                        return (
-                          <span
-                            key={fid}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-secondary/80 px-3 py-1.5 text-xs font-medium text-secondary-foreground border border-border/50"
-                          >
-                            <span>{companionProfile?.full_name || "Irmão"}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveCompanion(fid)}
-                              className="ml-1 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </span>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Seletor para adicionar novo companheiro de obra */}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <div className="flex-1 min-w-0">
-                      <SearchableSelect
-                        options={companionOptions}
-                        value={companionToAdd}
-                        onValueChange={setCompanionToAdd}
-                        placeholder={gender === "M" ? "Buscar companheiro de obra..." : "Buscar companheira de obra..."}
-                        clearable={false}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddCompanion}
-                      disabled={companionToAdd === "none"}
-                      className="h-11 min-h-[44px] shrink-0 gap-1.5 rounded-xl px-4 text-xs font-medium"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Adicionar</span>
-                    </Button>
-                  </div>
+                  <SearchableSelect
+                    options={disciplerOptions}
+                    value={disciplerId}
+                    onValueChange={setDisciplerId}
+                    placeholder={gender === "M" ? "Buscar irmão discipulador..." : "Buscar irmã discipuladora..."}
+                    clearable={true}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Irmão mais maduro do mesmo sexo que acompanha a caminhada espiritual.
+                  </p>
                 </div>
-              </>
+
+                {/* Cônjuge */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground flex items-center justify-between">
+                    <span>É casado(a)? Cônjuge</span>
+                    <span className="text-muted-foreground font-normal text-[11px]">(Opcional)</span>
+                  </Label>
+                  <SearchableSelect
+                    options={spouseOptions}
+                    value={spouseId}
+                    onValueChange={setSpouseId}
+                    placeholder={gender === "M" ? "Buscar esposa..." : "Buscar marido..."}
+                    clearable={true}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Marido ou esposa na comunhão da igreja.
+                  </p>
+                </div>
+              </div>
             ) : (
-              <>
-                {/* Para Crianças: Pai e Mãe */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-foreground">
-                      Pai <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <SearchableSelect
-                      options={fatherOptions}
-                      value={fatherId}
-                      onValueChange={setFatherId}
-                      placeholder="Buscar pai pelo nome..."
-                      clearable={true}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-foreground">
-                      Mãe <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <SearchableSelect
-                      options={motherOptions}
-                      value={motherId}
-                      onValueChange={setMotherId}
-                      placeholder="Buscar mãe pelo nome..."
-                      clearable={true}
-                    />
-                  </div>
+              /* Pais para Crianças */
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground">
+                    Pai <span className="text-muted-foreground font-normal">(Opcional)</span>
+                  </Label>
+                  <SearchableSelect
+                    options={fatherOptions}
+                    value={fatherId}
+                    onValueChange={setFatherId}
+                    placeholder="Buscar pai pelo nome..."
+                    clearable={true}
+                  />
                 </div>
-              </>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground">
+                    Mãe <span className="text-muted-foreground font-normal">(Opcional)</span>
+                  </Label>
+                  <SearchableSelect
+                    options={motherOptions}
+                    value={motherId}
+                    onValueChange={setMotherId}
+                    placeholder="Buscar mãe pelo nome..."
+                    clearable={true}
+                  />
+                </div>
+              </div>
             )}
           </div>
 
-          {/* 4. Acordeão: Mais dados opcionais */}
-          <div className="rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs">
+          {/* SEÇÃO 3: Mais Informações Opcionais (Recolhido por padrão) */}
+          <div className="rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs">
             <button
               type="button"
               onClick={() => setShowOptionalFields(!showOptionalFields)}
@@ -934,7 +882,7 @@ export function DiscipleEditorDialog({
             >
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
-                <span>Mais dados opcionais (Telefone, E-mail, CPF, Data de Batismo)</span>
+                <span>Outras informações opcionais (Companheiros de oração, Batismo, CPF, E-mail)</span>
               </div>
               {showOptionalFields ? (
                 <ChevronUp className="h-4 w-4" />
@@ -945,22 +893,73 @@ export function DiscipleEditorDialog({
 
             {showOptionalFields && (
               <div className="space-y-4 border-t border-border/70 p-4 sm:p-5">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {/* Telefone / WhatsApp */}
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label htmlFor="phone" className="text-xs font-medium text-foreground">
-                      Telefone / WhatsApp <span className="text-muted-foreground font-normal">(Opcional)</span>
+                {/* Companheiro(s) de oração e serviço */}
+                {!isChild && (
+                  <div className="space-y-2.5 border-b border-border/60 pb-4">
+                    <Label className="text-xs font-medium text-foreground flex items-center justify-between">
+                      <span>Companheiro(s) de Oração e Serviço</span>
+                      <span className="text-muted-foreground font-normal text-[11px]">(Dupla de evangelismo/oração)</span>
                     </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="phone"
-                        value={phone}
-                        onChange={(e) => setPhone(formatPhone(e.target.value))}
-                        placeholder="(31) 99999-9999"
-                        className="h-11 min-h-[44px] rounded-xl pl-10 text-sm"
-                      />
+
+                    {selectedFellowships.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedFellowships.map((fid) => {
+                          const companionProfile = allProfiles.find((p) => p.id === fid)
+                          return (
+                            <span
+                              key={fid}
+                              className="inline-flex items-center gap-1.5 rounded-full bg-secondary/80 px-3 py-1 text-xs font-medium text-secondary-foreground border border-border/50"
+                            >
+                              <span>{companionProfile?.full_name || "Irmão"}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCompanion(fid)}
+                                className="ml-0.5 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <div className="flex-1 min-w-0">
+                        <SearchableSelect
+                          options={companionOptions}
+                          value={companionToAdd}
+                          onValueChange={setCompanionToAdd}
+                          placeholder={gender === "M" ? "Buscar companheiro..." : "Buscar companheira..."}
+                          clearable={false}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddCompanion}
+                        disabled={companionToAdd === "none"}
+                        className="h-11 min-h-[44px] shrink-0 gap-1.5 rounded-xl px-4 text-xs font-medium"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Adicionar Dupla</span>
+                      </Button>
                     </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="baptismDate" className="text-xs font-medium text-foreground">
+                      Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span>
+                    </Label>
+                    <Input
+                      id="baptismDate"
+                      type="date"
+                      value={baptismDate}
+                      onChange={(e) => setBaptismDate(e.target.value)}
+                      className="h-11 min-h-[44px] rounded-xl text-sm"
+                    />
                   </div>
 
                   <div className="space-y-1.5">
@@ -976,7 +975,7 @@ export function DiscipleEditorDialog({
                     />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 sm:col-span-2">
                     <Label htmlFor="email" className="text-xs font-medium text-foreground">
                       E-mail <span className="text-muted-foreground font-normal">(Opcional)</span>
                     </Label>
@@ -986,19 +985,6 @@ export function DiscipleEditorDialog({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="exemplo@email.com"
-                      className="h-11 min-h-[44px] rounded-xl text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label htmlFor="baptismDate" className="text-xs font-medium text-foreground">
-                      Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <Input
-                      id="baptismDate"
-                      type="date"
-                      value={baptismDate}
-                      onChange={(e) => setBaptismDate(e.target.value)}
                       className="h-11 min-h-[44px] rounded-xl text-sm"
                     />
                   </div>
@@ -1023,9 +1009,9 @@ export function DiscipleEditorDialog({
             )}
           </div>
 
-          {/* Exclusão de Perfil Provisório (se user_id IS NULL) */}
+          {/* Exclusão de Perfil Provisório */}
           {isEditing && disciple?.user_id === null && (
-            <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
               {!confirmDelete ? (
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -1080,7 +1066,7 @@ export function DiscipleEditorDialog({
           )}
         </div>
 
-        {/* Rodapé Fixo Docked com Cancelar e Salvar */}
+        {/* Rodapé Docked com Cancelar e Salvar */}
         <DialogFooter className="px-5 py-3.5 sm:px-6 border-t border-border/60 shrink-0 bg-muted/20 backdrop-blur-xs flex flex-col-reverse sm:flex-row gap-2 sm:justify-end mt-0">
           <Button
             type="button"

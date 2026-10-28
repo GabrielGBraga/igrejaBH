@@ -173,7 +173,7 @@ export function EventAnnouncementsTab({ retreat }: EventAnnouncementsTabProps) {
             Nenhum comunicado publicado para este evento ainda.
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Clique em "Novo Comunicado" para avisar a igreja sobre transporte, vagas, lista de espera ou orações.
+            Selecione "Novo Comunicado" para avisar a igreja sobre transporte, vagas, lista de espera ou orações.
           </p>
         </Card>
       ) : (
@@ -298,14 +298,14 @@ export function EventAnnouncementsTab({ retreat }: EventAnnouncementsTabProps) {
                   ) : (
                     <>
                       <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      <span>Apenas Membros Vinculados</span>
+                      <span>Apenas Discípulos Vinculados</span>
                     </>
                   )}
                 </span>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
                   {isPublic
                     ? "Visitantes não autenticados poderão ler na landing page."
-                    : "Exige login e vínculo de membro da igreja para visualização."}
+                    : "Exige login e vínculo de comunhão para visualização."}
                 </p>
               </div>
               <Switch checked={isPublic} onCheckedChange={setIsPublic} />

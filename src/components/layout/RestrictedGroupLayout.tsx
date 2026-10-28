@@ -76,7 +76,7 @@ export function RestrictedGroupLayout({ children }: RestrictedGroupLayoutProps) 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background text-foreground overflow-x-hidden">
       {/* Barra Superior Minimalista e Isolada */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/85 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/85 pt-safe backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Identificação da Igreja e do Modo (Sem links de navegação externa) */}
           <div className="flex items-center gap-3">
