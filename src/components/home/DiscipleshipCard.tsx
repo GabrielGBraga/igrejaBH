@@ -69,7 +69,7 @@ export function DiscipleshipCard({
               variant="outline"
               className="shrink-0 gap-1 rounded-full border-amber-600/30 dark:border-amber-400/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
             >
-              <Sparkles className="h-3 w-3" />
+              <Heart className="h-3 w-3" />
               Efésios 4:16
             </Badge>
           </div>
@@ -129,7 +129,7 @@ export function DiscipleshipCard({
               variant="outline"
               className="shrink-0 gap-1 rounded-full border-amber-600/30 dark:border-amber-400/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300"
             >
-              <Sparkles className="h-3 w-3" />
+              <Heart className="h-3 w-3" />
               Efésios 4:16
             </Badge>
           </div>

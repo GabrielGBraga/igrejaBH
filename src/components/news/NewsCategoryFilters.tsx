@@ -5,7 +5,7 @@ import {
   MapPin,
   BookOpen,
   ClipboardList,
-  Sparkles,
+  CalendarDays,
   Layers,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -21,7 +21,7 @@ export const CATEGORY_FILTERS: CategoryFilterItem[] = [
   { id: "todos", label: "Todos", icon: Layers },
   { id: "geral", label: "Avisos Gerais", icon: Bell },
   { id: "encontro", label: "Encontros na Cidade", icon: MapPin },
-  { id: "evento", label: "Eventos & Retiros", icon: Sparkles },
+  { id: "evento", label: "Eventos & Retiros", icon: CalendarDays },
   { id: "estudo", label: "Estudos & Ensinos", icon: BookOpen },
   { id: "oracao", label: "Orações", icon: HeartHandshake },
   { id: "missoes", label: "Missões", icon: Globe },
