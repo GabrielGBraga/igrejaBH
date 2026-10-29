@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Menu, LogOut, User, Bell } from "lucide-react"
+import { Menu, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -155,28 +155,7 @@ export function MobileNav({ menuOpen: controlledOpen, onMenuOpenChange: setContr
                   )
                 })}
 
-                {/* Seção de Atalhos Adicionais */}
-                <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
-                  <span className="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Atalhos Pessoais
-                  </span>
-                  <Link
-                    to="/eventos"
-                    onClick={() => setIsOpen(false)}
-                    className="flex min-h-[44px] items-center gap-3 rounded-xl px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    <Bell className="h-5 w-5 shrink-0" />
-                    <span>Inscrições em Retiros</span>
-                  </Link>
-                  <Link
-                    to="/perfil"
-                    onClick={() => setIsOpen(false)}
-                    className="flex min-h-[44px] items-center gap-3 rounded-xl px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    <User className="h-5 w-5 shrink-0" />
-                    <span>Dados Pessoais & Senha</span>
-                  </Link>
-                </div>
+
               </nav>
             </div>
 
