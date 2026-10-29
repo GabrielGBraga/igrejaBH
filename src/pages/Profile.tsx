@@ -40,6 +40,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import {
   Combobox,
@@ -52,6 +57,21 @@ import {
 import { CardSelector, CardSelectorItem } from "@/components/ui/card-selector"
 import { toast } from "sonner"
 import { format, differenceInYears } from "date-fns"
+import { formatPhone } from "@/lib/phoneUtils"
+import {
+  normalizeGender,
+  normalizeMaritalStatus,
+  normalizeEducationLevel,
+  normalizeEmploymentStatus,
+  normalizeHouseholdIncome,
+  normalizeHousingStatus,
+  normalizeDriversLicense,
+  formatDisplayGender,
+  formatDisplayMaritalStatus,
+} from "@/lib/profileNormalization"
+import { getMissingProfileFields } from "@/lib/profile-config"
+import { CompleteProfileDialog } from "@/components/profile/CompleteProfileDialog"
+import { AlertCircleIcon, ArrowRightIcon } from "lucide-react"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 
@@ -125,6 +145,9 @@ export default function Profile() {
   const [isEditingFamily, setIsEditingFamily] = useState(false)
   const [isEditingSocioEconomic, setIsEditingSocioEconomic] = useState(false)
   const [isEditingAvatar, setIsEditingAvatar] = useState(false)
+  const [isEditingPersonal, setIsEditingPersonal] = useState(false)
+  const [isCompletingProfile, setIsCompletingProfile] = useState(false)
+  const [searchingCep, setSearchingCep] = useState(false)
   const [isCropping, setIsCropping] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
@@ -292,19 +315,72 @@ export default function Profile() {
 
   // Automática abertura de diálogo via query param
   useEffect(() => {
-    if (isOwnProfile && profile && searchParams.get("edit") === "socio") {
-      setEditForm({
-        occupation: profile.occupation,
-        education_level: profile.education_level,
-        employment_status: profile.employment_status,
-        household_income: profile.household_income,
-        dependents_count: profile.dependents_count,
-        housing_status: profile.housing_status,
-        drivers_license: profile.drivers_license,
-      })
-      setIsEditingSocioEconomic(true)
+    if (isOwnProfile && profile) {
+      if (searchParams.get("complete") === "true") {
+        setIsCompletingProfile(true)
+      } else if (searchParams.get("edit") === "socio") {
+        setEditForm({
+          occupation: profile.occupation,
+          education_level: normalizeEducationLevel(profile.education_level),
+          employment_status: normalizeEmploymentStatus(profile.employment_status),
+          household_income: normalizeHouseholdIncome(profile.household_income),
+          dependents_count: profile.dependents_count,
+          housing_status: normalizeHousingStatus(profile.housing_status),
+          drivers_license: normalizeDriversLicense(profile.drivers_license),
+        })
+        setIsEditingSocioEconomic(true)
+      } else if (searchParams.get("edit") === "personal") {
+        setEditForm({
+          birth_date: profile.birth_date,
+          gender: normalizeGender(profile.gender),
+          marital_status: normalizeMaritalStatus(profile.marital_status),
+        })
+        setIsEditingPersonal(true)
+      } else if (searchParams.get("edit") === "address") {
+        setEditForm({
+          address_street: profile.address_street,
+          address_number: profile.address_number,
+          address_complement: profile.address_complement,
+          address_neighborhood: profile.address_neighborhood,
+          address_city: profile.address_city,
+          address_state: profile.address_state,
+          address_zip_code: profile.address_zip_code,
+        })
+        setIsEditingAddress(true)
+      } else if (searchParams.get("edit") === "contact") {
+        setEditForm({ phone: profile.phone })
+        setIsEditingContact(true)
+      }
     }
   }, [profile, searchParams, isOwnProfile])
+
+  const handleProfileAddressCepChange = async (cepVal: string) => {
+    setEditForm((prev) => ({ ...prev, address_zip_code: cepVal }))
+    const clean = cepVal.replace(/\D/g, "")
+    if (clean.length === 8) {
+      setSearchingCep(true)
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`)
+        const data = await res.json()
+        if (!data.erro) {
+          setEditForm((prev) => ({
+            ...prev,
+            address_street: data.logradouro || prev.address_street,
+            address_neighborhood: data.bairro || prev.address_neighborhood,
+            address_city: data.localidade || prev.address_city,
+            address_state: data.uf || prev.address_state,
+          }))
+          toast.success("Endereço preenchido automaticamente!")
+        } else {
+          toast.error("CEP não encontrado.")
+        }
+      } catch (err) {
+        console.error("Erro ao buscar CEP:", err)
+      } finally {
+        setSearchingCep(false)
+      }
+    }
+  }
 
   const handleSaveProfile = async (updates: Partial<UserProfile>) => {
     try {
@@ -327,6 +403,8 @@ export default function Profile() {
       setIsEditingAddress(false)
       setIsEditingFamily(false)
       setIsEditingSocioEconomic(false)
+      setIsEditingPersonal(false)
+      setIsCompletingProfile(false)
     } catch (error) {
       console.error("Erro ao salvar perfil:", error)
       toast.error("Erro ao salvar as alterações.")
@@ -628,6 +706,28 @@ export default function Profile() {
         </p>
       </div>
 
+      {isOwnProfile && profile.is_church_linked && getMissingProfileFields(profile).length > 0 && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <AlertCircleIcon className="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <p className="font-semibold text-amber-900 dark:text-amber-200">Cadastro Incompleto</p>
+              <p className="text-xs text-muted-foreground">
+                Existem informações obrigatórias pendentes no seu cadastro ({getMissingProfileFields(profile).length} campos).
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setIsCompletingProfile(true)}
+            size="sm"
+            className="min-h-[44px] rounded-xl font-bold gap-2 shrink-0 w-full sm:w-auto"
+          >
+            Completar Cadastro
+            <ArrowRightIcon className="size-4" />
+          </Button>
+        </div>
+      )}
+
       {!profile.is_church_linked && isOwnProfile && (
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground flex items-start gap-3">
           <InfoIcon className="size-5 text-primary shrink-0 mt-0.5" />
@@ -716,7 +816,22 @@ export default function Profile() {
         <div className="space-y-8 lg:col-span-2">
           <Card className="overflow-hidden rounded-3xl border-border bg-card/30 shadow-sm backdrop-blur-sm">
             <CardContent className="space-y-12 p-6 md:p-10">
-              <InfoSection title="Informações Pessoais" icon={UserIcon}>
+              <InfoSection
+                title="Informações Pessoais"
+                icon={UserIcon}
+                onEdit={
+                  isOwnProfile
+                    ? () => {
+                        setEditForm({
+                          birth_date: profile.birth_date,
+                          gender: normalizeGender(profile.gender),
+                          marital_status: normalizeMaritalStatus(profile.marital_status),
+                        })
+                        setIsEditingPersonal(true)
+                      }
+                    : undefined
+                }
+              >
                 <InfoItem label="Nome Completo" value={profile.full_name} />
                 <InfoItem
                   label="CPF"
@@ -728,10 +843,13 @@ export default function Profile() {
                   value={formatDate(profile.birth_date)}
                   icon={CalendarIcon}
                 />
-                <InfoItem label="Gênero" value={profile.gender} />
+                <InfoItem
+                  label="Gênero"
+                  value={formatDisplayGender(profile.gender)}
+                />
                 <InfoItem
                   label="Estado Civil"
-                  value={profile.marital_status}
+                  value={formatDisplayMaritalStatus(profile.marital_status)}
                   icon={HeartIcon}
                 />
               </InfoSection>
@@ -950,12 +1068,12 @@ export default function Profile() {
                     ? () => {
                         setEditForm({
                           occupation: profile.occupation,
-                          education_level: profile.education_level,
-                          employment_status: profile.employment_status,
-                          household_income: profile.household_income,
+                          education_level: normalizeEducationLevel(profile.education_level),
+                          employment_status: normalizeEmploymentStatus(profile.employment_status),
+                          household_income: normalizeHouseholdIncome(profile.household_income),
                           dependents_count: profile.dependents_count,
-                          housing_status: profile.housing_status,
-                          drivers_license: profile.drivers_license,
+                          housing_status: normalizeHousingStatus(profile.housing_status),
+                          drivers_license: normalizeDriversLicense(profile.drivers_license),
                         })
                         setIsEditingSocioEconomic(true)
                       }
@@ -999,6 +1117,93 @@ export default function Profile() {
       </div>
 
       {/* Dialogs */}
+      {/* Dialog Editar Informações Pessoais */}
+      <Dialog open={isEditingPersonal} onOpenChange={setIsEditingPersonal}>
+        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Informações Pessoais</DialogTitle>
+            <DialogDescription>
+              Atualize sua data de nascimento, gênero e estado civil.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Field>
+              <FieldLabel htmlFor="edit-birthdate">Data de Nascimento</FieldLabel>
+              <Input
+                id="edit-birthdate"
+                type="date"
+                value={editForm.birth_date || ""}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, birth_date: e.target.value })
+                }
+                className="rounded-xl border-border/50 min-h-[44px]"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel>Gênero</FieldLabel>
+              <CardSelector
+                value={editForm.gender || "masculino"}
+                onValueChange={(val) =>
+                  setEditForm({ ...editForm, gender: val })
+                }
+                columns={2}
+              >
+                <CardSelectorItem value="masculino" label="Masculino" />
+                <CardSelectorItem value="feminino" label="Feminino" />
+              </CardSelector>
+            </Field>
+
+            <Field>
+              <FieldLabel>Estado Civil</FieldLabel>
+              <CardSelector
+                value={editForm.marital_status || "solteiro"}
+                onValueChange={(val) =>
+                  setEditForm({ ...editForm, marital_status: val })
+                }
+                columns={2}
+              >
+                <CardSelectorItem value="solteiro" label="Solteiro(a)" />
+                <CardSelectorItem value="casado" label="Casado(a)" />
+                <CardSelectorItem value="divorciado" label="Divorciado(a)" />
+                <CardSelectorItem value="viuvo" label="Viúvo(a)" />
+              </CardSelector>
+            </Field>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditingPersonal(false)}
+              className="rounded-xl border-border/50 min-h-[44px]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() =>
+                handleSaveProfile({
+                  birth_date: editForm.birth_date,
+                  gender: editForm.gender,
+                  marital_status: editForm.marital_status,
+                })
+              }
+              disabled={saving}
+              className="rounded-xl shadow-lg shadow-primary/20 min-h-[44px]"
+            >
+              {saving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Completar Perfil */}
+      <CompleteProfileDialog
+        open={isCompletingProfile}
+        onOpenChange={setIsCompletingProfile}
+        profile={profile}
+        onSuccess={fetchProfile}
+      />
+
       <Dialog open={isEditingContact} onOpenChange={setIsEditingContact}>
         <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
@@ -1014,10 +1219,10 @@ export default function Profile() {
                 id="phone"
                 value={editForm.phone || ""}
                 onChange={(e) =>
-                  setEditForm({ ...editForm, phone: e.target.value })
+                  setEditForm({ ...editForm, phone: formatPhone(e.target.value) })
                 }
-                placeholder="(31) 99999-9999"
-                className="rounded-xl border-border/50"
+                placeholder="(31) 98888-7777"
+                className="rounded-xl border-border/50 min-h-[44px]"
               />
             </Field>
           </FieldGroup>
@@ -1313,17 +1518,23 @@ export default function Profile() {
               </div>
               <Field>
                 <FieldLabel htmlFor="zip">CEP</FieldLabel>
-                <Input
-                  id="zip"
-                  value={editForm.address_zip_code || ""}
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      address_zip_code: e.target.value,
-                    })
-                  }
-                  className="rounded-xl border-border/50"
-                />
+                <InputGroup>
+                  <InputGroupInput
+                    id="zip"
+                    value={editForm.address_zip_code || ""}
+                    onChange={(e) => handleProfileAddressCepChange(e.target.value)}
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className="rounded-xl border-border/50 min-h-[44px]"
+                  />
+                  <InputGroupAddon align="inline-end">
+                    {searchingCep ? (
+                      <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+                    ) : (
+                      <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </InputGroupAddon>
+                </InputGroup>
               </Field>
             </FieldGroup>
           </div>

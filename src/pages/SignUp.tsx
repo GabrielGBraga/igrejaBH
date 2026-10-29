@@ -6,6 +6,16 @@ import {
     type VisitorSignUpValue, 
     validateCPF 
 } from "../lib/schemas"
+import { formatPhone } from "@/lib/phoneUtils"
+import {
+    normalizeGender,
+    normalizeMaritalStatus,
+    normalizeEducationLevel,
+    normalizeEmploymentStatus,
+    normalizeHouseholdIncome,
+    normalizeHousingStatus,
+    normalizeDriversLicense,
+} from "@/lib/profileNormalization"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button"
 import {
@@ -55,27 +65,6 @@ import {
     DialogDescription 
 } from "@/components/ui/dialog";
 import { ImageCropper } from "@/components/ImageCropper";
-
-const formatPhone = (value: string) => {
-    // Remove tudo o que não é dígito, exceto o '+' inicial se já existir
-    const v = value.replace(/[^\d+]/g, "").slice(0, 14);
-    
-    // Se o usuário apagar tudo
-    if (v.length === 0) return "";
-    
-    // Garante que comece com +55 se houver números
-    let digits = v.replace(/\D/g, "");
-    if (digits.length > 0 && !v.startsWith("+")) {
-       // Se o usuário não digitou 55 mas digitou algo, adicionamos o 55 se houver mais de 2 dígitos ou se o contexto pedir
-       // Mas o mais simples é só garantir o prefixo se ele começar a digitar.
-    }
-
-    const clean = digits.slice(0, 13);
-    if (clean.length <= 2) return `+${clean}`;
-    if (clean.length <= 4) return `+${clean.slice(0, 2)} (${clean.slice(2)}`;
-    if (clean.length <= 9) return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4)}`;
-    return `+${clean.slice(0, 2)} (${clean.slice(2, 4)}) ${clean.slice(4, 9)}-${clean.slice(9, 13)}`;
-};
 
 const formatCPF = (value: string) => {
     const clean = value.replace(/\D/g, "");
@@ -137,7 +126,7 @@ export default function SignUp() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const signForm = useForm<SignUpValue>({
-        resolver: zodResolver(signUpSchema) as any,
+        resolver: zodResolver(signUpSchema),
         defaultValues: {
             fullName: "",
             email: "",
@@ -209,7 +198,7 @@ export default function SignUp() {
         setCpfNotFound(false);
         try {
             const formattedCpf = formatCPF(cleanCpf);
-            const { data, error } = await (supabase.rpc as any)('check_cpf_registration', {
+            const { data, error } = await supabase.rpc('check_cpf_registration', {
                 p_cpf: formattedCpf
             });
 
@@ -237,20 +226,15 @@ export default function SignUp() {
                 return;
             }
 
-            if (!result.has_baptism_date) {
-                setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
-                return;
-            }
-
             // CPF is eligible! Pre-fill the form and proceed
             signForm.setValue("cpf", formattedCpf);
             signForm.setValue("fullName", result.full_name || "");
             signForm.setValue("email", result.email || "");
-            signForm.setValue("phone", result.phone || "");
+            signForm.setValue("phone", formatPhone(result.phone || ""));
             signForm.setValue("birthDate", result.birth_date || "");
             signForm.setValue("baptismDate", result.baptism_date || "");
-            if (result.gender) signForm.setValue("gender", result.gender as any);
-            if (result.marital_status) signForm.setValue("maritalStatus", result.marital_status as any);
+            signForm.setValue("gender", normalizeGender(result.gender));
+            signForm.setValue("maritalStatus", normalizeMaritalStatus(result.marital_status));
             signForm.setValue("addressZipCode", result.address_zip_code || "");
             signForm.setValue("addressStreet", result.address_street || "");
             signForm.setValue("addressNumber", result.address_number || "");
@@ -259,12 +243,12 @@ export default function SignUp() {
             signForm.setValue("addressState", result.address_state || "MG");
             signForm.setValue("addressComplement", result.address_complement || "");
             signForm.setValue("occupation", result.occupation || "");
-            if (result.education_level) signForm.setValue("educationLevel", result.education_level as any);
-            if (result.employment_status) signForm.setValue("employmentStatus", result.employment_status as any);
-            if (result.household_income) signForm.setValue("householdIncome", result.household_income as any);
+            signForm.setValue("educationLevel", normalizeEducationLevel(result.education_level));
+            signForm.setValue("employmentStatus", normalizeEmploymentStatus(result.employment_status));
+            signForm.setValue("householdIncome", normalizeHouseholdIncome(result.household_income));
             signForm.setValue("dependentsCount", result.dependents_count || 0);
-            if (result.housing_status) signForm.setValue("housingStatus", result.housing_status as any);
-            if (result.drivers_license) signForm.setValue("driversLicense", result.drivers_license as any);
+            signForm.setValue("housingStatus", normalizeHousingStatus(result.housing_status));
+            signForm.setValue("driversLicense", normalizeDriversLicense(result.drivers_license));
 
             setStep('complete');
             toast.success("CPF verificado com sucesso! Por favor, complete seus dados de cadastro.");
@@ -321,7 +305,7 @@ export default function SignUp() {
                     } else {
                         toast.error("CEP não encontrado");
                     }
-                } catch (error) {
+                } catch {
                     toast.error("Erro ao buscar CEP");
                 } finally {
                     setSearchingCep(false);
@@ -403,7 +387,7 @@ export default function SignUp() {
         
         const signupOperation = async () => {
             // 0. Verificar se existe um pré-cadastro batizado com este CPF usando a RPC
-            const { data: checkData, error: checkError } = await (supabase.rpc as any)('check_cpf_registration', {
+            const { data: checkData, error: checkError } = await supabase.rpc('check_cpf_registration', {
                 p_cpf: data.cpf
             });
 
@@ -468,31 +452,35 @@ export default function SignUp() {
             }
 
             // 3. Update Profile
+            const profileUpdates: Record<string, unknown> = {
+                phone: data.phone,
+                cpf: data.cpf,
+                birth_date: data.birthDate,
+                baptism_date: data.baptismDate || null,
+                gender: data.gender,
+                marital_status: data.maritalStatus,
+                address_zip_code: data.addressZipCode,
+                address_street: data.addressStreet,
+                address_number: data.addressNumber,
+                address_neighborhood: data.addressNeighborhood,
+                address_city: data.addressCity,
+                address_state: data.addressState,
+                address_complement: data.addressComplement,
+                occupation: data.occupation,
+                education_level: data.educationLevel,
+                employment_status: data.employmentStatus,
+                household_income: data.householdIncome,
+                dependents_count: data.dependentsCount,
+                housing_status: data.housingStatus,
+                drivers_license: data.driversLicense,
+            };
+            if (avatarUrl) {
+                profileUpdates.avatar_url = avatarUrl;
+            }
+
             const { error: profileError } = await supabase
                 .from('profiles')
-                .update({
-                    avatar_url: avatarUrl, // Atualiza com a URL se houver
-                    phone: data.phone,
-                    cpf: data.cpf,
-                    birth_date: data.birthDate,
-                    baptism_date: data.baptismDate || null,
-                    gender: data.gender,
-                    marital_status: data.maritalStatus,
-                    address_zip_code: data.addressZipCode,
-                    address_street: data.addressStreet,
-                    address_number: data.addressNumber,
-                    address_neighborhood: data.addressNeighborhood,
-                    address_city: data.addressCity,
-                    address_state: data.addressState,
-                    address_complement: data.addressComplement,
-                    occupation: data.occupation,
-                    education_level: data.educationLevel,
-                    employment_status: data.employmentStatus,
-                    household_income: data.householdIncome,
-                    dependents_count: data.dependentsCount,
-                    housing_status: data.housingStatus,
-                    drivers_license: data.driversLicense,
-                })
+                .update(profileUpdates)
                 .eq('user_id', authData.user.id)
 
             if (profileError) throw profileError
@@ -503,8 +491,8 @@ export default function SignUp() {
         toast.promise(signupOperation(), {
             loading: "Criando sua conta...",
             success: () => {
-                navigate('/')
-                return "Cadastro realizado com sucesso!"
+                navigate('/dashboard')
+                return "Cadastro realizado com sucesso! Seja bem-vindo(a)."
             },
             error: (error) => {
                 console.error("Error on sign up: ", error);

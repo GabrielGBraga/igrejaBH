@@ -51,7 +51,7 @@ export default function SignIn() {
     toast.promise(
       supabase.auth
         .signInWithPassword({
-          email: data.email,
+          email: data.email.trim(),
           password: data.password,
         })
         .then(({ error, data: authData }) => {
@@ -212,7 +212,7 @@ export default function SignIn() {
                           variant="ghost"
                           size="icon"
                           type="button"
-                          className="text-muted-foreground hover:bg-transparent hover:text-foreground"
+                          className="min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-transparent hover:text-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (

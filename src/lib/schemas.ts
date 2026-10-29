@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { isValidBrazilianPhone } from "./phoneUtils"
 
 /**
  * Validação de CPF brasileiro
@@ -50,7 +51,7 @@ export const passwordSchema = z
   })
 
 export const signInSchema = z.object({
-  email: z.email({ message: "Email inválido" }),
+  email: z.string().trim().email({ message: "Email inválido" }),
   password: z.string().min(1, { message: "Senha é obrigatória" }),
 })
 export type SignInValue = z.infer<typeof signInSchema>
@@ -59,12 +60,13 @@ export const signUpSchema = z
   .object({
     fullName: z
       .string()
+      .trim()
       .min(3, { message: "Nome completo deve ter pelo menos 3 caracteres." }),
-    email: z.string().email({ message: "Email inválido" }),
+    email: z.string().trim().email({ message: "Email inválido" }),
     phone: z
       .string()
-      .refine((val) => /^\+55 \(\d{2}\) 9\d{4}-\d{4}$/.test(val), {
-        message: "Telefone deve seguir o padrão: +55 (31) 9XXXX-XXXX",
+      .refine(isValidBrazilianPhone, {
+        message: "Telefone inválido. Informe um número com DDD (ex: (31) 98888-7777).",
       }),
     cpf: z.string().refine(validateCPF, {
       message: "CPF inválido",
@@ -166,14 +168,15 @@ export const visitorSignUpSchema = z
   .object({
     fullName: z
       .string()
+      .trim()
       .min(3, { message: "Nome completo deve ter pelo menos 3 caracteres." }),
-    email: z.string().email({ message: "E-mail inválido." }),
+    email: z.string().trim().email({ message: "E-mail inválido." }),
     phone: z
       .string()
       .refine(
-        (val) => val === "" || /^\+55 \(\d{2}\) 9\d{4}-\d{4}$/.test(val),
+        (val) => val === "" || isValidBrazilianPhone(val),
         {
-          message: "Telefone deve seguir o padrão: +55 (31) 9XXXX-XXXX",
+          message: "Telefone inválido. Informe um número com DDD (ex: (31) 98888-7777).",
         }
       )
       .optional()

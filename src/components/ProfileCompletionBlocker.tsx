@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { AlertCircleIcon, ArrowRightIcon } from "lucide-react"
+import { AlertCircleIcon, ArrowRightIcon, LogOutIcon } from "lucide-react"
 
 export function ProfileCompletionBlocker() {
   const [isOpen, setIsOpen] = useState(false)
@@ -27,6 +27,11 @@ export function ProfileCompletionBlocker() {
 
   // Não bloqueia se o usuário já estiver na página de perfil
   const isProfilePage = location.pathname === "/perfil"
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    navigate("/entrar", { replace: true })
+  }
 
   useEffect(() => {
     async function checkProfile() {
@@ -131,12 +136,20 @@ export function ProfileCompletionBlocker() {
           <Button
             onClick={() => {
               setIsOpen(false)
-              navigate("/perfil?edit=socio")
+              navigate("/perfil?complete=true")
             }}
-            className="gap-2 rounded-xl py-6 font-bold shadow-lg shadow-primary/20"
+            className="gap-2 rounded-xl py-6 font-bold shadow-lg shadow-primary/20 min-h-[44px]"
           >
             Completar Agora
             <ArrowRightIcon className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="min-h-[44px] text-xs text-muted-foreground hover:text-destructive gap-1.5"
+          >
+            <LogOutIcon className="size-3.5" />
+            Sair da Conta
           </Button>
           <p className="px-6 text-center text-[10px] text-muted-foreground">
             Ao clicar em completar, você será redirecionado para a página de
