@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   Clock,
   Info,
-  Sparkles,
+
   Percent,
   Users,
 } from "lucide-react";
@@ -427,7 +427,7 @@ export function EventCouponsTab({
                           <button
                             type="button"
                             onClick={() => handleCopyCode(coupon.code)}
-                            className="p-1 rounded text-muted-foreground hover:text-foreground cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            className="p-2 rounded text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                             title="Copiar código"
                             aria-label={`Copiar código ${coupon.code}`}
                           >
@@ -862,7 +862,7 @@ export function EventCouponsTab({
             {newDiscountPercent === 100 ? (
               <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-950 dark:text-emerald-200 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                  <Sparkles className="w-4 h-4" />
+                  <Ticket className="w-4 h-4" />
                 </div>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2 flex-wrap">

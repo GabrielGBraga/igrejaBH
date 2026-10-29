@@ -1057,7 +1057,7 @@ export function EventPrintListsDialog({
               <div className="flex items-center gap-2 shrink-0">
                 <Button
                   onClick={handleTriggerPrint}
-                  className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02]"
+                  className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-colors"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Imprimir / Salvar PDF</span>
@@ -1341,7 +1341,7 @@ export function EventPrintListsDialog({
 
               <Button
                 onClick={handleTriggerPrint}
-                className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.02]"
+                className="min-h-[44px] h-11 px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-md transition-colors"
               >
                 <Printer className="w-4 h-4" />
                 <span>Imprimir / Salvar PDF</span>

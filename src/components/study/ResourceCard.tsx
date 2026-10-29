@@ -70,7 +70,7 @@ export function ResourceCard({
                         </div>
                     )}
                     <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-colors duration-300 flex items-center justify-center">
-                        <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md transition-transform duration-200 ease-out group-hover:scale-105">
+                        <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md">
                             <PlayIcon className="h-5 w-5 fill-current ml-0.5" />
                         </div>
                     </div>
@@ -80,7 +80,7 @@ export function ResourceCard({
             <CardHeader className="p-5 pb-3 flex-1">
                 <div className="flex items-start justify-between gap-3">
                     {resource.type !== "video" && (
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-primary/20 bg-primary/10 text-primary transition-transform duration-200 group-hover:scale-105">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-primary/20 bg-primary/10 text-primary">
                             {resource.type === "pdf" ? <FileTextIcon className="h-5 w-5" /> : <BookOpenIcon className="h-5 w-5" />}
                         </div>
                     )}
@@ -191,7 +191,7 @@ export function YouTubeImportCard({
                     className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-95"
                 />
                 <div className="absolute inset-0 bg-black/25 group-hover:bg-black/15 transition-colors duration-300 flex items-center justify-center">
-                    <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md transition-transform duration-200 ease-out group-hover:scale-105">
+                    <div className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md">
                         <PlayIcon className="h-5 w-5 fill-current ml-0.5" />
                     </div>
                 </div>

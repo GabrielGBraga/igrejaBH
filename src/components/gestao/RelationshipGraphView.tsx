@@ -588,7 +588,7 @@ function computeGroupsClusterLayout(nodes: GraphNode[]): LayoutResult {
       isWarning: cluster.id === "sem_grupo",
     })
 
-    // Ordenar membros para que casais fiquem adjacentes e líderes no topo
+    // Ordenar discípulos para que casais fiquem adjacentes e líderes no topo
     const ordered: GraphNode[] = []
     const visited = new Set<string>()
     const memberMap = new Map(cluster.members.map((m) => [m.id, m]))

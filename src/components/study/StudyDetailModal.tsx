@@ -223,7 +223,7 @@ export function StudyDetailModal({
                                                         isStepCompleted
                                                             ? "bg-primary text-primary-foreground shadow-2xs"
                                                             : isUnlocked
-                                                            ? "bg-primary/10 text-primary group-hover:scale-105"
+                                                            ? "bg-primary/10 text-primary"
                                                             : "bg-muted text-muted-foreground"
                                                     )}
                                                 >

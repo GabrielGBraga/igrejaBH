@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
   MapPin,
   BookOpen,
   ClipboardList,
-  Sparkles,
+
   Lock,
   Globe,
   Bell,
@@ -36,7 +36,13 @@ export function NewsDetailDialog({
   open,
   onOpenChange,
 }: NewsDetailDialogProps) {
+  const location = useLocation()
   if (!post) return null
+
+  const isPublicView =
+    location.pathname === "/" ||
+    location.pathname === "/landing" ||
+    location.pathname.startsWith("/quem-somos")
 
   const formatDateLabel = (dateStr: string) => {
     try {
@@ -70,7 +76,7 @@ export function NewsDetailDialog({
       case "encontro":
         return { label: "Encontro na Cidade", icon: MapPin }
       case "evento":
-        return { label: "Evento / Retiro", icon: Sparkles }
+        return { label: "Evento / Retiro", icon: Calendar }
       case "estudo":
         return { label: "Estudo & Catequese", icon: BookOpen }
       case "formulario":
@@ -225,7 +231,7 @@ export function NewsDetailDialog({
                   <img
                     src={url}
                     alt={`${post.title} - imagem ${idx + 1}`}
-                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
@@ -239,10 +245,27 @@ export function NewsDetailDialog({
           <div>
             {post.retreats && (
               <Button asChild className="min-h-[44px] w-full sm:w-auto">
-                <Link to="/eventos">
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Ver Detalhes do Evento & Inscrição
-                </Link>
+                {isPublicView ? (
+                  <Link to="/#contato" onClick={() => onOpenChange(false)}>
+  
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Caminhe Conosco & Informações
+                  </Link>
+
+  
+                ) : (
+                  <Link to="/eventos" onClick={() => onOpenChange(false)}>
+  
+                  <Calendar className="mr-2 h-4 w-4" />
+                    Ver Detalhes do Evento & Inscrição
+                  </Link>
+
+  
+                )}
+
+
+
+
               </Button>
             )}
 
@@ -260,6 +283,7 @@ export function NewsDetailDialog({
                   <BookOpen className="mr-2 h-4 w-4" />
                   Acessar Estudo na Central
                 </Link>
+
               </Button>
             )}
 
@@ -269,13 +293,14 @@ export function NewsDetailDialog({
                   <ClipboardList className="mr-2 h-4 w-4" />
                   Preencher Formulário
                 </Link>
+
               </Button>
             )}
 
             {post.category === "encontro" && (
               <Button asChild variant="outline" className="min-h-[44px] w-full sm:w-auto">
                 <a href="#calendario">
-                  <Calendar className="mr-2 h-4 w-4" />
+
                   Ver no Calendário da Cidade
                 </a>
               </Button>

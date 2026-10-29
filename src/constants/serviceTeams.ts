@@ -8,7 +8,7 @@
 
 import {
   UtensilsCrossed,
-  Sparkles,
+  Brush,
   HeartHandshake,
   Volume2,
   Baby,
@@ -48,7 +48,7 @@ export const SERVICE_TEAMS: ServiceTeamDefinition[] = [
     shortLabel: "Limpeza",
     description: "Higienização, zelo e manutenção das áreas comuns e banheiros.",
     biblicalFocus: "Zelo e boa ordem na casa do Senhor (1 Co 14:40)",
-    icon: Sparkles,
+    icon: Brush,
   },
   {
     id: "recepcao",

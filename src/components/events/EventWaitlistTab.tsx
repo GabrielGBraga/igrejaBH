@@ -549,7 +549,7 @@ export function EventWaitlistTab({
                               <Button
                                 size="sm"
                                 onClick={() => openCallModal(item)}
-                                className="min-h-[36px] h-9 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs gap-1.5 cursor-pointer shadow-xs"
+                                className="min-h-[44px] h-11 px-3.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs gap-1.5 cursor-pointer shadow-xs"
                               >
                                 <Send className="h-3.5 w-3.5" />
                                 <span>Chamar</span>
@@ -561,7 +561,7 @@ export function EventWaitlistTab({
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openCallModal(item)}
-                                className="min-h-[36px] h-9 px-3 rounded-lg text-xs font-semibold gap-1.5 cursor-pointer"
+                                className="min-h-[44px] h-11 px-3.5 rounded-lg text-xs font-semibold gap-1.5 cursor-pointer"
                               >
                                 <Copy className="h-3.5 w-3.5" />
                                 <span>Ver Link</span>
@@ -574,7 +574,7 @@ export function EventWaitlistTab({
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-9 w-9 min-h-[36px] min-w-[36px] cursor-pointer rounded-lg text-muted-foreground hover:text-foreground"
+                                  className="h-11 w-11 min-h-[44px] min-w-[44px] cursor-pointer rounded-lg text-muted-foreground hover:text-foreground"
                                 >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>

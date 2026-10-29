@@ -27,7 +27,7 @@ const churchAvatarVariants = cva(
         outline:
           "bg-background/90 border border-primary/25 text-primary dark:border-emerald-500/30 dark:text-emerald-400 shadow-xs backdrop-blur-xs",
         glow:
-          "bg-gradient-to-b from-emerald-500/15 via-background to-primary/10 border border-emerald-500/30 text-primary dark:text-emerald-300 dark:from-emerald-500/20 dark:to-emerald-900/40 shadow-md shadow-emerald-500/10 dark:shadow-emerald-950/40",
+          "bg-background/95 border border-primary/40 text-primary shadow-xs backdrop-blur-xs",
       },
     },
     defaultVariants: {
@@ -80,7 +80,7 @@ export const ChurchAvatar = React.forwardRef<HTMLDivElement, ChurchAvatarProps>(
         ) : (
           <ChurchSymbol
             className={cn(
-              "h-full w-full object-contain transition-transform duration-300 hover:scale-105",
+              "h-full w-full object-contain",
               symbolClassName
             )}
           />

@@ -21,7 +21,7 @@ import {
   TrendingUp,
   BarChart2,
   Check,
-  Sparkles,
+  Eye,
   LayoutDashboard,
   ArrowUp,
   ArrowDown,
@@ -458,7 +458,7 @@ export function KPIBuilderDialog({
             <TabsList className="grid grid-cols-3 w-full bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-xl min-h-[44px]">
               <TabsTrigger
                 value="editor"
-                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
+                className="min-h-[44px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
               >
                 <Edit3 className="w-3.5 h-3.5 shrink-0" />
                 <span className="sm:hidden truncate">{editingConfigId ? "Editar" : "Editor"}</span>
@@ -470,7 +470,7 @@ export function KPIBuilderDialog({
 
               <TabsTrigger
                 value="active"
-                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1 sm:px-3 overflow-hidden"
+                className="min-h-[44px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1 sm:px-3 overflow-hidden"
               >
                 <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
                 <span className="sm:hidden truncate">Ativas</span>
@@ -482,9 +482,9 @@ export function KPIBuilderDialog({
 
               <TabsTrigger
                 value="templates"
-                className="min-h-[38px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
+                className="min-h-[44px] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer px-1.5 sm:px-3 overflow-hidden"
               >
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
                 <span className="sm:hidden truncate">Modelos</span>
                 <span className="hidden sm:inline truncate">Modelos Prontos</span>
                 <span className="hidden lg:inline-block px-1.5 py-0.2 text-[10px] font-bold tracking-wide uppercase rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 ml-1 shrink-0">
@@ -843,7 +843,7 @@ export function KPIBuilderDialog({
                               className={`w-7 h-7 rounded-full ${theme.bgHex} transition-all ${
                                 colorTheme === theme.id
                                   ? "ring-2 ring-offset-2 ring-zinc-900 dark:ring-offset-zinc-900 scale-110"
-                                  : "opacity-80 hover:opacity-100 hover:scale-105"
+                                  : "opacity-80 hover:opacity-100"
                               }`}
                             />
                           </button>
@@ -871,7 +871,7 @@ export function KPIBuilderDialog({
                 <div className="lg:col-span-5 space-y-4">
                   <div className="flex items-center justify-between px-1">
                     <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-spin" style={{ animationDuration: "6s" }} />
+                      <Eye className="w-3.5 h-3.5 text-emerald-500" />
                       Pré-visualização ao Vivo
                     </span>
                     <span className="text-[11px] font-mono text-zinc-400">Card no Painel</span>
@@ -1087,7 +1087,7 @@ export function KPIBuilderDialog({
             <div className="space-y-4">
               <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
                 <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                  Biblioteca de Modelos em 1-Clique
+                  Biblioteca de Modelos Prontos
                 </h2>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   Selecione uma métrica pré-formatada para carregar no editor ou adicionar imediatamente ao painel.

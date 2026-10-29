@@ -719,7 +719,7 @@ export function EventTeamsTab({
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="text-xs">Clique para alterar alojamento</p>
+                            <p className="text-xs">Selecione para alterar alojamento</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

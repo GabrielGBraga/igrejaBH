@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Calendar as CalendarIcon, Sparkles, CalendarDays, ListFilter, ArrowRight } from "lucide-react"
+import { Calendar as CalendarIcon, CalendarDays, ListFilter, ArrowRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Link } from "react-router-dom"

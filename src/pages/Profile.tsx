@@ -280,7 +280,7 @@ export default function Profile() {
       if (error) throw error
       setAllMembers(data || [])
     } catch (error) {
-      console.error("Erro ao carregar membros:", error)
+      console.error("Erro ao carregar discípulos:", error)
     } finally {
       setLoadingMembers(false)
     }

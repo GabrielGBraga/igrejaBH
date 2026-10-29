@@ -304,7 +304,7 @@ export function RoomManagementTab({
                       {unassignedRegistrations.length} participante(s) sem quarto designado
                     </span>
                     <span className="text-xs text-muted-foreground block">
-                      Clique em um dos quartos abaixo para gerenciar a ocupação e alocar inscritos por gênero.
+                      Selecione um dos quartos abaixo para gerenciar a ocupação e alocar inscritos por gênero.
                     </span>
                   </div>
                 </div>
@@ -319,7 +319,7 @@ export function RoomManagementTab({
                 <Bed className="w-12 h-12 text-muted-foreground mx-auto" />
                 <h4 className="font-bold text-foreground">Nenhum quarto cadastrado para este evento</h4>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  Clique no botão "Novo Quarto" acima para definir a estrutura de alojamento (quartos masculinos, femininos ou suítes).
+                  Use o botão "Novo Quarto" acima para definir a estrutura de alojamento (quartos masculinos, femininos ou suítes).
                 </p>
               </CardContent>
             </Card>

@@ -95,14 +95,14 @@ export function LandingNewsSection() {
                 <img
                   src={featured.imageUrl}
                   alt={featured.title}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-opacity duration-300"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
                 {/* Video Play Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-200 group-hover:scale-105">
+                  <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-colors duration-200">
                     <Play className="h-6 w-6 sm:h-7 sm:w-7 fill-current ml-1" />
                   </div>
                 </div>

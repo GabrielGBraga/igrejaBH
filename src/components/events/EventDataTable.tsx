@@ -453,7 +453,7 @@ export function EventDataTable({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-xs">Clique para selecionar ou alterar o quarto</p>
+                  <p className="text-xs">Selecione para alterar o quarto</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

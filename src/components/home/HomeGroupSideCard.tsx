@@ -196,7 +196,7 @@ export function HomeGroupSideCard({
             </div>
           )}
 
-          {/* Membros do Grupo (Resumo Rápido) */}
+          {/* Irmãos do Grupo (Resumo Rápido) */}
           <div className="space-y-1.5 border-t border-border/30 pt-2">
             <div className="flex items-center justify-between text-[11px]">
               <span className="font-semibold text-muted-foreground">
@@ -258,7 +258,7 @@ export function HomeGroupSideCard({
         </CardFooter>
       </Card>
 
-      {/* Modal de Lista de Membros */}
+      {/* Modal de Lista de Irmãos */}
       <Dialog open={isMemberListOpen} onOpenChange={setIsMemberListOpen}>
         <DialogContent className="max-w-md rounded-xl">
           <DialogHeader>

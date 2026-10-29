@@ -126,7 +126,7 @@ export default function SignIn() {
                 title="Voltar para a página inicial"
                 aria-label="Voltar para a página inicial"
               >
-                <LockIcon className="h-8 w-8 text-primary transition-transform group-hover:scale-105" />
+                <LockIcon className="h-8 w-8 text-primary" />
               </Link>
             )}
           </div>

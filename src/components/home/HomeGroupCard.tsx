@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Home, Users, MapPin, Calendar, Clock, ArrowRight, MessageCircle, Phone, Sparkles, BookOpen } from "lucide-react"
+import { Home, Users, MapPin, Calendar, Clock, ArrowRight, MessageCircle, Phone, BookOpen } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -169,7 +169,7 @@ export function HomeGroupCard({
               variant="secondary"
               className="shrink-0 gap-1 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
             >
-              <Sparkles className="h-3 w-3" />
+              <Home className="h-3 w-3" />
               Oikos
             </Badge>
           </div>
@@ -219,7 +219,7 @@ export function HomeGroupCard({
                 <button
                   type="button"
                   onClick={() => setIsMemberListOpen(true)}
-                  className="min-h-[32px] text-xs font-medium text-primary hover:underline"
+                  className="min-h-[44px] px-2 py-1 text-xs font-medium text-primary hover:underline cursor-pointer"
                 >
                   Ver todos
                 </button>
@@ -230,7 +230,7 @@ export function HomeGroupCard({
               {visibleMembers.map((member) => (
                 <Avatar
                   key={member.id}
-                  className="h-8 w-8 border-2 border-background ring-1 ring-border/40 transition-transform hover:scale-110"
+                  className="h-8 w-8 border-2 border-background ring-1 ring-border/40"
                   title={member.full_name}
                 >
                   <AvatarImage src={member.avatar_url || undefined} alt={member.full_name} />

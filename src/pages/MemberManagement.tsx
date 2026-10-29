@@ -526,7 +526,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             fetchData();
         } catch (err) {
             console.error("Erro ao vincular à igreja:", err);
-            toast.error("Erro ao vincular membro à igreja.");
+            toast.error("Erro ao vincular discípulo à igreja.");
         } finally {
             setLinkSubmitting(false);
         }
@@ -805,7 +805,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                    <p className="text-muted-foreground font-medium animate-pulse">Carregando membros...</p>
+                    <p className="text-muted-foreground font-medium animate-pulse">Carregando discípulos...</p>
                 </div>
             ) : filteredMembers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-muted/20 rounded-3xl border border-dashed border-border/50">
@@ -823,7 +823,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                         {paginatedMembers.map((member) => (
                         <Card key={member.id} className="border-border/50 bg-card/30 backdrop-blur-sm shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-500 group rounded-2xl overflow-hidden flex flex-col">
                             <CardHeader className="flex flex-row items-center gap-4 pb-4 px-5 pt-5 shrink-0">
-                                <Avatar className="size-14 border border-border shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <Avatar className="size-14 border border-border shadow-sm">
                                     <AvatarImage src={member.avatar_url || undefined} className="object-cover" />
                                     <AvatarFallback className="bg-primary/20 text-primary font-bold text-lg">
                                         {getInitials(member.full_name)}

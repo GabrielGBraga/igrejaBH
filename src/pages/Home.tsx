@@ -96,7 +96,7 @@ export default function Home() {
 
         if (isMounted) setProfile(userProfile)
 
-        // 2. Carrega dados do Grupo Caseiro e dos seus membros
+        // 2. Carrega dados do Grupo Caseiro e dos seus irmãos
         if (userProfile.home_group_id) {
           const { data: hgData } = await supabase
             .from("home_groups")

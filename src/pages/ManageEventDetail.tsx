@@ -1753,7 +1753,7 @@ export default function ManageEventDetail() {
                                 room.id
                               )
                             }
-                            className="min-h-[36px] h-9 text-xs rounded-lg cursor-pointer"
+                            className="min-h-[44px] h-11 text-xs rounded-lg cursor-pointer"
                           >
                             Selecionar
                           </Button>

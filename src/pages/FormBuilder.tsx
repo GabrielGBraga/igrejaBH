@@ -35,7 +35,7 @@ import {
   GripVertical,
   AlertTriangle,
   Users,
-  Sparkles,
+
   Bell,
 } from "lucide-react"
 import { FormPresentationEditor } from "@/components/forms/FormPresentationEditor"
@@ -1558,7 +1558,7 @@ export default function FormBuilder() {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                 }`}
               >
-                <Sparkles className="h-4 w-4 text-amber-500" />
+                <FileText className="h-4 w-4 text-primary" />
                 <span>Página de Apresentação</span>
                 {selectedForm.presentationPage?.enabled && (
                   <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
@@ -1641,9 +1641,9 @@ export default function FormBuilder() {
                   Desenho do Formulário
                 </h3>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Monte as perguntas do seu formulário no estilo Notion. Clique
+                  Monte as perguntas do seu formulário no estilo Notion. Selecione
                   em qualquer pergunta para editá-la em tempo real e insira
-                  novos campos clicando nos botões flutuantes{" "}
+                  novos campos usando os botões flutuantes{" "}
                   <code className="rounded bg-muted px-1 py-0.5 text-[10px]">
                     +
                   </code>

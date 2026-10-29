@@ -564,7 +564,7 @@ export function FilterBuilder({
 
         <button
           onClick={() => applyQuickFilter("all")}
-          className={`min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+          className={`min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
             !isFiltered
               ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-bold shadow-xs"
               : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
@@ -575,35 +575,35 @@ export function FilterBuilder({
 
         <button
           onClick={() => applyQuickFilter("pending")}
-          className="min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer border border-amber-500/20"
+          className="min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer border border-amber-500/20"
         >
           Pagamento Pendente
         </button>
 
         <button
           onClick={() => applyQuickFilter("paid")}
-          className="min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer border border-emerald-500/20"
+          className="min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer border border-emerald-500/20"
         >
           Quitados / Pagos
         </button>
 
         <button
           onClick={() => applyQuickFilter("unallocated")}
-          className="min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 transition-all cursor-pointer border border-blue-500/20"
+          className="min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 transition-all cursor-pointer border border-blue-500/20"
         >
           Sem Alojamento
         </button>
 
         <button
           onClick={() => applyQuickFilter("male")}
-          className="min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all cursor-pointer"
+          className="min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all cursor-pointer"
         >
           Homens
         </button>
 
         <button
           onClick={() => applyQuickFilter("female")}
-          className="min-h-[32px] px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all cursor-pointer"
+          className="min-h-[44px] px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all cursor-pointer"
         >
           Mulheres
         </button>

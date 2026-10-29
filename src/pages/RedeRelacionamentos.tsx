@@ -855,7 +855,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           {churchKpis.withoutDiscipler}
                         </div>
                         <p className="mt-0.5 text-[11px] text-amber-700/80 dark:text-amber-300/80 truncate">
-                          {churchKpis.discipleshipRate}% acompanhados • clique para filtrar
+                          {churchKpis.discipleshipRate}% acompanhados • toque para filtrar
                         </p>
                       </div>
                     </button>
