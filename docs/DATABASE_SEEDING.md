@@ -1,42 +1,24 @@
 # Seeding do Banco de Dados de Desenvolvimento (`igrejaBH-DEV`)
 
-Este documento descreve o funcionamento, a estrutura e a lógica de geração dos dados oficiais e territoriais para o portal da Igreja em Belo Horizonte.
+Este documento descreve o funcionamento, a estrutura e a lógica de geração dos dados de teste para o portal da Igreja em Belo Horizonte.
 
 ---
 
 ## 1. Visão Geral
+O objetivo deste seeding é fornecer um banco de dados de desenvolvimento completo, coerente e com grande volumetria de dados para simulações e apresentações de demonstração (demos). 
 
-O novo seeding foi construído a partir do levantamento cadastral real contido em `Igreja em BH - Grupos.csv`, substituindo integralmente a antiga massa de dados sintética.
-
-O script recria um ecossistema 100% autêntico e limpo em menos de 1 segundo:
-- **6 Setores Geográficos Oficiais:**
-  1. `São Gabriel/Pampulha` (5 Grupos Caseiros)
-  2. `Venda Nova/Neves` (7 Grupos Caseiros)
-  3. `Santa Luzia` (6 Grupos Caseiros)
-  4. `Oeste` (7 Grupos Caseiros)
-  5. `Betim/Contagem` (8 Grupos Caseiros)
-  6. `Fora da Localidade` (2 Grupos Caseiros)
-- **35 Grupos Caseiros (GCs):**
-  - Mapeados com coordenadas geográficas exatas (`lat`, `lng`), logradouros, bairros e cidades da Região Metropolitana de Belo Horizonte e municípios adjacentes.
-  - Horário padrão de reunião às 19:30 às quartas-feiras (`meeting_day: 3`).
-- **Liderança e Núcleos Reais (~89 Perfis Cadastrados):**
-  - Todos os perfis representam os irmãos líderes e cooperadores de núcleo identificados no CSV.
-  - Todos cadastrados com vínculo com a igreja (`is_church_linked = true`).
-  - **Inclusão Progressiva de Acessos:** Todos os perfis (exceto o dev) possuem `email = NULL` e `user_id = NULL`. E-mails reais e convites serão adicionados pela liderança posteriormente.
-- **Perfil do Desenvolvedor (Gabriel Góes Braga):**
-  - Vinculado ao grupo de **Fernando e Samuel (GC 102 - Heliópolis - BH)**.
-  - E-mail oficial: `ggoesbraga@gmail.com`.
-  - Credenciais de autenticação em `auth.users` com senha padrão `senha123`.
-  - Atribuições estritas: `is_dev = true`, `is_presbyter = false`, `is_deacon = false`, `can_post = true`.
-- **Catálogo de Ensinos & Formulários:**
-  - Preservadas as 3 Trilhas de estudo (`studies`), 8 etapas (`study_steps`) e recursos multimídia (`media_resources`).
-  - Preservados os 5 modelos de formulários oficiais (`forms`).
-  - 100% limpas as tabelas de movimentação de teste (`posts`, `retreats`, `registrations`, `retreat_rooms`, `retreat_expenses`, `fellowships`, `form_submissions`, `user_study_progress`, `study_notes`, `event_coupons`, `event_waitlist`).
+O script de seeding é capaz de repopular o banco do zero em uma única execução (~7 segundos), limpando dados antigos e recriando um ecossistema completo de:
+- **537 perfis no total:**
+  - **531 discípulos vinculados à igreja** (`is_church_linked = true`): 528 gerados na grade regular dos **24 Grupos Caseiros (GCs)** nos **6 setores** + 3 filhos na família de Rafael e Isabele Moraes (Bia, André e Filipe no GC Castelo).
+  - **6 contas de acesso aos estudos** (`is_church_linked = false`), permitindo testar o fluxo de visitantes não vinculados, progresso de trilhas e vinculação posterior pela liderança.
+- **Mural Centralizado de Notícias & Encontros** com 13 posts estruturados abrangendo todas as categorias (`geral`, `oracao`, `missoes`, `encontro`, `estudo`, `formulario`, `evento`), com suporte a visibilidade pública/interna (`is_public`), encontros casuais na cidade com data/horário/local, e vínculos relacionais diretos a recursos de estudo (`media_resource_id`), formulários (`form_id`) e eventos/retiros (`retreat_id`, `event_label`).
+- **Centro de Ensino e Catequese** com 3 trilhas estruturadas, 10 recursos multimídia (YouTube, PDFs, Markdown) e progresso ativo dos usuários.
+- **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 142 inscrições vinculadas.
+- **Sistema de Formulários Dinâmicos** com 5 modelos dedicados (`form-solteiros-2026`, `form-carnaval-2026`, `form-casais-2026`, `form-censo-dons`, `form-apoio-diaconal`) e 147 submissões registradas, garantindo que cada evento possua sua própria ficha de inscrição sem conflitos de dados ou estado.
 
 ---
 
 ## 2. Como Executar
-
 O seeding pode ser executado a qualquer momento rodando o seguinte comando no terminal do projeto:
 
 ```bash
@@ -47,65 +29,117 @@ npm run db:seed
 1. Carrega as variáveis de ambiente a partir de `.env` e `.env.local` (procurando pela senha `DEV_DB_PASSWORD` e pela URL `VITE_SUPABASE_URL` para extrair o ID do projeto).
 2. Lê o arquivo SQL completo de [seed.sql](file:///c:/Users/ggoes/Documents/igrejaBH/supabase/seed.sql).
 3. Conecta-se diretamente ao banco de dados remoto do Supabase usando a porta padrão do PostgreSQL (5432) com SSL (com fallback automático para connection pooler na porta 6543 caso IPv6 esteja indisponível).
-4. Limpa todas as tabelas públicas (`TRUNCATE ... CASCADE`) e de autenticação (`DELETE FROM auth.users`).
-5. Insere os 6 setores, 35 grupos caseiros, perfis da liderança/núcleo, dev e catálogo base de forma atômica e transacional.
+4. Limpa todas as 15 tabelas públicas (`TRUNCATE ... CASCADE`) e de autenticação (`DELETE FROM auth.users`).
+5. Executa todas as inserções e associações relacionais de forma transacional e atômica.
 
----
-
-## 3. Como Verificar a Consistência dos Dados
-
+### Como Verificar a Consistência dos Dados:
 Você pode executar o script de diagnóstico a qualquer momento:
-
 ```bash
 node scripts/verify_seed.js
 ```
 
-O script valida automaticamente:
-1. Contagem exata de setores (6) e grupos caseiros (35).
-2. Latitude e Longitude válidas em todos os 35 grupos.
-3. Existência do perfil de Gabriel Góes Braga no GC 102 com `is_dev = true` e perfil de acesso em `auth.users`.
-4. Ausência de e-mails em perfis de outros membros (zero e-mails artificiais).
-5. Limpeza total de posts, retiros e inscrições de teste.
-6. Integridade do acervo de Ensinos e Formulários.
+---
+
+## 3. Estrutura Territorial e Volumetria dos Dados
+
+### Setores e Grupos Caseiros
+*   **6 Setores (Regiões):** `Barreiro/Oeste`, `Pampulha/São Gabriel`, `Santa Luzia`, `Venda Nova`, `Betim` e `Contagem`.
+*   **24 Grupos Caseiros (GCs):** 4 em cada setor, nomeados de acordo com os bairros da respectiva região e localizados em endereços reais (ex: Av. Mário Werneck no Buritis, Av. Fleming no Ouro Preto, Av. José Faria da Rocha no Eldorado, Av. Campos de Ourique em Alterosa).
+*   **Coordenadas Geográficas (Lat/Lng):** Geradas programaticamente a partir de centros urbanos reais de cada região, garantindo que o mapa interativo exiba marcações espalhadas sem sobreposições.
+
+### Distribuição Interna por GC (22 discípulos em cada GC):
+Para garantir diversidade nos testes e simulações, cada grupo caseiro possui exatamente:
+*   **2 Líderes (Homens Casados):** 48 no total. Adultos que também exercem funções no discipulado e no companheirismo comunitário.
+*   **2 Esposas dos Líderes (Mulheres Casadas):** 48 no total.
+*   **2 Maridos de Família Comum (Homens Casados):** 48 no total.
+*   **2 Esposas da Família (Mulheres Casadas):** 48 no total.
+*   **2 Filhos Pequenos (Menores de idade, Não Batizados):** 48 no total. Cadastrados em `public.profiles` com `user_id = NULL` (perfis fantasmas) e vinculados aos pais por `father_id` e `mother_id`.
+*   **2 Filhos Adolescentes/Jovens Adultos (Batizados, Solteiros):** 48 no total. Possuem conta de acesso em `auth.users` e data de batismo, mas continuam vinculados aos perfis dos pais.
+*   **3 Idosos (Membros Seniores, Perfis Fantasmas):** 72 no total. Membros acima de 70 anos sem conta de autenticação (`user_id = NULL`), com nomes limpos (sem prefixos "Seu/Dona").
+*   **7 Solteiros Ordinários (Adultos):** 168 no total. Jovens/adultos sem laços de casamento e sem vínculo de moradia com as famílias locais do GC.
+
+**Totais Gerais do Banco:**
+*   **Contas de Acesso (`auth.users`):** 414 usuários (408 discípulos + 6 visitantes de estudos, todos com a senha inicial `senha123`).
+*   **Perfis (`public.profiles`):** 537 perfis:
+    *   **531 vinculados à igreja (`is_church_linked = true`):** 408 com login ativo + 123 perfis fantasmas (crianças e idosos).
+    *   **6 contas de estudos (`is_church_linked = false`):** sem vínculo a GC nem discipulador.
+*   **Fotos de Perfil (`avatar_url`):** 489 avatares em alta resolução (Unsplash Portraits) distribuídos por gênero e idade.
+*   **Telefones Válidos:** 100% dos perfis com telefone possuem celulares brasileiros com máscara de 9 dígitos `(31) 9XXXX-XXXX`.
 
 ---
 
-## 4. Estrutura dos 35 Grupos Caseiros
+## 4. Regras Estruturais de Relacionamentos (Juntas e Ligamentos)
 
-| ID | Setor | Líder(es) | Bairro / Cidade | Coordenadas |
-|---|---|---|---|---|
-| **101** | São Gabriel/Pampulha | Flávio | Solimões - BH | -19.8392, -43.9185 |
-| **102** | São Gabriel/Pampulha | Fernando e Samuel | Heliópolis - BH | -19.8425, -43.9482 |
-| **103** | São Gabriel/Pampulha | Carlos Eduardo e Guilherme | São Gabriel - BH | -19.8580, -43.9160 |
-| **104** | São Gabriel/Pampulha | Eduardo Lopes | Santa Amélia - BH | -19.8361, -43.9724 |
-| **105** | São Gabriel/Pampulha | Ademir | Jardim Vitória - BH | -19.8456, -43.8891 |
-| **201** | Venda Nova/Neves | Helder | Santa Branca - BH | -19.8268, -43.9685 |
-| **202** | Venda Nova/Neves | Juarez | Santa Branca - BH | -19.8245, -43.9660 |
-| **203** | Venda Nova/Neves | Marinho | Maria Helena - Neves | -19.7985, -44.0092 |
-| **204** | Venda Nova/Neves | Luís | Maria Helena - Neves | -19.7992, -44.0105 |
-| **205** | Venda Nova/Neves | Cleber | Leblon - BH | -19.8115, -43.9880 |
-| **206** | Venda Nova/Neves | Douglas e Dimas | Sevilha B - Neves | -19.7695, -44.0812 |
-| **207** | Venda Nova/Neves | Jaime e Wagner | Areias - Neves | -19.7820, -43.9850 |
-| **301** | Santa Luzia | Davi Cunha | Santa Matilde - Santa Luzia | -19.7668, -43.8582 |
-| **302** | Santa Luzia | Neto | Lagoa Santa | -19.6328, -43.8906 |
-| **303** | Santa Luzia | Fernando | São Benedito - Santa Luzia | -19.7825, -43.9145 |
-| **304** | Santa Luzia | Ricardo e Jesus | Fazendinha do Baú - Santa Luzia | -19.7755, -43.8720 |
-| **305** | Santa Luzia | Roberto, Álvaro e Rodrigo | Córrego das Calçadas - Santa Luzia | -19.7590, -43.8510 |
-| **306** | Santa Luzia | Maurício e Diogo | Cristina B - Santa Luzia | -19.7762, -43.9248 |
-| **401** | Oeste | Júlio | Novo Tirol - BH | -19.9985, -44.0315 |
-| **402** | Oeste | Rafael e Shibas | Milionários - BH | -19.9810, -43.9965 |
-| **403** | Oeste | Claudio, Davi e Lúcio | Tropical / Jacuba - Contagem | -19.9265, -44.1150 |
-| **404** | Oeste | Willian Batista | Novo Progresso - Contagem | -19.8980, -44.0390 |
-| **405** | Oeste | José Alfredo | Bela Vista / Barreiro - Ibirité | -20.0080, -44.0520 |
-| **406** | Oeste | João Pedro e Thiago | Salgado Filho - BH | -19.9412, -43.9825 |
-| **407** | Oeste | Jardir | Nova Suíça - BH | -19.9445, -43.9734 |
-| **501** | Betim/Contagem | Emerson | São José - Esmeraldas | -19.7615, -44.3140 |
-| **502** | Betim/Contagem | Juan e Alexandre | Jardim Riacho - Contagem | -19.9565, -44.0410 |
-| **503** | Betim/Contagem | Jairo | Marimbá - Betim | -19.9320, -44.2750 |
-| **504** | Betim/Contagem | Wiliam Pereira | Resplendor - Igarapé | -20.0680, -44.2980 |
-| **505** | Betim/Contagem | Cléber, Caio e Marcelo | Jardim Alterosa - Betim | -19.9610, -44.1720 |
-| **506** | Betim/Contagem | Marilson | Três Barras - Contagem | -19.9145, -44.0885 |
-| **507** | Betim/Contagem | Artur | Eldorado - Contagem | -19.9380, -44.0395 |
-| **508** | Betim/Contagem | Lucas Augusto Santos | Ponte Alta - Betim | -19.8960, -44.2030 |
-| **901** | Fora da Localidade | Douglas Martins e Cláudio Lopes | Interlagos - Sete Lagoas | -19.4752, -44.2368 |
-| **902** | Fora da Localidade | José Antônio | Santa Bárbara | -19.9595, -43.4150 |
+*   **Segregação por Gênero:** O discipulado e os laços de companheirismo ocorrem estritamente entre pessoas do mesmo gênero (homem discipula homem; mulher discipula mulher).
+*   **Casamento:** Os casamentos são estritamente heterossexuais, ligados bidirecionalmente na tabela `profiles` através do campo `spouse_id`.
+*   **Juntas de Casados:** Para simular redes de casais, cada pessoa casada possui juntas de companheirismo (`fellowships`) com **exatamente 2 outros casados** do mesmo gênero e com maturidade semelhante.
+*   **Maturidade Cronológica no Discipulado:** A data de batismo (`baptism_date`) é utilizada como indexador de maturidade espiritual. Um discipulador (`discipler_id`) tem batismo mais antigo do que o discipulando (`discipler.baptism_date < disciple.baptism_date`).
+*   **Presbíteros e Diáconos:**
+    *   Exatamente **4 Presbíteros** com malha completa de companheirismo mútuo entre si e entre suas esposas.
+    *   Exatamente **6 Diáconos** (incluindo `Gabriel Góes Braga`) discipulados por um dos presbíteros.
+
+---
+
+## 5. Plataforma de Ensino & Catequese
+
+O módulo de Ensinos (`public.studies`, `public.media_resources`, `public.study_steps`, `public.user_study_progress`) contém:
+*   **Trilha 1: O Propósito Eterno de Deus:** Visão central de Romanos 8 e Efésios 1 (3 etapas: vídeo, caderno de estudo PDF e artigo teológico).
+*   **Trilha 2: Juntas e Ligamentos — O Discipulado Prático:** Relacionamentos de transparência e amor fraternal (2 etapas: vídeo e caderno prático PDF).
+*   **Trilha 3: O Sacerdócio Universal e a Dinâmica nas Casas:** Todos os santos em serviço e operação dos dons (3 etapas: vídeo, artigo e dinâmica das casas).
+*   **Progresso de Gabriel Góes Braga:** Possui 4 etapas concluídas (Trilha 1 100% finalizada e Trilha 2 em andamento), permitindo testar barras de progresso e certificados imediatamente no frontend.
+
+### Contas de Estudos (Visitantes Não Vinculados — `is_church_linked = false`)
+Para simulação de novos convertidos ou visitantes externos que criam conta unicamente para realizar os estudos e trilhas da igreja:
+*   **Credenciais de Acesso (todos com a senha padrão `senha123`):**
+    *   `lucas.estudos@email.com` — Lucas Alencar (1 etapa concluída)
+    *   `marina.estudos@email.com` — Marina Duarte (2 etapas concluídas)
+    *   `andre.estudos@email.com` — André Siqueira (Trilha 1 100% concluída)
+    *   `carolina.estudos@email.com` — Carolina Mendes (Recém-cadastrada, sem etapas)
+    *   `felipe.estudos@email.com` — Felipe Vasconcelos (Recém-cadastrado, sem etapas)
+    *   `beatriz.estudos@email.com` — Beatriz Prado (Recém-cadastrada, sem etapas)
+*   **Comportamento no Sistema:**
+    *   Acessam diretamente a Home (`/dashboard`) com foco nos ensinos e o catálogo de trilhas (`/estudos`), sem bloqueio de onboarding socioeconômico.
+    *   Exibem o badge "Conta de Estudos" e o card informativo de vinculação no perfil (`/perfil`).
+    *   No painel da liderança (`/membros`), aparecem sob a aba **"Não Vinculados (Apenas Estudos)"** com botão de ação rápida **"Vincular à Igreja"**.
+    *   Não aparecem no grafo de relacionamentos (`/relacionamentos`) nem nos relatórios de GCs até serem vinculados.
+
+---
+
+## 6. Ciclo de Eventos, Alojamentos, Finanças & Fichas de Inscrição
+
+Cada evento possui uma ficha de inscrição customizada exclusiva para evitar colisões de dados e de ciclo de vida (status ativo, encerrado ou rascunho):
+*   **Retiro Ativo (`Retiro de Solteiros e Jovens 2026`):** Inscrições abertas, 57 inscritos, 8 quartos (Chalés e Dormitórios), despesas operacionais parciais (sinal de locação, buffet, som). Vinculado exclusivamente ao formulário `form-solteiros-2026` (57 respostas registradas).
+*   **Retiro Encerrado (`Retiro de Carnaval 2026 — O Propósito Eterno`):** Evento histórico concluído, 85 inscritos 100% quitados, 6 quartos 100% alocados, e 5 despesas fechadas com demonstrativo de superávit financeiro positivo (ideal para testar os dashboards de KPI e resultado líquido em `ManageEventDetail`). Vinculado exclusivamente ao formulário `form-carnaval-2026` (85 respostas registradas).
+*   **Retiro em Rascunho (`Encontro Metropolitano de Casais nas Casas 2026`):** Evento em planejamento sem inscrições abertas, permitindo testar filtros de status no painel administrativo. Vinculado exclusivamente ao formulário `form-casais-2026` (0 respostas registradas).
+
+> **Garantia de Integridade (Banco e Aplicação):** A unicidade 1-para-1 é reforçada a nível físico no Supabase via índice único parcial (`idx_retreats_unique_form_id ON public.retreats(form_id) WHERE form_id IS NOT NULL`) e trigger explicativa em português (`check_retreat_form_uniqueness`), além de validações preventivas e bloqueio na UI em `CreateEditEventDialog`. Eventos com `form_id IS NULL` continuam usando a ficha padrão compartilhada.
+
+---
+
+## 7. Mural Centralizado de Notícias, Encontros & Avisos
+
+O sistema de notícias e avisos da igreja foi unificado sob a tabela `public.posts`, atendendo tanto ao `/dashboard` e ao calendário comunitário quanto à landing page pública:
+
+*   **Categorias (`public.post_category`):**
+    *   `geral`: Notícias comunitárias, avisos pastorais e ações de diaconia (com até 3 fotos).
+    *   `oracao`: Pedidos de oração e intercessão pela igreja, enfermos e cidades.
+    *   `missoes`: Notícias e testemunhos de evangelismo na cidade e universidades.
+    *   `encontro`: Encontros casuais na cidade (piqueniques em parques, vigílias), com `event_start_date`, `event_end_date` e `event_location`. Alimenta diretamente a agenda da Landing Page e o Calendário do Dashboard.
+    *   `estudo`: Avisos automáticos ou manuais de novos recursos cadastrados no acervo (`media_resource_id` FK).
+    *   `formulario`: Avisos vinculados a formulários do sistema (`form_id` FK).
+    *   `evento`: Avisos contextuais vinculados a retiros/eventos (`retreat_id` FK) com tags de status (`event_label` ex: "Vagas Abertas", "Transporte & Logística", "Lista de Espera", "Oração").
+*   **Visibilidade & RLS (`is_public`):**
+    *   `is_public = true`: Exibido publicamente na Landing Page e visível para visitantes anônimos e contas de estudo (`is_church_linked = false`).
+    *   `is_public = false`: Restrito a discípulos vinculados à igreja (`is_church_linked = true`), protegido a nível de banco por Row-Level Security com cache subquery `(SELECT auth.uid())`.
+*   **Integrações Automáticas:**
+    *   Ao adicionar material em `Ensinos.tsx` (`AddResourceModal`), o usuário pode optar por publicar automaticamente no mural (ativado por padrão).
+    *   Ao salvar formulários em `FormBuilder.tsx`, o usuário pode optar por publicar no mural (desativado por padrão).
+    *   Em `ManageEventDetail.tsx`, a aba "Avisos & Notícias" permite criar notícias com tags contextuais do retiro diretamente no feed da igreja.
+
+---
+
+## 8. Como Customizar os Dados
+Se você precisar alterar a volumetria, os nomes ou adicionar novas regras, modifique o bloco transacional em `supabase/seed.sql`:
+*   Para mudar nomes comuns gerados, altere os arrays `s_names`, `s_fnames` e `s_surnames`.
+*   Para ajustar o tamanho dos grupos caseiros ou a proporção de famílias/solteiros, altere os laços internos de repetição no script.
+*   Execute `npm run db:seed` para reaplicar as alterações a qualquer instante.

@@ -84,11 +84,10 @@ async function verify() {
     process.exit(1);
   }
 
-  console.log('\n=== VERIFICAÇÃO DO NOVO SEEDING (DADOS REAIS DOS 35 GCs) ===\n');
+  console.log('=== VERIFYING DATABASE SEED DATA ===\n');
 
-  // 1. Contagens gerais
   const tables = [
-    'sectors', 'home_groups', 'profiles', 'fellowships',
+    'profiles', 'home_groups', 'sectors', 'fellowships',
     'posts', 'media_resources', 'studies', 'study_steps',
     'user_study_progress', 'forms', 'form_submissions',
     'retreats', 'retreat_rooms', 'retreat_expenses', 'registrations'
@@ -96,120 +95,211 @@ async function verify() {
 
   for (const table of tables) {
     const res = await client.query(`SELECT count(*) FROM public.${table}`);
-    console.log(`Tabela ${table.padEnd(22)}: ${res.rows[0].count} registros`);
+    console.log(`Table ${table.padEnd(20)}: ${res.rows[0].count} rows`);
   }
 
   const authUsers = await client.query(`SELECT count(*) FROM auth.users`);
-  console.log(`Tabela ${'auth.users'.padEnd(22)}: ${authUsers.rows[0].count} contas de acesso`);
+  console.log(`Table ${'auth.users'.padEnd(20)}: ${authUsers.rows[0].count} rows`);
 
-  // 2. Validação dos Setores
-  const sectorsRes = await client.query(`SELECT id, name FROM public.sectors ORDER BY name`);
-  console.log('\n--- Setores Cadastrados (Esperado: 6) ---');
-  console.table(sectorsRes.rows);
-  if (sectorsRes.rows.length !== 6) {
-    console.error(`❌ ERRO: Esperado 6 setores, encontrados ${sectorsRes.rows.length}`);
-    process.exitCode = 1;
-  }
-
-  // 3. Validação dos Grupos Caseiros
-  const hgRes = await client.query(`
-    SELECT count(*) as total,
-           count(leader_1_id) as with_leader_1,
-           count(leader_2_id) as with_leader_2,
-           count(lat) as with_lat,
-           count(lng) as with_lng
-    FROM public.home_groups
-  `);
-  console.log('\n--- Integridade dos Grupos Caseiros (Esperado: 35) ---');
-  console.table(hgRes.rows);
-  if (parseInt(hgRes.rows[0].total, 10) !== 35) {
-    console.error(`❌ ERRO: Esperado 35 Grupos Caseiros, encontrados ${hgRes.rows[0].total}`);
-    process.exitCode = 1;
-  }
-
-  // 4. Validação de Gabriel Góes Braga
+  // Verify Gabriel
   const gabrielRes = await client.query(`
-    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.is_dev, p.is_presbyter, p.is_deacon, p.can_post,
-           p.home_group_id, hg.location_text as home_group_name,
-           (SELECT count(*) FROM auth.users WHERE email = p.email) as auth_users_count
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.avatar_url, p.is_deacon, p.is_dev, p.discipler_id,
+           (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
+           (SELECT count(*) FROM public.registrations WHERE profile_id = p.id) as registrations_count,
+           (SELECT count(*) FROM public.user_study_progress WHERE profile_id = p.id) as studies_completed
     FROM public.profiles p
-    LEFT JOIN public.home_groups hg ON hg.id = p.home_group_id
     WHERE p.email = 'ggoesbraga@gmail.com'
   `);
-  console.log('\n--- Perfil do Desenvolvedor (Gabriel Góes Braga) ---');
-  console.table(gabrielRes.rows);
+  console.log('\nGabriel Góes Braga data:');
+  console.log(gabrielRes.rows[0]);
 
-  if (gabrielRes.rows.length !== 1) {
-    console.error('❌ ERRO: Perfil de Gabriel Góes Braga não encontrado com ggoesbraga@gmail.com');
-    process.exitCode = 1;
-  } else {
-    const g = gabrielRes.rows[0];
-    if (!g.is_dev) {
-      console.error('❌ ERRO: Gabriel Góes Braga deve ter is_dev = true');
-      process.exitCode = 1;
-    }
-    if (g.is_presbyter || g.is_deacon) {
-      console.error('❌ ERRO: Gabriel Góes Braga deve ser "dev somente" (is_presbyter = false, is_deacon = false)');
-      process.exitCode = 1;
-    }
-    if (!g.home_group_name || !g.home_group_name.includes('102')) {
-      console.error(`❌ AVISO: Gabriel Góes Braga deveria estar vinculado ao GC 102 (Heliópolis). Vinculado a: ${g.home_group_name}`);
-    }
-    if (parseInt(g.auth_users_count, 10) !== 1) {
-      console.error('❌ ERRO: Gabriel Góes Braga não possui conta em auth.users');
-      process.exitCode = 1;
-    }
-  }
-
-  // 5. Validação de Ausência de Emails Fictícios
-  const fakeEmailsRes = await client.query(`
-    SELECT count(*) as count
-    FROM public.profiles
-    WHERE email IS NOT NULL AND email <> 'ggoesbraga@gmail.com'
+  // Verify Fernando Gomes Braga (Presbyter) & Clara Góes Braga
+  const fernandoRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.is_presbyter,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Fernando Gomes Braga'
   `);
-  console.log(`\nPerfis com e-mail além do Dev: ${fakeEmailsRes.rows[0].count} (Esperado: 0)`);
-  if (parseInt(fakeEmailsRes.rows[0].count, 10) > 0) {
-    console.error('❌ ERRO: Existem perfis com e-mail além de Gabriel Góes Braga.');
+  console.log('\nFernando Gomes Braga data:');
+  console.log(fernandoRes.rows[0]);
+
+  const claraRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT count(*) FROM public.profiles WHERE mother_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Clara Góes Braga'
+  `);
+  console.log('\nClara Góes Braga data:');
+  console.log(claraRes.rows[0]);
+
+  // Verify Rafael Moraes & Family
+  const rafaelRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.is_deacon, p.dependents_count,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
+           (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
+    FROM public.profiles p
+    WHERE p.full_name = 'Rafael Moraes'
+  `);
+  console.log('\nRafael Moraes data:');
+  console.log(rafaelRes.rows[0]);
+
+  const isabeleRes = await client.query(`
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.dependents_count,
+           (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
+           (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name
+    FROM public.profiles p
+    WHERE p.full_name = 'Isabele Moraes'
+  `);
+  console.log('\nIsabele Moraes data:');
+  console.log(isabeleRes.rows[0]);
+
+  if (rafaelRes.rows[0]?.id) {
+    const familyRes = await client.query(`
+      SELECT p.id, p.full_name, p.gender, p.birth_date, p.baptism_date, p.occupation,
+             (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
+             (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name
+      FROM public.profiles p
+      WHERE p.father_id = $1
+      ORDER BY p.birth_date ASC
+    `, [rafaelRes.rows[0].id]);
+    console.log('\nFilhos de Rafael e Isabele:');
+    console.table(familyRes.rows);
+  }
+
+  // Check retreat statuses
+  const retreatRes = await client.query(`SELECT id, title, status, price, max_participants FROM public.retreats ORDER BY start_date`);
+  console.log('\nRetreats:');
+  console.table(retreatRes.rows);
+
+  // Check retreat forms
+  const retreatFormsRes = await client.query(`
+    SELECT r.id, r.title, r.status, r.form_id, f.name as form_name,
+           (SELECT count(*) FROM public.form_submissions fs WHERE fs.form_id = r.form_id) as submissions_count
+    FROM public.retreats r
+    LEFT JOIN public.forms f ON f.id = r.form_id
+    ORDER BY r.start_date
+  `);
+  console.log('\nRetreat Forms & Submissions:');
+  console.table(retreatFormsRes.rows);
+
+  // Check 1-to-1 uniqueness: no form_id shared across multiple retreats
+  const duplicateFormsRes = await client.query(`
+    SELECT form_id, count(*) as count
+    FROM public.retreats
+    WHERE form_id IS NOT NULL
+    GROUP BY form_id
+    HAVING count(*) > 1
+  `);
+  if (duplicateFormsRes.rows.length > 0) {
+    console.error('❌ ERRO: Existem formulários vinculados a mais de um evento:', duplicateFormsRes.rows);
+    process.exitCode = 1;
+  } else {
+    console.log('✅ Verificação 1-para-1 de formulários por evento: Nenhum formulário duplicado em múltiplos eventos.');
+  }
+
+  // Check post categories
+  const postsRes = await client.query(`SELECT category, count(*) FROM public.posts GROUP BY category`);
+  console.log('\nPosts by Category:');
+  console.table(postsRes.rows);
+
+  // Check phone length
+  const invalidPhones = await client.query(`
+    SELECT count(*) FROM public.profiles 
+    WHERE phone IS NOT NULL AND length(regexp_replace(phone, '[^0-9]', '', 'g')) <> 11
+  `);
+  console.log(`\nProfiles with invalid phone length (<> 11 digits): ${invalidPhones.rows[0].count}`);
+
+  // Check "Seu / Dona"
+  const seuDona = await client.query(`
+    SELECT count(*) FROM public.profiles 
+    WHERE full_name LIKE 'Seu %' OR full_name LIKE 'Dona %'
+  `);
+  console.log(`Profiles with 'Seu / Dona' in legal name: ${seuDona.rows[0].count}`);
+
+  // Check distinct addresses
+  const addresses = await client.query(`
+    SELECT count(DISTINCT address_street) as distinct_streets, count(DISTINCT address_neighborhood) as distinct_neighborhoods
+    FROM public.profiles
+  `);
+  console.log(`Distinct streets: ${addresses.rows[0].distinct_streets}, distinct neighborhoods: ${addresses.rows[0].distinct_neighborhoods}`);
+
+  // Check avatars populated
+  const avatars = await client.query(`
+    SELECT count(*) as populated_avatars FROM public.profiles WHERE avatar_url IS NOT NULL
+  `);
+  console.log(`Populated avatars: ${avatars.rows[0].populated_avatars}`);
+
+  // ============================================================================
+  // VERIFICAÇÃO DE VÍNCULO À IGREJA E CONTAS DE ESTUDO (NOVA ARQUITETURA)
+  // ============================================================================
+  console.log('\n--- VERIFICAÇÃO DE CONTAS VINCULADAS VS ESTUDOS ---');
+  const churchLinkedRes = await client.query(`
+    SELECT is_church_linked, count(*) as count
+    FROM public.profiles
+    GROUP BY is_church_linked
+    ORDER BY is_church_linked DESC
+  `);
+  console.log('Perfis por is_church_linked:');
+  console.table(churchLinkedRes.rows);
+
+  const linkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === true)?.count || 0, 10);
+  const unlinkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === false)?.count || 0, 10);
+
+  if (linkedCount === 531) {
+    console.log('✅ Discípulos vinculados à igreja: 531 (528 da grade regular de GCs + 3 filhos de Rafael Moraes)');
+  } else {
+    console.error(`❌ ERRO: Esperado 531 vinculados, obtido ${linkedCount}`);
     process.exitCode = 1;
   }
 
-  // 6. Validação de Limpeza de Dados de Teste
-  const testPosts = await client.query(`SELECT count(*) FROM public.posts`);
-  const testRetreats = await client.query(`SELECT count(*) FROM public.retreats`);
-  const testRegs = await client.query(`SELECT count(*) FROM public.registrations`);
-  if (parseInt(testPosts.rows[0].count, 10) !== 0 || parseInt(testRetreats.rows[0].count, 10) !== 0 || parseInt(testRegs.rows[0].count, 10) !== 0) {
-    console.error('❌ ERRO: Posts, retiros ou inscrições de teste não foram limpos completamente.');
+  if (unlinkedCount === 6) {
+    console.log('✅ Contas de estudo não vinculadas: 6 (correto)');
+  } else {
+    console.error(`❌ ERRO: Esperado 6 não vinculados, obtido ${unlinkedCount}`);
     process.exitCode = 1;
-  } else {
-    console.log('✅ Dados de movimentação (posts, retiros, inscrições) 100% limpos.');
   }
 
-  // 7. Validação de Catálogo de Ensinos e Formulários
-  const studiesCount = await client.query(`SELECT count(*) FROM public.studies`);
-  const mediaCount = await client.query(`SELECT count(*) FROM public.media_resources`);
-  const formsCount = await client.query(`SELECT count(*) FROM public.forms`);
-  console.log(`\nCatálogo de Ensinos: ${studiesCount.rows[0].count} trilhas, ${mediaCount.rows[0].count} recursos de mídia.`);
-  console.log(`Modelos de Formulários: ${formsCount.rows[0].count} formulários ativos.`);
-
-  if (parseInt(studiesCount.rows[0].count, 10) < 3 || parseInt(mediaCount.rows[0].count, 10) < 10 || parseInt(formsCount.rows[0].count, 10) < 5) {
-    console.error('❌ ERRO: Catálogo base de ensinos ou formulários incompleto.');
+  // Verificar que nenhuma conta de estudos possui GC ou discipulador associado
+  const invalidUnlinkedRes = await client.query(`
+    SELECT count(*) FROM public.profiles
+    WHERE is_church_linked = false AND (home_group_id IS NOT NULL OR discipler_id IS NOT NULL)
+  `);
+  if (parseInt(invalidUnlinkedRes.rows[0].count, 10) === 0) {
+    console.log('✅ Integridade: nenhuma conta de estudos possui GC ou discipulador vinculado.');
+  } else {
+    console.error(`❌ ERRO: Existem ${invalidUnlinkedRes.rows[0].count} contas de estudo com GC ou discipulador.`);
     process.exitCode = 1;
-  } else {
-    console.log('✅ Catálogo base de Ensinos e Formulários íntegro.');
   }
 
-  console.log('\n======================================================');
-  if (process.exitCode === 1) {
-    console.log('❌ FALHA NA VERIFICAÇÃO DO BANCO DE DADOS.');
+  // Exibir as contas de estudos
+  const unlinkedAccountsRes = await client.query(`
+    SELECT p.full_name, p.email, p.phone, p.gender, p.is_church_linked,
+           (SELECT count(*) FROM public.user_study_progress WHERE profile_id = p.id) as study_steps_completed
+    FROM public.profiles p
+    WHERE p.is_church_linked = false
+    ORDER BY p.email ASC
+  `);
+  console.log('\nContas de Estudos (Visitantes Não Vinculados):');
+  console.table(unlinkedAccountsRes.rows);
+
+  // Verificar que perfis fantasmas (crianças e idosos sem conta auth) estão marcados como vinculados
+  const phantomCheck = await client.query(`
+    SELECT count(*) FROM public.profiles
+    WHERE user_id IS NULL AND is_church_linked = false
+  `);
+  if (parseInt(phantomCheck.rows[0].count, 10) === 0) {
+    console.log('✅ Perfis fantasmas (crianças e idosos) integrados à igreja: 100% vinculados.');
   } else {
-    console.log('🎉 TODOS OS TESTES DE VALIDAÇÃO PASSARAM COM SUCESSO!');
+    console.error(`❌ ERRO: Existem ${phantomCheck.rows[0].count} perfis fantasmas com is_church_linked = false.`);
+    process.exitCode = 1;
   }
-  console.log('======================================================\n');
 
   await client.end();
 }
 
-verify().catch((err) => {
-  console.error('Erro na execução da verificação:', err);
-  process.exit(1);
-});
+verify().catch(console.error);
