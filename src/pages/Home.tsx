@@ -135,6 +135,15 @@ export default function Home() {
           if (isMounted && disciplerData) {
             setDiscipler(disciplerData)
           }
+        } else if (userProfile.custom_discipler_name) {
+          if (isMounted) {
+            setDiscipler({
+              id: "custom",
+              full_name: `${userProfile.custom_discipler_name} (Não cadastrado)`,
+              avatar_url: null,
+              phone: null,
+            })
+          }
         }
 
         // Discípulos que eu acompanho

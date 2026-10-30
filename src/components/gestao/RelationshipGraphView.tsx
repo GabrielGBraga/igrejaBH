@@ -2463,6 +2463,7 @@ export function RelationshipGraphView({
     const discipler = node.disciplerId
       ? allChurchNodes.find((n) => n.id === node.disciplerId) || null
       : null
+    const customDisciplerName = rawProfile.custom_discipler_name || null
     const directDisciples = allChurchNodes
       .filter((n) => n.disciplerId === node.id)
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -2484,6 +2485,7 @@ export function RelationshipGraphView({
       node,
       rawProfile,
       discipler,
+      customDisciplerName,
       directDisciples,
       companions,
       spouse,
@@ -3129,6 +3131,15 @@ export function RelationshipGraphView({
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </button>
+              ) : selectedNodeData.customDisciplerName ? (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-800 dark:text-amber-300 font-medium space-y-0.5">
+                  <div className="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-400">
+                    Discipulador Não Encontrado no Sistema
+                  </div>
+                  <div className="font-semibold text-foreground">
+                    {selectedNodeData.customDisciplerName}
+                  </div>
+                </div>
               ) : selectedNodeData.node.isPresbyter ||
                 selectedNodeData.node.isPresbyterSpouse ? (
                 <div className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-primary font-medium">

@@ -11,6 +11,7 @@ export interface DiscipleCardProps {
   disciple: Profile
   isLeader?: boolean
   disciplerName?: string | null
+  isCustomDiscipler?: boolean
   spouseName?: string | null
   fatherName?: string | null
   motherName?: string | null
@@ -42,6 +43,7 @@ export function DiscipleCard({
   disciple,
   isLeader = false,
   disciplerName,
+  isCustomDiscipler = false,
   spouseName,
   fatherName,
   motherName,
@@ -197,7 +199,16 @@ export function DiscipleCard({
                   <span className="shrink-0 text-muted-foreground">Discipulador(a):</span>
                   <span className="font-medium text-right text-foreground">
                     {disciplerName ? (
-                      disciplerName
+                      isCustomDiscipler ? (
+                        <span className="inline-flex items-center gap-1.5 flex-wrap justify-end">
+                          <span className="font-semibold text-amber-800 dark:text-amber-300">{disciplerName}</span>
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                            Não encontrado
+                          </span>
+                        </span>
+                      ) : (
+                        disciplerName
+                      )
                     ) : disciple.is_presbyter || isCoveredRoot ? (
                       <span className="text-primary font-medium">
                         Cuidado Mútuo
@@ -249,6 +260,14 @@ export function DiscipleCard({
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {/* Alerta de Discipulador Não Encontrado no Sistema */}
+        {isCustomDiscipler && (
+          <div className="mt-2.5 flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-medium text-amber-800 dark:text-amber-300 border border-amber-500/20">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>Discipulador &ldquo;{disciplerName}&rdquo; não encontrado no cadastro do sistema.</span>
           </div>
         )}
 

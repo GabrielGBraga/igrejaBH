@@ -1128,9 +1128,12 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredDisciples.map((disciple) => {
                     const isGroupLeader = leaderIds.has(disciple.id)
-                    const discipler = disciple.discipler_id
+                    const registeredDiscipler = disciple.discipler_id
                       ? profileMap.get(disciple.discipler_id)?.full_name
                       : null
+                    const customDiscipler = disciple.custom_discipler_name || null
+                    const discipler = registeredDiscipler || customDiscipler
+                    const isCustomDiscipler = !registeredDiscipler && Boolean(customDiscipler)
                     const spouse = disciple.spouse_id
                       ? profileMap.get(disciple.spouse_id)?.full_name
                       : null
@@ -1164,6 +1167,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         fellowshipNames={companions}
                         groupName={groupName}
                         isCoveredRoot={isCoveredRoot}
+                        isCustomDiscipler={isCustomDiscipler}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
                         onTransformToLinked={handleOpenTransformToLinked}

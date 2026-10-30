@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Search, ChevronDown, X, Check } from "lucide-react"
+import { Search, ChevronDown, X, Check, Plus } from "lucide-react"
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -22,6 +22,8 @@ export interface SearchableSelectProps {
   className?: string
   triggerClassName?: string
   clearable?: boolean
+  allowCustomValue?: boolean
+  customValueActionLabel?: (query: string) => string
   id?: string
   name?: string
 }
@@ -44,6 +46,8 @@ export function SearchableSelect({
   className,
   triggerClassName,
   clearable = true,
+  allowCustomValue = false,
+  customValueActionLabel,
   id,
   name,
 }: SearchableSelectProps) {
@@ -110,8 +114,19 @@ export function SearchableSelect({
   // Opção atualmente selecionada
   const selectedOption = React.useMemo(() => {
     if (!value) return null
-    return options.find((opt) => opt.value === value) || null
-  }, [options, value])
+    const found = options.find((opt) => opt.value === value)
+    if (found) return found
+    if (allowCustomValue && value.startsWith("custom:")) {
+      const customName = value.replace(/^custom:/, "")
+      return {
+        value,
+        label: customName,
+        badge: "Não cadastrado",
+        description: "Discipulador não encontrado no sistema",
+      }
+    }
+    return null
+  }, [options, value, allowCustomValue])
 
   // Filtragem dinâmica enquanto o usuário escreve
   const filteredOptions = React.useMemo(() => {
@@ -119,7 +134,7 @@ export function SearchableSelect({
       return options
     }
     const queryNorm = normalizeSearch(typedQuery)
-    return options.filter((opt) => {
+    const matches = options.filter((opt) => {
       const labelNorm = normalizeSearch(opt.label)
       const descNorm = opt.description ? normalizeSearch(opt.description) : ""
       const keyNorm = opt.keywords ? normalizeSearch(opt.keywords) : ""
@@ -129,7 +144,24 @@ export function SearchableSelect({
         keyNorm.includes(queryNorm)
       )
     })
-  }, [options, typedQuery, isTyping])
+
+    if (allowCustomValue && typedQuery.trim()) {
+      const exactMatch = options.some(
+        (opt) => normalizeSearch(opt.label) === queryNorm && opt.value !== "none"
+      )
+      if (!exactMatch) {
+        const customOpt: SearchableSelectOption = {
+          value: `custom:${typedQuery.trim()}`,
+          label: typedQuery.trim(),
+          badge: "Não encontrado",
+          description: "Salvar apenas nome (não cadastrado no sistema)",
+        }
+        return [...matches, customOpt]
+      }
+    }
+
+    return matches
+  }, [options, typedQuery, isTyping, allowCustomValue])
 
   // Reseta índice destacado ao mudar a busca
   React.useEffect(() => {
@@ -337,6 +369,7 @@ export function SearchableSelect({
                 filteredOptions.map((opt, index) => {
                   const isSelected = value === opt.value
                   const isHighlighted = highlightedIndex === index
+                  const isCustom = opt.value.startsWith("custom:")
 
                   return (
                     <div
@@ -350,18 +383,35 @@ export function SearchableSelect({
                       className={cn(
                         "relative flex min-h-[44px] cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-xs sm:text-sm transition-colors",
                         isHighlighted
-                          ? "bg-accent text-accent-foreground"
+                          ? isCustom
+                            ? "bg-amber-500/15 text-amber-900 dark:text-amber-200"
+                            : "bg-accent text-accent-foreground"
+                          : isCustom
+                          ? "bg-amber-500/5 hover:bg-amber-500/10 text-amber-800 dark:text-amber-300"
                           : "hover:bg-muted/60 text-foreground",
-                        isSelected && "font-medium bg-primary/10 text-primary hover:bg-primary/15"
+                        isSelected && !isCustom && "font-medium bg-primary/10 text-primary hover:bg-primary/15",
+                        isSelected && isCustom && "font-medium bg-amber-500/20 text-amber-900 dark:text-amber-200"
                       )}
                     >
                       <div className="flex flex-col min-w-0 pr-2">
                         <div className="flex items-center gap-2">
-                          <span className="truncate">{opt.label}</span>
+                          {isCustom && (
+                            <Plus className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                          )}
+                          <span className="truncate">
+                            {isCustom && customValueActionLabel
+                              ? customValueActionLabel(opt.label)
+                              : opt.label}
+                          </span>
                           {opt.badge && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] px-1.5 py-0 font-normal shrink-0 border-primary/30 bg-primary/10 text-primary"
+                              className={cn(
+                                "text-[10px] px-1.5 py-0 font-normal shrink-0",
+                                isCustom
+                                  ? "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                                  : "border-primary/30 bg-primary/10 text-primary"
+                              )}
                             >
                               {opt.badge}
                             </Badge>
@@ -375,7 +425,10 @@ export function SearchableSelect({
                       </div>
 
                       {isSelected && (
-                        <Check className="h-4 w-4 shrink-0 text-primary ml-2" />
+                        <Check className={cn(
+                          "h-4 w-4 shrink-0 ml-2",
+                          isCustom ? "text-amber-600 dark:text-amber-400" : "text-primary"
+                        )} />
                       )}
                     </div>
                   )

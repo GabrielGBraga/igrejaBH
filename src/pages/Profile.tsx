@@ -115,6 +115,7 @@ interface UserProfile {
   mother_id?: string | null
   home_group_name?: string
   discipler_name?: string
+  is_custom_discipler?: boolean
   spouse_name?: string
   father_name?: string
   mother_name?: string
@@ -271,7 +272,8 @@ export default function Profile() {
           father_id: data.father_id || undefined,
           mother_id: data.mother_id || undefined,
           home_group_name: data.home_groups?.location_text || undefined,
-          discipler_name: getRelationName(data.discipler),
+          discipler_name: getRelationName(data.discipler) || data.custom_discipler_name || undefined,
+          is_custom_discipler: !data.discipler_id && Boolean(data.custom_discipler_name),
           spouse_name: spouseName,
           father_name: getRelationName(data.father),
           mother_name: getRelationName(data.mother),
@@ -1055,7 +1057,13 @@ export default function Profile() {
                 />
                 <InfoItem
                   label="Discipulador"
-                  value={profile.discipler_name}
+                  value={
+                    profile.discipler_name
+                      ? profile.is_custom_discipler
+                        ? `${profile.discipler_name} (Não cadastrado no sistema)`
+                        : profile.discipler_name
+                      : undefined
+                  }
                   icon={UserIcon}
                 />
               </InfoSection>

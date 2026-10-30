@@ -190,6 +190,7 @@ const phantomUserSchema = z.object({
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
     homeGroupId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
     disciplerId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
+    customDisciplerName: z.string().optional().nullable(),
     fatherId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
     motherId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
 }).superRefine((data, ctx) => {
@@ -208,7 +209,7 @@ const phantomUserSchema = z.object({
                 path: ["homeGroupId"],
             });
         }
-        if (!data.disciplerId) {
+        if (!data.disciplerId && !data.customDisciplerName?.trim()) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: "Discipulador é obrigatório para irmãos vinculados.",
@@ -253,7 +254,8 @@ const linkToChurchSchema = z.object({
     }),
     birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data de nascimento é obrigatória (AAAA-MM-DD)." }),
     homeGroupId: z.string().min(1, { message: "Grupo caseiro é obrigatório para irmãos vinculados." }),
-    disciplerId: z.string().min(1, { message: "Discipulador é obrigatório para irmãos vinculados." }),
+    disciplerId: z.string().optional().nullable(),
+    customDisciplerName: z.string().optional().nullable(),
     phone: z.union([
         z.string().refine((val) => val === "" || /^(?:\+55 )?\(\d{2}\) 9\d{4}-\d{4}$/.test(val), {
             message: "O telefone celular deve ser válido e conter o 9 (ex: (31) 98888-7777)."
@@ -264,6 +266,13 @@ const linkToChurchSchema = z.object({
     gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
 }).superRefine((data, ctx) => {
+    if (!data.disciplerId && !data.customDisciplerName?.trim()) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Discipulador é obrigatório para irmãos vinculados.",
+            path: ["disciplerId"],
+        });
+    }
     if (data.birthDate && data.baptismDate) {
         const birth = new Date(data.birthDate);
         const baptism = new Date(data.baptismDate);
@@ -314,6 +323,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             maritalStatus: "",
             homeGroupId: "",
             disciplerId: "",
+            customDisciplerName: "",
             fatherId: "",
             motherId: "",
         }
@@ -326,6 +336,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             birthDate: "",
             homeGroupId: "",
             disciplerId: "",
+            customDisciplerName: "",
             phone: "",
             baptismDate: "",
             gender: "",
@@ -407,6 +418,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             maritalStatus: "",
             homeGroupId: "",
             disciplerId: "",
+            customDisciplerName: "",
             fatherId: "",
             motherId: "",
         });
@@ -432,6 +444,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             maritalStatus: (member.marital_status as any) || "",
             homeGroupId: member.home_group_id || "",
             disciplerId: member.discipler_id || "",
+            customDisciplerName: member.custom_discipler_name || "",
             fatherId: member.father_id || "",
             motherId: member.mother_id || "",
         });
@@ -472,6 +485,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             birthDate: member.birth_date || "",
             homeGroupId: member.home_group_id || "",
             disciplerId: member.discipler_id || "",
+            customDisciplerName: member.custom_discipler_name || "",
             phone: member.phone || "",
             baptismDate: member.baptism_date || "",
             gender: (member.gender as any) || "",
@@ -510,7 +524,8 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                     cpf: data.cpf,
                     birth_date: data.birthDate,
                     home_group_id: data.homeGroupId,
-                    discipler_id: data.disciplerId,
+                    discipler_id: data.disciplerId || null,
+                    custom_discipler_name: !data.disciplerId && data.customDisciplerName?.trim() ? data.customDisciplerName.trim() : null,
                     phone: data.phone || null,
                     baptism_date: data.baptismDate || null,
                     gender: data.gender || null,
@@ -597,6 +612,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             marital_status: data.registrationType === "adult" ? (data.maritalStatus || null) : null,
             home_group_id: data.homeGroupId || null,
             discipler_id: data.registrationType === "adult" ? (data.disciplerId || null) : null,
+            custom_discipler_name: data.registrationType === "adult" && !data.disciplerId && data.customDisciplerName?.trim() ? data.customDisciplerName.trim() : null,
             father_id: data.fatherId || null,
             mother_id: data.motherId || null,
             is_church_linked: selectedMember ? selectedMember.is_church_linked : true,

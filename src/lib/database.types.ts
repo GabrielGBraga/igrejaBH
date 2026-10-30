@@ -430,6 +430,7 @@ export type Database = {
           cpf: string | null
           created_at: string
           dependents_count: number | null
+          custom_discipler_name: string | null
           discipler_id: string | null
           drivers_license: string | null
           education_level: string | null
@@ -468,6 +469,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string
           dependents_count?: number | null
+          custom_discipler_name?: string | null
           discipler_id?: string | null
           drivers_license?: string | null
           education_level?: string | null
@@ -506,6 +508,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string
           dependents_count?: number | null
+          custom_discipler_name?: string | null
           discipler_id?: string | null
           drivers_license?: string | null
           education_level?: string | null

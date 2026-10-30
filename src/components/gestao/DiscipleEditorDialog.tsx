@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { SearchableSelect } from "@/components/ui/searchable-select"
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import {
   getHomeGroupDisplayName,
   getHomeGroupFullLabel,
@@ -32,6 +32,7 @@ import {
   Check,
   BookOpen,
   HeartHandshake,
+  AlertCircle,
 } from "lucide-react"
 import { toast } from "sonner"
 import supabase from "@/lib/supabase"
@@ -102,6 +103,7 @@ export function DiscipleEditorDialog({
   const [gender, setGender] = useState<"M" | "F">("M")
   const [homeGroupId, setHomeGroupId] = useState<string>("")
   const [disciplerId, setDisciplerId] = useState<string>("none")
+  const [customDisciplerName, setCustomDisciplerName] = useState<string>("")
   const [spouseId, setSpouseId] = useState<string>("none")
   const [fatherId, setFatherId] = useState<string>("none")
   const [motherId, setMotherId] = useState<string>("none")
@@ -135,6 +137,7 @@ export function DiscipleEditorDialog({
         setGender((disciple.gender as "M" | "F") || "M")
         setHomeGroupId(disciple.home_group_id || defaultHomeGroupId || "")
         setDisciplerId(disciple.discipler_id || "none")
+        setCustomDisciplerName(disciple.custom_discipler_name || "")
         setSpouseId(disciple.spouse_id || "none")
         setFatherId(disciple.father_id || "none")
         setMotherId(disciple.mother_id || "none")
@@ -294,8 +297,22 @@ export function DiscipleEditorDialog({
 
   // Opções de Discipulador
   const disciplerOptions = useMemo(() => {
-    return [
+    const list: SearchableSelectOption[] = [
       { value: "none", label: "Nenhum no momento (Pendente)", keywords: "nenhum sem discipulador" },
+    ]
+
+    // Se houver um nome customizado não vinculado já salvo, exibe-o como opção
+    if (customDisciplerName.trim() && disciplerId === "none") {
+      list.push({
+        value: `custom:${customDisciplerName.trim()}`,
+        label: customDisciplerName.trim(),
+        badge: "Não cadastrado",
+        description: "Discipulador não encontrado no sistema (salvo como texto)",
+        keywords: `${customDisciplerName.trim()} nao cadastrado provisorio`,
+      })
+    }
+
+    list.push(
       ...availableDisciplers.map((p) => {
         const hg = p.home_group_id ? homeGroupMap.get(p.home_group_id) : undefined
         const hgLabel = hg ? getHomeGroupFullLabel(hg, profileMap) : "Sem Grupo Caseiro"
@@ -307,9 +324,25 @@ export function DiscipleEditorDialog({
           badge: p.is_presbyter ? "Presbítero" : leaderIds.has(p.id) ? "Líder de GC" : undefined,
           keywords: `${hgLabel} ${hgKeywords} ${p.phone || ""}`.trim(),
         }
-      }),
-    ]
-  }, [availableDisciplers, leaderIds, homeGroupMap, profileMap])
+      })
+    )
+
+    return list
+  }, [availableDisciplers, leaderIds, homeGroupMap, profileMap, customDisciplerName, disciplerId])
+
+  const handleDisciplerChange = (val: string) => {
+    if (val.startsWith("custom:")) {
+      const name = val.replace(/^custom:/, "").trim()
+      setDisciplerId("none")
+      setCustomDisciplerName(name)
+    } else if (val === "none" || !val) {
+      setDisciplerId("none")
+      setCustomDisciplerName("")
+    } else {
+      setDisciplerId(val)
+      setCustomDisciplerName("")
+    }
+  }
 
   // Opções de Cônjuge
   const spouseOptions = useMemo(() => {
@@ -399,8 +432,9 @@ export function DiscipleEditorDialog({
     }
 
     if (isTransformingLinked && !isChild) {
-      if ((!disciplerId || disciplerId === "none") && !disciple?.is_presbyter) {
-        toast.error("Por favor, selecione um Discipulador para vincular o irmão à igreja.")
+      const hasDiscipler = (disciplerId && disciplerId !== "none") || Boolean(customDisciplerName.trim())
+      if (!hasDiscipler && !disciple?.is_presbyter) {
+        toast.error("Por favor, selecione ou informe um Discipulador para vincular o irmão à igreja.")
         return
       }
     }
@@ -418,12 +452,18 @@ export function DiscipleEditorDialog({
         finalBaptism = new Date().toISOString().split("T")[0]
       }
 
+      const isRegisteredDiscipler = !isChild && disciplerId !== "none"
+      const finalCustomDiscipler = !isChild && !isRegisteredDiscipler && customDisciplerName.trim()
+        ? customDisciplerName.trim()
+        : null
+
       const profilePayload = {
         full_name: fullName.trim(),
         phone: cleanPhone,
         gender: gender,
         home_group_id: homeGroupId,
-        discipler_id: !isChild && disciplerId !== "none" ? disciplerId : null,
+        discipler_id: isRegisteredDiscipler ? disciplerId : null,
+        custom_discipler_name: finalCustomDiscipler,
         spouse_id: !isChild && spouseId !== "none" ? spouseId : null,
         marital_status:
           !isChild && spouseId !== "none"
@@ -807,27 +847,48 @@ export function DiscipleEditorDialog({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Discipulador */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-foreground flex items-center justify-between">
-                    <span>Quem é o Discipulador(a)?</span>
-                    <span className="text-muted-foreground font-normal text-[11px]">(Quem cuida e ora)</span>
+                  <Label className="text-xs font-medium text-foreground">
+                    Quem é o Discipulador(a)?
                   </Label>
                   <SearchableSelect
                     options={disciplerOptions}
-                    value={disciplerId}
-                    onValueChange={setDisciplerId}
-                    placeholder={gender === "M" ? "Buscar irmão discipulador..." : "Buscar irmã discipuladora..."}
+                    value={
+                      disciplerId !== "none"
+                        ? disciplerId
+                        : customDisciplerName
+                        ? `custom:${customDisciplerName}`
+                        : "none"
+                    }
+                    onValueChange={handleDisciplerChange}
+                    allowCustomValue={true}
+                    customValueActionLabel={(q) => `Usar "${q}" (Discipulador não encontrado no sistema)`}
+                    placeholder={gender === "M" ? "Buscar ou digitar irmão discipulador..." : "Buscar ou digitar irmã discipuladora..."}
                     clearable={true}
                   />
-                  <p className="text-[11px] text-muted-foreground">
-                    Irmão mais maduro do mesmo sexo que acompanha a caminhada espiritual.
-                  </p>
+
+                  {/* Alerta de Discipulador Não Encontrado */}
+                  {disciplerId === "none" && customDisciplerName.trim() && (
+                    <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+                      <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                      <div className="flex-1 space-y-0.5">
+                        <p className="font-semibold flex items-center gap-1.5">
+                          <span>Discipulador não encontrado no sistema</span>
+                          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300 uppercase">
+                            Apenas Nome
+                          </span>
+                        </p>
+                        <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
+                          &ldquo;{customDisciplerName}&rdquo; será salvo provisoriamente como texto. O irmão não possui conta cadastrada no sistema.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Cônjuge */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-foreground flex items-center justify-between">
-                    <span>É casado(a)? Cônjuge</span>
-                    <span className="text-muted-foreground font-normal text-[11px]">(Opcional)</span>
+                  <Label className="text-xs font-medium text-foreground">
+                    É casado(a)? Cônjuge
                   </Label>
                   <SearchableSelect
                     options={spouseOptions}
@@ -836,9 +897,6 @@ export function DiscipleEditorDialog({
                     placeholder={gender === "M" ? "Buscar esposa..." : "Buscar marido..."}
                     clearable={true}
                   />
-                  <p className="text-[11px] text-muted-foreground">
-                    Marido ou esposa na comunhão da igreja.
-                  </p>
                 </div>
               </div>
             ) : (
