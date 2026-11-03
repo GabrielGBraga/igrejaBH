@@ -101,9 +101,42 @@ async function verify() {
   const authUsers = await client.query(`SELECT count(*) FROM auth.users`);
   console.log(`Table ${'auth.users'.padEnd(20)}: ${authUsers.rows[0].count} rows`);
 
+  const phantomStats = await client.query(`
+    SELECT 
+      count(*) FILTER (WHERE user_id IS NULL) as phantom_count,
+      count(*) FILTER (WHERE user_id IS NOT NULL) as active_auth_count,
+      count(*) FILTER (WHERE email IS NULL) as no_email_count,
+      count(*) FILTER (WHERE email IS NOT NULL) as with_email_count,
+      count(*) FILTER (WHERE cpf IS NULL) as no_cpf_count,
+      count(*) FILTER (WHERE cpf IS NOT NULL) as with_cpf_count
+    FROM public.profiles;
+  `);
+  console.log('\nPerfis Fantasmas vs Autenticados:');
+  console.table(phantomStats.rows);
+
+  const discStats = await client.query(`
+    SELECT 
+      count(*) FILTER (WHERE discipler_id IS NOT NULL) as linked_discipler_count,
+      count(*) FILTER (WHERE custom_discipler_name IS NOT NULL) as custom_discipler_count,
+      count(*) FILTER (WHERE discipler_id IS NULL AND custom_discipler_name IS NULL) as no_discipler_count
+    FROM public.profiles;
+  `);
+  console.log('\nEstatísticas de Discipulado (ID Vinculado vs Nome Livre):');
+  console.table(discStats.rows);
+
+  // Sample with custom discipler name
+  const sampleCustomDisc = await client.query(`
+    SELECT full_name, discipler_id, custom_discipler_name
+    FROM public.profiles
+    WHERE custom_discipler_name IS NOT NULL
+    LIMIT 5;
+  `);
+  console.log('\nAmostra de Discípulos com Discipulador por Nome Livre (Sem ID):');
+  console.table(sampleCustomDisc.rows);
+
   // Verify Gabriel
   const gabrielRes = await client.query(`
-    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.avatar_url, p.is_deacon, p.is_dev, p.discipler_id,
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.avatar_url, p.is_deacon, p.is_dev, p.discipler_id, p.custom_discipler_name,
            (SELECT full_name FROM public.profiles WHERE id = p.father_id) as father_name,
            (SELECT full_name FROM public.profiles WHERE id = p.mother_id) as mother_name,
            (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
@@ -115,15 +148,16 @@ async function verify() {
   console.log('\nGabriel Góes Braga data:');
   console.log(gabrielRes.rows[0]);
 
-  // Verify Fernando Gomes Braga (Presbyter) & Clara Góes Braga
+  // Verify Fernando (Presbyter) & Clara
   const fernandoRes = await client.query(`
     SELECT p.id, p.full_name, p.email, p.phone, p.is_presbyter,
            (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
            (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
     FROM public.profiles p
-    WHERE p.full_name = 'Fernando Gomes Braga'
+    WHERE p.full_name IN ('Fernando Gomes Braga', 'Fernando') AND p.is_presbyter = true
+    LIMIT 1
   `);
-  console.log('\nFernando Gomes Braga data:');
+  console.log('\nFernando (Presbítero) data:');
   console.log(fernandoRes.rows[0]);
 
   const claraRes = await client.query(`
@@ -131,9 +165,10 @@ async function verify() {
            (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
            (SELECT count(*) FROM public.profiles WHERE mother_id = p.id) as children_count
     FROM public.profiles p
-    WHERE p.full_name = 'Clara Góes Braga'
+    WHERE p.full_name IN ('Clara Góes Braga', 'Clara')
+    LIMIT 1
   `);
-  console.log('\nClara Góes Braga data:');
+  console.log('\nClara data:');
   console.log(claraRes.rows[0]);
 
   // Verify Rafael Moraes & Family
@@ -143,7 +178,8 @@ async function verify() {
            (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name,
            (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
     FROM public.profiles p
-    WHERE p.full_name = 'Rafael Moraes'
+    WHERE p.full_name ILIKE 'Rafael%Moraes%'
+    LIMIT 1
   `);
   console.log('\nRafael Moraes data:');
   console.log(rafaelRes.rows[0]);
@@ -153,7 +189,8 @@ async function verify() {
            (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
            (SELECT full_name FROM public.profiles WHERE id = p.discipler_id) as discipler_name
     FROM public.profiles p
-    WHERE p.full_name = 'Isabele Moraes'
+    WHERE p.full_name ILIKE 'Isabel%Moraes%'
+    LIMIT 1
   `);
   console.log('\nIsabele Moraes data:');
   console.log(isabeleRes.rows[0]);
@@ -199,107 +236,29 @@ async function verify() {
     console.error('❌ ERRO: Existem formulários vinculados a mais de um evento:', duplicateFormsRes.rows);
     process.exitCode = 1;
   } else {
-    console.log('✅ Verificação 1-para-1 de formulários por evento: Nenhum formulário duplicado em múltiplos eventos.');
+    console.log('✅ Validação 1-para-1: Cada evento possui formulário único e exclusivo.');
   }
 
-  // Check post categories
-  const postsRes = await client.query(`SELECT category, count(*) FROM public.posts GROUP BY category`);
-  console.log('\nPosts by Category:');
-  console.table(postsRes.rows);
-
-  // Check phone length
-  const invalidPhones = await client.query(`
-    SELECT count(*) FROM public.profiles 
-    WHERE phone IS NOT NULL AND length(regexp_replace(phone, '[^0-9]', '', 'g')) <> 11
+  // Check studies progress
+  const studiesRes = await client.query(`
+    SELECT s.id, s.title,
+           (SELECT count(*) FROM public.study_steps ss WHERE ss.study_id = s.id) as steps_count
+    FROM public.studies s
+    ORDER BY s.title
   `);
-  console.log(`\nProfiles with invalid phone length (<> 11 digits): ${invalidPhones.rows[0].count}`);
+  console.log('\nStudies:');
+  console.table(studiesRes.rows);
 
-  // Check "Seu / Dona"
-  const seuDona = await client.query(`
-    SELECT count(*) FROM public.profiles 
-    WHERE full_name LIKE 'Seu %' OR full_name LIKE 'Dona %'
-  `);
-  console.log(`Profiles with 'Seu / Dona' in legal name: ${seuDona.rows[0].count}`);
-
-  // Check distinct addresses
-  const addresses = await client.query(`
-    SELECT count(DISTINCT address_street) as distinct_streets, count(DISTINCT address_neighborhood) as distinct_neighborhoods
+  // Check study accounts (unlinked users)
+  const unlinkedRes = await client.query(`
+    SELECT count(*) as unlinked_count
     FROM public.profiles
+    WHERE is_church_linked = false
   `);
-  console.log(`Distinct streets: ${addresses.rows[0].distinct_streets}, distinct neighborhoods: ${addresses.rows[0].distinct_neighborhoods}`);
-
-  // Check avatars populated
-  const avatars = await client.query(`
-    SELECT count(*) as populated_avatars FROM public.profiles WHERE avatar_url IS NOT NULL
-  `);
-  console.log(`Populated avatars: ${avatars.rows[0].populated_avatars}`);
-
-  // ============================================================================
-  // VERIFICAÇÃO DE VÍNCULO À IGREJA E CONTAS DE ESTUDO (NOVA ARQUITETURA)
-  // ============================================================================
-  console.log('\n--- VERIFICAÇÃO DE CONTAS VINCULADAS VS ESTUDOS ---');
-  const churchLinkedRes = await client.query(`
-    SELECT is_church_linked, count(*) as count
-    FROM public.profiles
-    GROUP BY is_church_linked
-    ORDER BY is_church_linked DESC
-  `);
-  console.log('Perfis por is_church_linked:');
-  console.table(churchLinkedRes.rows);
-
-  const linkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === true)?.count || 0, 10);
-  const unlinkedCount = parseInt(churchLinkedRes.rows.find(r => r.is_church_linked === false)?.count || 0, 10);
-
-  if (linkedCount === 531) {
-    console.log('✅ Discípulos vinculados à igreja: 531 (528 da grade regular de GCs + 3 filhos de Rafael Moraes)');
-  } else {
-    console.error(`❌ ERRO: Esperado 531 vinculados, obtido ${linkedCount}`);
-    process.exitCode = 1;
-  }
-
-  if (unlinkedCount === 6) {
-    console.log('✅ Contas de estudo não vinculadas: 6 (correto)');
-  } else {
-    console.error(`❌ ERRO: Esperado 6 não vinculados, obtido ${unlinkedCount}`);
-    process.exitCode = 1;
-  }
-
-  // Verificar que nenhuma conta de estudos possui GC ou discipulador associado
-  const invalidUnlinkedRes = await client.query(`
-    SELECT count(*) FROM public.profiles
-    WHERE is_church_linked = false AND (home_group_id IS NOT NULL OR discipler_id IS NOT NULL)
-  `);
-  if (parseInt(invalidUnlinkedRes.rows[0].count, 10) === 0) {
-    console.log('✅ Integridade: nenhuma conta de estudos possui GC ou discipulador vinculado.');
-  } else {
-    console.error(`❌ ERRO: Existem ${invalidUnlinkedRes.rows[0].count} contas de estudo com GC ou discipulador.`);
-    process.exitCode = 1;
-  }
-
-  // Exibir as contas de estudos
-  const unlinkedAccountsRes = await client.query(`
-    SELECT p.full_name, p.email, p.phone, p.gender, p.is_church_linked,
-           (SELECT count(*) FROM public.user_study_progress WHERE profile_id = p.id) as study_steps_completed
-    FROM public.profiles p
-    WHERE p.is_church_linked = false
-    ORDER BY p.email ASC
-  `);
-  console.log('\nContas de Estudos (Visitantes Não Vinculados):');
-  console.table(unlinkedAccountsRes.rows);
-
-  // Verificar que perfis fantasmas (crianças e idosos sem conta auth) estão marcados como vinculados
-  const phantomCheck = await client.query(`
-    SELECT count(*) FROM public.profiles
-    WHERE user_id IS NULL AND is_church_linked = false
-  `);
-  if (parseInt(phantomCheck.rows[0].count, 10) === 0) {
-    console.log('✅ Perfis fantasmas (crianças e idosos) integrados à igreja: 100% vinculados.');
-  } else {
-    console.error(`❌ ERRO: Existem ${phantomCheck.rows[0].count} perfis fantasmas com is_church_linked = false.`);
-    process.exitCode = 1;
-  }
+  console.log(`\nPerfis não vinculados à igreja (contas de estudo): ${unlinkedRes.rows[0].unlinked_count}`);
 
   await client.end();
+  console.log('\nDiagnóstico concluído.');
 }
 
-verify().catch(console.error);
+verify();

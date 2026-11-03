@@ -126,7 +126,7 @@ export default function SignUp() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const signForm = useForm<SignUpValue>({
-        resolver: zodResolver(signUpSchema),
+        resolver: zodResolver(signUpSchema) as any,
         defaultValues: {
             fullName: "",
             email: "",
@@ -846,7 +846,7 @@ export default function SignUp() {
                         <CardDescription className="text-muted-foreground">Preencha os dados abaixo para criar sua conta</CardDescription>
                     </CardHeader>
                 <CardContent>
-                    <form id="sign-up-form" onSubmit={signForm.handleSubmit(onSubmit)} className="space-y-6">
+                    <form id="sign-up-form" onSubmit={signForm.handleSubmit(onSubmit as any)} className="space-y-6">
                         
                         {/* Seção: Avatar */}
                         <div className="flex flex-col items-center gap-4 mb-6">

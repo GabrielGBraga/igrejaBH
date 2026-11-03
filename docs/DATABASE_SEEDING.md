@@ -1,82 +1,91 @@
 # Seeding do Banco de Dados de Desenvolvimento (`igrejaBH-DEV`)
 
-Este documento descreve o funcionamento, a estrutura e a lógica de geração dos dados de teste para o portal da Igreja em Belo Horizonte.
+Este documento descreve o funcionamento, a estrutura e a lógica de geração dos dados de teste e de censo real para o portal da Igreja em Belo Horizonte.
 
 ---
 
-## 1. Visão Geral
-O objetivo deste seeding é fornecer um banco de dados de desenvolvimento completo, coerente e com grande volumetria de dados para simulações e apresentações de demonstração (demos). 
+## 1. Visão Geral e Duas Opções de Seeding
 
-O script de seeding é capaz de repopular o banco do zero em uma única execução (~7 segundos), limpando dados antigos e recriando um ecossistema completo de:
-- **537 perfis no total:**
-  - **531 discípulos vinculados à igreja** (`is_church_linked = true`): 528 gerados na grade regular dos **24 Grupos Caseiros (GCs)** nos **6 setores** + 3 filhos na família de Rafael e Isabele Moraes (Bia, André e Filipe no GC Castelo).
-  - **6 contas de acesso aos estudos** (`is_church_linked = false`), permitindo testar o fluxo de visitantes não vinculados, progresso de trilhas e vinculação posterior pela liderança.
-- **Mural Centralizado de Notícias & Encontros** com 13 posts estruturados abrangendo todas as categorias (`geral`, `oracao`, `missoes`, `encontro`, `estudo`, `formulario`, `evento`), com suporte a visibilidade pública/interna (`is_public`), encontros casuais na cidade com data/horário/local, e vínculos relacionais diretos a recursos de estudo (`media_resource_id`), formulários (`form_id`) e eventos/retiros (`retreat_id`, `event_label`).
-- **Centro de Ensino e Catequese** com 3 trilhas estruturadas, 10 recursos multimídia (YouTube, PDFs, Markdown) e progresso ativo dos usuários.
-- **Ciclo Completo de Eventos & Retiros** com 3 retiros (`ativo`, `encerrado`, `rascunho`), 18 alojamentos/quartos, 12 lançamentos financeiros/despesas e 142 inscrições vinculadas.
-- **Sistema de Formulários Dinâmicos** com 5 modelos dedicados (`form-solteiros-2026`, `form-carnaval-2026`, `form-casais-2026`, `form-censo-dons`, `form-apoio-diaconal`) e 147 submissões registradas, garantindo que cada evento possua sua própria ficha de inscrição sem conflitos de dados ou estado.
+O projeto oferece **duas opções completas de seeding**, mantendo o ambiente de desenvolvimento flexível tanto para simulações rápidas e demonstrações sintéticas quanto para testes com o censo real da igreja:
+
+| Característica | Opção 1: Mock Sintético (`seed.sql`) | Opção 2: Censo Real das Planilhas (`seed-real.sql`) |
+| :--- | :--- | :--- |
+| **Comando** | `npm run db:seed` | `npm run db:seed:real` |
+| **Origem dos Dados** | Geração algorítmica padronizada | Arquivos CSV oficiais em `supabase/data/` |
+| **Volumetria de Perfis** | 537 perfis (531 vinculados + 6 visitantes) | **821 discípulos reais** (3 contas ativas + 818 phantom users / crianças) |
+| **Contas de Autenticação (`auth.users`)** | 537 contas simuladas | **Exatamente 3 contas** (Gabriel, Fernando e Clara) |
+| **Grupos Caseiros** | 24 GCs (4 por setor, nomes fictícios de bairros) | **35 GCs reais** (endereços e coordenadas GPS reais) |
+| **Setores** | 6 setores metropolitanos simulados | **6 setores oficiais** (com Betim/Contagem e Fora da Localidade) |
+| **Identificadores (IDs)** | UUIDs v4 | **UUIDs v4 puros** (os IDs numéricos das planilhas são totalmente descartados após o parsing relacional) |
+| **Famílias & Casais** | Grade padronizada (2 casais por GC) | **354 famílias reais**, 201 casamentos, 148 filhos |
+| **Discipulado & Juntas** | Gerado por maturidade de batismo | **88 vínculos diretos com ID** (`discipler_id`) + **530 discipuladores por nome livre** (`custom_discipler_name` sem adivinhar IDs faltantes) |
+| **Gabriel Góes Braga** | Conta de desenvolvedor | Conta de desenvolvedor vinculada à família de Fernando no GC Heliópolis |
+| **Retiros, Posts & Ensino** | Completo com 3 retiros, 5 formulários, 13 posts | Completo com 3 retiros, 5 formulários, 13 posts e inscrições reais |
 
 ---
 
 ## 2. Como Executar
-O seeding pode ser executado a qualquer momento rodando o seguinte comando no terminal do projeto:
 
+### Executar a Opção 1 (Mock Sintético):
 ```bash
 npm run db:seed
 ```
 
-### O que o comando faz nos bastidores:
-1. Carrega as variáveis de ambiente a partir de `.env` e `.env.local` (procurando pela senha `DEV_DB_PASSWORD` e pela URL `VITE_SUPABASE_URL` para extrair o ID do projeto).
-2. Lê o arquivo SQL completo de [seed.sql](file:///c:/Users/ggoes/Documents/igrejaBH/supabase/seed.sql).
-3. Conecta-se diretamente ao banco de dados remoto do Supabase usando a porta padrão do PostgreSQL (5432) com SSL (com fallback automático para connection pooler na porta 6543 caso IPv6 esteja indisponível).
-4. Limpa todas as 15 tabelas públicas (`TRUNCATE ... CASCADE`) e de autenticação (`DELETE FROM auth.users`).
-5. Executa todas as inserções e associações relacionais de forma transacional e atômica.
+### Executar a Opção 2 (Censo Real a partir dos CSVs):
+```bash
+npm run db:seed:real
+```
+
+### Regenerar o SQL do Censo Real caso as planilhas CSV sejam atualizadas:
+```bash
+npm run db:seed:generate
+```
 
 ### Como Verificar a Consistência dos Dados:
-Você pode executar o script de diagnóstico a qualquer momento:
+Você pode executar o script de diagnóstico a qualquer momento (compatível com ambas as opções de seed):
 ```bash
 node scripts/verify_seed.js
 ```
 
 ---
 
-## 3. Estrutura Territorial e Volumetria dos Dados
+## 3. Estrutura Territorial e Mapeamento dos Dados Reais (Opção 2)
 
-### Setores e Grupos Caseiros
-*   **6 Setores (Regiões):** `Barreiro/Oeste`, `Pampulha/São Gabriel`, `Santa Luzia`, `Venda Nova`, `Betim` e `Contagem`.
-*   **24 Grupos Caseiros (GCs):** 4 em cada setor, nomeados de acordo com os bairros da respectiva região e localizados em endereços reais (ex: Av. Mário Werneck no Buritis, Av. Fleming no Ouro Preto, Av. José Faria da Rocha no Eldorado, Av. Campos de Ourique em Alterosa).
-*   **Coordenadas Geográficas (Lat/Lng):** Geradas programaticamente a partir de centros urbanos reais de cada região, garantindo que o mapa interativo exiba marcações espalhadas sem sobreposições.
+### Setores Oficiais (6 Setores):
+1. `São Gabriel/Pampulha` (5 Grupos)
+2. `Venda Nova/Neves` (7 Grupos)
+3. `Santa Luzia` (6 Grupos)
+4. `Oeste` (7 Grupos)
+5. `Betim/Contagem` (8 Grupos)
+6. `Fora da Localidade` (2 Grupos: Sete Lagoas e Santa Bárbara)
 
-### Distribuição Interna por GC (22 discípulos em cada GC):
-Para garantir diversidade nos testes e simulações, cada grupo caseiro possui exatamente:
-*   **2 Líderes (Homens Casados):** 48 no total. Adultos que também exercem funções no discipulado e no companheirismo comunitário.
-*   **2 Esposas dos Líderes (Mulheres Casadas):** 48 no total.
-*   **2 Maridos de Família Comum (Homens Casados):** 48 no total.
-*   **2 Esposas da Família (Mulheres Casadas):** 48 no total.
-*   **2 Filhos Pequenos (Menores de idade, Não Batizados):** 48 no total. Cadastrados em `public.profiles` com `user_id = NULL` (perfis fantasmas) e vinculados aos pais por `father_id` e `mother_id`.
-*   **2 Filhos Adolescentes/Jovens Adultos (Batizados, Solteiros):** 48 no total. Possuem conta de acesso em `auth.users` e data de batismo, mas continuam vinculados aos perfis dos pais.
-*   **3 Idosos (Membros Seniores, Perfis Fantasmas):** 72 no total. Membros acima de 70 anos sem conta de autenticação (`user_id = NULL`), com nomes limpos (sem prefixos "Seu/Dona").
-*   **7 Solteiros Ordinários (Adultos):** 168 no total. Jovens/adultos sem laços de casamento e sem vínculo de moradia com as famílias locais do GC.
+### Coordenadas Geográficas (GPS):
+Todas as 35 coordenadas de Latitude e Longitude vêm diretamente da planilha `Grupos.csv` (ex: Solimões `-19.8392, -43.9185`, Milionários `-19.981, -43.9965`), garantindo que o mapa interativo (`/`) exiba os pins nos locais reais de reunião das casas.
 
-**Totais Gerais do Banco:**
-*   **Contas de Acesso (`auth.users`):** 414 usuários (408 discípulos + 6 visitantes de estudos, todos com a senha inicial `senha123`).
-*   **Perfis (`public.profiles`):** 537 perfis:
-    *   **531 vinculados à igreja (`is_church_linked = true`):** 408 com login ativo + 123 perfis fantasmas (crianças e idosos).
-    *   **6 contas de estudos (`is_church_linked = false`):** sem vínculo a GC nem discipulador.
-*   **Fotos de Perfil (`avatar_url`):** 489 avatares em alta resolução (Unsplash Portraits) distribuídos por gênero e idade.
-*   **Telefones Válidos:** 100% dos perfis com telefone possuem celulares brasileiros com máscara de 9 dígitos `(31) 9XXXX-XXXX`.
+### Líderes dos Grupos Caseiros:
+Os líderes informados na planilha (ex: "Fernando e Samuel", "Carlos Eduardo e Guilherme", "Davi Cunha", "Júlio", "Artur") foram associados aos seus respectivos perfis e atribuídos como `leader_1_id` e `leader_2_id` na tabela `public.home_groups`.
 
 ---
 
-## 4. Regras Estruturais de Relacionamentos (Juntas e Ligamentos)
+## 4. Tratamento dos Identificadores e Relações (Anti-Vazamento de IDs de Exemplo)
 
-*   **Segregação por Gênero:** O discipulado e os laços de companheirismo ocorrem estritamente entre pessoas do mesmo gênero (homem discipula homem; mulher discipula mulher).
-*   **Casamento:** Os casamentos são estritamente heterossexuais, ligados bidirecionalmente na tabela `profiles` através do campo `spouse_id`.
-*   **Juntas de Casados:** Para simular redes de casais, cada pessoa casada possui juntas de companheirismo (`fellowships`) com **exatamente 2 outros casados** do mesmo gênero e com maturidade semelhante.
-*   **Maturidade Cronológica no Discipulado:** A data de batismo (`baptism_date`) é utilizada como indexador de maturidade espiritual. Um discipulador (`discipler_id`) tem batismo mais antigo do que o discipulando (`discipler.baptism_date < disciple.baptism_date`).
-*   **Presbíteros e Diáconos:**
-    *   Exatamente **4 Presbíteros** com malha completa de companheirismo mútuo entre si e entre suas esposas.
-    *   Exatamente **6 Diáconos** (incluindo `Gabriel Góes Braga`) discipulados por um dos presbíteros.
+*   **Descarte Absoluto dos IDs Numéricos de Exemplo:** Os números de linha e códigos numéricos gerados nas planilhas (ex: `101`, `102`, `101001`, `102009`) servem **estritamente como chaves transitórias em memória** para reconstruir o grafo relacional durante o parsing. Nenhum desses números é mantido no banco ou exposto na aplicação.
+*   **Identificadores no Banco (UUIDs):** Todos os registros em `sectors`, `home_groups`, `profiles` e `auth.users` utilizam UUIDs padrão v4 (`crypto.randomUUID()`).
+*   **Fidelidade Estrita ao Censo Real (Sem Invenção de Dados Fictícios):** Na Opção 2 (`seed-real.sql`), nenhum email, telefone, CPF, avatar ou dados socioeconômicos artificiais são inventados para os irmãos das planilhas. Somente dados expressamente constantes do CSV (Nome, Sexo, Bairro, Situação, Família, Companheiro, Discipulador e as 4 datas de nascimento reais) são preservados.
+*   **Perfis Fantasmas e Crianças:** 818 registros são inseridos como perfis sem conta autenticada (`user_id = NULL`), divididos em:
+    *   148 Crianças (`Situação = 'Filho de discípulo'`) vinculadas a seus pais.
+    *   670 Discípulos Adultos (`Situação = 'Vinculado'`), que funcionam como **phantom users**. Quando qualquer um desses irmãos realizar cadastro no aplicativo (Sign Up), a trigger `handle_new_user()` fará a vinculação automática por CPF ou email ao seu perfil existente.
+*   **Exatamente 3 Contas Autenticadas (`auth.users`):**
+    *   **Gabriel Góes Braga:** email `ggoesbraga@gmail.com`, telefone `(31) 99888-7777`, CPF `132.507.246-02`, nascimento `08/07/1995`, batismo `15/06/2012`, permissão `is_dev = true` SOMENTE (`is_presbyter = false`, `is_deacon = false`, `can_post = true`). Filho de Fernando e Clara no GC Heliópolis.
+    *   **Fernando Gomes Braga:** email `fgb80@yahoo.com`, telefone `(31) 99123-4567`, CPF `103.821.540-52`, nascimento `12/04/1966`, batismo `20/06/1984`, permissão `is_presbyter = true` (`is_dev = false`, `is_deacon = false`, `can_post = true`). Líder do GC Heliópolis, marido de Clara e pai de Gabriel.
+    *   **Clara Góes Braga:** email `claradiscipula@gmail.com`, telefone `(31) 99123-4568`, CPF `167.370.473-66`, nascimento `15/09/1968`, batismo `10/11/1986`, sem permissões administrativas (`is_presbyter = false`, `is_deacon = false`, `is_dev = false`, `can_post = false`). Membro do GC Heliópolis, esposa de Fernando e mãe de Gabriel.
+*   **Deduplicação de Movimentações:** Registros com situação "Mudou de Grupo" (ex: Brenda e Shibas) são resolvidos para seus grupos ativos vigentes.
+*   **Casamentos (`spouse_id`):** 201 casais identificados através do agrupamento por família em cada GC, ligados bidirecionalmente em `profiles`.
+*   **Filiação (`father_id`, `mother_id`):** Todos os 148 filhos de discípulo (`Situação = 'Filho de discípulo'`) foram vinculados aos seus pais na família.
+*   **Discipulado (`discipler_id` e `custom_discipler_name`):** 
+    *   **Com ID explícito (88 discípulos):** Discípulos que possuem `ID Discipulador` preenchido e correspondente a um ID válido no censo (mais a vinculação explícita de Gabriel a Fernando) têm `discipler_id` preenchido e `custom_discipler_name = NULL`.
+    *   **Sem ID no censo (530 discípulos):** Onde o ID estava ausente, o sistema **não tenta adivinhar o vínculo**. O nome informado é gravado na coluna `custom_discipler_name` e `discipler_id` permanece `NULL`. A UI do sistema (`DiscipleCard`, `RelationshipGraphView`, `Profile`) reconhece esse estado provisório e alerta para vinculação posterior.
+*   **Juntas de Companheirismo (`fellowships`):** Pares mútuos com IDs válidos e juntas do presbitério (sem geração por adivinhação).
 
 ---
 
@@ -86,60 +95,21 @@ O módulo de Ensinos (`public.studies`, `public.media_resources`, `public.study_
 *   **Trilha 1: O Propósito Eterno de Deus:** Visão central de Romanos 8 e Efésios 1 (3 etapas: vídeo, caderno de estudo PDF e artigo teológico).
 *   **Trilha 2: Juntas e Ligamentos — O Discipulado Prático:** Relacionamentos de transparência e amor fraternal (2 etapas: vídeo e caderno prático PDF).
 *   **Trilha 3: O Sacerdócio Universal e a Dinâmica nas Casas:** Todos os santos em serviço e operação dos dons (3 etapas: vídeo, artigo e dinâmica das casas).
-*   **Progresso de Gabriel Góes Braga:** Possui 4 etapas concluídas (Trilha 1 100% finalizada e Trilha 2 em andamento), permitindo testar barras de progresso e certificados imediatamente no frontend.
+*   **Progresso de Gabriel Góes Braga:** Possui etapas concluídas e anotações ativas.
 
-### Contas de Estudos (Visitantes Não Vinculados — `is_church_linked = false`)
-Para simulação de novos convertidos ou visitantes externos que criam conta unicamente para realizar os estudos e trilhas da igreja:
-*   **Credenciais de Acesso (todos com a senha padrão `senha123`):**
-    *   `lucas.estudos@email.com` — Lucas Alencar (1 etapa concluída)
-    *   `marina.estudos@email.com` — Marina Duarte (2 etapas concluídas)
-    *   `andre.estudos@email.com` — André Siqueira (Trilha 1 100% concluída)
-    *   `carolina.estudos@email.com` — Carolina Mendes (Recém-cadastrada, sem etapas)
-    *   `felipe.estudos@email.com` — Felipe Vasconcelos (Recém-cadastrado, sem etapas)
-    *   `beatriz.estudos@email.com` — Beatriz Prado (Recém-cadastrada, sem etapas)
-*   **Comportamento no Sistema:**
-    *   Acessam diretamente a Home (`/dashboard`) com foco nos ensinos e o catálogo de trilhas (`/estudos`), sem bloqueio de onboarding socioeconômico.
-    *   Exibem o badge "Conta de Estudos" e o card informativo de vinculação no perfil (`/perfil`).
-    *   No painel da liderança (`/membros`), aparecem sob a aba **"Não Vinculados (Apenas Estudos)"** com botão de ação rápida **"Vincular à Igreja"**.
-    *   Não aparecem no grafo de relacionamentos (`/relacionamentos`) nem nos relatórios de GCs até serem vinculados.
+> [!NOTE]
+> Na Opção 1 (`seed.sql`), 6 contas fictícias de estudos (`lucas.estudos@email.com`, etc.) são criadas para demonstração de visitantes externos não vinculados (`is_church_linked = false`). Na Opção 2 (`seed-real.sql`), preserva-se o censo real estrito, sem criação de contas fictícias adicionais.
 
 ---
 
 ## 6. Ciclo de Eventos, Alojamentos, Finanças & Fichas de Inscrição
 
-Cada evento possui uma ficha de inscrição customizada exclusiva para evitar colisões de dados e de ciclo de vida (status ativo, encerrado ou rascunho):
-*   **Retiro Ativo (`Retiro de Solteiros e Jovens 2026`):** Inscrições abertas, 57 inscritos, 8 quartos (Chalés e Dormitórios), despesas operacionais parciais (sinal de locação, buffet, som). Vinculado exclusivamente ao formulário `form-solteiros-2026` (57 respostas registradas).
-*   **Retiro Encerrado (`Retiro de Carnaval 2026 — O Propósito Eterno`):** Evento histórico concluído, 85 inscritos 100% quitados, 6 quartos 100% alocados, e 5 despesas fechadas com demonstrativo de superávit financeiro positivo (ideal para testar os dashboards de KPI e resultado líquido em `ManageEventDetail`). Vinculado exclusivamente ao formulário `form-carnaval-2026` (85 respostas registradas).
-*   **Retiro em Rascunho (`Encontro Metropolitano de Casais nas Casas 2026`):** Evento em planejamento sem inscrições abertas, permitindo testar filtros de status no painel administrativo. Vinculado exclusivamente ao formulário `form-casais-2026` (0 respostas registradas).
-
-> **Garantia de Integridade (Banco e Aplicação):** A unicidade 1-para-1 é reforçada a nível físico no Supabase via índice único parcial (`idx_retreats_unique_form_id ON public.retreats(form_id) WHERE form_id IS NOT NULL`) e trigger explicativa em português (`check_retreat_form_uniqueness`), além de validações preventivas e bloqueio na UI em `CreateEditEventDialog`. Eventos com `form_id IS NULL` continuam usando a ficha padrão compartilhada.
+*   **Retiro Ativo (`Retiro de Solteiros e Jovens 2026`):** Inscrições abertas, inscritos reais, quartos (Chalés e Dormitórios), despesas operacionais e formulário dedicado `form-solteiros-2026`.
+*   **Retiro Encerrado (`Retiro de Carnaval 2026`):** Histórico com fechamento financeiro, prestação de contas e formulário `form-carnaval-2026`.
+*   **Retiro em Rascunho (`Encontro Metropolitano de Casais nas Casas 2026`):** Planejamento com formulário `form-casais-2026`.
 
 ---
 
 ## 7. Mural Centralizado de Notícias, Encontros & Avisos
 
-O sistema de notícias e avisos da igreja foi unificado sob a tabela `public.posts`, atendendo tanto ao `/dashboard` e ao calendário comunitário quanto à landing page pública:
-
-*   **Categorias (`public.post_category`):**
-    *   `geral`: Notícias comunitárias, avisos pastorais e ações de diaconia (com até 3 fotos).
-    *   `oracao`: Pedidos de oração e intercessão pela igreja, enfermos e cidades.
-    *   `missoes`: Notícias e testemunhos de evangelismo na cidade e universidades.
-    *   `encontro`: Encontros casuais na cidade (piqueniques em parques, vigílias), com `event_start_date`, `event_end_date` e `event_location`. Alimenta diretamente a agenda da Landing Page e o Calendário do Dashboard.
-    *   `estudo`: Avisos automáticos ou manuais de novos recursos cadastrados no acervo (`media_resource_id` FK).
-    *   `formulario`: Avisos vinculados a formulários do sistema (`form_id` FK).
-    *   `evento`: Avisos contextuais vinculados a retiros/eventos (`retreat_id` FK) com tags de status (`event_label` ex: "Vagas Abertas", "Transporte & Logística", "Lista de Espera", "Oração").
-*   **Visibilidade & RLS (`is_public`):**
-    *   `is_public = true`: Exibido publicamente na Landing Page e visível para visitantes anônimos e contas de estudo (`is_church_linked = false`).
-    *   `is_public = false`: Restrito a discípulos vinculados à igreja (`is_church_linked = true`), protegido a nível de banco por Row-Level Security com cache subquery `(SELECT auth.uid())`.
-*   **Integrações Automáticas:**
-    *   Ao adicionar material em `Ensinos.tsx` (`AddResourceModal`), o usuário pode optar por publicar automaticamente no mural (ativado por padrão).
-    *   Ao salvar formulários em `FormBuilder.tsx`, o usuário pode optar por publicar no mural (desativado por padrão).
-    *   Em `ManageEventDetail.tsx`, a aba "Avisos & Notícias" permite criar notícias com tags contextuais do retiro diretamente no feed da igreja.
-
----
-
-## 8. Como Customizar os Dados
-Se você precisar alterar a volumetria, os nomes ou adicionar novas regras, modifique o bloco transacional em `supabase/seed.sql`:
-*   Para mudar nomes comuns gerados, altere os arrays `s_names`, `s_fnames` e `s_surnames`.
-*   Para ajustar o tamanho dos grupos caseiros ou a proporção de famílias/solteiros, altere os laços internos de repetição no script.
-*   Execute `npm run db:seed` para reaplicar as alterações a qualquer instante.
+13 posts abrangendo todas as categorias (`geral`, `oracao`, `missoes`, `encontro`, `estudo`, `formulario`, `evento`), com suporte a visibilidade pública/interna e autores correspondentes a líderes e presbíteros reais.

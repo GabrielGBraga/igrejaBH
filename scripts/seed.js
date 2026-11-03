@@ -26,6 +26,14 @@ function parseEnv(filePath) {
 async function run() {
   console.log('=== SEEDING DATABASE ===');
 
+  // Identificar se a execução é da Opção 1 (seed sintético) ou Opção 2 (censo real dos CSVs)
+  const args = process.argv.slice(2);
+  const isReal = args.includes('--real') || args.some(a => a.startsWith('--source=real'));
+  const seedFileName = isReal ? 'seed-real.sql' : 'seed.sql';
+  const seedFilePath = path.join(process.cwd(), 'supabase', seedFileName);
+
+  console.log(`Carregando script de seeding: supabase/${seedFileName} (${isReal ? 'Opção 2: Censo Real dos CSVs' : 'Opção 1: Mock Sintético'})...`);
+
   // Carregar variáveis de .env e .env.local
   const env = parseEnv(path.join(process.cwd(), '.env'));
   const envLocal = parseEnv(path.join(process.cwd(), '.env.local'));
@@ -56,10 +64,9 @@ async function run() {
   // Construir a string de conexão postgres
   const connectionString = `postgresql://postgres:${encodeURIComponent(password)}@${host}:5432/postgres`;
 
-  // Ler o seed.sql
-  const seedFilePath = path.join(process.cwd(), 'supabase', 'seed.sql');
+  // Ler o arquivo SQL selecionado
   if (!fs.existsSync(seedFilePath)) {
-    console.error('ERRO: Arquivo supabase/seed.sql não encontrado.');
+    console.error(`ERRO: Arquivo supabase/${seedFileName} não encontrado.`);
     process.exit(1);
   }
   const seedSql = fs.readFileSync(seedFilePath, 'utf8');
@@ -133,7 +140,7 @@ async function run() {
     await client.query(seedSql);
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     
-    console.log(`\n✅ Banco popular com sucesso em ${duration} segundos!`);
+    console.log(`\n✅ Banco populado com sucesso usando ${seedFileName} em ${duration} segundos!`);
   } catch (err) {
     console.error('\n❌ Erro durante a execução do seeding:', err.message);
     if (err.detail) console.error('Detail:', err.detail);

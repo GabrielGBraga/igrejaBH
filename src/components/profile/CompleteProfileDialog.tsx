@@ -42,7 +42,7 @@ import { toast } from "sonner"
 export interface CompleteProfileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  profile: Record<string, unknown>
+  profile: any
   onSuccess: () => Promise<void>
 }
 

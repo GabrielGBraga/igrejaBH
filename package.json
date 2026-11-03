@@ -10,7 +10,9 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "node scripts/seed.js",
+    "db:seed:real": "node scripts/seed.js --real",
+    "db:seed:generate": "node scripts/generate_real_seed.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

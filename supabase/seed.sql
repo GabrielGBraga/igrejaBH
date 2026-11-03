@@ -282,7 +282,7 @@ BEGIN
         -- Setor 1 (Barreiro/Oeste), GC 1 (GC Barreiro), Líder 1
         IF i = 1 AND j = 1 AND k = 1 THEN
           full_nm := 'Fernando Gomes Braga';
-          email_addr := 'fernando.braga@igrejabh.org';
+          email_addr := 'fgb80@yahoo.com';
           cpf_val := '103.821.540-52';
           b_date := '1966-04-12'::date;
           bapt_date := '1984-06-20'::date;
@@ -343,8 +343,7 @@ BEGIN
         BEGIN
           IF i = 1 AND k = 1 THEN
             is_presb := true;
-          ELSIF (i = 2 AND j = 3 AND k = 1) OR
-                (i = 2 AND j = 3 AND k = 2) OR
+          ELSIF (i = 2 AND j = 3 AND k = 2) OR
                 (i = 2 AND j = 1 AND k = 1) OR
                 (i = 2 AND j = 1 AND k = 2) OR
                 (i = 2 AND j = 2 AND k = 1) OR
@@ -448,7 +447,7 @@ BEGIN
           IF m_id = fernando_id THEN
             -- Clara Góes Braga: Esposa do Presbítero Fernando Gomes Braga e Mãe de Gabriel Góes Braga
             full_nm := 'Clara Góes Braga';
-            email_addr := 'clara.braga@igrejabh.org';
+            email_addr := 'claradiscipula@gmail.com';
             cpf_val := '167.370.473-66';
             phone_num := '(31) 99123-4568';
             b_date := '1968-09-15'::date;
