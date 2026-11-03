@@ -79,6 +79,13 @@ const checkIsChild = (p: Profile) => {
   return !p.baptism_date && !!(p.father_id || p.mother_id)
 }
 
+const normalizeGender = (val?: string | null): "M" | "F" => {
+  if (!val) return "M"
+  const upper = val.toUpperCase().trim()
+  if (upper === "F" || upper === "FEMININO" || upper === "MULHER") return "F"
+  return "M"
+}
+
 export function DiscipleEditorDialog({
   open,
   onOpenChange,
@@ -134,7 +141,7 @@ export function DiscipleEditorDialog({
         setIsChild(shouldTransform ? false : isChildProfile)
         setFullName(disciple.full_name || "")
         setPhone(disciple.phone ? formatPhone(disciple.phone) : "")
-        setGender((disciple.gender as "M" | "F") || "M")
+        setGender(normalizeGender(disciple.gender))
         setHomeGroupId(disciple.home_group_id || defaultHomeGroupId || "")
         setDisciplerId(disciple.discipler_id || "none")
         setCustomDisciplerName(disciple.custom_discipler_name || "")
@@ -152,10 +159,10 @@ export function DiscipleEditorDialog({
         setIsChurchLinked(shouldTransformLinked ? true : (disciple.is_church_linked !== false))
 
         if (shouldTransform) {
-          toast.info("Defina o discipulador e confirme a data do batismo do irmão.")
+          toast.info("Defina a data do batismo do irmão.")
         } else if (shouldTransformLinked) {
           setShowOptionalFields(true)
-          toast.info("Defina o Grupo Caseiro e o Discipulador para vincular o irmão.")
+          toast.info("Confirme o Grupo Caseiro para vincular o irmão.")
         }
 
         // Carregar companheiros existentes
@@ -196,7 +203,7 @@ export function DiscipleEditorDialog({
     // Se o discipulador selecionado não for do mesmo sexo, reseta
     if (disciplerId !== "none") {
       const dProf = allProfiles.find((p) => p.id === disciplerId)
-      if (dProf?.gender && dProf.gender !== newGender) {
+      if (dProf?.gender && normalizeGender(dProf.gender) !== newGender) {
         setDisciplerId("none")
       }
     }
@@ -204,7 +211,7 @@ export function DiscipleEditorDialog({
     // Se o cônjuge selecionado não for do sexo oposto, reseta
     if (spouseId !== "none") {
       const sProf = allProfiles.find((p) => p.id === spouseId)
-      if (sProf?.gender && sProf.gender === newGender) {
+      if (sProf?.gender && normalizeGender(sProf.gender) === newGender) {
         setSpouseId("none")
       }
     }
@@ -213,7 +220,7 @@ export function DiscipleEditorDialog({
     if (selectedFellowships.length > 0) {
       const validFellowships = selectedFellowships.filter((fid) => {
         const fProf = allProfiles.find((p) => p.id === fid)
-        return !fProf?.gender || fProf.gender === newGender
+        return !fProf?.gender || normalizeGender(fProf.gender) === newGender
       })
       if (validFellowships.length !== selectedFellowships.length) {
         setSelectedFellowships(validFellowships)
@@ -228,7 +235,7 @@ export function DiscipleEditorDialog({
         if (p.id === disciple?.id) return false
         if (checkIsChild(p)) return false
         if (p.id === disciplerId) return true
-        return gender ? p.gender === gender : true
+        return gender ? normalizeGender(p.gender) === gender : true
       })
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, disciplerId, gender])
@@ -241,7 +248,7 @@ export function DiscipleEditorDialog({
         if (p.id === disciple?.id) return false
         if (checkIsChild(p)) return false
         if (p.id === spouseId) return true
-        return p.gender === oppositeGender
+        return normalizeGender(p.gender) === oppositeGender
       })
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, spouseId, gender])
@@ -254,7 +261,7 @@ export function DiscipleEditorDialog({
           p.id !== disciple?.id &&
           !selectedFellowships.includes(p.id) &&
           !checkIsChild(p) &&
-          (gender ? p.gender === gender : true)
+          (gender ? normalizeGender(p.gender) === gender : true)
       )
       .sort((a, b) => a.full_name.localeCompare(b.full_name))
   }, [allProfiles, disciple?.id, selectedFellowships, gender])
@@ -373,7 +380,7 @@ export function DiscipleEditorDialog({
     return [
       { value: "none", label: "Não informado" },
       ...allProfiles
-        .filter((p) => !checkIsChild(p) && p.gender === "M")
+        .filter((p) => !checkIsChild(p) && normalizeGender(p.gender) === "M")
         .map((p) => ({
           value: p.id,
           label: p.full_name,
@@ -387,7 +394,7 @@ export function DiscipleEditorDialog({
     return [
       { value: "none", label: "Não informada" },
       ...allProfiles
-        .filter((p) => !checkIsChild(p) && p.gender === "F")
+        .filter((p) => !checkIsChild(p) && normalizeGender(p.gender) === "F")
         .map((p) => ({
           value: p.id,
           label: p.full_name,
@@ -410,7 +417,12 @@ export function DiscipleEditorDialog({
 
   const handleSave = async () => {
     if (!fullName.trim()) {
-      toast.error("O Nome Completo é obrigatório.")
+      toast.error("O Nome é obrigatório.")
+      return
+    }
+
+    if (!birthDate.trim()) {
+      toast.error("A Data de Nascimento é obrigatória.")
       return
     }
 
@@ -420,21 +432,8 @@ export function DiscipleEditorDialog({
     }
 
     if (!homeGroupId) {
-      toast.error("Por favor, selecione um Grupo Caseiro.")
+      toast.error("O Grupo Caseiro é obrigatório.")
       return
-    }
-
-    if (!birthDate.trim()) {
-      toast.error("A Data de Nascimento é obrigatória.")
-      return
-    }
-
-    if (isTransformingLinked && !isChild) {
-      const hasDiscipler = (disciplerId && disciplerId !== "none") || Boolean(customDisciplerName.trim())
-      if (!hasDiscipler && !disciple?.is_presbyter) {
-        toast.error("Por favor, selecione ou informe um Discipulador para vincular o irmão à igreja.")
-        return
-      }
     }
 
     setSaving(true)
@@ -606,10 +605,10 @@ export function DiscipleEditorDialog({
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             {isTransformingLinked
-              ? `Integre ${disciple?.full_name || "este irmão"} à vida da igreja local definindo seu Grupo Caseiro e discipulador.`
+              ? `Integre ${disciple?.full_name || "este irmão"} à vida da igreja local definindo seu Grupo Caseiro.`
               : isEditing
-              ? "Atualize o telefone, grupo caseiro e quem cuida deste irmão na fé."
-              : "Preencha os dados básicos e quem o acompanha para integrá-lo ao Grupo Caseiro."}
+              ? "Atualize as informações do irmão e seus vínculos na igreja."
+              : "Preencha as informações do irmão para cadastrá-lo no Grupo Caseiro."}
           </DialogDescription>
         </DialogHeader>
 
@@ -742,10 +741,10 @@ export function DiscipleEditorDialog({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Nome Completo */}
+              {/* Nome */}
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="full_name" className="text-xs font-medium text-foreground">
-                  Nome Completo <span className="text-destructive">*</span>
+                  Nome <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="full_name"
@@ -754,23 +753,6 @@ export function DiscipleEditorDialog({
                   placeholder="Ex: João da Silva"
                   className="h-11 min-h-[44px] rounded-xl text-sm"
                 />
-              </div>
-
-              {/* WhatsApp / Telefone Direto */}
-              <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-xs font-medium text-foreground">
-                  WhatsApp / Celular <span className="text-muted-foreground font-normal">(Essencial para contato)</span>
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(formatPhone(e.target.value))}
-                    placeholder="(31) 99999-9999"
-                    className="h-11 min-h-[44px] rounded-xl pl-10 text-sm"
-                  />
-                </div>
               </div>
 
               {/* Data de Nascimento */}
@@ -802,7 +784,7 @@ export function DiscipleEditorDialog({
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
                     onClick={() => handleGenderChange("M")}
                   >
-                    Masculino (Irmão)
+                    Masculino
                   </Button>
                   <Button
                     type="button"
@@ -810,13 +792,13 @@ export function DiscipleEditorDialog({
                     className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
                     onClick={() => handleGenderChange("F")}
                   >
-                    Feminino (Irmã)
+                    Feminino
                   </Button>
                 </div>
               </div>
 
               {/* Grupo Caseiro */}
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs font-medium text-foreground">
                   Grupo Caseiro <span className="text-destructive">*</span>
                 </Label>
@@ -828,6 +810,23 @@ export function DiscipleEditorDialog({
                   disabled={!isEditing && lockGroupSelectionOnCreate}
                   clearable={false}
                 />
+              </div>
+
+              {/* WhatsApp / Telefone */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="phone" className="text-xs font-medium text-foreground">
+                  WhatsApp / Celular <span className="text-muted-foreground font-normal">(Opcional)</span>
+                </Label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    placeholder="(31) 99999-9999"
+                    className="h-11 min-h-[44px] rounded-xl pl-10 text-sm"
+                  />
+                </div>
               </div>
             </div>
           </div>

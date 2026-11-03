@@ -20,6 +20,8 @@ import {
   AlertCircle,
   HeartHandshake,
   Baby,
+  Home as HomeIcon,
+  LayoutGrid,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,6 +48,11 @@ import {
   getHomeGroupLeadersName,
   getHomeGroupDisplayName,
 } from "@/lib/homeGroupUtils"
+import {
+  buildFamiliesForProfiles,
+  type FamilyGroup,
+  type FamilyRole,
+} from "@/lib/familyUtils"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type HomeGroup = Database["public"]["Tables"]["home_groups"]["Row"]
@@ -97,10 +104,17 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
   // Filtros da lista de irmãos
   const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>("my_or_all")
+  const [selectedFamilyFilter, setSelectedFamilyFilter] = useState<string>("all")
+  const [groupByFamily, setGroupByFamily] = useState<boolean>(false)
   const [searchName, setSearchName] = useState<string>("")
   const [filterCategory, setFilterCategory] = useState<
     "all" | "without_discipler" | "children" | "adults"
   >("all")
+
+  // Reseta o filtro de família quando o grupo caseiro selecionado mudar
+  useEffect(() => {
+    setSelectedFamilyFilter("all")
+  }, [selectedGroupFilter])
 
   // Modais de Edição
   const [editingDisciple, setEditingDisciple] = useState<Profile | null>(null)
@@ -361,6 +375,78 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     }
   }, [profiles, homeGroups, sectors, fellowships, presbyterIds])
 
+  // Discípulos presentes no recorte atual (grupo focado, visitantes ou todos vinculados)
+  const activeScopeProfiles = useMemo(() => {
+    return profiles.filter((p) => {
+      if (singleGroupMode) {
+        return myHomeGroup && p.home_group_id === myHomeGroup.id
+      }
+      if (!isTier3) {
+        return myHomeGroup && p.home_group_id === myHomeGroup.id
+      }
+      if (selectedGroupFilter === "unlinked") return p.is_church_linked === false
+      if (selectedGroupFilter !== "all") return p.home_group_id === selectedGroupFilter
+      // Quando "Todos da Igreja", não incluir usuários de estudo
+      return p.is_church_linked !== false
+    })
+  }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter])
+
+  // Famílias identificadas a partir dos vínculos matrimoniais e de parentesco no grupo
+  // Aplica automaticamente a regra: filhos casados formam família própria independente
+  const groupFamilies = useMemo(() => {
+    return buildFamiliesForProfiles(activeScopeProfiles)
+  }, [activeScopeProfiles])
+
+  // Mapeamento rápido de vínculo familiar por ID de discípulo
+  const familyByProfileId = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        family: FamilyGroup
+        role: FamilyRole
+        roleLabel: string
+        isHead: boolean
+      }
+    >()
+    groupFamilies.forEach((fam) => {
+      fam.membersWithRole.forEach((info) => {
+        map.set(info.profile.id, {
+          family: fam,
+          role: info.role,
+          roleLabel: info.roleLabel,
+          isHead: info.role === "chefe",
+        })
+      })
+    })
+    return map
+  }, [groupFamilies])
+
+  // Opções para o seletor com pesquisa de Família
+  const familyFilterOptions: SearchableSelectOption[] = useMemo(() => {
+    const options: SearchableSelectOption[] = [
+      {
+        value: "all",
+        label: `Todas as Famílias (${groupFamilies.length})`,
+        description: "Exibir todos os lares e discípulos do grupo",
+        keywords: "todas familias geral lares todos",
+      },
+    ]
+
+    groupFamilies.forEach((fam) => {
+      const detail = fam.isIndividual
+        ? "1 pessoa • Família própria"
+        : `${fam.size} pessoas • Chefe: ${fam.head.full_name}`
+      options.push({
+        value: fam.id,
+        label: `${fam.name} (${fam.size})`,
+        description: detail,
+        keywords: `${fam.name} ${fam.members.map((m) => m.full_name).join(" ")}`,
+      })
+    })
+
+    return options
+  }, [groupFamilies])
+
   // Lista de irmãos filtrada
   const filteredDisciples = useMemo(() => {
     return profiles.filter((p) => {
@@ -406,6 +492,14 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         if (isChild) return false
       }
 
+      // 4. Filtro por Família no Grupo
+      if (selectedFamilyFilter !== "all") {
+        const fam = groupFamilies.find((f) => f.id === selectedFamilyFilter)
+        if (fam && !fam.members.some((m) => m.id === p.id)) {
+          return false
+        }
+      }
+
       return true
     })
   }, [
@@ -414,6 +508,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     isTier3,
     myHomeGroup,
     selectedGroupFilter,
+    selectedFamilyFilter,
+    groupFamilies,
     searchName,
     filterCategory,
     presbyterIds,
@@ -421,33 +517,21 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
   // Contadores para chips de status
   const counts = useMemo(() => {
-    const baseList = profiles.filter((p) => {
-      if (singleGroupMode) {
-        return myHomeGroup && p.home_group_id === myHomeGroup.id
-      }
-      if (!isTier3) {
-        return myHomeGroup && p.home_group_id === myHomeGroup.id
-      }
-      if (selectedGroupFilter === "unlinked") return p.is_church_linked === false
-      if (selectedGroupFilter !== "all") return p.home_group_id === selectedGroupFilter
-      // Quando "Todos da Igreja", não incluir usuários de estudo
-      return p.is_church_linked !== false
-    })
-
     const isCoveredRoot = (p: Profile) =>
       !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
-    const total = baseList.length
-    const withDiscipler = baseList.filter(
+    const total = activeScopeProfiles.length
+    const withDiscipler = activeScopeProfiles.filter(
       (p) => !checkIsChild(p) && (!!p.discipler_id || isCoveredRoot(p))
     ).length
-    const withoutDiscipler = baseList.filter(
+    const withoutDiscipler = activeScopeProfiles.filter(
       (p) => !checkIsChild(p) && !p.discipler_id && !isCoveredRoot(p)
     ).length
-    const children = baseList.filter((p) => checkIsChild(p)).length
-    const adults = baseList.filter((p) => !checkIsChild(p)).length
+    const children = activeScopeProfiles.filter((p) => checkIsChild(p)).length
+    const adults = activeScopeProfiles.filter((p) => !checkIsChild(p)).length
+    const totalFamilies = groupFamilies.length
 
-    return { total, withDiscipler, withoutDiscipler, children, adults }
-  }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter, presbyterIds])
+    return { total, withDiscipler, withoutDiscipler, children, adults, totalFamilies }
+  }, [activeScopeProfiles, groupFamilies, presbyterIds])
 
   // Opções para o seletor com pesquisa de Grupo Caseiro
   const groupFilterOptions: SearchableSelectOption[] = useMemo(() => {
@@ -879,7 +963,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           </Badge>
                         )}
                         <span className="text-xs font-medium text-muted-foreground">
-                          {counts.total} irmão(s) vinculados
+                          {counts.total} irmão(s) vinculados • {groupFamilies.length} famílias
                         </span>
                       </div>
 
@@ -959,6 +1043,97 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 </span>
               </Button>
 
+              {/* Controles de Família do Grupo */}
+              {groupFamilies.length > 0 && (
+                <div className="flex flex-col gap-2 rounded-xl border border-border/70 bg-card/60 p-3 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <HomeIcon className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-xs font-semibold text-foreground">
+                      Filtrar por Família:
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5 flex-1 sm:justify-end">
+                    <div className="w-full sm:w-72">
+                      <SearchableSelect
+                        options={familyFilterOptions}
+                        value={selectedFamilyFilter}
+                        onValueChange={setSelectedFamilyFilter}
+                        placeholder="Buscar família ou chefe..."
+                        clearable={false}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant={groupByFamily ? "secondary" : "outline"}
+                      onClick={() => setGroupByFamily((prev) => !prev)}
+                      className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium cursor-pointer shrink-0"
+                      title={
+                        groupByFamily
+                          ? "Alternar para lista contínua de discípulos"
+                          : "Agrupar visualmente em blocos familiares"
+                      }
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                      <span>{groupByFamily ? "Agrupado por Família" : "Agrupar por Família"}</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Banner de Resumo da Família Filtrada */}
+              {selectedFamilyFilter !== "all" && (() => {
+                const activeFam = groupFamilies.find((f) => f.id === selectedFamilyFilter)
+                if (!activeFam) return null
+                return (
+                  <div className="flex flex-col gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge
+                          variant="outline"
+                          className="border-primary/40 bg-primary/10 text-primary text-[10px] font-semibold"
+                        >
+                          {activeFam.isIndividual ? "Família Própria" : "Família no Grupo"}
+                        </Badge>
+                        <h4 className="text-sm font-bold text-foreground">
+                          {activeFam.name}
+                        </h4>
+                        <span className="text-xs text-muted-foreground">
+                          ({activeFam.size} {activeFam.size === 1 ? "pessoa" : "pessoas"})
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">Chefe do Lar: </span>
+                        {activeFam.head.full_name}
+                        {activeFam.spouse && (
+                          <>
+                            {" "}• <span className="font-medium text-foreground">Cônjuge: </span>
+                            {activeFam.spouse.full_name}
+                          </>
+                        )}
+                        {activeFam.children.length > 0 && (
+                          <>
+                            {" "}• <span className="font-medium text-foreground">Filhos: </span>
+                            {activeFam.children.map((c) => c.full_name).join(", ")}
+                          </>
+                        )}
+                      </p>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedFamilyFilter("all")}
+                      className="h-11 min-h-[44px] gap-1 text-xs text-muted-foreground hover:text-foreground shrink-0 cursor-pointer self-start sm:self-center"
+                    >
+                      <span>Ver todas as famílias</span>
+                    </Button>
+                  </div>
+                )
+              })()}
+
               {/* Barra de Busca e Chips de Status */}
               <div className="space-y-2.5">
                 <div className="relative">
@@ -1034,18 +1209,19 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       Nenhum irmão encontrado
                     </h3>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {searchName || filterCategory !== "all"
+                      {searchName || filterCategory !== "all" || selectedFamilyFilter !== "all"
                         ? "Nenhum irmão corresponde aos filtros aplicados."
                         : "Cadastre o primeiro irmão para iniciar o acompanhamento deste grupo."}
                     </p>
                   </div>
-                  {(searchName || filterCategory !== "all") && (
+                  {(searchName || filterCategory !== "all" || selectedFamilyFilter !== "all") && (
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => {
                         setSearchName("")
                         setFilterCategory("all")
+                        setSelectedFamilyFilter("all")
                       }}
                       className="h-11 min-h-[44px] text-xs font-semibold rounded-xl"
                     >
@@ -1053,7 +1229,125 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     </Button>
                   )}
                 </div>
+              ) : groupByFamily ? (
+                /* Modo Agrupado por Famílias */
+                <div className="space-y-6">
+                  {groupFamilies.map((fam) => {
+                    const famDisciples = filteredDisciples.filter((d) =>
+                      fam.members.some((m) => m.id === d.id)
+                    )
+                    if (famDisciples.length === 0) return null
+
+                    return (
+                      <div
+                        key={fam.id}
+                        className="rounded-2xl border border-border/80 bg-muted/15 p-4 sm:p-5 space-y-4"
+                      >
+                        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between border-b border-border/50 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                              <HomeIcon className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-sm sm:text-base font-bold text-foreground">
+                                  {fam.name}
+                                </h3>
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] font-semibold border-primary/30 bg-primary/5 text-primary"
+                                >
+                                  {fam.isIndividual ? "Individual" : "Família"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Chefe: <span className="font-semibold text-foreground">{fam.head.full_name}</span>
+                                {fam.spouse && (
+                                  <>
+                                    {" "}• Cônjuge: <span className="font-semibold text-foreground">{fam.spouse.full_name}</span>
+                                  </>
+                                )}
+                                {fam.children.length > 0 && (
+                                  <>
+                                    {" "}• Filhos ({fam.children.length}):{" "}
+                                    <span className="text-muted-foreground">
+                                      {fam.children.map((c) => c.full_name).join(", ")}
+                                    </span>
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+
+                          <Badge
+                            variant="outline"
+                            className="self-start sm:self-center text-xs font-semibold border-border/80 bg-background shrink-0"
+                          >
+                            {famDisciples.length} {famDisciples.length === 1 ? "irmão" : "irmãos"}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {famDisciples.map((disciple) => {
+                            const isGroupLeader = leaderIds.has(disciple.id)
+                            const registeredDiscipler = disciple.discipler_id
+                              ? profileMap.get(disciple.discipler_id)?.full_name
+                              : null
+                            const customDiscipler = disciple.custom_discipler_name || null
+                            const discipler = registeredDiscipler || customDiscipler
+                            const isCustomDiscipler = !registeredDiscipler && Boolean(customDiscipler)
+                            const spouse = disciple.spouse_id
+                              ? profileMap.get(disciple.spouse_id)?.full_name
+                              : null
+                            const father = disciple.father_id
+                              ? profileMap.get(disciple.father_id)?.full_name
+                              : null
+                            const mother = disciple.mother_id
+                              ? profileMap.get(disciple.mother_id)?.full_name
+                              : null
+                            const companions = fellowshipsByProfile.get(disciple.id) || []
+                            const discipleGroup = disciple.home_group_id
+                              ? homeGroups.find((g) => g.id === disciple.home_group_id)
+                              : null
+                            const groupName =
+                              selectedGroupFilter === "all" && discipleGroup
+                                ? getHomeGroupDisplayName(discipleGroup, profileMap)
+                                : null
+
+                            const isCoveredRoot =
+                              !!disciple.is_presbyter || !!(disciple.spouse_id && presbyterIds.has(disciple.spouse_id))
+
+                            const famInfo = familyByProfileId.get(disciple.id)
+
+                            return (
+                              <DiscipleCard
+                                key={disciple.id}
+                                disciple={disciple}
+                                isLeader={isGroupLeader}
+                                disciplerName={discipler}
+                                spouseName={spouse}
+                                fatherName={father}
+                                motherName={mother}
+                                fellowshipNames={companions}
+                                groupName={groupName}
+                                isCoveredRoot={isCoveredRoot}
+                                isCustomDiscipler={isCustomDiscipler}
+                                isFamilyHead={famInfo?.isHead}
+                                familyRoleLabel={famInfo?.roleLabel}
+                                familyName={famInfo?.family.name}
+                                onEdit={handleOpenEditDisciple}
+                                onTransformChild={handleOpenTransformBaptism}
+                                onTransformToLinked={handleOpenTransformToLinked}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               ) : (
+                /* Modo Lista Contínua */
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredDisciples.map((disciple) => {
                     const isGroupLeader = leaderIds.has(disciple.id)
@@ -1084,6 +1378,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     const isCoveredRoot =
                       !!disciple.is_presbyter || !!(disciple.spouse_id && presbyterIds.has(disciple.spouse_id))
 
+                    const famInfo = familyByProfileId.get(disciple.id)
+
                     return (
                       <DiscipleCard
                         key={disciple.id}
@@ -1097,6 +1393,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         groupName={groupName}
                         isCoveredRoot={isCoveredRoot}
                         isCustomDiscipler={isCustomDiscipler}
+                        isFamilyHead={famInfo?.isHead}
+                        familyRoleLabel={famInfo?.roleLabel}
+                        familyName={famInfo?.family.name}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
                         onTransformToLinked={handleOpenTransformToLinked}

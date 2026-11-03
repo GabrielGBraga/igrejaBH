@@ -18,6 +18,9 @@ export interface DiscipleCardProps {
   fellowshipNames?: string[]
   groupName?: string | null
   isCoveredRoot?: boolean
+  familyName?: string | null
+  isFamilyHead?: boolean
+  familyRoleLabel?: string | null
   onEdit: (disciple: Profile) => void
   onTransformChild?: (disciple: Profile) => void
   onTransformToLinked?: (disciple: Profile) => void
@@ -34,6 +37,9 @@ export function DiscipleCard({
   fellowshipNames = [],
   groupName,
   isCoveredRoot = false,
+  familyName,
+  isFamilyHead = false,
+  familyRoleLabel,
   onEdit,
   onTransformChild,
   onTransformToLinked,
@@ -114,6 +120,14 @@ export function DiscipleCard({
                 >
                   <Baby className="mr-1 h-3 w-3" />
                   Criança
+                </Badge>
+              )}
+              {isFamilyHead && (
+                <Badge
+                  variant="outline"
+                  className="border-primary/40 bg-primary/10 text-primary text-[11px] font-medium"
+                >
+                  {familyRoleLabel || "Chefe da Família"}
                 </Badge>
               )}
               {!disciple.is_church_linked && (
@@ -199,6 +213,19 @@ export function DiscipleCard({
                   <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
                     <span className="shrink-0 text-muted-foreground">Cônjuge:</span>
                     <span className="font-medium text-right text-foreground">{spouseName}</span>
+                  </div>
+                )}
+
+                {/* Família (para integrantes em famílias de múltiplos membros) */}
+                {familyName && !isFamilyHead && (
+                  <div className="flex items-start justify-between gap-2 border-t border-border/40 pt-1.5">
+                    <span className="shrink-0 text-muted-foreground">Família:</span>
+                    <span className="font-medium text-right text-foreground">
+                      {familyName}
+                      {familyRoleLabel && familyRoleLabel !== "Familiar" && familyRoleLabel !== "Própria família"
+                        ? ` (${familyRoleLabel})`
+                        : ""}
+                    </span>
                   </div>
                 )}
 
