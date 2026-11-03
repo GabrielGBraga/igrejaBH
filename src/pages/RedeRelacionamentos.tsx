@@ -17,7 +17,6 @@ import {
   Filter,
   Link2,
   ShieldAlert,
-  Cake,
   AlertCircle,
   HeartHandshake,
   Baby,
@@ -67,15 +66,6 @@ const checkIsChild = (p: Profile) => {
   return !p.baptism_date && !!(p.father_id || p.mother_id)
 }
 
-const isBirthdayThisMonth = (birthDateStr?: string | null) => {
-  if (!birthDateStr) return false
-  const parts = birthDateStr.split("-")
-  if (parts.length < 3) return false
-  const birthMonth = parseInt(parts[1], 10)
-  const currentMonth = new Date().getMonth() + 1
-  return birthMonth === currentMonth
-}
-
 interface RedeRelacionamentosProps {
   singleGroupMode?: boolean
 }
@@ -109,7 +99,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
   const [selectedGroupFilter, setSelectedGroupFilter] = useState<string>("my_or_all")
   const [searchName, setSearchName] = useState<string>("")
   const [filterCategory, setFilterCategory] = useState<
-    "all" | "without_discipler" | "birthdays" | "children" | "adults"
+    "all" | "without_discipler" | "children" | "adults"
   >("all")
 
   // Modais de Edição
@@ -356,8 +346,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     const brothersWithCompanions = profilesWithCompanion.size
     const totalFellowships = fellowships.length
 
-    const birthdaysCount = churchProfiles.filter((p) => isBirthdayThisMonth(p.birth_date)).length
-
     return {
       totalDisciples,
       adultCount,
@@ -370,7 +358,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       totalSectors,
       totalFellowships,
       brothersWithCompanions,
-      birthdaysCount,
     }
   }, [profiles, homeGroups, sectors, fellowships, presbyterIds])
 
@@ -413,8 +400,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
         !!p.is_presbyter || !!(p.spouse_id && presbyterIds.has(p.spouse_id))
       if (filterCategory === "without_discipler") {
         if (isChild || p.discipler_id || isCoveredRoot) return false
-      } else if (filterCategory === "birthdays") {
-        if (!isBirthdayThisMonth(p.birth_date)) return false
       } else if (filterCategory === "children") {
         if (!isChild) return false
       } else if (filterCategory === "adults") {
@@ -458,11 +443,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     const withoutDiscipler = baseList.filter(
       (p) => !checkIsChild(p) && !p.discipler_id && !isCoveredRoot(p)
     ).length
-    const birthdays = baseList.filter((p) => isBirthdayThisMonth(p.birth_date)).length
     const children = baseList.filter((p) => checkIsChild(p)).length
     const adults = baseList.filter((p) => !checkIsChild(p)).length
 
-    return { total, withDiscipler, withoutDiscipler, birthdays, children, adults }
+    return { total, withDiscipler, withoutDiscipler, children, adults }
   }, [profiles, singleGroupMode, isTier3, myHomeGroup, selectedGroupFilter, presbyterIds])
 
   // Opções para o seletor com pesquisa de Grupo Caseiro
@@ -773,7 +757,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3">
                     {/* KPI 1: Discípulos */}
                     <button
                       type="button"
@@ -859,35 +843,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         </p>
                       </div>
                     </button>
-
-                    {/* KPI 4: Aniversariantes do Mês */}
-                    <button
-                      type="button"
-                      onClick={() => setFilterCategory("birthdays")}
-                      className={`text-left rounded-2xl border p-4 shadow-2xs flex flex-col justify-between transition-all hover:border-primary/50 cursor-pointer ${
-                        filterCategory === "birthdays"
-                          ? "border-primary bg-primary/10 ring-1 ring-primary/40"
-                          : "border-border/80 bg-card hover:bg-muted/40"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                          <Cake className="h-3.5 w-3.5 text-primary" />
-                          Aniversariantes
-                        </span>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium border-border/60">
-                          Este mês
-                        </Badge>
-                      </div>
-                      <div className="mt-2.5">
-                        <div className="text-2xl font-bold tracking-tight text-foreground">
-                          {churchKpis.birthdaysCount}
-                        </div>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
-                          Para parabenizar e orar juntos
-                        </p>
-                      </div>
-                    </button>
                   </div>
                 </div>
               ) : selectedGroupFilter === "unlinked" ? (
@@ -961,8 +916,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     </Button>
                   </div>
 
-                  {/* 3 mini cards rápidos do grupo */}
-                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border/50">
+                  {/* 2 mini cards rápidos do grupo */}
+                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/50">
                     <button
                       type="button"
                       onClick={() => setFilterCategory("all")}
@@ -987,19 +942,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                     >
                       <div className="text-lg font-bold text-amber-700 dark:text-amber-400">{counts.withoutDiscipler}</div>
                       <div className="text-[11px]">Sem Discipulador</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setFilterCategory("birthdays")}
-                      className={`rounded-xl p-2.5 text-center border transition-all cursor-pointer ${
-                        filterCategory === "birthdays"
-                          ? "border-primary bg-primary/15 text-primary font-semibold"
-                          : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/60"
-                      }`}
-                    >
-                      <div className="text-lg font-bold text-foreground">{counts.birthdays}</div>
-                      <div className="text-[11px]">Aniversariantes</div>
                     </button>
                   </div>
                 </div>
@@ -1054,19 +996,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                   >
                     <AlertCircle className="h-3.5 w-3.5" />
                     <span>Sem Discipulador ({counts.withoutDiscipler})</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setFilterCategory("birthdays")}
-                    className={`min-h-[44px] shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
-                      filterCategory === "birthdays"
-                        ? "bg-primary text-primary-foreground shadow-xs"
-                        : "border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20"
-                    }`}
-                  >
-                    <Cake className="h-3.5 w-3.5" />
-                    <span>Aniversariantes do Mês ({counts.birthdays})</span>
                   </button>
 
                   <button

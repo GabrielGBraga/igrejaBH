@@ -24,6 +24,7 @@ export interface SearchableSelectProps {
   clearable?: boolean
   allowCustomValue?: boolean
   customValueActionLabel?: (query: string) => string
+  searchByLabelOnly?: boolean
   id?: string
   name?: string
 }
@@ -48,6 +49,7 @@ export function SearchableSelect({
   clearable = true,
   allowCustomValue = false,
   customValueActionLabel,
+  searchByLabelOnly = false,
   id,
   name,
 }: SearchableSelectProps) {
@@ -136,6 +138,10 @@ export function SearchableSelect({
     const queryNorm = normalizeSearch(typedQuery)
     const matches = options.filter((opt) => {
       const labelNorm = normalizeSearch(opt.label)
+      if (searchByLabelOnly) {
+        const queryWords = queryNorm.split(/\s+/).filter(Boolean)
+        return queryWords.every((word) => labelNorm.includes(word))
+      }
       const descNorm = opt.description ? normalizeSearch(opt.description) : ""
       const keyNorm = opt.keywords ? normalizeSearch(opt.keywords) : ""
       return (
@@ -161,7 +167,7 @@ export function SearchableSelect({
     }
 
     return matches
-  }, [options, typedQuery, isTyping, allowCustomValue])
+  }, [options, typedQuery, isTyping, allowCustomValue, searchByLabelOnly])
 
   // Reseta índice destacado ao mudar a busca
   React.useEffect(() => {

@@ -316,13 +316,11 @@ export function DiscipleEditorDialog({
       ...availableDisciplers.map((p) => {
         const hg = p.home_group_id ? homeGroupMap.get(p.home_group_id) : undefined
         const hgLabel = hg ? getHomeGroupFullLabel(hg, profileMap) : "Sem Grupo Caseiro"
-        const hgKeywords = hg ? getHomeGroupSearchKeywords(hg, profileMap) : "sem grupo caseiro"
         return {
           value: p.id,
           label: p.full_name,
           description: hgLabel,
           badge: p.is_presbyter ? "Presbítero" : leaderIds.has(p.id) ? "Líder de GC" : undefined,
-          keywords: `${hgLabel} ${hgKeywords} ${p.phone || ""}`.trim(),
         }
       })
     )
@@ -861,6 +859,7 @@ export function DiscipleEditorDialog({
                     }
                     onValueChange={handleDisciplerChange}
                     allowCustomValue={true}
+                    searchByLabelOnly={true}
                     customValueActionLabel={(q) => `Usar "${q}" (Discipulador não encontrado no sistema)`}
                     placeholder={gender === "M" ? "Buscar ou digitar irmão discipulador..." : "Buscar ou digitar irmã discipuladora..."}
                     clearable={true}

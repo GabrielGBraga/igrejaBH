@@ -1,4 +1,4 @@
-import { Phone, Edit, MessageSquare, Shield, Baby, BookOpen, UserCheck, MapPin, AlertCircle, HeartHandshake, Cake } from "lucide-react"
+import { Phone, Edit, MessageSquare, Shield, Baby, BookOpen, UserCheck, MapPin, AlertCircle, HeartHandshake } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,22 +23,6 @@ export interface DiscipleCardProps {
   onTransformToLinked?: (disciple: Profile) => void
 }
 
-const isBirthdayThisMonth = (birthDateStr?: string | null) => {
-  if (!birthDateStr) return false
-  const parts = birthDateStr.split("-")
-  if (parts.length < 3) return false
-  const birthMonth = parseInt(parts[1], 10)
-  const currentMonth = new Date().getMonth() + 1
-  return birthMonth === currentMonth
-}
-
-const formatBirthdayShort = (birthDateStr?: string | null) => {
-  if (!birthDateStr) return null
-  const parts = birthDateStr.split("-")
-  if (parts.length < 3) return null
-  return `${parts[2]}/${parts[1]}`
-}
-
 export function DiscipleCard({
   disciple,
   isLeader = false,
@@ -60,9 +44,6 @@ export function DiscipleCard({
   const whatsappUrl = hasPhone
     ? `https://wa.me/55${cleanPhone}`
     : null
-
-  const isBdayMonth = isBirthdayThisMonth(disciple.birth_date)
-  const bdayDayMonth = formatBirthdayShort(disciple.birth_date)
 
   const getInitials = (name: string) => {
     return name
@@ -141,15 +122,6 @@ export function DiscipleCard({
                   className={`${THEME_CLASSES.badgePriority} text-[11px] font-medium`}
                 >
                   Visitante nos Estudos
-                </Badge>
-              )}
-              {isBdayMonth && bdayDayMonth && (
-                <Badge
-                  variant="outline"
-                  className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[11px] font-medium inline-flex items-center gap-1"
-                >
-                  <Cake className="h-3 w-3 shrink-0" />
-                  Aniversário: {bdayDayMonth}
                 </Badge>
               )}
               {disciple.marital_status && (
