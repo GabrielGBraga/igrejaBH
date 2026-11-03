@@ -9,11 +9,11 @@
 DO $$
 DECLARE
   pwd_hash text := '$2a$06$XqL/cRckHcXJ1xzAYPKQUORulnZ8gYmOlK1FwEvihHPa7trFLTl9.'; -- 'senha123'
-  gabriel_id   uuid := '78f2aca3-0542-4105-b741-549a54be30ff';
-  fernando_id  uuid := '76385bbe-a540-4638-8013-609b49a6a2fe';
-  clara_id     uuid := 'd490eba5-fbb2-4281-9777-d8226e71aa9f';
-  flavio_id    uuid := '32b950d9-6474-4e1e-a513-555280617278';
-  marleide_id  uuid := '9c9ad423-9cd4-46c8-acd4-05e1053d9896';
+  gabriel_id   uuid := '49530a11-3be0-4dc6-b12d-6e76c1c6d3e1';
+  fernando_id  uuid := '41538203-0a7e-426e-9f6e-176315fa44a5';
+  clara_id     uuid := 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb';
+  flavio_id    uuid := 'ac4683a2-4a53-46f2-be91-8a06195a7a67';
+  marleide_id  uuid := '2ee8740d-b1fe-4614-baf7-da870e0ac155';
 
   gabriel_auth_id  uuid := '00000000-0000-0000-0000-000000000001';
   fernando_auth_id uuid := '00000000-0000-0000-0000-000000000002';
@@ -100,12 +100,12 @@ BEGIN
   -- 2. CRIAÇÃO DOS SETORES METROPOLITANOS (6 Setores Reais)
   -- ==========================================================================
 
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'São Gabriel/Pampulha', now());
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Venda Nova/Neves', now());
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('644b16f0-ecae-498b-a286-50b458bb170b', 'Santa Luzia', now());
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Oeste', now());
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('df335314-1c68-4a93-af0e-161be81a1cf4', 'Betim/Contagem', now());
-  INSERT INTO public.sectors (id, name, created_at) VALUES ('1b101594-bab6-46b5-916a-d84f355bab3f', 'Fora da Localidade', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('42bca509-5742-4127-93ab-219d7f3d47e9', 'São Gabriel/Pampulha', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('75c19430-01bd-481d-952e-c2ae5566c1df', 'Venda Nova/Neves', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Santa Luzia', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Oeste', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('94a7b075-2946-467b-859f-8f2fea298bd0', 'Betim/Contagem', now());
+  INSERT INTO public.sectors (id, name, created_at) VALUES ('945c169c-3a75-434d-9d16-aff16ac012fb', 'Fora da Localidade', now());
 
   -- ==========================================================================
   -- 3. CRIAÇÃO DOS GRUPOS CASEIROS (35 Grupos Reais das Planilhas)
@@ -114,177 +114,177 @@ BEGIN
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', '9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'Solimões - BH - Bairro Solimões', 2, '19:30:00', -19.8392, -43.9185, now()
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', '42bca509-5742-4127-93ab-219d7f3d47e9', 'Solimões - BH - Bairro Solimões', 2, '19:30:00', -19.8392, -43.9185, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', '9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'Heliópolis - BH - Bairro Heliópolis', 3, '19:30:00', -19.8425, -43.9482, now()
+    '63938120-2da3-4289-b043-54453759b8d4', '42bca509-5742-4127-93ab-219d7f3d47e9', 'Heliópolis - BH - Bairro Heliópolis', 3, '19:30:00', -19.8425, -43.9482, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '789dae9f-84df-4b2f-b4be-473752444c8f', '9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'São Gabriel - BH - Região São Gabriel / Pampulha', 4, '19:30:00', -19.858, -43.916, now()
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', '42bca509-5742-4127-93ab-219d7f3d47e9', 'São Gabriel - BH - Região São Gabriel / Pampulha', 4, '19:30:00', -19.858, -43.916, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', '9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'Santa Amélia - BH - Rua Pioneiros da Paz, Santa Amélia / Rua Hildebrando de Oliveira 65, Copacabana', 5, '19:30:00', -19.8361, -43.9724, now()
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', '42bca509-5742-4127-93ab-219d7f3d47e9', 'Santa Amélia - BH - Rua Pioneiros da Paz, Santa Amélia / Rua Hildebrando de Oliveira 65, Copacabana', 5, '19:30:00', -19.8361, -43.9724, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', '9ba41bb8-bf08-4c36-80a9-c2a14601c01f', 'Jardim Vitória - BH - Bairro Vitória / Jardim Vitória', 6, '19:30:00', -19.8456, -43.8891, now()
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', '42bca509-5742-4127-93ab-219d7f3d47e9', 'Jardim Vitória - BH - Bairro Vitória / Jardim Vitória', 6, '19:30:00', -19.8456, -43.8891, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Santa Branca - BH - Rua Norte, 42, Santa Branca - BH', 2, '19:30:00', -19.8268, -43.9685, now()
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Santa Branca - BH - Rua Norte, 42, Santa Branca - BH', 2, '19:30:00', -19.8268, -43.9685, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Santa Branca - BH - Rua São José do Jacuri, 135, B. Santa Branca', 3, '19:30:00', -19.8245, -43.966, now()
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Santa Branca - BH - Rua São José do Jacuri, 135, B. Santa Branca', 3, '19:30:00', -19.8245, -43.966, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Maria Helena - Ribeirão das Neves - Rua Lagoinhas, 64 (Casa do Marinho) - Maria Helena', 4, '19:30:00', -19.7985, -44.0092, now()
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Maria Helena - Ribeirão das Neves - Rua Lagoinhas, 64 (Casa do Marinho) - Maria Helena', 4, '19:30:00', -19.7985, -44.0092, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Maria Helena - Ribeirão das Neves - Rua Lagoinhas, 64 - Maria Helena', 5, '19:30:00', -19.7992, -44.0105, now()
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Maria Helena - Ribeirão das Neves - Rua Lagoinhas, 64 - Maria Helena', 5, '19:30:00', -19.7992, -44.0105, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '09782827-90f8-404c-9018-2308258a795c', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Leblon - BH - Rua Olga Pimenta Guimarães, 204 - Leblon', 6, '19:30:00', -19.8115, -43.988, now()
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Leblon - BH - Rua Olga Pimenta Guimarães, 204 - Leblon', 6, '19:30:00', -19.8115, -43.988, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '2764260c-e49f-4cbd-9daa-0803989641d3', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Sevilha B - Ribeirão das Neves - Rua São João Del Rei, 270, Sevilha B', 2, '19:30:00', -19.7695, -44.0812, now()
+    'ad393be8-666a-4ad4-a48a-711217306577', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Sevilha B - Ribeirão das Neves - Rua São João Del Rei, 270, Sevilha B', 2, '19:30:00', -19.7695, -44.0812, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', 'f0e10612-68c5-42ba-8128-71ab7cc963b2', 'Areias - Ribeirão das Neves - Rodízio (Areias / Morro Alto)', 3, '19:30:00', -19.782, -43.985, now()
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', '75c19430-01bd-481d-952e-c2ae5566c1df', 'Areias - Ribeirão das Neves - Rodízio (Areias / Morro Alto)', 3, '19:30:00', -19.782, -43.985, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', '644b16f0-ecae-498b-a286-50b458bb170b', 'Santa Matilde - Santa Luzia - Rua Geraldo Ferreira Rabelo, 169, Santa Matilde', 4, '19:30:00', -19.7668, -43.8582, now()
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Santa Matilde - Santa Luzia - Rua Geraldo Ferreira Rabelo, 169, Santa Matilde', 4, '19:30:00', -19.7668, -43.8582, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', '644b16f0-ecae-498b-a286-50b458bb170b', 'Lagoa Santa - Lagoa Santa', 5, '19:30:00', -19.6328, -43.8906, now()
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Lagoa Santa - Lagoa Santa', 5, '19:30:00', -19.6328, -43.8906, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', '644b16f0-ecae-498b-a286-50b458bb170b', 'São Benedito - Santa Luzia - Bairro São Benedito', 6, '19:30:00', -19.7825, -43.9145, now()
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'São Benedito - Santa Luzia - Bairro São Benedito', 6, '19:30:00', -19.7825, -43.9145, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', '644b16f0-ecae-498b-a286-50b458bb170b', 'Fazendinha do Baú - Santa Luzia - Rua Presidente Roosevelt, 1107 - Fazendinha do Baú - Santa Luzia', 2, '19:30:00', -19.7755, -43.872, now()
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Fazendinha do Baú - Santa Luzia - Rua Presidente Roosevelt, 1107 - Fazendinha do Baú - Santa Luzia', 2, '19:30:00', -19.7755, -43.872, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', '644b16f0-ecae-498b-a286-50b458bb170b', 'Córrego das Calçadas - Santa Luzia - Av. Engenheiro Felipe Gabrich, nº 734, Córrego das Calçadas, Santa Luzia', 3, '19:30:00', -19.759, -43.851, now()
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Córrego das Calçadas - Santa Luzia - Av. Engenheiro Felipe Gabrich, nº 734, Córrego das Calçadas, Santa Luzia', 3, '19:30:00', -19.759, -43.851, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', '644b16f0-ecae-498b-a286-50b458bb170b', 'Cristina B - Santa Luzia - Rua Mila Bernardina da Rocha, 85, Cristina B, Santa Luzia/MG', 4, '19:30:00', -19.7762, -43.9248, now()
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', '4723496b-6e4b-42c7-806a-86bda7a85bb9', 'Cristina B - Santa Luzia - Rua Mila Bernardina da Rocha, 85, Cristina B, Santa Luzia/MG', 4, '19:30:00', -19.7762, -43.9248, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '38438326-8b6f-41e4-894f-5514e834a762', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Novo Tirol - BH - Rua Macadâmia, 168, Novo Tirol - BH', 5, '19:30:00', -19.9985, -44.0315, now()
+    '002a3ca8-197b-486f-b24e-d146480c6e72', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Novo Tirol - BH - Rua Macadâmia, 168, Novo Tirol - BH', 5, '19:30:00', -19.9985, -44.0315, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Milionários - BH - Rua dos Atleticanos - Milionários', 6, '19:30:00', -19.981, -43.9965, now()
+    '08015614-b513-4bd1-86a3-c268609a6a3f', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Milionários - BH - Rua dos Atleticanos - Milionários', 6, '19:30:00', -19.981, -43.9965, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Tropical / Quintas do Jacuba - Contagem - Estrada Chico Mendes, 900 - Quintas do Jacuba - Contagem', 2, '19:30:00', -19.9265, -44.115, now()
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Tropical / Quintas do Jacuba - Contagem - Estrada Chico Mendes, 900 - Quintas do Jacuba - Contagem', 2, '19:30:00', -19.9265, -44.115, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Novo Progresso - Contagem - Rua Paraopeba, 184, Novo Progresso', 3, '19:30:00', -19.898, -44.039, now()
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Novo Progresso - Contagem - Rua Paraopeba, 184, Novo Progresso', 3, '19:30:00', -19.898, -44.039, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Bela Vista / Barreiro - Ibirité - Rua Melo de Souza Maia, 101, Bela Vista', 4, '19:30:00', -20.008, -44.052, now()
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Bela Vista / Barreiro - Ibirité - Rua Melo de Souza Maia, 101, Bela Vista', 4, '19:30:00', -20.008, -44.052, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Salgado Filho - BH - Rua Ibiraci, 250 - Bairro Salgado Filho - BH', 5, '19:30:00', -19.9412, -43.9825, now()
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Salgado Filho - BH - Rua Ibiraci, 250 - Bairro Salgado Filho - BH', 5, '19:30:00', -19.9412, -43.9825, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', 'b41b6cf5-7aeb-4696-9ba0-b92040827e76', 'Nova Suíça - BH - Rua Lindolfo de Azevedo, 608, Nova Suíça - BH', 6, '19:30:00', -19.9445, -43.9734, now()
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', '742a0e92-cb70-4edb-ba38-8f8c32889caa', 'Nova Suíça - BH - Rua Lindolfo de Azevedo, 608, Nova Suíça - BH', 6, '19:30:00', -19.9445, -43.9734, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'São José - Esmeraldas - Rua Américo França Abreu, 257, São José, Esmeraldas', 2, '19:30:00', -19.7615, -44.314, now()
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', '94a7b075-2946-467b-859f-8f2fea298bd0', 'São José - Esmeraldas - Rua Américo França Abreu, 257, São José, Esmeraldas', 2, '19:30:00', -19.7615, -44.314, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Jardim Riacho das Pedras - Contagem - Rua Urânio, 114, Jardim Riacho das Pedras - Contagem', 3, '19:30:00', -19.9565, -44.041, now()
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Jardim Riacho das Pedras - Contagem - Rua Urânio, 114, Jardim Riacho das Pedras - Contagem', 3, '19:30:00', -19.9565, -44.041, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '827ab195-4359-478b-9826-17dc7c69f545', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Marimbá - Betim - Sítio da Igreja (Marimbá / Juatuba)', 4, '19:30:00', -19.932, -44.275, now()
+    '7a245029-b248-4fae-b8a1-555e3596985a', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Marimbá - Betim - Sítio da Igreja (Marimbá / Juatuba)', 4, '19:30:00', -19.932, -44.275, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Resplendor - Igarapé - Rua Bahia, 131, Resplendor - Igarapé', 5, '19:30:00', -20.068, -44.298, now()
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Resplendor - Igarapé - Rua Bahia, 131, Resplendor - Igarapé', 5, '19:30:00', -20.068, -44.298, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '66077532-f18c-43b8-b205-adb8eb21dca1', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Jardim Alterosa / Santo Antônio - Betim - Rua Limoeiro, 337, Santo Antônio - Betim', 6, '19:30:00', -19.961, -44.172, now()
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Jardim Alterosa / Santo Antônio - Betim - Rua Limoeiro, 337, Santo Antônio - Betim', 6, '19:30:00', -19.961, -44.172, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Três Barras - Contagem - Rua Gentil Diniz, 441 - Três Barras - Contagem', 2, '19:30:00', -19.9145, -44.0885, now()
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Três Barras - Contagem - Rua Gentil Diniz, 441 - Três Barras - Contagem', 2, '19:30:00', -19.9145, -44.0885, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Eldorado - Contagem - Rua José Barra do Nascimento, 1971, Eldorado - Contagem', 3, '19:30:00', -19.938, -44.0395, now()
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Eldorado - Contagem - Rua José Barra do Nascimento, 1971, Eldorado - Contagem', 3, '19:30:00', -19.938, -44.0395, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', 'df335314-1c68-4a93-af0e-161be81a1cf4', 'Ponte Alta - Betim - Condomínio Ouro Verde, Bairro Ponte Alta - Betim', 4, '19:30:00', -19.896, -44.203, now()
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', '94a7b075-2946-467b-859f-8f2fea298bd0', 'Ponte Alta - Betim - Condomínio Ouro Verde, Bairro Ponte Alta - Betim', 4, '19:30:00', -19.896, -44.203, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', '1b101594-bab6-46b5-916a-d84f355bab3f', 'Interlagos - Sete Lagoas - Rua Antônio Domingos da Silva Filho, 307, B. Interlagos - Sete Lagoas', 5, '19:30:00', -19.4752, -44.2368, now()
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', '945c169c-3a75-434d-9d16-aff16ac012fb', 'Interlagos - Sete Lagoas - Rua Antônio Domingos da Silva Filho, 307, B. Interlagos - Sete Lagoas', 5, '19:30:00', -19.4752, -44.2368, now()
   );
   INSERT INTO public.home_groups (
     id, sector_id, location_text, meeting_day, start_time, lat, lng, created_at
   ) VALUES (
-    'f607a18b-e503-4039-a662-51ac41abfff9', '1b101594-bab6-46b5-916a-d84f355bab3f', 'Santa Bárbara - Santa Bárbara / Barão de Cocais', 6, '19:30:00', -19.9595, -43.415, now()
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', '945c169c-3a75-434d-9d16-aff16ac012fb', 'Santa Bárbara - Santa Bárbara / Barão de Cocais', 6, '19:30:00', -19.9595, -43.415, now()
   );
 
   -- ==========================================================================
@@ -300,8 +300,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd10f39b4-92c7-4967-9a82-69ad771457a1', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '19ec4776-52dc-43c8-8c08-e272cc157732', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', 'Solimões', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Presbitério', now()
@@ -313,8 +313,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9c9ad423-9cd4-46c8-acd4-05e1053d9896', 'Marleide', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '2ee8740d-b1fe-4614-baf7-da870e0ac155', 'Marleide', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', 'Solimões', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Esposas dos Presb.', now()
@@ -326,8 +326,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '69eecf4a-7ba6-4c53-be51-ed9d202715e8', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '71f8eedc-9d7b-48d1-991e-ae98013a5fbe', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', 'Solimões', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -339,8 +339,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9bc168a1-d18c-4adf-bc64-805ee05ec8c0', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'aed6ce90-d29e-463f-80d7-d7eb28741fa8', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', 'Solimões', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Karina', now()
@@ -352,8 +352,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ed56e011-a066-49c8-8233-e3b5f50140af', 'Gutemberg', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'b7b9a6a9-483c-4652-9ce5-5ee31e7e949a', 'Gutemberg', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -365,8 +365,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a52a6748-767f-4c5d-b6c4-3cd96572cd59', 'Soely', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '1bc2068a-b1c1-4775-9a46-2437674461dc', 'Soely', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -378,8 +378,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '57d74b4b-3280-497a-87fc-9929e70eddcd', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'bc3cc745-dcd0-4c79-b8a1-bde6e336b28f', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -391,8 +391,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b48c1d94-9e72-445b-b469-4a2c00a74e99', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'd46c69da-3468-4e73-8d78-c1a6a8a50924', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -404,8 +404,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '266c8e68-4192-47a8-9f1e-10708d388e54', 'Euller', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '2d0e7358-423b-4c27-b1bc-e4c6bc17b647', 'Euller', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -417,8 +417,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2092d89f-7c41-4cde-9666-72db932250e5', 'Wellington', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'cfefe8cc-f85e-4427-ad60-149ae73e1dad', 'Wellington', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -430,8 +430,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2c08372b-4163-45f2-b106-ee4fe57cd0c9', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '8fb69cc8-44c0-46ac-be75-4568d2a0e3a6', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Quênia', now()
@@ -443,8 +443,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18199521-b88c-45ba-8973-194040fe970b', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '23bd5f9b-0dec-4888-bf3b-c6d78a74a8dc', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Wellington', now()
@@ -456,8 +456,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6b604757-d4ef-40d7-beb0-514888126d1e', 'Joana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'fe51e018-12b5-4ca2-9164-ade04b45ea55', 'Joana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luciana', now()
@@ -469,8 +469,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '581bef00-4815-40fa-b731-7152debcbc7c', 'Agatha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'aaf5e5aa-b3b3-4f56-8884-0ca9b6ff98d2', 'Agatha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -482,8 +482,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd5fcc2c3-8eab-4c2d-8d30-973ee2af3b11', 'Mariângela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    'a1b8ab96-5166-440a-aad5-652216e56289', 'Mariângela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cinara', now()
@@ -495,8 +495,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '81d39675-8c42-4015-919e-ded8f919ecbb', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4650dacd-e1f8-4f2c-a11a-47da76f39fea', true, false, false, false, false,
+    '89f154dd-bfee-4516-81f7-6ef9ab81cd76', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b366e6bf-7874-49f6-b9e1-8db54a692033', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -508,8 +508,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6717d16b-3add-4977-a824-a9c6bc2f9c13', 'André', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '5862029e-8e82-439b-a8e8-a45b3f954987', 'André', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -521,8 +521,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f1acb2a6-60ed-43ca-927b-7737c7a799b5', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'c9451d88-3d0b-4366-9dee-49bf4b1a665c', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -534,8 +534,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '95da0514-9444-4f29-a788-9d782b842895', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '87ccf9ea-c9af-475b-8d80-2fe92f9b5c8c', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Boa Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -547,8 +547,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eaffce78-f113-4ead-aa0d-5ae9a8c5a110', 'Rosemeire', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'b79deef6-8e02-4da3-8996-4a68d349a5f6', 'Rosemeire', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Boa Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -560,8 +560,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '133bfc28-1807-4762-9986-176a0ead795c', 'Elis', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '21382e4a-8fd4-4ec9-9df2-bf9adaba9dac', 'Elis', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Boa Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -573,8 +573,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '76385bbe-a540-4638-8013-609b49a6a2fe', 'Fernando Gomes Braga', 'fgb80@yahoo.com', NULL, NULL, '1980-07-18'::date, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, true, false, false, true,
+    '41538203-0a7e-426e-9f6e-176315fa44a5', 'Fernando Gomes Braga', 'fgb80@yahoo.com', NULL, NULL, '1980-07-18'::date, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, true, false, false, true,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -586,8 +586,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd490eba5-fbb2-4281-9777-d8226e71aa9f', 'Clara Góes Braga', 'claradiscipula@gmail.com', NULL, NULL, '1983-06-16'::date, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'e58d0305-1872-4e1a-8d0f-d9804c26d8cb', 'Clara Góes Braga', 'claradiscipula@gmail.com', NULL, NULL, '1983-06-16'::date, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -599,8 +599,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '777363ae-fa07-4e54-b1dc-3a994e33839b', 'Artur', NULL, NULL, NULL, '2019-09-09'::date, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'ba4715d3-dafd-4c10-bec8-205b39e154a5', 'Artur', NULL, NULL, NULL, '2019-09-09'::date, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -612,8 +612,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '78f2aca3-0542-4105-b741-549a54be30ff', 'Gabriel Góes Braga', 'ggoesbraga@gmail.com', NULL, NULL, '2008-04-02'::date, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, true, true,
+    '49530a11-3be0-4dc6-b12d-6e76c1c6d3e1', 'Gabriel Góes Braga', 'ggoesbraga@gmail.com', NULL, NULL, '2008-04-02'::date, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, true, true,
     'Solteiro(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -625,8 +625,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '842cb647-a695-438e-bde3-21c1d435ed6b', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'b42b968a-b5f3-4b49-a9c1-39fcf5b5e928', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Liberdade', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -638,8 +638,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '19ee4823-f87d-4aa2-b33b-513cbf18384c', 'Marina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '915cf368-3a76-477f-8f7e-3c56b2602b24', 'Marina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Liberdade', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -651,8 +651,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7357b7aa-ec4c-4b46-ba88-83fe74926a5b', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '2fb3c448-d198-4c58-b50f-532032d13e8e', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Liberdade', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -664,8 +664,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2a0a50f4-2b4e-474d-9e7d-13bbc4ce844a', 'Deia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'f373cd2a-85ad-4a7b-b54f-4e886c89075a', 'Deia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Jaraguá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -677,8 +677,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eb88342d-ad13-4b1a-9059-e5ff58db0ead', 'Marivaldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '1996717f-e08a-44e3-9b6f-7c44aaf8fe9a', 'Marivaldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Boa Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thiago Duarte', now()
@@ -690,8 +690,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8774e4d7-3520-464a-9ba9-3ef1d0c6e261', 'Luciene', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '679737de-e2ed-4c93-b0f9-61172109ec1a', 'Luciene', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Boa Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Paulinha', now()
@@ -703,8 +703,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0f0f28df-102c-4071-894e-389e41360cb1', 'Ramon', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '1dce335d-9640-4178-8675-8a35bcef33f3', 'Ramon', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Ouro Preto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -716,8 +716,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a23f3eb2-c9e5-495b-84c3-ecc4670bcb26', 'Margareth', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'c53698e8-a13d-48a6-9f01-218732f58b3a', 'Margareth', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Ouro Preto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -729,8 +729,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c163c8a6-d96f-4980-8242-fe3e94f85fb7', 'Renan', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '284c583e-eeb5-4896-94c9-4ecfe43ba1bf', 'Renan', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Itapuã', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -742,8 +742,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '93ce9392-ac77-4f5b-a4a0-bc3fa8ee0644', 'Arlete', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '1d94db5d-33e8-47c8-b74b-89c3baf318af', 'Arlete', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Itapuã', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -755,8 +755,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '075eabfb-81bd-4211-a4dd-a20b3e7fed47', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '831e59c6-147c-4042-a81c-bc3f19f6ea36', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -768,8 +768,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '451700ce-7eff-49d7-a787-f99a9eda2f8e', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '9996439c-760a-4ee1-9278-26091fb1988f', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -781,8 +781,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '885c1205-df30-4b76-a404-4f78abeda3d4', 'Cecília', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '58cf7bf8-953b-4a7b-b2a9-8f0fc0975084', 'Cecília', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -794,8 +794,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '91aac336-92ac-4490-9c85-14d3830fdf9b', 'Hugo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'bce95976-eed0-4b1b-8c6b-8efe0f6f1d18', 'Hugo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Heliópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -807,8 +807,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6ed4afbd-1081-4c81-be12-f03628822bba', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '4156a63d-cfd6-443f-8f75-94a85a73bc40', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Dona Clara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -820,8 +820,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1dc0ac57-4bbb-46b5-abae-938828807b02', 'Sarah', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '1a803e04-1fc7-460e-b5bc-1b8d294dec66', 'Sarah', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Dona Clara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -833,8 +833,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '30999b0d-f37c-45f2-99ba-67f30e20a4bb', 'Matheus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'e2a08832-e454-4de2-8b0d-10b59362e49b', 'Matheus', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Dona Clara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -846,8 +846,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6c852113-aeb7-44a8-b6df-e73b57f27071', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'f002bd09-01c5-4132-9ffa-2410534196d5', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Dona Clara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -859,8 +859,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e6345948-7ca7-407a-974e-d3b256c02a01', 'Marlon', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'a3beba85-241c-4119-b3ae-ea6a0e43fc4b', 'Marlon', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel', now()
@@ -872,8 +872,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1989e812-e291-4e83-89b3-b848aef84570', 'Maura', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'b80e234e-5b89-4200-84b6-0a5f0f1b6a25', 'Maura', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Santa Cruz', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -885,8 +885,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'dc8f98f8-306b-47ce-b650-645fed3c2f65', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '60028e2c-f736-4a3c-8f3b-d3d4b0f5032c', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Jaraguá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -898,8 +898,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd9431731-50c0-44f2-947d-dc88a309b3d6', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '5407bf48-52d2-4fef-a85f-086f39640c4c', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -911,8 +911,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '30039d06-4756-40f8-8d7d-2a91466fc5b9', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '21bf9e0b-a641-4a24-8abe-be94e19aa01c', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -924,8 +924,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1b10c655-7452-4b91-820e-4b4a47fe12f6', 'Zoraide', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'fde66a1a-78b6-4327-918e-187d1c6f1965', 'Zoraide', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Santa Cruz', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -937,8 +937,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bff3470a-e860-4fe7-b1c1-d58e3f82b33b', 'Miriã', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '9666306e-4569-4937-8092-516692bb7123', 'Miriã', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Ouro Preto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa', now()
@@ -950,8 +950,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '60bda50a-fc5d-4436-9034-234fc4200356', 'Ana Clara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '1c403fa0-9423-424c-8a0c-16b5938db8cb', 'Ana Clara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Jaraguá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Maria', now()
@@ -963,8 +963,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2020229d-7979-4cbb-8fab-f021f18b825e', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    'a6285c83-e760-4a9c-9c0d-364f54ebbdf0', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Jaraguá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -976,8 +976,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18cbb5f8-0567-41a9-974b-1182d38942d5', 'Wanderlaine', NULL, NULL, NULL, NULL, NULL, 'F',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '47a23238-4217-468e-ab65-fabf7a365838', 'Wanderlaine', NULL, NULL, NULL, NULL, NULL, 'F',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Casado(a)', 'Jaraguá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Arlete', now()
@@ -989,8 +989,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b376daa3-36e7-4dae-80b5-03fad0badd10', 'Ismael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '00500a12-bfa8-4555-94e1-aeb4ab033573', true, false, false, false, false,
+    '71681ca5-6fab-4479-b44f-eddf46a4372b', 'Ismael', NULL, NULL, NULL, NULL, NULL, 'M',
+    '63938120-2da3-4289-b043-54453759b8d4', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fransérgio', now()
@@ -1002,8 +1002,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a3c9a07c-017c-4c35-a164-9fca6da79b4c', 'Emerson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '48410ac0-1787-4c7e-a6e7-4e6806642850', 'Emerson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1015,8 +1015,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '70d7271f-0612-4434-9bab-d8c5ad38bb86', 'Neide', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '4effb9f2-0cff-4fa4-ac68-49a93c2628fa', 'Neide', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1028,8 +1028,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '094adf18-1186-4802-a0c2-01852547ca63', 'Walace', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'a72d4939-2969-45b4-9e45-a4247325519b', 'Walace', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1041,8 +1041,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8103138f-6084-4eb2-b852-be3d55cd19ba', 'Sabrina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'fb825f48-ceee-4081-85e4-6dd94bca5a50', 'Sabrina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1054,8 +1054,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '13f92f18-e27a-409d-a2a6-461e2da8ef4b', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '0f68b9d6-4519-49c0-80fb-ccd8f8054f42', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1067,8 +1067,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7581ff85-77d8-4f7e-8f48-2ef15f39fa7c', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'f17f1d00-d885-4ef9-b56b-b3dee6f7d281', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1080,8 +1080,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '38644b54-ac21-4bfd-8444-85619f985a83', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '4db2d7d9-a30f-44c6-8615-a3f64bee5c01', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1093,8 +1093,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ee51a38f-1fa5-4a3a-bf56-403db185980b', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'ce3ad9d1-0ae8-4940-9b51-2519e39e712c', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1106,8 +1106,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2bf1deac-98cb-43ab-878e-aa8d559cca75', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '91ca2fe2-9032-4d9c-a4c6-7969b4197f0f', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1119,8 +1119,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '584fa9fb-c171-46f5-8196-1a056d89527b', 'Cristina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'eb53ac6a-789b-412b-aba3-e86e8a4566db', 'Cristina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1132,8 +1132,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '31ca95d0-c658-4dc9-8116-8048726048f3', 'Tales', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '7ac247cc-b99a-43b4-b54b-8fadf2432dee', 'Tales', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1145,8 +1145,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '88505968-39c9-4785-aa66-1eed08165c32', 'Edna', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'ac1fdb69-a924-4214-9205-52be933cdd77', 'Edna', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1158,8 +1158,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'dbb46454-9eff-4e9e-85e0-46b10d664ade', 'Thiago', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '03628cd7-f794-4b9b-9d3e-b0c6f8b0ea1e', 'Thiago', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1171,8 +1171,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8f2c7cd0-dc24-4fcd-8da5-7c8f18af2f26', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '163bc3f2-162a-4add-8746-5442599c1855', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1184,8 +1184,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '62cdd14f-499e-4fd7-bfc8-60c7d79eca68', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'a1d267e0-60bc-4f79-b56c-de041d22f9b6', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1197,8 +1197,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '02bf68cb-e556-4b65-a89e-7b236d235693', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '1e7d0844-9b45-4144-8f6a-47e5eded8daa', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1210,8 +1210,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eb49b757-df17-400b-ae00-8e0cd3397de1', 'Carlos Eduardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '46feee7e-f65c-4367-989d-d27a9a28c60f', 'Carlos Eduardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1223,8 +1223,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '77da84a6-4557-4582-a4ca-5d11246e5e99', 'Joelma', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '46a2f154-615b-4f58-974e-332e17d3f528', 'Joelma', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1236,8 +1236,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9bd2e2fa-4e02-4ece-aaa4-3fcf13265ebf', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '740e35a6-aa00-4aa8-a166-f3fcb1106267', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1249,8 +1249,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1ed2f9fb-b2d6-4bbb-8d52-56e641fb9048', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'd852000c-53c1-4b7a-bd16-6d81c145d5da', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1262,8 +1262,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b2dff33d-b4b7-41d5-94e5-d2a8f8516d93', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'a05697b6-6904-45a7-88c3-b6b7098d96b1', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1275,8 +1275,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a573ee8c-e8c2-4501-b484-dfef25e04a6c', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'fcf6ad83-5564-407a-a912-1d58481f6369', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1288,8 +1288,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '299d81b7-08b1-4fa6-b026-f45a65c684e0', 'Grace', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '7d4694d8-84c5-4a1f-9ab4-f8e148296d02', 'Grace', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1301,8 +1301,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9c9f8af5-87de-4405-b5cb-32d8b6d5b2ab', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '531b1665-fd27-4591-af6d-f355deffc0c8', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1314,8 +1314,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9cb51b1b-c865-4d6e-a6c9-29730d247a65', 'Lutero', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '07ddb69d-a9f8-4284-8ab6-54d2409fda68', 'Lutero', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1327,8 +1327,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8bcec8d5-0fdf-402d-a963-61de788fc967', 'Dominique', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '58ad8446-19dd-4099-bb89-5c27a099aacc', 'Dominique', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1340,8 +1340,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bb6baa23-618f-484f-ae33-349e641e8d19', 'Kaleu', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '557bc446-6c90-4815-b650-e1e3c9299eeb', 'Kaleu', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1353,8 +1353,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd256d873-e62b-48a5-b174-58f2cfefd55b', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '41984054-409f-4f5b-a416-2a457b27867a', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1366,8 +1366,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8b5b308b-d51a-49de-b525-694ddb924372', 'Marilda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '1782517b-7a4a-41d6-ac9d-ace9095fd531', 'Marilda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1379,8 +1379,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f10adea6-2436-468e-b214-937f20a4e094', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'fa88c3be-f2b6-4547-8af5-01c2104cdc53', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1392,8 +1392,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1681cb6a-b484-4030-bfb1-b33aea39ca9d', 'Enzo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '27065ca5-f568-4eac-b77a-7a8de42baa75', 'Enzo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1405,8 +1405,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9029c57c-8190-40e6-bf07-a46caa76baa2', 'Daniele', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '220cf2c5-d1f4-417b-8045-d62cbe1f1658', 'Daniele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1418,8 +1418,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '86e61bad-d320-4bfc-9941-f61b6fae964c', 'Luciene', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '9f207e7a-ec9f-45ac-a292-3cd93919221d', 'Luciene', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1431,8 +1431,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'efa67ef3-8431-4adf-817b-3485bdf5526e', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1444,8 +1444,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '86c3cf40-e6be-4004-a67b-30a8e1bc6801', 'Ana Luísa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e', 'Ana Luísa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1457,8 +1457,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '930c2e88-4c8c-46bc-8e28-da953c85e383', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '9272fd6c-c4e0-4df3-9064-266ead281479', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1470,8 +1470,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '072a6edb-b5df-4906-80d0-b9dac1e96fe2', 'Antonela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '7fe3ee6e-1682-4af1-995b-d80d6b14033d', 'Antonela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1483,8 +1483,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3b4775c4-d7d4-43c2-8153-52345ac65971', 'Luiz Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '1f80df5a-433f-4200-9325-d03c79743fbe', 'Luiz Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1496,8 +1496,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'df674479-c6c1-4105-afe0-1b5f1660954e', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '836aa21c-9e3a-4b07-80d8-5850c77d5550', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1509,8 +1509,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '529addb2-b920-40b8-ab0d-e2a56ac50201', 'Amélia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '4ac72fae-635c-40cf-af54-657b5d2fdf42', 'Amélia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1522,8 +1522,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '135eb50a-71cd-4534-8edc-4d70e441f992', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    'd8896391-af7e-4956-9c68-2eb4fc530398', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1535,8 +1535,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9471ce5d-592b-43a5-b642-eca9376ade77', 'Tamara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '364de290-003a-4eb6-b113-af145a2c2734', 'Tamara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1548,8 +1548,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd601c038-8bef-439d-8abd-8e441694e063', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '8c776d66-666f-4f16-94b1-772ec6dbd3a5', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1561,8 +1561,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '54b85487-74c4-47fc-9a54-4a7ad7440ce2', 'Ciça', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '1ba39a4d-451d-450f-8338-69cfb187defd', 'Ciça', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1574,8 +1574,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9107e676-25c7-447b-a76a-225065d0f7e3', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '2105f44b-d2b2-4cb6-9c20-ea411fae11ed', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1587,8 +1587,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f51523ee-bb76-4f72-8888-6b2188619b51', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '70af37f8-013e-4740-a3b0-71dd1bf3adb7', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1600,8 +1600,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0a426482-c3d2-410c-97bc-d99ba99739dc', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
-    '789dae9f-84df-4b2f-b4be-473752444c8f', true, false, false, false, false,
+    '56e83202-89ad-409d-a988-1257989ea096', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e30756e5-e290-4b4a-b615-3fc795b75a7e', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1613,8 +1613,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb', 'Eduardo Lopes', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'deb039b9-2c43-4b85-a74a-a3d4886969a8', 'Eduardo Lopes', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernando', now()
@@ -1626,8 +1626,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '70215bab-9e3d-4a7c-94e4-762e1a164792', 'Érica Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'da9efe8a-2833-40d3-a43d-0143dc822d90', 'Érica Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -1639,8 +1639,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8d3c3b62-5639-4c6d-9645-1568a467d2b2', 'Laura Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'baf63c47-7914-4719-962d-5827d78c9ffb', 'Laura Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1652,8 +1652,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '180da680-795d-4398-94f2-51382ef42017', 'Eduardo Filho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '2fba4517-8374-46e1-b278-154ea6e2c80e', 'Eduardo Filho', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1665,8 +1665,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '65ae8c33-5a09-4085-85fd-a55a5c03a3c6', 'Luís Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '29b270b9-3d7c-46ac-95a4-2755825d5420', 'Luís Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1678,8 +1678,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e3186275-49bc-4908-8bb0-1a703d6e04f4', 'Paulo Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'fa76f2d1-ddf1-4f9b-930b-78716a3f9eec', 'Paulo Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eduardo Lopes', now()
@@ -1691,8 +1691,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7e7eccaf-13ba-4a6e-8314-25a385bd99e1', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '7e006f19-2157-49d2-9281-fbd612b85730', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Érica Lopes', now()
@@ -1704,8 +1704,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e1e0f36e-1be0-457a-974e-c655061d1b21', 'Henrique Filho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '5376f2b1-22d0-46e0-b6e9-49afde19830b', 'Henrique Filho', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1717,8 +1717,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b376638a-df6f-42b7-bf6d-11e1567d00d4', 'Maria Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '053498e9-b39c-465e-800f-fdcd995b0e67', 'Maria Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Amélia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1730,8 +1730,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18a9e871-da19-4167-ae79-0a0f4d7ee177', 'Lucas Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '3cce93d3-8d87-4935-867c-cd4ca496d75c', 'Lucas Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eduardo Lopes', now()
@@ -1743,8 +1743,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8497d209-25dd-4c37-848a-71a5ce583a4e', 'Raíssa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '1f11629a-6d93-402d-ac55-5ee99afea65a', 'Raíssa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Érica Lopes', now()
@@ -1756,8 +1756,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fa032bf6-7835-4f28-9033-62a4bfd4e0f9', 'Lian', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'd9b833e7-3a2a-42e4-9a31-1ff994e370e1', 'Lian', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1769,8 +1769,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'dbf1815b-7a91-4bf3-8df0-2101132816d0', 'Pietro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'fdf67716-b692-4b04-a2d3-e1f9dde50c59', 'Pietro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1782,8 +1782,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2be9bae1-598f-4ef9-8bae-29c5b7f8ec75', 'Danilo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '8976bfcd-ce49-4c0c-b03f-d8f8d6d2aeb8', 'Danilo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eduardo Lopes', now()
@@ -1795,8 +1795,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '91a31c18-cc8e-4cb8-ace6-1dba6277426c', 'Melry', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '9394181d-3464-408d-a3bd-bb935dbe3b32', 'Melry', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Érica Lopes', now()
@@ -1808,8 +1808,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '90f386fd-e904-41a7-bcf9-66dc29d656cb', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'a23ae893-9aa5-444f-8987-68b2ebbcfea4', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1821,8 +1821,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '48e17972-1250-4cb9-b914-b784fbfd7d18', 'Sofia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '7b30110e-468e-4a89-b0ee-3815befe8175', 'Sofia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Xangrilá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1834,8 +1834,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '432d4817-9d00-43de-b3cb-980b6f076573', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'c5a32184-3d3e-455b-a177-c1ccf55f0511', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Pedreiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Paulo Henrique', now()
@@ -1847,8 +1847,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '550512f2-af6c-4275-b162-28eaabd2f610', 'Ana Luísa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'ae582e8f-fece-45ed-b752-3460084f0213', 'Ana Luísa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Pedreiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juliana', now()
@@ -1860,8 +1860,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '83c13cf4-fced-45c7-9049-119cb42d37de', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'a6c53dcc-9b74-406f-9c63-f9fc6bcbdd7e', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Pedreiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1873,8 +1873,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '55682a0b-aee3-41be-a884-db217e239e59', 'Josinha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '1f2e263e-b3f0-4637-95c4-3f45605586c0', 'Josinha', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Pedreiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Paula Emanuela', now()
@@ -1886,8 +1886,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'baa8946b-a7c8-4644-9ac0-60d4ee5b1fd8', 'Thiago Bombeiro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '702dfacb-7739-4b6a-bce8-84b1d0a14f0f', 'Thiago Bombeiro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Jardim Atlântico', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernando', now()
@@ -1899,8 +1899,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '92bcf7d0-2e22-43f6-a552-223cd710b0f4', 'Paula Emanuela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'e7b36a58-1821-4656-877b-41b87727603c', 'Paula Emanuela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Jardim Atlântico', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -1912,8 +1912,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '73f8b067-2e21-4311-93ef-7a2993707e6e', 'Ana Luiza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'f76e0594-c149-4e63-85bb-2505f5102b9f', 'Ana Luiza', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Atlântico', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Karina', now()
@@ -1925,8 +1925,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '299032c6-38e3-4fcb-b55c-e4707d1f8a53', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '1bcf9e15-fc9c-4529-b161-134b1f046d96', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Atlântico', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ana Clara', now()
@@ -1938,8 +1938,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ab07bca1-c5de-48db-879b-24c22123f0e8', 'Thiago Filho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'a37ca909-88b0-44c4-a92b-f713f5a7eb8d', 'Thiago Filho', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Atlântico', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1951,8 +1951,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2f962c77-17f1-4a34-ab50-4a916dd3ea67', 'Ana Paula', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'adca2ec6-fd09-486d-bd25-8a5b4bcaf02d', 'Ana Paula', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Céu Azul', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Érica Lopes', now()
@@ -1964,8 +1964,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a01be850-e0a9-43bc-a1fe-71a8fc25584a', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '25c6bce5-0268-4b7b-8a5a-56a672f2afd4', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Céu Azul', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Didier', now()
@@ -1977,8 +1977,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2e5727d8-17e5-48e4-aa72-2730570ca9c7', 'Ana Laura', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'ed6b30b7-982b-48d5-927a-85456a41f266', 'Ana Laura', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Céu Azul', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -1990,8 +1990,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '738e96d7-e9b4-4ef0-ad0e-3fb8c58cb409', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '7bfbc39c-a734-4e15-9d6a-edecf30c4cfa', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Braúnas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eduardo Lopes', now()
@@ -2003,8 +2003,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e92ae35a-3b83-4244-be87-6c7b66a093e5', 'Miriã', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '08c3f7e2-c9df-40fa-babb-ba557cc5010c', 'Miriã', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Casado(a)', 'Braúnas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Raíssa', now()
@@ -2016,8 +2016,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a0b35b86-18dc-4430-b580-c4f3f70618cf', 'Nikole', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    'c705022b-217a-4129-84c9-b33d0106b857', 'Nikole', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Braúnas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ana Luiza', now()
@@ -2029,8 +2029,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0b2e794b-3cba-4f4c-9075-ab23b13869df', 'Brenda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '5396eee2-7aa4-4f85-ba46-5941f198a06d', true, false, false, false, false,
+    '88ac04a8-75b0-4a5a-bf6e-28b4ab0823cc', 'Brenda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '167bcb15-3046-4f0a-b314-5190dba9b7fb', true, false, false, false, false,
     'Solteiro(a)', 'Santa Cruz', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa', now()
@@ -2042,8 +2042,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '20537b91-617f-4d87-85b9-3ce0577c9b5c', 'Ademir', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '51d8feb7-3c2f-48ec-b34d-4bcf12c0b903', 'Ademir', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -2055,8 +2055,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '291c477b-a8b1-4b96-b0fe-464ffb3a657c', 'Janaína', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'bd7c7442-5fd8-4c00-bcd3-aecb129ab6c5', 'Janaína', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -2068,8 +2068,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b00066d5-47c3-4988-95a3-763ee97d1a2d', 'Emanuela', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '195ade05-f31c-49de-86e7-d4e72ba9b22b', 'Emanuela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2081,8 +2081,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f5007e1f-aeb9-4d95-a9ee-4cc8932b947c', 'João Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '7eb96c86-8d3e-45cc-a7e0-0f7e2a1d4587', 'João Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2094,8 +2094,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f384022d-8284-4319-af6e-9fbe52e69d6f', 'Julião', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '125e543a-302f-433b-be68-a09e63c507a9', 'Julião', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -2107,8 +2107,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '859de62b-bf20-4d15-be6d-04ff434704ca', 'Darlene', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'e722fd77-ec0b-4545-bde5-444e71101dfd', 'Darlene', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -2120,8 +2120,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7973d621-acd9-4a74-a822-1786b5228c88', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '8517e549-b579-4402-86f5-0b0855d62962', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2133,8 +2133,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7caabacf-7c91-46ec-a4a7-941888c13ff6', 'João Francisco', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '5942c5aa-c6dd-4bd2-b322-2d940cc7d8f8', 'João Francisco', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Silas', now()
@@ -2146,8 +2146,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '17f06228-eca9-4d91-8d81-b74b52d5e6a3', 'Ana Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '64951ab2-fe06-4f13-a5be-1b9b2ef76bc8', 'Ana Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Vitória', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2159,8 +2159,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8f015bf8-de81-46bc-a02e-0e3c73981164', 'Elias', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '2d0dc693-7089-4ace-9484-a67442012d7d', 'Elias', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ademir', now()
@@ -2172,8 +2172,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3fe1a147-3ca9-4bd0-8b52-7a37bfb4bc91', 'Fabiana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'd7328036-ca54-4e76-94de-ab6165728b8c', 'Fabiana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ademir', now()
@@ -2185,8 +2185,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '419726d2-28e9-45b8-ada5-af16261fc6b8', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '83369a64-fb56-4ff0-aeb6-b32e51b698f4', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2198,8 +2198,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ba92a123-3194-4f2e-a414-50d373ddc563', 'Maria Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '73cacc71-b7a9-45ad-b96e-10af3f76b74a', 'Maria Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carla', now()
@@ -2211,8 +2211,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4f545f60-8a6c-46b3-98e7-5e9a9241b39c', 'Luiz Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '2139cc2a-b8fb-432b-b0d4-da50222acc48', 'Luiz Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ademir', now()
@@ -2224,8 +2224,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a0eef8b7-9ebe-4f37-bfd7-da7af7b5af42', 'Jéssica', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '642fc83d-6711-47e5-a177-6601936cbba1', 'Jéssica', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -2237,8 +2237,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd8343644-12d9-401d-bbfb-61fcea213ed4', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'cfdfe0d1-e7e7-4577-96bb-d04716b3a83e', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2250,8 +2250,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6afc1c07-abcf-4d89-8d14-3cad677bc983', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '4bf8d08a-b3a2-4d83-a090-ab4ac1ed4a37', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2263,8 +2263,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3d78a352-6bb1-450a-8712-00495b786544', 'Thainara', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'e73511dd-3cec-44b3-88c0-410891369f89', 'Thainara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Janaína', now()
@@ -2276,8 +2276,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2e1b4dcf-50cd-47bd-b89a-4f39199fdb61', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '879960b8-e1f7-469d-b510-2f639c3d621c', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2289,8 +2289,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '21edf05f-e86a-4d56-a79b-f6e05fc1e228', 'Laila', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'ed10e654-ace7-49ad-a1a5-493443dfa681', 'Laila', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jéssica', now()
@@ -2302,8 +2302,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5634795a-7a89-43bc-89a3-00f1b83c712c', 'Evenly', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'd1dd4653-aaff-4594-a731-182d7ff6c649', 'Evenly', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2315,8 +2315,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eb67e65f-5448-486c-a475-2f0bebe20f02', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '13082a23-3b93-4882-856d-ab30546460c5', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2328,8 +2328,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ad388656-640d-49cc-8373-7af2d241f6c8', 'Antony', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'b1712dc7-e900-4e7f-bb66-85bad1005217', 'Antony', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2341,8 +2341,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '00534fa3-c6ef-4c3f-a51f-208c3bf96d14', 'Carla', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '0e76ecad-d38d-4548-a10b-886846d4dcc9', 'Carla', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Janaína', now()
@@ -2354,8 +2354,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '265871c7-cba4-4919-b2f3-9304c02802bf', 'Laiana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '1fb0e72c-a649-48c4-9af3-ba066d0dd5cc', 'Laiana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jéssica', now()
@@ -2367,8 +2367,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd6ba18a9-2133-4d46-b498-f3d0071398c5', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'b6e85457-3db7-420d-b634-f49edb36c41e', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Janaína', now()
@@ -2380,8 +2380,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'adf25e27-b33b-4b3e-8883-925b2d39f04b', 'Riquelmer', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '9234cd5a-2938-4603-b541-5e70dde94705', 'Riquelmer', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luiz Filipe', now()
@@ -2393,8 +2393,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4c741e03-5094-4b07-8196-7081cc7feba5', 'Caíque', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '7f4b8423-0e21-4501-8188-e14600bd3181', 'Caíque', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luiz Filipe', now()
@@ -2406,8 +2406,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b5134207-2639-4bcf-b6cc-5facbe589416', 'Silas', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '3755f773-f92d-4067-be14-3c2adc728396', 'Silas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luiz Filipe', now()
@@ -2419,8 +2419,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '45b27fd4-053d-48a3-99e6-480edebca775', 'Juraci', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '0685cdb6-a989-4fb5-8251-73f498ff0a54', 'Juraci', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carla', now()
@@ -2432,8 +2432,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '54871c87-626a-4dad-8813-e16f90301e1f', 'Luizão', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    'fdca5f0c-a67a-4b94-b760-548843bc9730', 'Luizão', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Julião', now()
@@ -2445,8 +2445,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b3cc8109-5fd1-48cb-b536-cdbd634ea728', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '272c6631-a509-4fd6-ad4b-c8cdeb57120e', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Janaína', now()
@@ -2458,8 +2458,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '193d59e6-b5e3-4f04-9008-76cbcda9645f', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '529d7a2d-cb61-4dd8-9b1c-fa30265d39c8', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2471,8 +2471,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f85f166b-18e3-4a53-97b5-dd305bf60484', 'Juscelino', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e36115b1-cdf7-42d4-b957-bd9f616cbe46', true, false, false, false, false,
+    '57bc60fc-0514-46b5-a06b-1fbbf12a9a69', 'Juscelino', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3347a7eb-d4de-494e-8be4-7b34a99aa203', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ademir', now()
@@ -2484,8 +2484,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a648effe-54bf-4d50-9a1e-4772e71bbe3e', 'Helder', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '1a1cb155-63dc-48aa-be97-629e7f164085', 'Helder', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', 'Santa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -2497,8 +2497,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '827269bb-113e-48b7-ae0a-df513f706c0c', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'dc2fe539-c283-4a93-9c35-88809f4dbddc', 'Vivian', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', 'Santa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide / Gina', now()
@@ -2510,8 +2510,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c4e1d3af-f84e-4538-95ad-4caec8679e9d', 'Jonata', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'eed70877-f3df-4777-920a-03e929f504f9', 'Jonata', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', 'Santa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel', now()
@@ -2523,8 +2523,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7079bc19-c16e-40e1-94fc-adfac82af3e5', 'Francérgio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'f43aae06-e095-4d2e-bb57-442e4f068c93', 'Francérgio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -2536,8 +2536,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2bf5aa3a-d062-405c-bb4f-d647ab8c6f07', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '4be2bee7-f6ab-4ff3-aa01-d8b4139e6b1e', 'Juliana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa do André', now()
@@ -2549,8 +2549,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f8623d2a-9a5e-407d-8ae0-7d2123193852', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '9394686a-d894-4de0-b9c5-d38dc0214d01', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Stejane do Magela', now()
@@ -2562,8 +2562,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5ebad0a7-908d-48b6-a9c1-d4ba7a78ab3e', 'Kennedy', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '31e6b766-d663-4b16-b4a7-89a6398035ba', 'Kennedy', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -2575,8 +2575,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e89dbd5d-af0f-47f2-823c-5c0f2c6b304d', 'Bárbara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'b5e2d682-430c-49f1-87b7-4260c4275e09', 'Bárbara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vivian', now()
@@ -2588,8 +2588,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c478a18b-66d5-4d01-8d19-772bec78c79c', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'a95674e5-9d61-4d33-82bb-7fc71199dce9', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vivian', now()
@@ -2601,8 +2601,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ba92a9ad-c6ba-47e0-bab5-a26e10a426ce', 'Pricila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '3c207200-5452-4ff5-a9af-5fdd935c3302', 'Pricila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lilian do Elvis', now()
@@ -2614,8 +2614,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '30e1a2ae-6be3-4203-9068-372425d39a05', 'Luciano', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '52db34c2-0a5a-4959-b6a0-3d02bee1a6cd', 'Luciano', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -2627,8 +2627,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1f346268-7371-47f7-bb24-51808b5823aa', 'Lilian', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '7b31ef9f-ffe4-4394-af3f-da7738c4ebce', 'Lilian', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vivian', now()
@@ -2640,8 +2640,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '323415e6-7758-4811-a6ee-c40800b01a23', 'Tiago', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'bf313a7a-6252-4122-ab1e-81aabcee0ce4', 'Tiago', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel da Wanderlaine', now()
@@ -2653,8 +2653,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4cd8736c-4f46-404e-a15b-89d289e37581', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '50df36b1-4fb0-4911-9e6d-fabe4b2049b0', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel da Wanderlaine', now()
@@ -2666,8 +2666,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6143721e-4a3c-41d4-980c-40297a14c17d', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'cc3c8b72-8e6c-4354-986d-679b4b1b313b', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel da Wanderlaine', now()
@@ -2679,8 +2679,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '97e8a600-d08b-421b-8d1b-9a28daf5a7be', 'Taiane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '047e97f9-2410-49aa-b71f-a03d60b2018c', 'Taiane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Meury', now()
@@ -2692,8 +2692,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0d390dc3-aa8a-4863-a8c7-dfc2ebdca5cb', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '2ec480e4-4dcd-4ecf-9a9c-b4286b1a7bc0', 'Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Danilo', now()
@@ -2705,8 +2705,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5e8f6611-b47a-4e14-b5a0-05108a032a1a', 'Rhuan', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'c6128e49-11a6-45f4-b389-2abfa88f7138', 'Rhuan', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Kennedy', now()
@@ -2718,8 +2718,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e058c838-45e1-4dec-b7b9-22a0279de6b5', 'Gabriele', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    'cb668bf9-3380-45b9-828c-d945727b81c7', 'Gabriele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Bárbara', now()
@@ -2731,8 +2731,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ebdf38c5-4138-4346-91a8-bc69e2b2b286', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '5e5aca21-5ef2-4790-af92-44702aebbe9e', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Bárbara', now()
@@ -2744,8 +2744,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6d23f3ce-223c-4e16-9df5-020ad353c64f', 'Polyana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '9bfa46bf-a0f2-4a95-958e-57993c71b1b2', 'Polyana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marcela do Marcelo', now()
@@ -2757,8 +2757,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c643e035-bf9e-4246-a84e-30074d309b89', 'Maria Clara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '28375ace-3ea1-46ae-851c-08cd7999bbce', 'Maria Clara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Taiane', now()
@@ -2770,8 +2770,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2ddccfc6-88d2-46a9-a8e4-ed24bcdd6c4f', 'Ana Paula', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '61843e28-4eda-4f68-a8d7-5d7fec4fe132', 'Ana Paula', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara do Fernando', now()
@@ -2783,8 +2783,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cb57816e-170f-4381-9c6c-1b8093759ec1', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '6655cf95-914d-4cf9-87d0-f5f2f42d7f74', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Pricila', now()
@@ -2796,8 +2796,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '43836ae4-9166-4290-aada-a3a3e92db1b0', 'David', NULL, NULL, NULL, NULL, NULL, 'M',
-    '46d15d87-d30e-4ac0-9991-3749a4f72c67', true, false, false, false, false,
+    '87713316-d310-4d50-9e70-030562fd3a3c', 'David', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b0bbefe0-256e-4cd3-98fe-254236c2b742', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jonata', now()
@@ -2809,8 +2809,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7af0ac74-e184-4e33-bb80-bd12b75bc1cb', 'Juarez', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '6b86a8db-1d0f-4912-ae80-29200ade426b', 'Juarez', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', 'Santa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2822,8 +2822,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '173d4037-e958-4821-95a9-79e7299e94b9', 'Divina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '40a0515b-0a57-49e7-af3e-8ecee4111ccb', 'Divina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', 'Santa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2835,8 +2835,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'be0ca2d4-8557-4d83-a075-0c942654646e', 'Argeu', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '1a356435-f1e5-4182-92c9-9fd264cb6eff', 'Argeu', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juarez', now()
@@ -2848,8 +2848,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6052821f-8200-493d-827d-52ffe6b6aa34', 'Lora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '039fbf33-f317-48e5-8e0d-936db31d9160', 'Lora', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Divina', now()
@@ -2861,8 +2861,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '53105f33-5e45-45e6-960a-4992d916d7f7', 'Sérgio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '0867a620-f94b-4f40-bd61-953032e28ec0', 'Sérgio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juarez', now()
@@ -2874,8 +2874,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1d636a29-8d27-493a-9973-e35e74476c54', 'Karina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '6d2cc23c-fba4-47e9-83ac-a621040cecc5', 'Karina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Divina', now()
@@ -2887,8 +2887,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8e012c82-8158-4b0b-a0dd-4d14de6d4a3a', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    'ab9589c3-52f2-43c8-9ad1-128ed4a9ed1a', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2900,8 +2900,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9eb079bb-b5b6-4e51-8514-b056f3f5b4dd', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '69ba3739-912c-47a0-97b7-6e8832b54c64', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -2913,8 +2913,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6865e9b5-da03-4e23-b1d9-66ffd576b76e', 'Lúcia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    'b97370f4-d9ed-427d-845f-617403ba0b14', 'Lúcia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Divina', now()
@@ -2926,8 +2926,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '93a14e1a-7ce3-45b4-8e45-914bcd8c217a', 'Mundica', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '80a47259-6c6b-462a-8165-c6a5b0f68c19', 'Mundica', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lora', now()
@@ -2939,8 +2939,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a79f053e-25b7-46fd-bdea-1901ba8328e7', 'Janir', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '33765832-7f7c-4222-9e37-a9d9934cc6af', 'Janir', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lúcia', now()
@@ -2952,8 +2952,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cf5751da-3cec-4a07-a3a0-9bd18e08a16b', 'Cristiano', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '1b2fc3d7-126f-45ba-83b1-afa799634795', 'Cristiano', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Argeu', now()
@@ -2965,8 +2965,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '721c5d9e-004f-4848-986f-1264faacdfae', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    '2e9695b2-f370-49f3-90be-6c37215f10b6', 'Vanessa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lora', now()
@@ -2978,8 +2978,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c8d77dab-1aaf-4893-865b-708b3a426ed9', 'Caio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2', true, false, false, false, false,
+    'bc417f2e-81fa-473c-94d1-76d564d4305f', 'Caio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jonatas', now()
@@ -2991,8 +2991,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5b92e638-151a-4e3d-8e80-c8712d01ae8d', 'Marinho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'f57ad015-e7c3-438a-9f12-db36c09a4335', 'Marinho', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3004,8 +3004,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9dedb40f-0760-4b7d-8819-aac8f5c47fde', 'Quênia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '612d29d8-f49d-4e39-a109-673bf53aa47f', 'Quênia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3017,8 +3017,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9a9d5fe9-fe73-4b69-b604-22f09e0b59b5', 'Karina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '2d377053-64a4-4942-a5ba-ee101a660cab', 'Karina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa', now()
@@ -3030,8 +3030,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '403f70f4-f04b-47b1-b4e8-8b6719188947', 'Jonas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '4753c931-e112-4ed5-95b2-b13bed2c133f', 'Jonas', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jonata', now()
@@ -3043,8 +3043,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1a6883bd-6cd3-4b77-b3d0-2d316b80a676', 'Wellington', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'bb54e705-da5d-49f6-9810-4a1b6e45fd4a', 'Wellington', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3056,8 +3056,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bc3cb641-22c2-4740-97c5-de8bfb35aebc', 'Raquel', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'f7eea24c-008a-41dd-9932-6503c9b9f7b3', 'Raquel', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3069,8 +3069,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f160cf79-8be3-4a28-ac0b-8fd417450e41', 'W. Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'd5d8862e-afc0-4627-9e09-c506965e4587', 'W. Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3082,8 +3082,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '49069bca-a1ca-4346-b1eb-aa00419a5c81', 'Carlinho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'b51a6cfe-82cc-46e0-b163-256680d98407', 'Carlinho', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -3095,8 +3095,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cd5dabff-935b-499d-991c-d5b06494981f', 'Graziela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '14897482-dd97-4401-82d1-ba8e0b9ed06d', 'Graziela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rosimeire', now()
@@ -3108,8 +3108,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5b83aa0c-916f-4e7e-b10a-6982209769d9', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'a3933113-4ab7-4ef5-8666-f8857be95db2', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3121,8 +3121,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'aa3d2a3c-7f0c-467b-bf85-2952cca85639', 'Alexandre', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'd92eb4ed-858b-4c09-ae09-3306f30f63fd', 'Alexandre', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3134,8 +3134,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e86f8f13-6779-4961-907a-1c8c6fa870b1', 'Érica', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '0dd7e454-0797-491c-8fe3-3475b659065c', 'Érica', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3147,8 +3147,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e363ccc4-8a99-4919-ae43-879ce4ccd49e', 'Benjamim', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '33c3cb37-6fa2-4063-98a7-13ce081e1191', 'Benjamim', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3160,8 +3160,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7e630638-b948-429e-b5e0-1f0ff0dcaa30', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'cda61385-c64a-463a-9ce6-31eef0d3ab34', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3173,8 +3173,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3550ae89-e7cc-426d-bbb5-3bc74cf2775e', 'Eliete', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '6de44343-a9d4-4c3a-b5a7-398ed6e5fcaf', 'Eliete', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3186,8 +3186,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ff27768d-39cd-4e79-b9e2-ae187ab7664c', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '7a7e6309-2a08-473c-a612-31593f2433ec', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eliete', now()
@@ -3199,8 +3199,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0c4559ac-eb29-4aec-be00-533cfdc1c57b', 'Marcela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'eadeb240-9e4f-4954-9fa7-db464ab72b88', 'Marcela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Josinha', now()
@@ -3212,8 +3212,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '83133cf2-3975-4311-8806-3cba0bffeaab', 'Zezinho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'a31da5a4-deec-4d5c-b792-d528bcf4f10c', 'Zezinho', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3225,8 +3225,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8e8fc92d-956e-4c2b-a9fd-1eafcc4f99a3', 'Ana Laura', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'b2264eb8-2acc-45fc-8683-6f5eb5e6543d', 'Ana Laura', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3238,8 +3238,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c1baf135-aeef-45ed-9373-bd9cad49d2e4', 'Cida Santos', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '8957807a-e715-4d48-a8a6-3b33305425d3', 'Cida Santos', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3251,8 +3251,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7db85295-7a6a-4fef-ac5d-530737b9de8b', 'Cida Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '5c140d14-54e9-4f14-b3ba-676d0d9a4fb3', 'Cida Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3264,8 +3264,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2a3eb895-768b-4ff2-bb77-4218c6431631', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '14259a65-cac5-4ef0-8e66-f1fac5cc8770', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Didier', now()
@@ -3277,8 +3277,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '11d3beb5-92a8-49aa-b18c-3008af05e9a0', 'Cleuza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '20423899-a1be-41fe-a81e-3617d1f534ba', 'Cleuza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida Lopes', now()
@@ -3290,8 +3290,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd65df36f-15e2-4c45-bca8-bef61dd4b20f', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '0734a02b-fdce-4db2-9e29-7fcb1107cfe5', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eliete', now()
@@ -3303,8 +3303,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cfaea95a-9b18-4ece-9ec8-b379275952c1', 'Roger', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'de6b3e84-f486-45b2-ae7b-f53c7490e504', 'Roger', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marcone', now()
@@ -3316,8 +3316,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e1439e40-56c7-4d8f-9e0e-2de14aa23470', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '40fffba6-b4fd-4fe7-b10b-95ccccf3776b', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carlinho', now()
@@ -3329,8 +3329,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4b26e83c-029a-44d9-ba6d-ddfd24a22371', 'Mary', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'bed3384b-b1cc-4c02-a002-6214c87b050b', 'Mary', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Graziela', now()
@@ -3342,8 +3342,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6965a4f8-1a2f-4169-bba2-68db6d4b3cd4', 'Filho 1', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    'bff87838-abd9-46f4-8aef-5ee7530edfc4', 'Filho 1', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3355,8 +3355,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '24e24b6a-73ca-4b95-9e4c-2b93d3cbb95b', 'Filho 2', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '8f8a7f9b-19d0-4dd5-a941-dfc2930171d6', 'Filho 2', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3368,8 +3368,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4c93de6b-b737-4f41-8423-3a27b7afa9dd', 'Marly', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '5c7a5a29-8d7d-45e2-bb81-fb235b4fbeb3', 'Marly', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida Lopes', now()
@@ -3381,8 +3381,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0ababef1-5f5d-436e-8abd-4c06321a96fb', 'Marcone', NULL, NULL, NULL, NULL, NULL, 'M',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '625835a3-2962-45c1-9971-7d369cf17589', 'Marcone', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3394,8 +3394,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e329ffd2-65d6-4202-9969-432a4fe276af', 'Rosemeire', NULL, NULL, NULL, NULL, NULL, 'F',
-    '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8', true, false, false, false, false,
+    '80b7b173-3745-430a-bd84-80bec9ada5f8', 'Rosemeire', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ccdbd19e-c15b-47af-9415-57a1481c56aa', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3407,8 +3407,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '983f9a5f-0ade-42ef-afe0-263ce1440ad2', 'Vera', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'e42cecff-79c7-4c65-a4ba-44a08c50571a', 'Vera', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vivian', now()
@@ -3420,8 +3420,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '959b2fae-5169-4dea-a573-5f4bb069fbc3', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '089eb37a-3539-4603-9f28-1fdfc68d8787', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -3433,8 +3433,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '152cefab-a0b0-49f0-8d48-e6dfa630f6fb', 'Didier', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '256ca232-7272-42e4-b27c-845df33afa7f', 'Didier', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', 'Maria Helena', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jonatas', now()
@@ -3446,8 +3446,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3a24ed42-84e7-4591-90a4-8a1d5f3e94a5', 'Winter', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'e1bb5bee-f50b-4fd2-b81b-9358977cfd20', 'Winter', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -3459,8 +3459,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2642fe06-67a6-4311-8fdf-e99729e30ab0', 'Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '6f3a51d6-af0d-456a-8227-4b82351bc7ed', 'Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -3472,8 +3472,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8f079d27-b2b2-4e41-abee-5d291bddcc86', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'a5fa06f0-a3b8-488c-a24a-21266eaf2b40', 'Breno', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3485,8 +3485,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd9eec09c-4d55-4394-9b46-cfeb465535fa', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '0a9096c0-86cb-4372-bd1b-ea8f5dee3d57', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luís', now()
@@ -3498,8 +3498,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0f0e3aa4-63d3-448c-a2d3-5f58458804ff', 'Maria José', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '69f162e6-04dd-4c01-ae32-480a7303db7c', 'Maria José', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vera', now()
@@ -3511,8 +3511,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd387f54a-2404-4d75-8abf-ec8e15e2b192', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '71f43006-bb6e-440d-bb1a-2209585f1431', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3524,8 +3524,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '97ccb0b0-481c-49ee-9c2b-2f7cc8dff8d7', 'Selma', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'd9d1717b-bab3-47ee-89fc-c35482d78999', 'Selma', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3537,8 +3537,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a87f0c0e-3451-4e7c-8944-6fa2b3a3ac47', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'a53e98f4-7a95-49b1-b3cd-093d1ac25158', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3550,8 +3550,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4a8b4e13-083e-4467-8b0b-7dccd960b615', 'Antônia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '14f38a23-d661-4599-bae7-47744094db90', 'Antônia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Maria José', now()
@@ -3563,8 +3563,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1e17f5df-05cb-442a-96b2-cc8421907e40', 'Marcone Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'fdb99e68-ab63-4585-a38b-5945165a8bc6', 'Marcone Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Winter', now()
@@ -3576,8 +3576,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '19e646e3-8ee2-4759-bce9-271eb6210b0f', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '6dc72ec1-1e88-44ee-96b1-569b6a06e931', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Winter', now()
@@ -3589,8 +3589,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cc099159-251d-4faf-bcaf-98498a7f6e53', 'Karine', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'a7583aa9-6991-4796-a3f9-38b34c58ce6d', 'Karine', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernanda', now()
@@ -3602,8 +3602,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bd947417-1ea2-418d-a055-65817a86a42a', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'e3828cef-f195-4cfe-88a4-0f2d32c9582e', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Natália', now()
@@ -3615,8 +3615,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7da20361-8881-4494-b296-eeb7dc4b43fb', 'Isabela', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '99be6504-c702-4136-9ba6-827b93a4a67f', 'Isabela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3628,8 +3628,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'aab2ea78-c623-49ba-a2eb-18feec255606', 'Cecília', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '3d420810-dc4d-42b5-9e03-eecfbf114225', 'Cecília', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3641,8 +3641,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5bf8572e-cab5-43f6-9f15-9df1cee486e0', 'Matheus', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '68614af5-bb97-4eb4-a806-83b6b4c45379', 'Matheus', NULL, NULL, NULL, NULL, NULL, 'M',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luís', now()
@@ -3654,8 +3654,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b039b08d-0e01-4bdc-b987-3ab6f901e3a1', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    '775e0a4b-70a0-494f-b29b-3aad35c558c5', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vera', now()
@@ -3667,8 +3667,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '80588dd5-54c3-4f20-862d-a46e811b9eee', 'Hadassa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452', true, false, false, false, false,
+    'c3af21fa-bbb9-4f62-b2e7-ae151a7c12dc', 'Hadassa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'cd47bc1a-e589-4890-b53d-e0f3f732d155', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3680,8 +3680,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '526cc3b4-cb7a-4b0a-b89d-6c1064ddd257', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '2d34ce73-838d-4d99-90fa-e1893a87cdb1', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', 'Leblon', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -3693,8 +3693,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a9073378-aa09-4134-945a-aec6e223b4f8', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'a2ec4427-e18b-4cdf-ac52-13b2e029ed11', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', 'Leblon', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3706,8 +3706,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5aeda46e-fc73-49f3-9df8-a981e1f36d5f', 'Sidney', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'd2089a49-259e-4892-9a84-fbcb7e915f9e', 'Sidney', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cleber', now()
@@ -3719,8 +3719,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f11fa2bd-91cf-4be9-8abf-c5982da1bd68', 'Suzan', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '474c1aae-45b4-4128-a1f7-8c0b9bf2a3ce', 'Suzan', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3732,8 +3732,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c26078c2-2bdd-4dc1-b560-4628bb57aea4', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '027d3967-256f-4a56-bc84-67b3941215ca', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Edmilson', now()
@@ -3745,8 +3745,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '83a538e0-dbc7-4ccd-ae80-0c68496cd7de', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'dad33f58-b3c0-472f-bee9-256bd3e0b8c8', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3758,8 +3758,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4332ba7f-05a0-4a12-b963-9044e6a0fbf7', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'd9b07b7c-fa36-4595-b92d-bf7a2c1fdbe5', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3771,8 +3771,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '98e013bb-c845-4a01-9f29-e30418085f80', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'bdec47df-9b01-4517-837d-bb645f9381df', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cleber', now()
@@ -3784,8 +3784,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '09b74721-af05-489b-9fa8-51aeca18c043', 'Hélia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '6d08ebb9-54c6-46cb-bed2-90e56d34ed6c', 'Hélia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3797,8 +3797,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1d1cdf88-22c8-4687-883f-b1dd4b8fd4b0', 'Renato', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'de0db994-0506-4e43-b721-141f1d8bdb48', 'Renato', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marinho', now()
@@ -3810,8 +3810,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cb63660a-b0f6-421b-9b5b-06fdaf28de9c', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '360c341a-3bf4-4314-b55b-f74d3b59e1f3', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Quênia', now()
@@ -3823,8 +3823,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4bf188b3-00b1-4e9b-adc7-25a4b71f2f34', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '7042236a-9f19-429c-85cc-04c5dad769aa', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3836,8 +3836,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '814458ef-8078-412b-97c7-343887eb4063', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'e1f7ca2c-69af-4210-8c96-00d9598a3a38', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3849,8 +3849,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '150ea6d5-90a4-4715-b67e-05ce2b5d96a7', 'Ediléia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '81fae17d-bcd1-4b84-8055-e7b4244b35fe', 'Ediléia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vera', now()
@@ -3862,8 +3862,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fa45817b-3c0a-4b86-95ec-321028d8a7ce', 'Daiane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'd4e6646b-e624-4737-8404-250150e042a5', 'Daiane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Suzan', now()
@@ -3875,8 +3875,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '58a5cdee-8bd2-409f-ab45-b567841e54f8', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'de5694c4-4a09-44ef-9ac0-e220770589ca', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3888,8 +3888,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '789c375b-e6a5-411c-9f37-6b6b187f2e29', 'Esther', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '6f8f6c75-5033-4a55-888e-0c871d6cf1b7', 'Esther', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3901,8 +3901,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b97783df-67db-4a60-ad67-dcb6b4ddf9fa', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'b16e6ebe-42d3-4e27-9ff1-254bba818ee0', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luís', now()
@@ -3914,8 +3914,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '11d54fe2-8e08-4557-b6aa-9d8fe99ce3e9', 'Sandra', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'edc19318-a69b-4db3-a2e2-7c9b2932d654', 'Sandra', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Vera', now()
@@ -3927,8 +3927,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1ca82797-5aac-4631-8573-fda8becdc21c', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '5a761c43-04bf-4f31-b434-3524c3e40646', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3940,8 +3940,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8ccec2c9-6f00-494e-b684-4f5f4a2500a5', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '349649ef-5829-4587-bec8-a86d509f8eb5', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Felipe', now()
@@ -3953,8 +3953,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd5682306-a727-454c-bd4a-5e365c3eceb6', 'Moisés', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '27a13096-6901-4c8a-8713-a932561f2f9c', 'Moisés', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3966,8 +3966,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c03fdb23-23d3-4aac-850e-053ec42d6279', 'Ramani', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '4670f7e4-93ef-46e2-8409-72370677d54f', 'Ramani', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Débora', now()
@@ -3979,8 +3979,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd2486560-7e90-4ec9-947b-aa53900f970a', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '5655e0b9-1480-4450-a22e-a8f643342549', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -3992,8 +3992,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ed4c0016-fa08-4317-ac7b-d4851c1fb11a', 'Débora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    '88bb1d75-c78d-4e78-9350-2e83c1da8c53', 'Débora', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -4005,8 +4005,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fe0bd1dc-263d-4d5e-94bb-fe6084f53c99', 'Juliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'ed077042-73aa-4f27-949d-2918308a0c1a', 'Juliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4018,8 +4018,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c3a4e350-77f5-4c87-b1ed-d3300697cefb', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '09782827-90f8-404c-9018-2308258a795c', true, false, false, false, false,
+    'b6aec84c-dacf-4ce5-a460-a21a10b033f1', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4031,8 +4031,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '01cffd07-e218-42d6-89f9-c12af443e8fe', 'Dimas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '1761642d-1189-4fe0-b79c-eafc71831e79', 'Dimas', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -4044,8 +4044,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'dacf9dd1-d154-47a3-af1b-9f5663eb172e', 'Nívia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '0d371dcc-40d7-4e2f-9de5-8922139c8b92', 'Nívia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -4057,8 +4057,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'aaea23b4-a61f-4591-a396-9209c20f9bf4', 'Artur', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'b489044b-3370-4f91-a4f9-265d7eafa149', 'Artur', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Wellington', now()
@@ -4070,8 +4070,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ea6ee148-3d17-4e6f-a678-5ab5a616f020', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '0df8e0aa-c692-4ab3-b2a9-7411b514db6f', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4083,8 +4083,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '28bab668-c8b2-4246-b2ca-d4a3329e88b2', 'Douglas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'dd6a067d-0080-4f7e-bddc-cff252ae6682', 'Douglas', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -4096,8 +4096,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ff747f86-e7fa-414a-996b-2962be8a6743', 'Cristina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'c0b8d474-507e-4b27-bac5-ccacaa05fa73', 'Cristina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -4109,8 +4109,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9138a49b-cb8c-4b52-86c1-e1abb8c5e08f', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'fe7c93c0-4bb0-4616-a91a-e1f59e567478', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4122,8 +4122,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7303622e-0996-437a-bcd2-bd90701cd504', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '5e65ad20-51be-47a7-b97a-7ceda57183cf', 'Felipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', 'Sevilha B', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4135,8 +4135,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '61bb229d-5043-4586-a1cb-b5e7809b9a42', 'Cláudio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '744ca85f-dba9-4219-acb5-fcfaf1f5978c', 'Cláudio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Douglas', now()
@@ -4148,8 +4148,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b9c1eb03-54db-4bf2-88a6-226be1640d57', 'Cinara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '70c49972-7aad-4029-9b20-74076b37f028', 'Cinara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4161,8 +4161,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5f9cac0f-a150-4031-8916-303254cfc6d4', 'Saulo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '1a473189-1e8f-47d0-bd72-efa4dfb348ae', 'Saulo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4174,8 +4174,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '22f124a9-befb-447e-8e8c-e16d14c14f40', 'Duardin', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'a51c8e32-cd17-466d-999f-117f5a13981c', 'Duardin', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Douglas', now()
@@ -4187,8 +4187,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '43f76c8d-5a51-4323-90b4-20542b056dd7', 'Angélica', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '0481c99b-14b4-4920-95f7-311da08dbbe7', 'Angélica', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4200,8 +4200,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '673d0b5d-9bbc-4267-bb1b-024bdd480e75', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'cb3f38b6-cafd-4da8-9a56-f573222314e7', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Kézia', now()
@@ -4213,8 +4213,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0bb3c97c-d1bd-4e1e-9b02-ead785f42bd1', 'Lara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '2efdd372-519a-4e43-89e8-c8b9dd437676', 'Lara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -4226,8 +4226,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '770b9d65-c331-466a-854f-4134401e8154', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '13c6339c-9465-4a0f-8ca0-0f4f0831b509', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dimas', now()
@@ -4239,8 +4239,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cf1d34ee-2080-4088-b5d8-d7731199901a', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '19b30595-09ac-4f93-894a-1ceedef35175', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nívia', now()
@@ -4252,8 +4252,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cc10d9de-3840-4c7c-b09b-d582d71fbdf4', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '94b81417-d088-4b6a-aa12-bf0835c4a2bd', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4265,8 +4265,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '05283e93-f2cf-4c81-93b3-c64b6a304a33', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '34ecb3c7-74a7-4088-bbcc-144214f72813', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4278,8 +4278,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3cec0763-1953-48e0-8299-9d867010060b', 'Graça', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '7c665554-8203-4489-b04d-658f17cb5774', 'Graça', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nívia', now()
@@ -4291,8 +4291,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '42b30ef3-1e05-4617-b53c-5198b7962ff2', 'Jane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'f2cf8c29-115a-46c7-a7fc-b0d6fb33ce12', 'Jane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nívia', now()
@@ -4304,8 +4304,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7a3857df-05a4-45ab-920e-70662c8d88ca', 'Kézia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '2428174b-ec35-466c-be24-f6d8a1d71c47', 'Kézia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4317,8 +4317,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '300309cf-bc6b-4b04-8680-25c794dcf29b', 'José', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'da8bea45-51f1-48d1-99b2-942db494f2bb', 'José', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dimas', now()
@@ -4330,8 +4330,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '233b4286-6217-4db6-a7b9-735f7d08f9e3', 'Geralda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '4752f70f-7d70-4ca7-857f-409f227f754f', 'Geralda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nívia', now()
@@ -4343,8 +4343,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4498bead-79fc-44d6-bace-4c8100526dac', 'Marta', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'a9c70e8d-257e-4989-82a0-df202554187e', 'Marta', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4356,8 +4356,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '10459fa6-49d9-4e07-bad9-8f01954881e0', 'Clara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '0bb0ae28-fd0a-4839-a1a3-3ad944a662b7', 'Clara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4369,8 +4369,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '52416985-e4a7-4a49-b4b0-433878205c4d', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'd3c6d8cd-fc9b-472d-b021-45faf880b98d', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cinara', now()
@@ -4382,8 +4382,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '70f111a7-ed80-4cb9-8df9-a57b334042a5', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'aba43f40-f39a-491f-a092-6d2f5ea99604', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Arthur', now()
@@ -4395,8 +4395,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cc31648e-f28f-422a-a4e4-d4f6d4a8a081', 'Wesley', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '00f4778b-c13f-443b-8f3b-d0b094875c04', 'Wesley', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Douglas', now()
@@ -4408,8 +4408,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '93a88ed5-e784-4d6b-a69c-d7debb496bf3', 'Elen', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'd64395ae-9107-4a15-b6be-c339264d6f3e', 'Elen', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4421,8 +4421,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f65fbc27-1b20-4f70-a155-5cb2e034426b', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '2b8f1fde-b81c-414e-97fb-8987efb65e84', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sara (Reginaldo)', now()
@@ -4434,8 +4434,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '933d612d-44d4-4314-b93b-4c704564f331', 'Laura', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '31f4f517-90cb-4b29-a722-d0c624827352', 'Laura', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4447,8 +4447,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'dc23aa70-fbb4-4b81-9d74-3e5543cca2cb', 'Cleiton', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '9438c0a2-be20-4658-b485-3c2b33bb472d', 'Cleiton', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Douglas', now()
@@ -4460,8 +4460,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2a75f8bc-d048-437f-85f3-f2c0f94dee00', 'Milca', NULL, NULL, NULL, NULL, NULL, 'F',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    '1273ca07-f66e-4498-b69d-6314956f1dcc', 'Milca', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina', now()
@@ -4473,8 +4473,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3691fc35-2237-4afd-8520-851c5c1bbc1f', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '2764260c-e49f-4cbd-9daa-0803989641d3', true, false, false, false, false,
+    'feb3706a-0dbc-421c-b907-015f0fa3d935', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ad393be8-666a-4ad4-a48a-711217306577', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4486,8 +4486,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '60d5d00e-1ad7-43df-8cd4-a78be04e6f66', 'Jaime', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'd18c42bf-13f3-4db1-9a2c-4cb3a1824765', 'Jaime', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marinho', now()
@@ -4499,8 +4499,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '20eb0250-1390-4a45-8abd-3f3ba349d2c3', 'Jacira', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'fd7421dc-e24d-4ab1-8e2e-523534d30e36', 'Jacira', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Quênia', now()
@@ -4512,8 +4512,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1090ac20-36e4-4513-aa5a-1bbbdcad75a0', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '1fdd27df-deda-4dbe-a73b-b436db8249b4', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jaiminho', now()
@@ -4525,8 +4525,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3d4ba9ec-ebd0-4013-a8d4-74896f1ff537', 'Dona Adélia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '11787974-d37b-4e3d-bb0d-272434b9a441', 'Dona Adélia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4538,8 +4538,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5ffeca61-7cd6-4cf1-adc6-d48959409cb0', 'Wagner', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '2805af4b-4afd-4694-846c-4f7a8dbc5f86', 'Wagner', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marinho', now()
@@ -4551,8 +4551,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9ae11fee-96fb-4c81-a6cd-57af2541291f', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'd0efb40a-1e42-4d2c-a201-750031eeaf16', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Quênia', now()
@@ -4564,8 +4564,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '03a773d6-637f-41a4-adb3-3bf7fa3ab362', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '1c8a03df-e828-4c54-986e-b10c83e2a75c', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4577,8 +4577,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b8b4f899-40ce-4dde-908d-96e407622fae', 'Rebeca', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '0e12c45b-851a-4d82-939a-0bb025f3f997', 'Rebeca', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', 'Areias / Morro Alto', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4590,8 +4590,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '80451c2f-40e8-4dc3-bd77-892771918cf9', 'Ronaldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '9e876476-7081-472d-9529-4d613ca1c3b0', 'Ronaldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Wagner', now()
@@ -4603,8 +4603,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1eacbe73-b7b9-4b19-b4f8-4396f357f975', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'd50e316f-3e08-4531-975f-c2f4f1e8057f', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Zezinho', now()
@@ -4616,8 +4616,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a8403eae-74c6-4fef-a79f-2847d04efcec', 'Glória', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'f82f2d40-3ef2-44b7-bc9c-f1ea0d745553', 'Glória', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ana Laura', now()
@@ -4629,8 +4629,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b02b4f4f-5b40-4085-a3c9-82db4c266582', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'a353767c-9979-4023-a653-40cc2202ca2c', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jaiminho', now()
@@ -4642,8 +4642,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '37a7eca7-d590-4f26-8fda-d63a6377914e', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '9af18973-f83c-4eca-9643-9fe7564ff0d2', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jacira', now()
@@ -4655,8 +4655,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '82682c32-09ec-4d57-b696-b7ced5cfc50f', 'Aurora', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '26d99b5a-3d64-41f8-8c18-fb8a79ae96e5', 'Aurora', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4668,8 +4668,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5318dcf2-79e5-4ce1-abd5-bc4df72634cd', 'Maria Tereza', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '26ed3d69-7653-46e6-b02e-3e41f66ed7f3', 'Maria Tereza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4681,8 +4681,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a3f3e01d-de9f-4355-afd9-163ef2baa6ab', 'Welvis', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '5a2883f5-144e-4b79-a8a5-4badd593a645', 'Welvis', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jaiminho', now()
@@ -4694,8 +4694,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ba920b1c-2c4f-46c3-ab83-4eef8c657c4a', 'Adriele', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'b3346ac1-df4f-4038-acf3-a5a3e5b13347', 'Adriele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jacira', now()
@@ -4707,8 +4707,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '95330e5e-f741-4ea7-a125-9f51deb9365e', 'Bela Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '9863a27e-45f0-4c72-b394-f5cf0eb5923d', 'Bela Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4720,8 +4720,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '667b7671-f41e-411c-9c09-650bdf3c3fbf', 'Izaque', NULL, NULL, NULL, NULL, NULL, 'M',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'a91e3152-bbe1-49d5-a5b9-a2366a173a01', 'Izaque', NULL, NULL, NULL, NULL, NULL, 'M',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jaiminho', now()
@@ -4733,8 +4733,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8b01e7d2-fdb5-4873-beec-0f255c9c1be3', 'Jamile', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    '02bbe8c4-7103-412d-aed1-7e4913774813', 'Jamile', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jacira', now()
@@ -4746,8 +4746,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '152cddca-fcde-405f-b238-e1b47d1f7928', 'Kailaine', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'f9024f25-b8ea-4c57-affc-b989b63148b6', 'Kailaine', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jamile', now()
@@ -4759,8 +4759,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '76361e98-ddd7-4231-b672-7840cb82ae4c', 'Angélica', NULL, NULL, NULL, NULL, NULL, 'F',
-    'baa7dafb-99d5-4812-bc48-3b5642a82365', true, false, false, false, false,
+    'ff893283-01a1-41cd-85b5-e3263b188a6a', 'Angélica', NULL, NULL, NULL, NULL, NULL, 'F',
+    'e6b4096f-e087-41cc-8c5e-d083980b13c4', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Mariana', now()
@@ -4772,8 +4772,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '39ba647e-b4c9-4d9d-a376-c7b4b5b05ee1', 'Davi Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'aad4af3c-f8dd-46cd-92cd-6ae4620a28e3', 'Davi Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Maria', now()
@@ -4785,8 +4785,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18cb4392-3c16-46ff-bbac-96af09d8c07c', 'Liliane Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '81c36f7d-917e-4ad6-82bc-da56fb728c92', 'Liliane Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sâmia', now()
@@ -4798,8 +4798,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9ae46d62-0e98-4b65-89c8-1cc7f87106f0', 'Diogo Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '48892566-8964-4615-9341-499c82450f4f', 'Diogo Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel M.', now()
@@ -4811,8 +4811,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '31c9b3bd-8224-442f-b8df-77a210303c7d', 'Thiago Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'c91c6726-1948-48ec-84f6-6f79c9964e68', 'Thiago Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rafael M.', now()
@@ -4824,8 +4824,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5a9dab15-3181-461b-8979-220324e65540', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'e2c8d6e5-c6fb-4744-bb9a-e0182140abb8', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Imperial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -4837,8 +4837,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3769e1a2-b80f-4c23-9328-7d7e2d733e55', 'Gabriel Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '9ab5e99a-a169-4984-b54e-2027ba37cc36', 'Gabriel Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Imperial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Diogo Lima', now()
@@ -4850,8 +4850,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7bf2a8a1-1d38-413b-a2b5-77663f2a3255', 'Giovana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '0c82ea83-5f16-4a45-b1e7-b99e1d941b4f', 'Giovana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Imperial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -4863,8 +4863,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9807a7a8-6fb1-4e80-a88d-dc2f2c6b5345', 'Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'd4d929b4-01d1-48dd-b6eb-61a534e89409', 'Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Imperial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luana', now()
@@ -4876,8 +4876,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '54e51a0d-57dc-4acc-8e2e-c2a91309fdb2', 'Krismary', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '2542a549-e6ab-4458-aee3-e2d9e393034c', 'Krismary', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Miliane', now()
@@ -4889,8 +4889,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '255b5be3-2f4d-45b8-ae42-f41dc52596f5', 'Wellinton', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '17d89c23-f27f-46d4-8f96-208196d8b6fc', 'Wellinton', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roberto', now()
@@ -4902,8 +4902,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0dc1bb25-5c61-4473-a337-2e2d2f66e3a9', 'Miliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'c4409645-87a8-41cf-b2d0-46bb3deb6049', 'Miliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leidiane', now()
@@ -4915,8 +4915,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '583f91ae-6c21-4560-945a-9933fda65cd6', 'Gellissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '5ebf0736-bcbb-4cf5-80ce-48398e10b0f2', 'Gellissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dora', now()
@@ -4928,8 +4928,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5a1d7c3c-cf7f-4c14-ad35-6377e89fbc6c', 'Kal', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'efa9933a-800d-421f-a3f5-f0a859bd19b4', 'Kal', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Maria', now()
@@ -4941,8 +4941,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fbd6a317-24a5-41f9-8da1-f3aa22a33cbf', 'Tininha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '72015b0c-ec6e-4d54-a88d-ae44c62711ac', 'Tininha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Casado(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sâmia', now()
@@ -4954,8 +4954,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '923b7ec5-8573-4ee7-92b2-740b3fbbc5fa', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    'fafe39c3-d6cb-4127-a9c0-c019903dab51', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4967,8 +4967,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ccc39429-4095-48eb-9336-3b128d779337', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9a52e5a9-3676-4492-809f-2daf46fd1e77', true, false, false, false, false,
+    '579fbf3d-fa72-485b-886f-b5ba864269f7', 'Mateus', NULL, NULL, NULL, NULL, NULL, 'M',
+    'adc03c88-e531-4494-8a68-ceef7762e4f7', true, false, false, false, false,
     'Solteiro(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4980,8 +4980,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3bb28abb-1e36-4b4c-86be-39ede123499b', 'Lincon', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'c525665c-41c9-428f-b2bf-19f75c3273e3', 'Lincon', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -4993,8 +4993,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cdcb7800-a3c8-44c9-b782-d0cc98431d61', 'Tati', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea', 'Tati', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5006,8 +5006,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c4622e4a-ee68-4645-91c3-7537d8c0b75b', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'ca687d0a-6c68-44a5-b47c-04a861dcbea6', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Diogo', now()
@@ -5019,8 +5019,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7b72a571-653f-41a2-a491-191dcc7b9841', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '5a5c0fdd-a581-41b9-b347-00e02d8febc2', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5032,8 +5032,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a483ef3f-4ffb-4a60-8c7d-b1e5034c47e3', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '9e1c75ea-6a67-4d38-9238-6d38ef75fb06', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5045,8 +5045,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '04691149-7822-419e-af0c-0abc4ca89778', 'Adilon', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'cf1346c9-c3bb-4a47-a31c-8c1f77324d4a', 'Adilon', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Helder', now()
@@ -5058,8 +5058,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '134164ad-c0fb-4c9b-ba42-a512c1aad399', 'Lena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'd1c722d8-77f0-42a3-884e-1137f1d91cc0', 'Lena', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5071,8 +5071,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '36710d40-c124-4852-85d8-c8100d14adaf', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '30820239-cfa7-40a1-b100-5f8f37acd1b2', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5084,8 +5084,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '67f26cae-b7bc-4b15-84e3-c8f5e20d51af', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '61cefda3-feab-46ab-bb34-095634d5a25e', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5097,8 +5097,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1f3eb3b0-f1c2-4c9f-a202-5d52180e8bc5', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '0ca60d3b-1d10-433a-80ef-5c6b44c5f856', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5110,8 +5110,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'abfa588a-96e0-468a-85f2-c63a08d5cc96', 'Milena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'f9c5dcae-bcd0-409a-bec0-107b57f022ea', 'Milena', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -5123,8 +5123,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd1c45d05-e092-47cf-8894-ac568acf70ac', 'Isabel', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'a9fa1bb6-eff3-42fc-b88b-d92b771b9180', 'Isabel', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5136,8 +5136,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e9754ebb-7614-4040-9d7f-5b741d07b633', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'afc0ea06-9e6e-416b-9323-9a512af12fd1', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5149,8 +5149,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a1e470e1-3742-444f-8834-8f5891892096', 'Daniela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '9cf018e2-8a26-4a6c-9c19-2a7218850108', 'Daniela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5162,8 +5162,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b548c3fa-15bb-4883-8243-c2f793f32ecf', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'c12e1672-b8c1-490b-87f4-dcbca7fb0a82', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neto', now()
@@ -5175,8 +5175,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bfbbefbe-e661-4882-9f41-c6b6c6e5564e', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '715a65a9-9f5e-4183-9221-2801902de422', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5188,8 +5188,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a59946d3-9c25-40fd-b87b-dd2f98990461', 'Bernardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '6c3875b3-c265-427f-ac39-2dc4152f4bd0', 'Bernardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5201,8 +5201,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '060c9b8a-9173-4c73-afb1-348868616c14', 'Neto', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '82f620bb-0d1c-4e61-8093-92d7ffed8d6e', 'Neto', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi Diácono', now()
@@ -5214,8 +5214,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '94734ad2-5b56-4a13-99a1-e8ea21226daa', 'Thaís', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '2f4f85aa-dec6-40a3-8468-0907a169020c', 'Thaís', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -5227,8 +5227,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'acf35bab-e798-4f35-b02b-1f86a8259c81', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    'c7817d63-618c-41ce-8c0d-ed83045b1242', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juliana', now()
@@ -5240,8 +5240,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e527af2d-6f17-459c-aefe-e24cbeb824fe', 'Luiz Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '2a24006f-118f-4013-a767-6c8f87c5f161', 'Luiz Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5253,8 +5253,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c0dff264-dc84-45d6-9a4e-da18d047dd73', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '417e8bea-be9f-40b2-a359-ba75007a0ac4', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5266,8 +5266,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '81a0a170-8930-48f2-b505-8cd13b9883c2', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '2bf2e6ff-2041-4e56-9a02-89a1f6940655', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Casado(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5279,8 +5279,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '568fdb5d-b1c2-4756-88d9-c335ef1c9a13', 'Benício', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '4bc2b2ab-8fa9-4d0a-aebf-62242e45e599', 'Benício', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5292,8 +5292,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9a4e1669-97cf-47c7-8335-8a3b9737244d', 'Augusto', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c', true, false, false, false, false,
+    '9a8f086a-2a27-43e3-ae74-d985189cf57b', 'Augusto', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fad1fef2-d71e-4783-b11e-8f26cb3faff6', true, false, false, false, false,
     'Solteiro(a)', 'Lagoa Santa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5305,8 +5305,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2677d29f-1562-41cd-9165-d007e2ebd21c', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    'ac596a22-212d-4e17-82de-97f07cf80528', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5318,8 +5318,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3d98a907-ca71-444c-a6e6-c91e31d9ff5c', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '2506aea3-8c4b-41a0-8237-e11cf9dd0130', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5331,8 +5331,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b348d9cf-050a-4d0c-a8e2-e1120dc44ce9', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '808a6473-f076-43be-9408-6f62697e824a', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernando', now()
@@ -5344,8 +5344,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e69c3258-eecc-422d-aad5-72c658281486', 'Soninha', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '6426769b-3361-4e5c-92ca-71faa0b1933f', 'Soninha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5357,8 +5357,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6f91d776-8634-4ece-94ae-f3994a84d1a5', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '63433d51-1305-46ac-9be8-c4a6f0e3b2a0', 'Gustavo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Paulo', now()
@@ -5370,8 +5370,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2c668ccd-0f93-41b2-8743-66b74b4b533b', 'Daniele', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    'ebccc2ac-a542-43a8-8074-06124a38cbc3', 'Daniele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alcione', now()
@@ -5383,8 +5383,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8c0ccb5c-4000-4b4f-aad3-69e04bdd7c13', 'Lívia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '1a1aa17e-1e40-43ba-be3c-d1233180b37f', 'Lívia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5396,8 +5396,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '908e7313-c386-4f4a-9e7e-c625851ea6bd', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '0778b9a9-43e4-48ec-993a-1ca6a6e03769', 'Lavínia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alcione', now()
@@ -5409,8 +5409,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1bc4e464-f763-4338-8e96-8e0185ffa4d6', 'Geovana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    'b78776f3-9b0b-4ebd-9df0-59e079ae2a3d', 'Geovana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alcione', now()
@@ -5422,8 +5422,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '388126b0-bd32-4968-be8b-3e0de8ba6d47', 'Emanuele', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    'c3e9e50a-771d-4b61-960e-1e3497d7e738', 'Emanuele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5435,8 +5435,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '461cb7b4-aa06-4eb9-bef5-480815827ebe', 'Paulo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '26b23ba2-14e0-48d8-9f75-1aa39e56fe84', 'Paulo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Rio Branco', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neto', now()
@@ -5448,8 +5448,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '757b9efb-8eda-4fd7-8405-7576e2aa32dd', 'Alcione', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '9e594c78-e783-459c-9697-2bd526a6d353', 'Alcione', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Rio Branco', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -5461,8 +5461,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '959fd92d-74b9-4833-b680-01c649ed6708', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '3ad8df8f-16cf-4275-a4fb-c7145d22389c', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Londrina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5474,8 +5474,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8ff43458-bfc4-4e86-bfa0-3b95a31b5ef3', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    'a45dcb8c-f43a-4303-918b-ec0ef4db3b55', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Londrina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Mariana', now()
@@ -5487,8 +5487,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f0774771-5baa-478f-a0e5-a96372e2bf32', 'Abadia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '1e29f38f-19c0-4cb0-ac2b-5baa037ac5c7', 'Abadia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Floramar', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Soninha', now()
@@ -5500,8 +5500,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '29a24143-84ff-4f2f-a24b-a4980d41e85a', 'Dona Vânia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '4668a055-2570-455a-8aa4-3b92f24be712', 'Dona Vânia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5513,8 +5513,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b4d865c4-14ff-4d3e-b41f-9a2865d9d1a6', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '493d0e03-fd47-48d0-a921-7d1a07835444', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Londrina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carol', now()
@@ -5526,8 +5526,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '968867ff-0c83-4604-9a4a-23d81d82c8ea', 'Bryan', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '3f34f2a2-21ca-40e6-92c0-c8b63b7af9b0', 'Bryan', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Londrina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5539,8 +5539,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a0a8c1f3-b85b-4651-909e-4676c741b2b9', 'Evandro', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '185d1daf-adfe-4222-be33-64f8865fc357', 'Evandro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernando', now()
@@ -5552,8 +5552,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '12bd3171-e22d-4d74-b50d-91c8a20dc721', 'Jucilene', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '213af085-8b16-4e13-8377-737f0c8a020d', 'Jucilene', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5565,8 +5565,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7a300727-8223-4ec9-9564-9044b6803756', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '5a72b179-d31d-4ef4-869d-298cd11def45', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Solteiro(a)', 'Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5578,8 +5578,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4fa95ea1-a476-4748-b497-89ae3e5585f8', 'Gilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '725bfde5-fdce-4c16-94fb-229932618416', 'Gilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Juliana', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernando', now()
@@ -5591,8 +5591,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0b1b930d-73f2-4de5-a858-75faa09fd567', 'Liliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    'e86669d4-fd46-4053-b003-b2e19603ab3c', true, false, false, false, false,
+    '3c742c4d-ed01-4a67-9096-b2610d24e075', 'Liliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'b6cab6d6-a3a7-4739-a93e-ed674aed58df', true, false, false, false, false,
     'Casado(a)', 'Juliana', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -5604,8 +5604,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2ff78bac-b9be-4f2b-82e3-b072780d15b8', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '23657810-988d-4cc3-9e1b-1751ebbbdcd4', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Maria', now()
@@ -5617,8 +5617,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5d5d13b8-48b6-4458-a9d0-bb5aae9c215e', 'Auxiliadora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '4fb6d3c1-820f-4cfb-b31b-d880223d3d1a', 'Auxiliadora', NULL, NULL, NULL, NULL, NULL, 'F',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sâmia', now()
@@ -5630,8 +5630,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'baa69c40-b455-4530-b4d0-eb1d9eef8c50', 'Jonatham', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '9bd7da3e-ff4f-41d9-96e8-6b2e90f7216d', 'Jonatham', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Solteiro(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thiago Cunha', now()
@@ -5643,8 +5643,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a668b606-1d7e-49f5-ad6a-8d7f3179ce39', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    'c7ba2bfb-43e0-46b9-b665-3a0d6874de74', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Solteiro(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ricardo', now()
@@ -5656,8 +5656,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fd3b4ca9-f0f3-4e55-a710-718bbbc4ff96', 'Jésius', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '30b3bb90-624e-43ac-a2bb-2e02a95c9d4b', 'Jésius', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -5669,8 +5669,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '563ec794-3f1b-431a-9d37-f3d88b351158', 'Elisângela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    'ec488ee3-4fd9-4f38-8ea9-f528c97dd46b', 'Elisângela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -5682,8 +5682,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8c7eeb03-e45d-4b66-8d61-f45d482b344b', 'Cláudio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '57c8cae9-25b3-4cb1-8dd3-8eb5d6142966', 'Cláudio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jésius', now()
@@ -5695,8 +5695,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bed91864-53a2-4c6e-b35d-ba593e895143', 'Ivanete', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    'a3b432cb-5e5c-4672-b812-ecffebc204ee', 'Ivanete', NULL, NULL, NULL, NULL, NULL, 'F',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Casado(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Elisângela', now()
@@ -5708,8 +5708,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5ac2aaff-4b7a-4c6b-a3f6-5212098db9ed', 'Brener', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '23776236-9aa7-45fc-b95e-d4fb7fe6da23', 'Brener', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Solteiro(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -5721,8 +5721,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6c06275f-784c-4b4b-bae8-586c73512efc', 'Deivison', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb', true, false, false, false, false,
+    '936ceae4-c5c9-406e-8841-84379376662a', 'Deivison', NULL, NULL, NULL, NULL, NULL, 'M',
+    '09661dad-55e9-4d67-b9fd-6c1a983fa100', true, false, false, false, false,
     'Solteiro(a)', 'Fazendinha do Baú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ricardo', now()
@@ -5734,8 +5734,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e4b579fe-e0da-4041-a958-a78e79c805dd', 'Roberto', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'db93cb34-835d-4fe6-8e35-53621fd147e7', 'Roberto', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -5747,8 +5747,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7c4dce9c-31a4-47ad-898d-402428f5afc3', 'Leidiane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '5ce3d7af-196e-4675-aa48-19c96f622d99', 'Leidiane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -5760,8 +5760,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd74d0414-54ff-4280-b4af-b98e42b163bc', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '98e97be0-27ba-4847-9d97-accbde0d3424', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Gabriela', now()
@@ -5773,8 +5773,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '443e0ff8-f2b0-476e-8655-dd84dc998390', 'Rayssa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'cb58a6cb-ca14-40e6-bb47-4f8cdcc58fc2', 'Rayssa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa', now()
@@ -5786,8 +5786,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6b9c249e-34ed-4091-b48e-1e79669a4f08', 'Ryan', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '0c01eee7-9da0-4da9-a6f7-a673f4a3db6f', 'Ryan', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Diogo', now()
@@ -5799,8 +5799,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c3dee27d-46b7-4b6f-b312-7e0a1f5e3ca8', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '08b473e2-eaf9-44ef-84eb-6f02b72e4a25', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ricardo', now()
@@ -5812,8 +5812,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f8fc3a94-f3fd-4467-a992-52262a94b14a', 'Dora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'df3db365-38ea-4aca-abeb-c4c4a2207333', 'Dora', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -5825,8 +5825,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8728bf62-2837-434f-94df-0ec476efc828', 'Ana Flávia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'f5a74c50-0724-420b-b8df-adab5251d9bc', 'Ana Flávia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Miliane', now()
@@ -5838,8 +5838,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8122c13c-b1a1-4749-bf2c-6016c6a0d81e', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '7d775daf-ccf6-4977-977a-fe015751b1d3', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5851,8 +5851,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a6ca3f63-53e2-407b-a9fa-ae1f9c695380', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'b21328c6-5e07-41c1-a852-50a44cc78f53', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ricardo', now()
@@ -5864,8 +5864,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b9181151-41c7-441a-90a6-949a703ae525', 'Leydimere', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '9ce2ff98-f302-4130-93d2-45942b07913c', 'Leydimere', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dora', now()
@@ -5877,8 +5877,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2401b302-07c6-49e1-9255-f761e4eebb67', 'Bernardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '696c2849-64f8-4899-9bbb-30195ee65c8f', 'Bernardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marcos', now()
@@ -5890,8 +5890,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'da9f0ce9-0bc4-48c0-892e-400bd72edfdf', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '6b506bab-3ceb-48d4-9ca0-8efad398eae6', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5903,8 +5903,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8a9a91d2-1bf6-40a1-8a45-e858192d0fb2', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '69b48c21-3834-4c15-aa7c-585de935dac7', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -5916,8 +5916,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '947b92b9-c68d-4f75-a8cd-5785f3e1b00c', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'f603b12a-a7c3-4e06-ae3c-9925ad08fcea', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Liliane', now()
@@ -5929,8 +5929,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5f7f3124-4088-41e2-ad70-4057634c6b52', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '9bc1eb46-0ea5-40bd-ae7d-de083ce66d20', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5942,8 +5942,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8c3d244b-6ea8-46df-8291-f3898d806424', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '838deeec-42e3-4c82-9aca-30c7c8b660df', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Córrego das Calçadas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5955,8 +5955,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7cc5d3fd-5602-41b8-a8b0-2a601502657c', 'Álvaro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '9ec0d723-674b-4224-bd42-d046f79d6910', 'Álvaro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Esplanada', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roberto', now()
@@ -5968,8 +5968,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e7f688c6-a018-4870-9f61-ec7be9da2b24', 'Gabriela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '01a42d7a-9374-475c-83c2-b2c5c75af0a6', 'Gabriela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Casado(a)', 'Esplanada', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leidiane', now()
@@ -5981,8 +5981,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6032d844-5ec8-42af-a542-9681d754b965', 'Olívia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    '78eabb9c-bc6e-467a-93ed-9d879a2490d5', 'Olívia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Esplanada', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -5994,8 +5994,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '11e60cb0-d0dd-4e65-b82c-479c49bc4a7a', 'Maria Aparecida', NULL, NULL, NULL, NULL, NULL, 'F',
-    '3380d492-b8a0-4b4a-b532-fbde9e288f0e', true, false, false, false, false,
+    'd9f25bad-c607-4680-9b55-c914e62d5f3f', 'Maria Aparecida', NULL, NULL, NULL, NULL, NULL, 'F',
+    '84bad7cb-be75-434f-b9d5-1a303aac4464', true, false, false, false, false,
     'Solteiro(a)', 'Kennedy', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leidiane', now()
@@ -6007,8 +6007,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1d980dc9-edef-4d20-8f4e-06b5ca740b25', 'João Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    'fb4ae27f-7799-4940-956e-6e5c337fe981', 'João Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Álvaro', now()
@@ -6020,8 +6020,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '520c80c9-aa39-4e3b-b2dc-25f244134337', 'Thaís', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    'ee2ca227-aafa-40f8-9f43-a2fa3090b2bb', 'Thaís', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'São Benedito', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Gabi', now()
@@ -6033,8 +6033,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0db56617-d98d-4388-b983-734f2986111e', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    'ba74aff3-651b-4b89-b9c3-0fc09904744d', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Conj. Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Josinha', now()
@@ -6046,8 +6046,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '79159b7e-a0c3-470b-b914-55aa147cebb4', 'Lara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '816c41bb-a6cf-400e-a5c6-0e282dba200a', 'Lara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Conj. Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Karina', now()
@@ -6059,8 +6059,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '06d3daf5-c876-4098-b629-a15511ab4f91', 'Zinha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    'c94e4491-9993-425e-90ad-6bcdf906ae32', 'Zinha', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'Conj. Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jucilene', now()
@@ -6072,8 +6072,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cc48aec5-2f4c-4cdb-8e61-4680e3df8c83', 'Warley Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '8277576d-b0ea-4107-9bdb-6917cce5ea7a', 'Warley Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'Conj. Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Maurício', now()
@@ -6085,8 +6085,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a0fe8728-4da2-46fe-b905-09f048aac2b7', 'Dona Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '1104fa95-1ceb-43c9-a48b-ee77c5794c0e', 'Dona Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Conj. Cristina', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Andréia', now()
@@ -6098,8 +6098,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '949959ee-1dd0-409e-b9f8-32ed32900042', 'Júlio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '1f54b7ab-e0c3-427b-b925-58e81d0b821a', 'Júlio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'Belo Vale', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fransérgio', now()
@@ -6111,8 +6111,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e95ff5f1-2d83-4d91-b128-9b90e3545799', 'Andréia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '5f633223-b89e-46ec-bd19-e1ef8f9b286b', 'Andréia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Casado(a)', 'Belo Vale', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sônia', now()
@@ -6124,8 +6124,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '952e38d0-ef7a-4c11-85f4-b7cbe0b2bfda', 'Paulo Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    'b979a29c-5f5e-4b42-ab28-228966f55bde', 'Paulo Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Belo Vale', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6137,8 +6137,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '796d53cc-857c-4dc2-a2ab-004f6a37324c', 'Diogo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '5bd5ed21-ce40-4633-adbf-f98469b1d98a', 'Diogo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Santa Matilde', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Samuel M.', now()
@@ -6150,8 +6150,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '20e07137-576a-499e-8fda-2bbc44badc2d', 'Maurício', NULL, NULL, NULL, NULL, NULL, 'M',
-    '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3', true, false, false, false, false,
+    '81eed824-2776-4c5f-b12e-17febc2d8435', 'Maurício', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3c098744-82ba-45e8-8090-a1f387bfaa97', true, false, false, false, false,
     'Solteiro(a)', 'Industrial Americano', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rafael M.', now()
@@ -6163,8 +6163,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '75140740-0ff3-4301-80e2-d690e8c3631a', 'Júlio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '8843c203-2474-4a86-abb2-f795dd099fe3', 'Júlio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Novo Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -6176,8 +6176,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9aa0ae66-d55f-4866-a489-2adfeb6986f0', 'Valéria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '7428d4ba-dda0-4c0f-8908-12ce3b72318b', 'Valéria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Novo Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -6189,8 +6189,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2f01b03a-0434-4734-ab14-6a6e91bd2004', 'Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'c443a0a4-4d8b-4a07-846f-9eed64fedee1', 'Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Novo Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rafael', now()
@@ -6202,8 +6202,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6d436adf-b847-406e-bc81-08edec7082d5', 'Anderson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '3eb49b3d-9266-40c2-910b-5d494115ccb8', 'Anderson', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Sol Nascente', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Júlio', now()
@@ -6215,8 +6215,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3bf01b20-b2d7-4a79-ac09-dfe57cb53f85', 'Kênia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '3f6d0078-c3ae-4c3e-9ce4-1c8e77aafb09', 'Kênia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Sol Nascente', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -6228,8 +6228,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b8f53adb-3c46-4cb5-9472-964e3cdb24ba', 'João Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '24e9cef5-d879-4caf-893a-ccbc3f957f8e', 'João Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Sol Nascente', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João Pedro', now()
@@ -6241,8 +6241,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ad212dd4-6d1f-4bb5-b541-4516c2908322', 'Arthur', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '1a3dfbbd-d501-45fb-a402-5db1c736a727', 'Arthur', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Sol Nascente', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João Pedro', now()
@@ -6254,8 +6254,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bac00a53-6c8b-4e62-a103-377d2b317a9b', 'André', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '90cdc2d3-2770-44fc-81a7-cd0701bb68a4', 'André', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Vale do Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Júlio', now()
@@ -6267,8 +6267,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e71efd7c-f1fb-4657-b177-222ffbbe45f3', 'Andréa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'a3a1c2d2-6b49-44c2-92d6-e47dad320e98', 'Andréa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Vale do Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -6280,8 +6280,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd488d792-354b-47bc-a6af-7a269a4f1cb9', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '9d517464-5296-4fa3-8602-16f528f291be', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Vale do Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Natália', now()
@@ -6293,8 +6293,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0d081af7-f83d-4d99-9633-e388c59f5a6c', 'Marco André', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'a8c9400a-bd69-4622-a2a3-03256f1b59ee', 'Marco André', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Vale do Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6306,8 +6306,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b0169324-5c7e-490f-a060-50ffffb76fcc', 'Genderson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '98088ecf-01ce-48fd-860a-9adf4dc29213', 'Genderson', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Santa Rosa / Sarzedo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Júlio', now()
@@ -6319,8 +6319,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ab486074-4430-4145-a18e-a057cc12ea24', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '59bb6092-e518-423d-9540-4d154ce46b02', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Santa Rosa / Sarzedo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -6332,8 +6332,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '01eb5520-da87-40b5-81eb-e38425e82968', 'Sérgio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'c9682429-807a-4396-85e8-9a89a921e164', 'Sérgio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Marilândia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Júlio', now()
@@ -6345,8 +6345,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c6cd2239-d26e-49f0-9f83-f983b0bce48b', 'Kênia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'b8d07260-54af-48d0-b333-127674addbaf', 'Kênia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Marilândia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -6358,8 +6358,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ccb38acb-db50-4ce8-90eb-56fc56b2e414', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '153c23b6-1876-4cb5-bd1f-b515e45add99', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Teixeira Dias', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -6371,8 +6371,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'efaa3472-4733-478f-870c-e1f6ab7bf919', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'ea91e543-6615-4b64-852a-62cb15e43368', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Lindéia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Genderson', now()
@@ -6384,8 +6384,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b5da54bb-bbb8-4761-a7a7-56e2d3067853', 'Juliano', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '72f5e5cf-692c-4044-8b0c-9fb979ffd8cd', 'Juliano', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Novo Horizonte', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ricardo', now()
@@ -6397,8 +6397,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f759ea07-6f82-4d13-8e86-4aa62bd8743c', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'afd46cc5-f631-4bb4-aa0c-ae57bf4a636c', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Novo Horizonte', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Beatriz', now()
@@ -6410,8 +6410,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2a2b6b04-2392-4488-9907-fcb1ca1ef972', 'Bernadino', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '05ff2ee7-58c2-4c27-b9fd-1fca15e846a8', 'Bernadino', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Anderson', now()
@@ -6423,8 +6423,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e12a6c53-a805-4a5c-a371-56565afdd0ea', 'Jorgina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'fd88bbc8-210d-40f9-97c9-ec359641e5fc', 'Jorgina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Jatobá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Kênia', now()
@@ -6436,8 +6436,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a1e245a9-a9e8-40fa-b5e7-c77f8254f413', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'a8bbce5d-6d63-4f65-af39-879a0ab3a334', 'Ricardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Santa Rosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -6449,8 +6449,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ac525d55-2834-4af2-8998-525a077c5131', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '6d1a49fa-af42-45cb-9414-2ad4afe3f1de', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Santa Rosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -6462,8 +6462,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6779cd64-d9a5-4f1e-86de-f0c6ec3648b2', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '6717f9f2-8152-4d1b-a3ec-66c6220d7b5e', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Santa Rosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Beatriz', now()
@@ -6475,8 +6475,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ea87628f-c075-4fb6-af3f-f32ef60b210f', 'Valéria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'd4c96517-da30-487f-be35-36f4bf27c72f', 'Valéria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Lindéia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'A definir', now()
@@ -6488,8 +6488,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ab297f8e-d31a-4699-9e98-cbef89b24f5f', 'Mariza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '16d7a185-a0d2-491f-93e3-c9334713a3a7', 'Mariza', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Maldonado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'A definir', now()
@@ -6501,8 +6501,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6eb8f32f-32c9-42fd-9bc8-c1eb531f8f64', 'Jorge', NULL, NULL, NULL, NULL, NULL, 'M',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '1976e0e6-9420-4e46-a6f1-ef6a15a26610', 'Jorge', NULL, NULL, NULL, NULL, NULL, 'M',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Diamante', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jardir', now()
@@ -6514,8 +6514,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0a10e106-c70e-4577-83b4-4fd3692e19bc', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '6ee994ae-4df5-46e2-b29c-ad7af8d99760', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Casado(a)', 'Diamante', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -6527,8 +6527,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '42d488be-edde-4df9-9117-e2d1c256a95b', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    '824ea17a-0de5-4c26-b7b9-762dc249a6ec', 'Amanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Diamante', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alina', now()
@@ -6540,8 +6540,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6b15653d-44d5-4912-8951-f8ffe628638a', 'Cristiane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '38438326-8b6f-41e4-894f-5514e834a762', true, false, false, false, false,
+    'b32abc78-8e98-4805-a989-ca68fa0ff6d4', 'Cristiane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '002a3ca8-197b-486f-b24e-d146480c6e72', true, false, false, false, false,
     'Solteiro(a)', 'Mário Campos', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Letícia', now()
@@ -6553,8 +6553,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '60f23c80-fef9-4368-87c8-4fad26594ad8', 'Rafael S. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '8b571057-7c94-4269-81a7-a6fb34dd1373', 'Rafael S. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Milionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -6566,8 +6566,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3941c095-38e1-48ce-a448-493641f2b4dc', 'Isabelle C. M. Moraes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '77ffe695-e38b-4cab-a160-59fed1eb0e70', 'Isabelle C. M. Moraes', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Milionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marleide', now()
@@ -6579,8 +6579,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'df4ca1be-3d48-4d9e-b860-106303126eab', 'Beatriz M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '36eadb01-e784-4323-bfea-a0c338661606', 'Beatriz M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Milionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6592,8 +6592,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '844cf6a5-101d-4f55-b65a-c57ba6c44973', 'Filipe M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    'ba8976aa-e017-4088-bd2e-1e243a27f5d6', 'Filipe M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Milionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6605,8 +6605,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ac734394-c100-4219-81d8-4fcf7102a2ac', 'André M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    'f65f52ba-68a3-4389-aa17-66e3de488a69', 'André M. de Moraes', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Milionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6618,8 +6618,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e9b7b08d-8b13-4757-b553-b7e7fbee5209', 'Ari', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '1b79371e-80e6-4dc9-80b3-46ce809a72fb', 'Ari', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Shibas', now()
@@ -6631,8 +6631,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9480e978-7d5f-4bc1-ba15-22616f3c2a62', 'Jucieda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '77914e9f-026d-4eba-9a5b-2b83b978d90f', 'Jucieda', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6644,8 +6644,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '62b05e0d-e68d-4589-92b1-57ee159be2b9', 'Natally Silvina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    'f33d8194-8fc3-47ea-831d-bc8d805808e9', 'Natally Silvina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Ventosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Isabelle', now()
@@ -6657,8 +6657,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3be62807-f4e5-4bf4-8d97-2d1311753175', 'Wesley Anselmo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '2888b159-eac2-4102-b88f-24d50d554435', 'Wesley Anselmo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rafael', now()
@@ -6670,8 +6670,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '92f70a03-0c90-4011-b42f-2d96b9072737', 'Evelyn Ellen Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '4d6438a0-6cb6-4699-8c19-4e8caf732cc5', 'Evelyn Ellen Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Isabelle', now()
@@ -6683,8 +6683,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9fce86ca-22d0-4baa-81d3-78afaff0256b', 'Anna Júlia Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '7df14af7-4fb5-427b-b293-97546ed3ca31', 'Anna Júlia Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sara do JP', now()
@@ -6696,8 +6696,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5dd7aebb-6d01-4160-90f3-7ee58a93b506', 'Anna Laura Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    'db52670c-7c47-4a21-884f-edc4690f7d25', 'Anna Laura Dias Anselmo', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Tirol', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Zoraide', now()
@@ -6709,8 +6709,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fee9a12d-f9ae-46a7-b0b1-5efc03728a14', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '7113071f-c095-4a54-b1a4-449d4686b4a1', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Ventosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dona Neusa', now()
@@ -6722,8 +6722,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd', 'Lucas Eduardo Luz', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '1d9f23a3-43a1-4fd4-b1a4-357a79842155', 'Lucas Eduardo Luz', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Rafael', now()
@@ -6735,8 +6735,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e', 'Allina Rodrigues Luz', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '409646e0-bbab-49d8-86d9-94df0c8ad46a', 'Allina Rodrigues Luz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Casado(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Isabelle', now()
@@ -6748,8 +6748,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '33cb1e8d-98f3-4c10-b053-d8be68f7c31c', 'Carolina Luz', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '3841be2a-af59-4e6f-ba10-35b90a91b39e', 'Carolina Luz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6761,8 +6761,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '798cf288-c38b-4544-8423-f92af5397a93', 'Maria Fernanda Luz', NULL, NULL, NULL, NULL, NULL, 'F',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '65168bb1-4eae-4179-8e1a-99900496ee0e', 'Maria Fernanda Luz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6774,8 +6774,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2f46f6d9-3bb2-4a89-bf67-675dfb61673e', 'Leonardo Luz', NULL, NULL, NULL, NULL, NULL, 'M',
-    '22e95001-26cc-4b11-aca6-06ddb854bc6d', true, false, false, false, false,
+    '99a660a9-c04c-4ee6-8b03-45d55309b4a9', 'Leonardo Luz', NULL, NULL, NULL, NULL, NULL, 'M',
+    '08015614-b513-4bd1-86a3-c268609a6a3f', true, false, false, false, false,
     'Solteiro(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -6787,8 +6787,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '577a8a70-5414-44ed-b9e2-2992cdb0e083', 'Cláudio Luís dos Santos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'cb44faa7-fada-4754-9a48-b4c2c911cf94', 'Cláudio Luís dos Santos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi Carlos', now()
@@ -6800,8 +6800,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '306da3f7-8b19-4248-8cdf-2c2df9002d8b', 'Vânia Lúcia de Paula Santos', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '273d760d-2569-4f6c-9372-c7833dd656df', 'Vânia Lúcia de Paula Santos', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roseli', now()
@@ -6813,8 +6813,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '72214bda-5a03-4ae8-a0bb-55e4ca67bca2', 'Nicolas Matheus P. Santos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'a5ecfe2d-3dfe-4cb0-9951-b7459048c720', 'Nicolas Matheus P. Santos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio', now()
@@ -6826,8 +6826,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4b33e034-5341-4e8a-a7cc-e86aa07de102', 'Davi Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '7c8a73a8-ee9e-4100-a523-730a700be20f', 'Davi Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -6839,8 +6839,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '153aeb2c-be7c-4ef1-bd7c-a3b3da2370f1', 'Roseli Gonçalves', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'dc89b869-08ce-46d5-a8c8-0330a73060ba', 'Roseli Gonçalves', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -6852,8 +6852,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '90c13038-0cfb-48b9-b255-f50973813084', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'c6506f77-06ef-4f06-bfc3-5a4bef774238', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sara', now()
@@ -6865,8 +6865,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '43cee65e-86e9-40ea-97ed-f2ebb121a014', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'dde681b0-f281-47b8-8114-d7273e3e45c5', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -6878,8 +6878,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '093f68c1-99c9-4adc-9f78-e82b12b9f26d', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'c6773fb8-621a-45c9-83d7-1c112aab0051', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -6891,8 +6891,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '64fed90e-bed3-477b-b296-e3284bd747c3', 'Lúcio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '085fd5cd-72d7-4435-aa37-050a5733b4f3', 'Lúcio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juan', now()
@@ -6904,8 +6904,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '62c5805d-ffe9-421f-b0ac-2df896b149d9', 'Tatiana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '03f38c79-742f-4e08-8b12-51ddda20cc5a', 'Tatiana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -6917,8 +6917,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '52b93bc1-d5c0-40e1-81a9-69f474c83543', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '10795158-8d9d-4903-9166-6eded32a2637', 'Isadora', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Tatiana', now()
@@ -6930,8 +6930,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fa1bd922-ad4f-4696-b684-57bc7e8be418', 'Eliza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '7dfe1f40-15d7-41d7-b38d-b40edb925636', 'Eliza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tropical - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Tatiana', now()
@@ -6943,8 +6943,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '39817ad5-f1e9-41d2-8a36-327b874917cb', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '7ac9f5be-d838-46d1-9cd2-790674800465', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Petrolândia - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -6956,8 +6956,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eeb05682-ff4e-47c3-801e-72417c44fa17', 'Neila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '15cabd86-de1e-4944-8c19-384bc67c087b', 'Neila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Petrolândia - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roseli', now()
@@ -6969,8 +6969,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fa28fa92-7095-4a97-84c6-5759e4029598', 'Enzo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '33c9a9f6-4073-43c0-8815-9cd7acbc500d', 'Enzo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Petrolândia - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marcelo', now()
@@ -6982,8 +6982,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5af65d2f-06f8-43f1-9fa7-445d7b276af3', 'Melissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'd32944f6-f859-4093-8f1a-7c4f7d2fd9cf', 'Melissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Petrolândia - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neila', now()
@@ -6995,8 +6995,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'df359988-6e42-4170-adbc-0770f27492d8', 'Hemerson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'cdf3160e-2e83-4d35-93f8-ba9f0fc6cda4', 'Hemerson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tupã - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lúcio', now()
@@ -7008,8 +7008,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3bd2fa63-835c-425d-b59c-4f5e7347dc5d', 'Joelma', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '6fe9081b-f611-40d2-ae14-50bb53d225fb', 'Joelma', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Tupã - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Tatiana', now()
@@ -7021,8 +7021,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1c69449a-9c16-4386-975c-4e544bf83203', 'Sueli', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '2e18975a-33e6-4f7a-9da8-6e434ff02529', 'Sueli', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tupã - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Mariana', now()
@@ -7034,8 +7034,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b4cb8420-4a0d-4ca6-93b7-4fa08558fce4', 'Izadora', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '030b85eb-0f54-4201-86d4-774a46c53576', 'Izadora', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tupã - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -7047,8 +7047,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '14dfc1a0-db47-478e-97ba-3613fef0ba76', 'Isabel', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '32c7e4a0-3129-4f72-88b0-8590a7c808de', 'Isabel', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Tupã - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -7060,8 +7060,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8b57df6a-273b-4d5a-b433-5d653962a0cf', 'Aparecida (Cida)', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '1d752fd1-fdf7-49fd-b00b-55408cb833b2', 'Aparecida (Cida)', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Colonial - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -7073,8 +7073,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b1ff634d-52d8-4d92-8980-5f9fac0bbc0e', 'Alviclênia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '37eaf045-f0f3-42d8-9537-9008dbd12344', 'Alviclênia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Petrolândia - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Tatiana', now()
@@ -7086,8 +7086,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '038ce34b-d0a0-4de6-9b01-e52c9b3f3ea0', 'Rosa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    'afbc6e30-2084-4a9c-a128-1fb2332ae6c6', 'Rosa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Solteiro(a)', 'Ouro Branco - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leila', now()
@@ -7099,8 +7099,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a6bd54a5-7ba6-459e-87c1-6b59e27efec6', 'Ferreira', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '074d5c14-3d7b-4b17-b7d5-cf27d8386e04', 'Ferreira', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Icaivera - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Arthur', now()
@@ -7112,8 +7112,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1d932706-4669-4b65-8216-2e27ad245971', 'Gisleia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4c9a7389-ba43-4fbb-b635-f03229f9eade', true, false, false, false, false,
+    '03d23d2b-2c50-4e6a-9cad-dd19b028c468', 'Gisleia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c2852ff1-bc44-463f-9dce-1774ebc16a8b', true, false, false, false, false,
     'Casado(a)', 'Icaivera - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Taís', now()
@@ -7125,8 +7125,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '27dcb3c1-c18e-4218-80b4-05d0a1b8a5ab', 'Willian', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'a4e32b83-b201-4c50-b72f-ae4738145c21', 'Willian', NULL, NULL, NULL, NULL, NULL, 'M',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', 'Novo Progresso', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -7138,8 +7138,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '11cfdb38-c2d1-43fc-b83d-5bfaf42fbbbb', 'Dulce', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'e782760e-8183-48a0-9ca3-642a58f98c87', 'Dulce', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', 'Novo Progresso', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -7151,8 +7151,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bedd45d3-8d32-4efd-8147-7534488b749a', 'Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'b0cb4d2d-f134-48cb-96c8-cf2a98e596d2', 'Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Willian', now()
@@ -7164,8 +7164,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '16333488-0d3b-4795-8597-9dcb7d9dc128', 'Alexsandra', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '634ebf19-5d6f-4553-a482-0d9b795cdb5b', 'Alexsandra', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dulce', now()
@@ -7177,8 +7177,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c98f9811-3687-423e-aff0-82190ae57698', 'Eduardo Coutinho', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'd845a0d0-cbaa-4432-91cb-40a13c5232cc', 'Eduardo Coutinho', NULL, NULL, NULL, NULL, NULL, 'M',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Willian', now()
@@ -7190,8 +7190,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '56633d3f-4763-4a50-a729-697468846aaf', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'c0281d29-ea62-47dc-b713-3fa61a914d50', 'Mariana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Larissa', now()
@@ -7203,8 +7203,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4696bddf-98ff-4307-97ea-82fcb9ff317f', 'Roberto', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '47397373-f6de-47b3-b15e-8e4f0c97a7d4', 'Roberto', NULL, NULL, NULL, NULL, NULL, 'M',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Willian', now()
@@ -7216,8 +7216,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e055729a-4b76-4528-b260-4f2b1a0eeeff', 'Neusa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '30ec8b53-fa37-4d68-8f78-82ba961ed646', 'Neusa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Casado(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Dulce', now()
@@ -7229,8 +7229,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0de7c8f5-3c6b-4d96-86cc-6517864b6d4b', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '350cc14a-12c3-4177-87ac-8457eddace69', 'Aline', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alexsandra', now()
@@ -7242,8 +7242,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1c010aad-7734-43b9-a03a-9a0d908de466', 'Meirielle', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '31f72d9e-634c-40a8-b1c5-999a1818d562', 'Meirielle', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7255,8 +7255,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0ea4fd24-2aea-4a34-a052-5c8fd3b5742a', 'Eunice', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'fffc854c-bdee-4781-b480-dc32c37a2cfe', 'Eunice', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7268,8 +7268,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cfcce2bb-8eef-47dc-8eb5-ac713f8c2a60', 'Lucimar', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'e0b2db19-abb0-4e67-bb18-38d43526e2e6', 'Lucimar', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7281,8 +7281,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2ed84c6a-a5f1-4c66-8394-e8ab6ac026b5', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    'efab151e-d8bc-430b-9c55-7a239a38ce3b', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Oliveira', now()
@@ -7294,8 +7294,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '892fd5a9-a4fe-4932-85de-2cfa459f61d6', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '4637e51e-d868-48a0-9c49-e3e45b5c161a', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Alexsandra', now()
@@ -7307,8 +7307,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fde67b87-f300-4595-b0c5-3f778fb15b93', 'Dalva', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '083f9f38-7032-4278-9596-67c4202b1dff', 'Dalva', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7320,8 +7320,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '59e886a3-f6f1-4608-921d-8e77a4623ea8', 'Lúcia Helena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '489d006a-d113-40c4-9fd5-b4806cf13a3e', 'Lúcia Helena', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7333,8 +7333,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '96ecc10b-a3a7-4fbd-9269-9f7a3b822ef3', 'Sirlene', NULL, NULL, NULL, NULL, NULL, 'F',
-    '9baef366-eb8b-409c-bfdb-363fb9cc5b0a', true, false, false, false, false,
+    '8e69290f-c4fb-4e91-b1e6-1d3b6a899987', 'Sirlene', NULL, NULL, NULL, NULL, NULL, 'F',
+    '454c813e-f396-4ba8-97eb-c8af1c44da78', true, false, false, false, false,
     'Solteiro(a)', NULL, 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Neusa', now()
@@ -7346,8 +7346,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '81659905-131f-4a84-aafb-1ab3d9f0693d', 'José Alfredo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    '6a7a69f2-740b-45a7-8399-3db32c96ac8a', 'José Alfredo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Bela Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -7359,8 +7359,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ed73084d-85c8-420d-b6ae-a404985a3138', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    '84fcc302-3b37-43c3-b3ff-d6e5978183c6', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Bela Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -7372,8 +7372,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ef6ce8ca-85f3-4942-a155-050ca4116b3b', 'Isaque', NULL, NULL, NULL, NULL, NULL, 'M',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    'f2b9159e-8d29-491b-a5aa-25446a426482', 'Isaque', NULL, NULL, NULL, NULL, NULL, 'M',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Solteiro(a)', 'Bela Vista', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7385,8 +7385,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'de2648cb-4bac-436d-b4d5-a97741b3e50f', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    'd4888e55-62e1-4003-964c-263847bbeb25', 'Cleber', NULL, NULL, NULL, NULL, NULL, 'M',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Barreiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Alfredo', now()
@@ -7398,8 +7398,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '75d62d1e-646c-4f27-b61f-1736ff071923', 'Ila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    'cc02327c-e58f-4f11-8bca-b7f936147b76', 'Ila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Barreiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -7411,8 +7411,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'be328eeb-a952-4c7f-be08-a6f96c1ab356', 'Gabriela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    '36d0e251-c2cb-4f7e-8c79-d2ae45df7599', 'Gabriela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Solteiro(a)', 'Barreiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Valéria', now()
@@ -7424,8 +7424,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6ed6b4a7-c085-4e59-86a0-8542d3380ec1', 'Neide', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    'a3b09779-e382-4e9b-b769-559a8959b3d6', 'Neide', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Solteiro(a)', 'Los Angeles', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -7437,8 +7437,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b7768fff-f421-4596-bdd3-c7ce279df56f', 'Alexsandra', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    '9b9e02ec-cced-4643-a830-d1c7d9057a64', 'Alexsandra', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Solteiro(a)', 'Los Angeles', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -7450,8 +7450,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7205e063-55e5-41b9-906b-8cc83e2f9b0d', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    '5fc9f0b4-bb35-473e-a445-f0d7eacf0185', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Bandeirantes', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Genderson', now()
@@ -7463,8 +7463,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7f3b532f-5421-4b9f-8ba0-2e717ddc1f93', 'Deise', NULL, NULL, NULL, NULL, NULL, 'F',
-    '64791204-ba0c-4881-b13f-f14d2ceeac20', true, false, false, false, false,
+    'e10dec81-fb8d-42e2-8cc8-b488a9fa03e6', 'Deise', NULL, NULL, NULL, NULL, NULL, 'F',
+    'dbb6bb31-295c-4584-b95f-699a1ca55cef', true, false, false, false, false,
     'Casado(a)', 'Bandeirantes', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -7476,8 +7476,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a6dfb526-08b9-452d-bc99-7384ffb0e521', 'Thiago Van Petten', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '49061166-5ee7-46aa-ad69-c830e8040bb9', 'Thiago Van Petten', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Nossa Senhora do Carmo - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernandinho', now()
@@ -7489,8 +7489,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '52b16034-cbcf-4896-a7b2-7336375ffe30', 'Nara', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'b33b9b1e-4817-4d06-8c51-b6a55293b79c', 'Nara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Nossa Senhora do Carmo - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -7502,8 +7502,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a31ce4ca-beed-465b-993c-f76976c3673f', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '3740abe5-1fba-4a4b-a766-ead9e7b96e34', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Nossa Senhora do Carmo - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7515,8 +7515,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f0d995e6-5117-472f-bace-a139b34b0d89', 'Augusto', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '413d642a-2bef-4c76-8fc3-49d13b80a213', 'Augusto', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Nossa Senhora do Carmo - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7528,8 +7528,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5dd10ed6-4dc2-4fc1-ad6f-4c6f44e90f29', 'Ismar', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '4aa7949b-706d-4d0e-b2cb-3024503bb61c', 'Ismar', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Salgado Filho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7541,8 +7541,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f7d3c8ab-4309-4b4f-a235-da8204f07b86', 'João Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'ae42aed7-1e27-4999-9dd9-af3c31b28b7e', 'João Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Barreiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Fernandinho', now()
@@ -7554,8 +7554,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '10ee34d4-888d-4409-88df-699a366c8cef', 'Sara', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '90131381-befd-4e28-a84c-df5e8cd3b2c9', 'Sara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Barreiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Clara', now()
@@ -7567,8 +7567,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ffdbfa25-274f-48c1-85a5-dbffe97785d7', 'Denise', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '095beade-90c3-4edc-82cb-dabf241e868e', 'Denise', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Cidade Industrial - Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7580,8 +7580,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '64a12542-4a5d-4126-b9f7-c5de6e0eafdd', 'Madalena (Madá)', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '49121378-c117-4140-9383-a70886756298', 'Madalena (Madá)', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Salgado Filho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7593,8 +7593,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b14a40cd-e49b-495b-ab95-2527ab75a71d', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '3831c6cd-b6db-42dd-acb1-f212b9116e8b', 'Leonardo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Funcionários', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thiago Van Petten', now()
@@ -7606,8 +7606,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9ad2638d-73fc-4d45-9cce-c39385015883', 'Tiago (Tiaguinho)', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '2a7e7b18-c2cb-4c75-a552-630d7b420abf', 'Tiago (Tiaguinho)', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Jardim América', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João Pedro', now()
@@ -7619,8 +7619,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '03661168-950f-4354-b233-397b08bff48e', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '89e98fd2-ef60-4e14-a189-4296faf874f6', 'Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Nova Suíssa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Shibas', now()
@@ -7632,8 +7632,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0961cec1-bf5a-4cf8-aba3-c89efd4421bf', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'f4ae810a-a538-4628-84ee-b081625f4e1c', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Grajaú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thiago Van Petten', now()
@@ -7645,8 +7645,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '374dc646-b0ad-4830-b353-6b12f5ff2561', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'fec8cecd-1a12-47a6-9f39-5d8dd95d2066', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'Grajaú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nara', now()
@@ -7658,8 +7658,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'aa5acfc5-035e-44ae-9dc2-45b1d7b8df50', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '318b2c39-07c1-4beb-bf9a-2464253c4c60', 'Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Grajaú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7671,8 +7671,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '01d9b464-7053-4f22-8815-874c13796ed8', 'Elisa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'b8a334d2-b79d-4079-8b72-596a2e9d7adb', 'Elisa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Grajaú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7684,8 +7684,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '09ff0348-354e-43c2-b372-181bac3bddfb', 'Mauro', NULL, NULL, NULL, NULL, NULL, 'M',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    'd2611ef7-f80d-493c-9d81-d2d7d2cddd06', 'Mauro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'João Pinheiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'David', now()
@@ -7697,8 +7697,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a2a83320-2e09-4258-a3d5-8aaacbb043e0', 'Marlene', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '9a472a03-3019-433a-a844-aab960d371a1', 'Marlene', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Casado(a)', 'João Pinheiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jehane', now()
@@ -7710,8 +7710,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '57df42f7-0dc0-4c71-8f65-2f14e15ba866', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'bf4cb59b-2698-4530-aeb4-fb4522387152', true, false, false, false, false,
+    '9d973a73-9e76-4566-b46d-1efdc444f4e1', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '3322eaa1-2a5b-4419-b356-bbf9d9439789', true, false, false, false, false,
     'Solteiro(a)', 'Nova Cintra', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ismar', now()
@@ -7723,8 +7723,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '747b38d7-b84b-4039-9033-6fee34f9bddf', 'Jardir', NULL, NULL, NULL, NULL, NULL, 'M',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '99969e7f-7eba-4b22-b80f-61ca77a97b1f', 'Jardir', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Nova Suíça', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Regi e Flávio', now()
@@ -7736,8 +7736,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '75208da3-b8ba-486e-8665-e765a183883b', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '9f7ef2d9-ab1d-44e0-b277-a1f4659cd464', 'Cida', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Nova Suíça', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jardir', now()
@@ -7749,8 +7749,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a9702713-6d0a-48dd-b1da-cb915ad1ce71', 'Warlei', NULL, NULL, NULL, NULL, NULL, 'M',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    'e918e722-10da-48b4-92bb-b243e560420a', 'Warlei', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Salgado Filho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jardir', now()
@@ -7762,8 +7762,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd9f00b9c-8e29-42c2-8874-1801b2f0290e', 'Alba', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '58ebe276-7a77-4b63-9dfb-0dfe71c1f3bf', 'Alba', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Salgado Filho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Warlei', now()
@@ -7775,8 +7775,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6936238c-4151-4795-92e8-1b238739f7ed', 'Afrânio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    'b6f75b58-ff57-47d5-9d53-7ee7617b57e7', 'Afrânio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jardir', now()
@@ -7788,8 +7788,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0257e477-a7b6-4121-a5a8-27919652d373', 'Helen', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '77948d79-6a1e-4a9b-8ca1-7d1683c1e8ae', 'Helen', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Afrânio', now()
@@ -7801,8 +7801,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fd84b5f8-115e-4bc8-8ae7-9cd5b84d10a7', 'Helena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '2defd892-a663-4a86-a58d-58b35c3fd551', 'Helena', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -7814,8 +7814,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '53e99fe6-d062-432b-8520-0d56ced4eb27', 'Kátia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '118b6386-22c9-4aaf-beb4-52e1a95f7876', 'Kátia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Santo Antônio', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -7827,8 +7827,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '03249386-a827-4dc3-b732-13775f6a2119', 'Cassinha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '6756ac72-ae10-4d4c-8096-22df321bcd3c', 'Cassinha', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Gutierrez', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Kátia', now()
@@ -7840,8 +7840,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f9c91c0c-0f5f-4e65-9f1d-a34005b2ec9d', 'Clemência', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '282214d6-90e4-4d18-be4d-694e129e27f5', 'Clemência', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Santo Antônio', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Grace', now()
@@ -7853,8 +7853,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0d8468f5-1153-4c5d-840e-5d0b1717d331', 'Bárbara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '6116ce1f-0907-4dfb-910e-6d6c1070844f', 'Bárbara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Santo Antônio', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Kátia', now()
@@ -7866,8 +7866,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '38adb185-a124-48df-bad7-dd9f5e1697a1', 'Perpétua', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '25137c7e-590c-4100-a9f0-a9e640aaf33d', 'Perpétua', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Nova Granada', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -7879,8 +7879,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3abe52ae-99d4-4946-b1ac-7dddb50bd36a', 'Ágatha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    'f7289dd0-da5f-4507-a29e-5ddd3cdc7590', 'Ágatha', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Padre Eustáquio', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -7892,8 +7892,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '74745f41-8358-4ef6-9bd9-5bb65d351ffd', 'Maria Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '7f4730cf-d90f-4115-a217-771ca5088818', 'Maria Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Lourdes', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ágatha', now()
@@ -7905,8 +7905,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '265e932d-f3d9-4d23-84d8-c03f5f3a46e8', 'Claudinha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '921aac28-91ea-4a56-8078-3501d3d944ee', 'Claudinha', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Grajaú', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Denise', now()
@@ -7918,8 +7918,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7fb7dc20-c84e-4590-9f05-10156435ee5f', 'Saulo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    'b2bda8fe-9444-4780-bfcd-556c19d39d96', 'Saulo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Floresta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jardir', now()
@@ -7931,8 +7931,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '107ca685-65b8-4780-bc0f-c943e09aa8ef', 'Kioko', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '80a73aff-0b63-47db-8f3e-748be9b6b3fa', 'Kioko', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Casado(a)', 'Floresta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Denise', now()
@@ -7944,8 +7944,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8042ae68-bd1a-431e-96f8-6669581e2937', 'Denise', NULL, NULL, NULL, NULL, NULL, 'F',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    '43fbc97b-b00b-4d14-94f5-7c2a37cfc060', 'Denise', NULL, NULL, NULL, NULL, NULL, 'F',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Lourdes', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cida', now()
@@ -7957,8 +7957,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c247c8d9-b8c0-4733-bd26-678c24bfc892', 'Wellington Ferreira (Shibas)', NULL, NULL, NULL, NULL, NULL, 'M',
-    '8a447ab1-0b6a-4b93-ba2c-0026ca85b730', true, false, false, false, false,
+    'bdbcfac3-a4bc-4275-9cab-127a2326e653', 'Wellington Ferreira (Shibas)', NULL, NULL, NULL, NULL, NULL, 'M',
+    '8a371e51-c2a3-4e06-bd53-4636c93a86ed', true, false, false, false, false,
     'Solteiro(a)', 'Nova Suíça', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -7970,8 +7970,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '643a895a-771e-4c2c-8ddd-6be6ad1a3687', 'Luiz Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '2560ef21-cd4b-4bc0-9b6f-424d8ce63f32', 'Luiz Henrique', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Centro - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -7983,8 +7983,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4f6caee5-fe21-4c66-b050-28a3766c802c', 'Charles Pascoal', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '6cd9c6dd-091b-4458-be1b-649c9cfbf5dc', 'Charles Pascoal', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'São José - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -7996,8 +7996,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f1eedb72-e58a-4905-8b59-d6db370a2b32', 'Lorena de Freitas', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'a6e41747-32b3-4124-b6a8-08063bcf1362', 'Lorena de Freitas', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'São José - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caroline', now()
@@ -8009,8 +8009,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f338f154-5c97-4529-8b12-9b90478740bd', 'Ana Raquel', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '86e27d3e-8314-406f-9cc3-4cd0f579c56b', 'Ana Raquel', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'São José - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8022,8 +8022,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c3fc759d-6814-46ad-b336-01c59a63da94', 'Davi Ribeiro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'd7dbbb9b-2ab7-4ca6-8b25-ecac282ef660', 'Davi Ribeiro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Zona Rural - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -8035,8 +8035,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c6ca5e65-7c90-4d00-b1d9-d9c03744a72c', 'Jehanne', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'b667ba62-263f-44d5-9cd2-1afbaf7bce8d', 'Jehanne', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Zona Rural - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caroline', now()
@@ -8048,8 +8048,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b188890f-2349-4b52-9793-08b5811f7ba8', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '1cf73a9a-eb7d-4edf-a305-d4319ba65cb8', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Zona Rural - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João Paulo', now()
@@ -8061,8 +8061,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'faea37be-2052-43c2-b3a5-bda548e27549', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'd42c9db9-abf2-40de-b820-ae8e02186c07', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Zona Rural - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi Ribeiro', now()
@@ -8074,8 +8074,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '246a7e2a-f9a3-43b7-bc6e-1e729bb0aad9', 'Tiago Ribeiro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '1342fab1-4218-44d8-b935-0c0b824e0f34', 'Tiago Ribeiro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Zona Rural - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi Ribeiro', now()
@@ -8087,8 +8087,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '722a8040-c020-4878-a2aa-0424f57d868d', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'b8d744bf-242e-4c11-a7de-29a8e19236e4', 'Edmilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi Ribeiro', now()
@@ -8100,8 +8100,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '32f624ea-0788-480e-b963-0d5fa2bd24d6', 'Lídia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'e805b9ca-eaca-42a0-9a18-153be8c8d218', 'Lídia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jehanne', now()
@@ -8113,8 +8113,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bf98590e-ccc0-4929-835c-ba1e9846d679', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '17e8b845-f21e-4fb8-bce3-48b7e85d7297', 'Letícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8126,8 +8126,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '32b950d9-6474-4e1e-a513-555280617278', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'ac4683a2-4a53-46f2-be91-8a06195a7a67', 'Flávio', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -8139,8 +8139,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1bd07e79-5900-4d35-960c-f7b6f6b7c5a6', 'Darlene', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'f57e52f9-0018-446a-9862-45fc2ee9adfc', 'Darlene', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caroline', now()
@@ -8152,8 +8152,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '868474c4-058b-47c8-a89e-660cc7a54ee9', 'Davi de Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '1bf910d5-e364-4f12-ad40-8133f208cc28', 'Davi de Oliveira', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Luiz', now()
@@ -8165,8 +8165,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4b4383f1-0c5e-48e3-82ef-1ac67dae9231', 'Jonatas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '986f57e1-6461-4afb-bef6-b5adbe9e3def', 'Jonatas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8178,8 +8178,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '251b4abd-0ebb-49f5-8773-1cba771cb36d', 'Marisa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '68b3e7f5-2706-4dda-8732-f863519dc42e', 'Marisa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jehanne', now()
@@ -8191,8 +8191,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b008f08b-016d-4067-8e31-aa26ad8196b5', 'Raphael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '96457c4e-0c26-4fd4-b9cc-3b85c2930dcb', 'Raphael', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8204,8 +8204,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2ab6692a-78b5-4c50-b2ca-fd04799988c2', 'Sophia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '94f28d5c-67be-450e-b946-37149156fb40', 'Sophia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Santa Quitéria - Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8217,8 +8217,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '15b6d388-0772-477d-91b1-bc3504a0bb21', 'Emerson Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'a3572e00-8fb9-496f-8d39-e2e39c35f314', 'Emerson Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -8230,8 +8230,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c986ba93-3f40-44ba-82b6-7147178a2c67', 'Caroline Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '90ed5647-d80f-4994-a497-488663a76f6a', 'Caroline Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Casado(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -8243,8 +8243,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a2476a67-ac0e-4e9d-8bf5-014df04e39c2', 'Ana Clara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '544f14c2-d5cc-47dd-baa5-40ac7bdbafe7', 'Ana Clara', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caroline', now()
@@ -8256,8 +8256,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f6071af1-02bc-4fa5-a75e-3ac318dd792f', 'Tiago Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'b1bde40a-1169-4e84-a44c-c52ee6f42545', 'Tiago Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -8269,8 +8269,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f81d2bdc-4497-460f-a60b-b759afdec6a9', 'Samuel Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '8a319402-8ada-4a10-bbec-49bb860534af', 'Samuel Heleno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8282,8 +8282,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cb9ba05f-c74c-4bd2-8270-3b2ada1297a7', 'Isabela Heleno', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '7a7829a1-d58d-4ce2-ba69-a62774218d81', 'Isabela Heleno', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8295,8 +8295,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a60c8589-0c72-419a-b414-d48a10c78dde', 'Ilia Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    '7f75673e-fb65-42f9-bd94-05b5e467dbce', 'Ilia Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lorena', now()
@@ -8308,8 +8308,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b8b2e930-80b1-42cd-a0dd-530afb3de1a7', 'Glaydson José', NULL, NULL, NULL, NULL, NULL, 'M',
-    '03acbb31-1865-4ed9-be93-b16da9be65b2', true, false, false, false, false,
+    'a657daa7-e94d-48c3-a424-dbc8b4eaeca3', 'Glaydson José', NULL, NULL, NULL, NULL, NULL, 'M',
+    '586db6a6-33c5-48bc-9e4a-17b464a4f428', true, false, false, false, false,
     'Solteiro(a)', 'Gentileza - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8321,8 +8321,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '01de7ea5-c4fe-4330-a5db-e90ee9b75999', 'Alexandre', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b', 'Alexandre', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Davi', now()
@@ -8334,8 +8334,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fe58ac90-83fc-4708-bc8e-d7a7f2080fe9', 'Érica', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '412281ef-14cc-4bf5-8c8c-3a99801ac0c5', 'Érica', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roseli', now()
@@ -8347,8 +8347,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '99d320d6-b38c-4b4d-85f0-771f1765b166', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '2b6c397c-0adf-4598-872b-60e2030bd0db', 'Pedro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8360,8 +8360,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3bac8349-bdeb-4f5c-8837-846f9fee43f1', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'a6ef5c5f-36be-45f4-a7b4-ac7e8f9f83ef', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8373,8 +8373,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9ac2d7c2-17bf-464d-9333-89e0735c493e', 'Heloísa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '3e56fc68-c292-4638-9aae-7b9caad492ab', 'Heloísa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8386,8 +8386,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '111fc211-6520-4e68-ad30-d99663fb7f12', 'Tames', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'd36ce245-1130-49a0-ac1e-e165e9edce0c', 'Tames', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juan', now()
@@ -8399,8 +8399,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4c496562-332f-4350-8713-36deb6c0ab95', 'Michelle', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'e90f4120-ed2f-4388-9983-c669dc5ed409', 'Michelle', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8412,8 +8412,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '20a8f04e-66ec-4fbd-ade3-80b59ac244dd', 'Helisa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '7e17132c-bb7d-4092-8bc2-4287069bda10', 'Helisa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8425,8 +8425,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a794e044-0c16-479d-a039-b544402e1422', 'Adelmo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '9a8bd12f-e8ea-42b3-8114-6268cf77f9a9', 'Adelmo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juan', now()
@@ -8438,8 +8438,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1355f355-3402-4c7b-9fa8-aa7a1e426c2d', 'Júnia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'f55a0aab-53b9-448f-a57d-84f2eb9068f4', 'Júnia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8451,8 +8451,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '84aa6d0e-1b1d-4f31-b25d-11d740f79eef', 'Neuza', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '9ab5963a-7c9f-44c9-bcd8-c1c743201b4e', 'Neuza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Roseli', now()
@@ -8464,8 +8464,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '086d8459-48a2-4cfa-8dfa-ea5b36cc36d1', 'Rosa', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '6dfbf707-82e9-4a95-829f-9daef9d5fc4c', 'Rosa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Água Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8477,8 +8477,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6a6a3f14-83fa-4a44-b0cb-f33de4ba029c', 'Juan', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'bd688ad9-23df-474b-aac0-fc8e23ceae9e', 'Juan', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Jardim Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Reginaldo', now()
@@ -8490,8 +8490,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4f8be18d-1754-481e-ab8f-870005082348', 'Ximena', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'f7d55a4f-8e34-4cf0-81ce-b69e9c196e14', 'Ximena', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Jardim Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8503,8 +8503,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bf3c75f0-aa5e-4484-ac75-deff7f6617d5', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'b0b888f8-eba9-4080-801d-00a42be835d2', 'Valentina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8516,8 +8516,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bd3b3e72-18ca-42d0-a49e-276e85afc13c', 'Victória', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    'c332d75d-d325-4b23-bd70-be271f577f2a', 'Victória', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8529,8 +8529,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'de2e7b1c-98c1-440b-995d-eeb21e4b3a53', 'Antonella', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '218bb895-e627-4cd2-9838-597c68681e15', 'Antonella', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8542,8 +8542,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18e11abb-1bd3-4901-aacf-177af5aa8960', 'Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '66b84a63-a1c2-443a-b29c-5cc2767b6a3d', 'Júnior', NULL, NULL, NULL, NULL, NULL, 'M',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Monte Castelo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Juan', now()
@@ -8555,8 +8555,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4d4704b4-9513-403d-8499-17c560f45254', 'Silvana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '0c57ff88-fdca-4ccb-a579-01eb98babac7', 'Silvana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Casado(a)', 'Monte Castelo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ximena', now()
@@ -8568,8 +8568,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a7b300d0-4d15-40ef-89db-47167abb3cc9', 'Emanuelle', NULL, NULL, NULL, NULL, NULL, 'F',
-    'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c', true, false, false, false, false,
+    '7e992b77-d6b0-40bf-8b1b-6ce2e8957482', 'Emanuelle', NULL, NULL, NULL, NULL, NULL, 'F',
+    'd2a8d8cf-217d-44c6-b171-a971ecb6f405', true, false, false, false, false,
     'Solteiro(a)', 'Monte Castelo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sara', now()
@@ -8581,8 +8581,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f80cfe6c-f07f-4461-852c-b8a3ed25d767', 'Jairo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '2593d98a-bf0c-4ee9-bce6-396691bef474', 'Jairo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cléber', now()
@@ -8594,8 +8594,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ff3f31ab-7908-484b-811d-6c9300452d95', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '40f58745-8172-49b5-ad40-9adcdc0864d6', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia (Cléber)', now()
@@ -8607,8 +8607,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a7d8cac8-b9f6-4a47-9f76-a64e8be90ce1', 'Camila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '8a1c8af4-e054-45db-a8ca-14870409ee0d', 'Camila', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -8620,8 +8620,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '22afaae9-68d7-4aaa-8925-5bf6674b526e', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'd696909f-cfcf-4bc3-ac80-af4828387550', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio', now()
@@ -8633,8 +8633,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '84006fda-8503-4753-9bf5-3df051516634', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '8ae246e6-0b5d-4075-997c-7e6b6c9ca984', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -8646,8 +8646,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '07505fcb-bbab-4c23-a738-4127501f402e', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carol', now()
@@ -8659,8 +8659,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f9c4ebef-9a80-4e30-96d6-c8ce1ff81ca7', 'Emanuele', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '35df79d8-19ec-40b5-9985-4def6cfcf4ba', 'Emanuele', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8672,8 +8672,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '28f4a5d3-fcfe-49af-b514-22b5f8177e32', 'Geovana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '41520468-e8fc-4f30-8432-5bef0e656ba3', 'Geovana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8685,8 +8685,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '76c416c9-b8e8-4644-9b80-04458484213b', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '95050668-c07e-43f4-9927-5aa3ee62d4b9', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8698,8 +8698,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4dc5a04a-3281-4cee-968a-bc61d83f1210', 'Warley', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'e14d477f-7d43-4b78-8c59-309bb9e43c8e', 'Warley', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Parque Alvorada - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Emerson', now()
@@ -8711,8 +8711,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '18b71168-2c8d-4a0b-9858-f547f3b67c5e', 'Deise', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '4842d3df-262e-4f5f-a9e4-e94e264f8942', 'Deise', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Parque Alvorada - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Carol', now()
@@ -8724,8 +8724,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bc3d80bb-72b8-46ae-b92f-75891d217d49', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'c1881747-9f15-4bb3-90df-5b7540da365f', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Parque Alvorada - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Camila', now()
@@ -8737,8 +8737,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '8c884b5a-603f-4c43-82dd-38eaba21bbdd', 'Jetro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'ac0b9f71-629b-4624-a2fe-5b4ea4c87e87', 'Jetro', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Parque Alvorada - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8750,8 +8750,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'aa0cb027-08d8-4433-92fe-6bd9e4a7eec6', 'Olício', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '9b7e123e-8a4b-4cbf-b1ea-91018cc09710', 'Olício', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Satélite - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jairo', now()
@@ -8763,8 +8763,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '58f5593b-6ccd-4576-b9ba-3a327901c487', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '59da7ad8-e573-43a6-b2b6-0cc612f75412', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Satélite - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -8776,8 +8776,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4ea36c0f-71e4-49e7-ab1d-7c8d9b91ad13', 'Noah', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '6ff366f4-e6d3-4212-bd49-f25a5228a488', 'Noah', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Satélite - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8789,8 +8789,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9bdc7d0d-388d-40a8-b3ee-d0408cf5c19e', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '31a63e84-70b9-4dcb-9d8d-745170332492', 'Maria Alice', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Satélite - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8802,8 +8802,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4a5f5788-797a-45f1-b6d7-e3f6e77745eb', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '82923ff5-0618-43e3-b9f9-1543f681b4a6', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Centro - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jairo', now()
@@ -8815,8 +8815,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ed35496c-3a32-410c-8757-cd3abebc4a67', 'Jéssica', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '05b2ac6e-5494-439a-93db-10e6eab77f8f', 'Jéssica', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Centro - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -8828,8 +8828,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '93ea2784-ac7a-4374-8e8c-7b3337858f2b', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '487fc304-5040-4e9f-810f-296ca99cbc2c', 'Marcos', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Boa Vista - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jairo', now()
@@ -8841,8 +8841,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cef669da-d59e-4963-af3c-a18cb59a0a9c', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'd387d30a-45a6-425d-8be0-67726f688e9d', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Casado(a)', 'Boa Vista - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -8854,8 +8854,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fd34f447-bdf8-4e79-a13f-98e18127662b', 'Emilly', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '4a0fc86b-2ba3-4e0c-85ac-2a7db6466f1e', 'Emilly', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Boa Vista - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Camila', now()
@@ -8867,8 +8867,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4742e5f7-bf73-4f66-b3db-df0808d764e1', 'José Maurício', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '12f716b7-67e9-4fbd-ba59-71acb7c2439f', 'José Maurício', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Vianópolis - Betim', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jairo', now()
@@ -8880,8 +8880,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bf083089-62f6-4b73-b83f-f4e97aa32645', 'Gutemberg', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '8b16ce25-716a-4a75-8a20-92cbe5db7d86', 'Gutemberg', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leandro', now()
@@ -8893,8 +8893,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd14de9ad-0328-4fa6-a37f-83a22cc6dbbc', 'Mizael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '9c244df9-0d28-4358-b9b3-7441579bacd6', 'Mizael', NULL, NULL, NULL, NULL, NULL, 'M',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Centro - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jairo', now()
@@ -8906,8 +8906,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'abb2613a-ebc8-4032-b320-e373038c6987', 'Helen', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '0d05ab02-1d57-49f8-b7a1-7ca7476a1e6c', 'Helen', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Marimbá', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eliane', now()
@@ -8919,8 +8919,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'de69b251-743b-4bbd-94fa-2b432eab389c', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    '8fb44784-4976-4642-8845-bb0a17cb9fed', 'Luana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Boa Vista - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -8932,8 +8932,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0c0d6a63-c59b-46b4-806c-d5df2e98cb3f', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '827ab195-4359-478b-9826-17dc7c69f545', true, false, false, false, false,
+    'd7fc8e71-5031-47c4-af71-adfd38623653', 'Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '7a245029-b248-4fae-b8a1-555e3596985a', true, false, false, false, false,
     'Solteiro(a)', 'Boa Vista - Juatuba', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Camila', now()
@@ -8945,8 +8945,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9d85386a-2977-44f0-abf2-ca36fb815f2d', 'William', NULL, NULL, NULL, NULL, NULL, 'M',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    'd17bef0c-89e9-466d-9df4-6a18677aa0a3', 'William', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ronildo', now()
@@ -8958,8 +8958,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c474b9e3-67e9-4639-a1b3-2a210b64148e', 'Simara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '8e6174b6-6d89-457e-b2d8-3f5988b0e829', 'Simara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8971,8 +8971,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f0968a66-f3e9-400c-bc80-32affb37034b', 'Wenderson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '9266f1dc-f06f-48b1-b47b-9fe4f5020955', 'Wenderson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Ronildo', now()
@@ -8984,8 +8984,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '903d0419-b1bd-46a5-9537-a5a8b99b3c1d', 'Renata', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    'b9fcb867-cf5b-406a-a004-032d7aaaaca7', 'Renata', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -8997,8 +8997,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1c3ddc19-41db-44fd-a8f0-3c0a34b166e7', 'Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '8e9dfb48-c747-4bc8-a72d-c696d7fa00c9', 'Fátima', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9010,8 +9010,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f85afe51-62f0-4587-871e-a09c1030b1fe', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '2b3352f4-d8db-4322-a1b3-b16625e164b9', 'Fernando', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Pousada Del Rey', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'William', now()
@@ -9023,8 +9023,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '52a865e0-cd3c-45cf-9db7-6312f51cbe3e', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '636c7fb2-7f99-43d0-80a6-f29da2a21526', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Casado(a)', 'Pousada Del Rey', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9036,8 +9036,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f59a384f-2223-4afd-aa0a-e95e0c214c31', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '46f49bc1-8ea4-478a-a6b7-25aa8ea8d637', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Pousada Del Rey', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marisa', now()
@@ -9049,8 +9049,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bedc2468-4c37-4434-9ead-95e68a42f126', 'Bianca', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '83957f34-947c-417b-855a-9e9c98dee6b7', 'Bianca', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Pousada Del Rey', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9062,8 +9062,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '475be6c5-18f6-4600-8979-e70e90e4aa9f', 'Gláucia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    'ae1fcbd9-3d73-4498-bac9-774b38e3d901', 'Gláucia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Resplendor', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Renata', now()
@@ -9075,8 +9075,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7a05ad9b-21d4-46b3-88a4-9df066afb94d', 'Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    'ba1c755d-4d4f-4032-b825-2a7647ad9c2e', 'Fernanda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Casa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Simone', now()
@@ -9088,8 +9088,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3b8b46fb-8aff-4205-bae5-e356e7a2fb1a', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    'd27fcaa9-e95b-4293-82e7-2fcf807a0d9a', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Casa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9101,8 +9101,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '69f5a2e2-b8be-47f3-8273-fc387c929a34', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '36b7c8fe-ff4d-46fc-9809-b5381810ca35', true, false, false, false, false,
+    '7f847425-4ad3-46d5-bd70-faedda8adccd', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ba4a9672-3e50-461d-856e-af3b4d5dacd8', true, false, false, false, false,
     'Solteiro(a)', 'Casa Branca', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9114,8 +9114,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '83893c76-725f-448b-b55c-791bba040776', 'Cléber', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '7f6a897d-f307-4429-afdf-f50c86822fa1', 'Cléber', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -9127,8 +9127,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '55f6d5f6-2e1e-472d-b08a-477a87ca34a6', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '698c6074-257b-43b4-a379-45585b53de97', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9140,8 +9140,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '895a6259-65e3-42a1-a3a4-0b5080733540', 'Camilla', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '3c7ffa1c-ef8a-4d1e-8a45-713f6b3901e7', 'Camilla', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cláudia', now()
@@ -9153,8 +9153,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f07fb6d8-6385-492f-a864-9c10519a2c7f', 'Caio Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '619e54b6-6171-44f2-a081-1bdb77914858', 'Caio Vitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Niterói', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Arthur', now()
@@ -9166,8 +9166,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '145c5222-1c13-48a9-8eef-0a206fe1f549', 'Marina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'cf1e668b-d5c6-4bfe-a4c8-c63cecdf3f3c', 'Marina', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Niterói', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9179,8 +9179,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3c2c1c31-bad2-428d-b1c1-1e98fee4bfd5', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'ee643bef-3d93-486f-be03-1ec6e30b9fa7', 'Marcelo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Renascer', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cléber', now()
@@ -9192,8 +9192,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5e193f39-6b9f-414e-bcde-98599d93adf5', 'Simone', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'e898433b-71b2-495a-b778-88cffac37816', 'Simone', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Renascer', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9205,8 +9205,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '495a32dc-f4d4-430d-a675-493e5bf9f466', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '8fac9fa3-a045-4ac7-bcea-25800d44f69c', 'Beatriz', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Renascer', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Simone', now()
@@ -9218,8 +9218,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a41f4c5c-d0ac-46de-9a87-47d0df1fda09', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '013ca4c2-23ec-4927-8870-33ff6a9e86f1', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Renascer', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9231,8 +9231,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2de6beb6-fef1-4f67-b588-946d9ad6889b', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '884cd615-51a4-466a-b34a-353ce7f54aaf', 'Bruno', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Bandeirinhas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João', now()
@@ -9244,8 +9244,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0e444243-f06a-497e-ae34-29e52db8d1ab', 'Vanusa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'fb0d32fb-4fd4-483d-8c81-a5b0a800ecc2', 'Vanusa', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Bandeirinhas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9257,8 +9257,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0210b6d7-2bee-4b12-b998-facc98d5e391', 'Abner', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '3f756cdb-0c88-474c-961e-16d00943f790', 'Abner', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cléber', now()
@@ -9270,8 +9270,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e0da7c6c-7b50-4845-a29a-e50c020311e1', 'Fabiana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '5e780f3e-0a2b-4e61-8dc3-0b45f686d554', 'Fabiana', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9283,8 +9283,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '046b9437-4d75-498f-9091-6ba825d8d942', 'Levi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'cabf2f97-704d-41ec-be3a-3d61ce65b308', 'Levi', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Jardim Alterosa', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9296,8 +9296,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '16ca23d1-8a79-4fec-b571-89b5802f93f4', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'a23d8852-44ab-45d8-8fc6-653e6675f14b', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Laranjeiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Simone', now()
@@ -9309,8 +9309,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ae55dad1-8b02-4b04-8fa2-3a6c2f2e7617', 'Nely', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'bd9d240d-1228-4c58-aec9-d9ce6d6dcd05', 'Nely', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Teresópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Priscila', now()
@@ -9322,8 +9322,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '72792e8b-2ff3-4ff8-a333-9c6d86c84a83', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'f55d4296-84d0-4b55-bb12-ab6c54da1119', 'Rafaela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Laranjeiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marisa', now()
@@ -9335,8 +9335,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '527ee3ae-b58e-40b2-b9a6-8576a94fa153', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '69d31065-79d0-4ba4-8ff4-0e3e64ffc6d3', 'Luís', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Teresópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Abner', now()
@@ -9348,8 +9348,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5299325a-efc6-4992-9c13-cd875e2e0810', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '6ab35f69-d80e-4531-b8f7-4d2833f92c1b', 'João', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Laranjeiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cléber', now()
@@ -9361,8 +9361,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4f35c61f-1da4-4882-b94f-f54369d8eab5', 'Lourdes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'bef040a4-97fc-41cc-8400-86caab8bc675', 'Lourdes', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Laranjeiras', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9374,8 +9374,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '2705d104-941d-41ed-aa42-ca742dcb51db', 'Denim', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '03283ddf-1330-468f-bb6d-8a9b5f9b6ede', 'Denim', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Morada do Trevo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Bruno', now()
@@ -9387,8 +9387,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '467666c6-93ce-4458-821c-a54ef6a7dd3b', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'be24d372-c67b-4814-84b5-dea54dca0c36', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Casado(a)', 'Morada do Trevo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9400,8 +9400,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '40288a12-55f1-4774-80b9-566949babf48', 'Ismael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '2d24c057-0315-4b10-8ad6-a4aae7b37821', 'Ismael', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Morada do Trevo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9413,8 +9413,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ca9c295c-146c-4547-af57-40d91de534b5', 'Isac', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '7a97bef5-e295-4445-bb5f-73b5cb909c8b', 'Isac', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Morada do Trevo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9426,8 +9426,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3f7f941f-8fce-46a7-a365-cc992467c40d', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '88e17c40-137a-445c-b6a0-73c95fc9738b', 'Daniel', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Morada do Trevo', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9439,8 +9439,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '04093db6-27cb-4c6f-84f6-ae09813baedd', 'José Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'b889b208-60da-434b-b2b8-594d0e3cbf88', 'José Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Teresópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'João', now()
@@ -9452,8 +9452,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '223b87e0-8722-4554-9b06-70e8e8c5ee29', 'Fagner', NULL, NULL, NULL, NULL, NULL, 'M',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '2304dc39-52dc-42ac-adce-166d89194071', 'Fagner', NULL, NULL, NULL, NULL, NULL, 'M',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Imbiruçu', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio Vitor', now()
@@ -9465,8 +9465,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '807b3d52-dc17-4263-8a26-b5d2230c3b25', 'Lauren', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '9e12aea8-fd5e-4e60-9ac8-951d2c4b33d7', 'Lauren', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Renascer', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nara', now()
@@ -9478,8 +9478,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ef6a97cb-f2b7-414d-b97c-4785077ee7ee', 'Rosângela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    '0d41964c-c6ce-4089-84a8-fcdfefe3dcb6', 'Rosângela', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'São Caetano', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Priscila', now()
@@ -9491,8 +9491,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '00b06a7c-d266-4416-8d74-1a07a4984b90', 'Suzi', NULL, NULL, NULL, NULL, NULL, 'F',
-    '66077532-f18c-43b8-b205-adb8eb21dca1', true, false, false, false, false,
+    'e4eb4e0a-d5ac-433f-96c6-be9cd6a798f4', 'Suzi', NULL, NULL, NULL, NULL, NULL, 'F',
+    '81eedfc8-0117-42b2-a349-d03eba6bee08', true, false, false, false, false,
     'Solteiro(a)', 'Imbiruçu', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lourdes', now()
@@ -9504,8 +9504,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a863cacd-926d-4dbf-b533-d22e45d80139', 'Marilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '92e26edd-467f-41f2-8fa7-438886aee0c4', 'Marilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -9517,8 +9517,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd7f09103-d5db-4df4-b30c-9f41a5a1f33d', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'bb5c9636-55d4-4df0-92e4-3b8d60cfc829', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -9530,8 +9530,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '9b88b8e5-e42a-4535-9dfe-21bb83b52c9b', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '37187d46-cba3-4c95-8bab-0f5f04a5fa01', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9543,8 +9543,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3be39136-25f7-4c76-b912-68867a128786', 'Gilson', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '16fc3cae-b943-4e46-8bec-d7f01baa4f31', 'Gilson', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -9556,8 +9556,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bb48c596-0afe-4438-ac36-eccc37ce7f1e', 'Nislândia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '53fe2ad5-6b9a-4c61-88de-f5f3038679b2', 'Nislândia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -9569,8 +9569,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '999e816a-05d3-41a3-8d8a-17a48c16a35e', 'Izabela', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '1546262a-e85c-4567-8734-3d17756fabc1', 'Izabela', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Priscila', now()
@@ -9582,8 +9582,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4e08f97d-4f9d-48fb-9d85-b24db502ab35', 'Ana Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'e5e842bf-4cfe-4219-977f-6e169ef6198f', 'Ana Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Nislândia', now()
@@ -9595,8 +9595,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7bfbc3a8-a811-4757-b046-24eee561707b', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'af0b46b7-aa56-4935-90c4-fcc8f60f08a0', 'Rafael', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Guilherme', now()
@@ -9608,8 +9608,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7840225c-8d31-4ca8-aeae-a627fcae7c4e', 'Wanderluz', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'ffe90127-a721-4c5d-a767-0601449ab591', 'Wanderluz', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marilson', now()
@@ -9621,8 +9621,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f8f7d7a8-d9d0-4666-a254-858eb78f1bc3', 'Janete', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '927e05a8-c64b-497d-9cff-922bcb8adf92', 'Janete', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9634,8 +9634,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b3e7623a-3743-4d91-ad75-92a9527d71be', 'Eduarda', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'bd5f67af-dd66-4767-9c80-3a2ba4c875ed', 'Eduarda', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Joelma', now()
@@ -9647,8 +9647,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b7a61e05-fc64-4dc5-b24f-1ac6b2ae37d6', 'Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '62d4667e-4a08-4256-989b-7a47c0c38aa5', 'Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Guilherme', now()
@@ -9660,8 +9660,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7a3513b1-9ad3-4f99-a56e-f361f8738812', 'Dilvano', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '0b41474e-5a7c-41f9-8cac-2c94dbcb5b02', 'Dilvano', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Dom Bosco', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marilson', now()
@@ -9673,8 +9673,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '78a85e6b-6af6-463b-9775-20f19af29e6e', 'Edilene', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'bfaf2255-9cea-451d-ba83-65873c2525f1', 'Edilene', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Dom Bosco', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9686,8 +9686,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5699e7ef-6769-444f-89db-bc8800071738', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '0327b2c7-2b8c-4079-9203-4c9275ba120b', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Dom Bosco', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9699,8 +9699,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'be3216a8-a15e-41f7-94fb-cf03402e4328', 'Josué', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '6504260b-9f34-4c87-b35f-331b555967cb', 'Josué', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marilson', now()
@@ -9712,8 +9712,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'eedb5897-a1b1-4656-9066-c6d82289bf03', 'Lorena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '908d2ecc-65f7-4160-b782-30f6e0fe8559', 'Lorena', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9725,8 +9725,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '544b01f8-a1f6-4425-9913-aa39035ce596', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'f35c8560-6530-4238-bc60-6f861fb8de96', 'Miguel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9738,8 +9738,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '190d674e-6c67-4d3b-9555-8603d2db2873', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'a37f60bf-47c8-4aa0-9681-9502f1d9cf70', 'Emanuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9751,8 +9751,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0db29e6a-c54a-44e6-93b1-9bf2f4052433', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'd4445397-62d1-4780-bceb-9cfdd30b99bf', 'Guilherme', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Califórnia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marilson', now()
@@ -9764,8 +9764,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '963e2e20-b96f-411f-b77a-58400ece2293', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '6e63bfd5-5879-49a9-94cc-89ef65e53633', 'Priscila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Califórnia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Patrícia', now()
@@ -9777,8 +9777,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5826ad0d-ad6e-451c-84cf-708d71f6e21d', 'Suely', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'd3f1c692-16cd-4336-b357-4ee1191c26f7', 'Suely', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Janete', now()
@@ -9790,8 +9790,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c29c03e9-40f4-4a49-95d9-c70f011d4002', 'Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'fd388df9-b123-4c2d-b18a-7f2d869bcee9', 'Filipe', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Guilherme', now()
@@ -9803,8 +9803,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '426ad53a-a1ef-4472-ab9b-a42a06879e51', 'Talita', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '0b3d3917-9a4c-4f06-b6e5-2bf0442ed694', 'Talita', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Priscila', now()
@@ -9816,8 +9816,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '588c1bf6-986f-49b7-a199-c3ba39487d8a', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'e8ff1aa2-e0fe-4dcf-9f30-e72a8b9c9dca', 'Benjamin', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9829,8 +9829,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '02c0f4ec-7d50-4314-af0a-5ef9758dcd11', 'Luciano', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '2b313e6c-35af-4309-9170-a485fabb45e8', 'Luciano', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lúcio', now()
@@ -9842,8 +9842,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ab518771-bb8d-4399-b516-2d912164dfe8', 'Joana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '9b2e2647-6f18-4546-97e4-5c47ffb6805f', 'Joana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Casado(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Tatiana', now()
@@ -9855,8 +9855,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c68989a1-e2d8-4ce7-bc6d-15a68d4c8292', 'Raíssa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '45576048-b424-4d53-9d88-e4308ac55741', 'Raíssa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9868,8 +9868,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '50102a04-9499-4ba6-8f01-792ef89096d2', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'f49e9970-5721-40e1-b48c-f3025cad65c3', 'Luciana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9881,8 +9881,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e1a3052a-79d6-4bb5-bf7a-a19b88ba18f3', 'Abner', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    'c5ecb4b2-ef2d-465d-82c7-e860bc32c5e5', 'Abner', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9894,8 +9894,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '88001175-a896-46ee-8372-d22b2e255f83', 'Ranma', NULL, NULL, NULL, NULL, NULL, 'F',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '42812fa4-c163-44d6-a74c-dbc554a44e3b', 'Ranma', NULL, NULL, NULL, NULL, NULL, 'F',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9907,8 +9907,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cae2d2e9-173a-48fa-9a49-52bde41244bc', 'Jonata', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '274d21ff-f182-4c57-8f95-8d06a31ac710', 'Jonata', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9920,8 +9920,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '755cca78-a90d-4e9f-bd2d-02f1f40e7026', 'Isac', NULL, NULL, NULL, NULL, NULL, 'M',
-    '83f01f9e-4107-42e2-83ee-a37cef34f184', true, false, false, false, false,
+    '76c1c6be-fdff-4979-b3aa-f50caf0fe7a0', 'Isac', NULL, NULL, NULL, NULL, NULL, 'M',
+    'a6ca0670-ea44-44a4-a415-1577eaafd0c1', true, false, false, false, false,
     'Solteiro(a)', 'Contagem', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio', now()
@@ -9933,8 +9933,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f85efaba-9cf9-44a9-bae8-fdaf808ebe77', 'Artur Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'b9c372cd-0253-4162-8336-9a11ad7258cd', 'Artur Cunha', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -9946,8 +9946,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '908f6a9f-f179-4492-9778-a1d617623be6', 'Thaís Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'ed6abaed-ed59-42db-bb8e-64d26b8ea1c1', 'Thaís Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -9959,8 +9959,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0b6e11c0-28b7-4d60-8508-160fab7e6e1e', 'Isabela Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '2d41c797-1179-438b-ac94-8cc7f8a866ff', 'Isabela Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Sara (Regis)', now()
@@ -9972,8 +9972,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e28e76c0-d13f-41bb-9d0f-447aaee328f5', 'Júlia Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '272e1873-2ee9-404a-9d01-e1b572f4281e', 'Júlia Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9985,8 +9985,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1066a960-6088-4925-b731-4ea27bc7a3da', 'Sofia Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'bbfaa8e8-781a-4b42-9fac-a37cd6c46542', 'Sofia Cunha', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -9998,8 +9998,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '96dc0c0f-88b8-4e7d-a2ab-1e08712c8b06', 'Douglas Macaúba', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'ceecba38-dbf1-4e71-9527-b75bca08248d', 'Douglas Macaúba', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Artur', now()
@@ -10011,8 +10011,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '58b4b501-3778-40a5-82be-6cc8c86dd3af', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'c735630e-4256-4ec4-a557-d74b25ff1564', 'Carol', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -10024,8 +10024,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '794837e7-a382-4ee3-8e96-f9759370af81', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'f5499f30-0123-42b6-b744-f16c50722a76', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10037,8 +10037,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7effff7e-ff89-4ea1-957d-f09afb0bafe2', 'Thiago', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '311b2c8d-bd25-4bca-a569-257bcdf6583c', 'Thiago', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Artur', now()
@@ -10050,8 +10050,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cf3c4250-2e8b-4779-adf8-d1bc6cd281f0', 'Carine', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '8bb8d56e-6b43-4997-a4ac-053b78ca0a9b', 'Carine', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -10063,8 +10063,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '3bac46fe-d2f8-4b11-bc0e-87496bfbbe50', 'Melina', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '62c7b3ef-9732-481c-aae3-37ec063ccb99', 'Melina', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10076,8 +10076,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'fac15d86-4066-41c3-8908-cff49ad3e522', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '6557adf5-8e87-474e-8883-bf1fa0ae18f2', 'Maria', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Betânia', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10089,8 +10089,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f1d794c5-eeaf-438f-a083-61e37db7f481', 'Diego', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'bbb8a195-549d-46d6-96cf-84a45ec4f5ae', 'Diego', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Artur', now()
@@ -10102,8 +10102,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '14ad3d68-7bdf-4ae0-9586-0041f218d732', 'Gisele', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '7c47fad3-84c7-49b7-b56b-ea9e470ca582', 'Gisele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10115,8 +10115,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '13b0029d-6203-4918-a0ea-d5e0b8129ab8', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '4c0c9695-0939-44f0-965f-cb25fd8bb7a0', 'Samuel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10128,8 +10128,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '34857cb8-8b87-44de-b7cc-d3d73a85dba8', 'Graziele', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '7a083438-77fe-43ba-ae15-31811724e9b2', 'Graziele', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Érika (Alexandre)', now()
@@ -10141,8 +10141,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b1a60326-126f-4071-be7f-116b9057bdb8', 'Imaculada', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'fe6b60ae-114e-449e-933b-f057b41374b9', 'Imaculada', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10154,8 +10154,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c13c725b-3137-4c43-a8e9-15e540325e36', 'Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'f433d75b-88a9-4602-91cc-8f6bb0f5ad72', 'Carlos', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Artur', now()
@@ -10167,8 +10167,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1656669f-a404-4b39-94b4-02fde1f89672', 'Vinícios', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'b521d801-f99a-4835-8b3e-a3625884da65', 'Vinícios', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Artur', now()
@@ -10180,8 +10180,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd1c42487-08d1-4cf9-b697-77cf9246cf61', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'a37df668-d01b-41f9-a54d-d326f2a17d3f', 'Sônia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -10193,8 +10193,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '96a58cd2-1995-4185-b20b-a92b9ebc51e7', 'Ana Eloísa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '6d950b31-7a4b-4803-8b3f-83dc82d48581', 'Ana Eloísa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10206,8 +10206,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '01eed741-7f47-4b43-9d50-3e9d2345bb93', 'Maria Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'b028ead5-8ecf-421e-ab7e-8675231fd1da', 'Maria Júlia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10219,8 +10219,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '38f49a15-36d2-451e-8d60-4ff8ab93d731', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '1309f57e-a4bd-440b-a7af-c982600700f2', 'Heitor', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10232,8 +10232,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1ed8b73d-1a8a-46e2-b0aa-6ba8360db32f', 'Martim', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    'c36f9d58-e6ae-447a-b8ad-be60805d9fa7', 'Martim', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10245,8 +10245,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f3beee46-fb10-49c0-a584-df0fab331614', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '1c2406c3-adf3-4d5b-956d-ff488006f0d4', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Casado(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10258,8 +10258,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '86689f21-374b-47f2-9313-f02f33fd819f', 'Laura', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '2c1c06cc-2873-4657-b6ce-9bd49b285f3e', 'Laura', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Suzana', now()
@@ -10271,8 +10271,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '20b18900-1d5a-4617-8f98-b29314a10cf3', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '6be3fa3c-b822-41ba-9d3e-ca0d6d6f924b', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10284,8 +10284,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd0fd103a-198e-4ef8-9d2c-6fdc70f0b448', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '2ea8ebfc-4d46-430b-a4f5-58b4721d4d2f', 'Gabriel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10297,8 +10297,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0691343d-9160-44da-ac60-8dc1b5a859b6', 'Isaque', NULL, NULL, NULL, NULL, NULL, 'M',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '894f2bf3-1164-4fcf-a510-1c163dc2b4d7', 'Isaque', NULL, NULL, NULL, NULL, NULL, 'M',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Riacho', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio', now()
@@ -10310,8 +10310,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd31a81ca-ada5-41bd-acd1-3f2d40991bad', 'Zélia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '0850a030-4329-4d72-8cb3-dc09df86c40d', 'Zélia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -10323,8 +10323,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '5ff875ff-8322-4c09-945a-1175571bb0d3', 'Keila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '4320d5da-ec05-4d97-9118-03d326fae3e2', true, false, false, false, false,
+    '11a8553c-65ac-478f-af3e-a99f61dfe645', 'Keila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'ff816d34-d01d-4b8f-abfb-ebba5de5f9be', true, false, false, false, false,
     'Solteiro(a)', 'Eldorado', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Thaís', now()
@@ -10336,8 +10336,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '10f27076-8ad1-4b6c-96b6-0bcfce118d21', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '6bf0a643-6a4e-4599-8f3e-6784437768d0', 'Lucas', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Bom Retiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -10349,8 +10349,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e4fb9fdc-8ef5-40d5-99c5-a79638f569fc', 'Leila', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '3b257027-3160-4e0f-bc58-0b6aa5813ff9', 'Leila', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Bom Retiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Martim', now()
@@ -10362,8 +10362,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '19de1bab-d871-440e-8bb8-d9ac5660f3b6', 'Ivan', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'd8b020f1-187a-4c54-8040-f0f6d1feaa46', 'Ivan', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Bom Retiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Caio', now()
@@ -10375,8 +10375,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6ed21ce0-d15a-46d6-938e-e46bc0192bf6', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '6891fe8e-3abb-471c-a02e-be10435a3301', 'Ester', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Bom Retiro', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10388,8 +10388,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '23868771-e51d-46a5-a2bc-d2680ecd2194', 'Eliel', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '462f996d-dbf5-471a-8cbb-db5e2144aa26', 'Eliel', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Ponte Alta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10401,8 +10401,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a8f224cf-d8b8-4c91-aea0-2080a88ccde4', 'Fabíola', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '2cf0d866-0648-4ceb-9004-ba32cdc093b3', 'Fabíola', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Ponte Alta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10414,8 +10414,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0ad14a21-1b97-4ccb-a41f-887c0ac7cf7a', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '6662b5c5-0b15-4a96-be3e-f94fc1393c59', 'Davi', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Ponte Alta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10427,8 +10427,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a040ae8f-ab01-4c18-9411-b3b3c00d676c', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'e00093b5-0e0a-4562-8c58-990a77c29110', 'Ana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Ponte Alta', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10440,8 +10440,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '563b566b-c35d-46ec-9583-72b47d07281d', 'Ramon', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '54cb5c5a-153a-4dc4-bb2b-64d3a979b158', 'Ramon', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Itacolomi', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10453,8 +10453,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'bfe75fc9-f016-44e7-90f5-2aa7a745383b', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '58e950e1-6ad8-40e7-89aa-8773d96bf0df', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Itacolomi', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10466,8 +10466,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '091f9dc9-92bd-4685-853c-5d80c7e86921', 'Ravi', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '8132f25c-541d-415e-b0d8-08ac92337875', 'Ravi', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Itacolomi', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10479,8 +10479,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '55d77b7f-629b-4cd2-9b0b-2ad824f983b4', 'Melissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '9a9caf5f-4d30-4599-bc87-74c8cd7a7aec', 'Melissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Itacolomi', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10492,8 +10492,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e245e00f-8c14-490e-88ef-ba6a0a10b43f', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'aac7b23c-9a35-41f4-815c-7a92d531f782', 'Rodrigo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10505,8 +10505,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '775b69aa-09b8-40fb-90a5-b8147eefe466', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '2f3a54eb-ecd1-481a-91a2-fa8523e226e5', 'Cláudia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10518,8 +10518,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '64abdbd3-d317-4637-9b2e-4535716a9cae', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'ed18aea1-e564-4922-a92d-27ef56a5219e', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Esmeraldas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10531,8 +10531,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f6bcf7f9-945d-4272-bdc2-75021465bc1c', 'Antônio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '84b3aca0-ef20-4436-aa64-082c92b5c60d', 'Antônio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Jardim Brasília', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10544,8 +10544,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '1e692cbb-dde9-4f45-823c-6686487116f5', 'Jaqueline', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '2546a5f2-6c35-4de2-b940-8b959f4df61c', 'Jaqueline', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Jardim Brasília', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10557,8 +10557,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '64b449c0-96b8-41a3-86df-16a57cf2bdd8', 'Verônica', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'cef591e9-7189-4929-aa28-e3509b2f1d5e', 'Verônica', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Nossa Senhora das Graças', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Leila', now()
@@ -10570,8 +10570,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '02d456d5-b395-4a96-a362-fb2e7476badf', 'Nileide', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'fbb335cf-5808-4292-8c12-9657eefac316', 'Nileide', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Niterói', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Jaque', now()
@@ -10583,8 +10583,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f04dda79-d9e1-475d-928c-a5dce6bd5834', 'Fábio', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1', 'Fábio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10596,8 +10596,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6a392324-bef0-4715-ab94-85a334eb2d91', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '7418d54e-e2af-49dd-8c1f-413289b4671f', 'Larissa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10609,8 +10609,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '34d024c4-6173-4469-9e95-07d489c9f665', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '25f16537-4989-48ee-afb2-936ff389fbf1', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10622,8 +10622,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ac1a10a0-153d-4eb3-a105-14803f82c0df', 'Suzana', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '83f17c9d-9955-4a25-8f48-ef5326a4fb2b', 'Suzana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10635,8 +10635,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ebb403e9-ec1f-44b6-875a-9fe7e03d4c84', 'Lorena', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '537ef7da-9bfb-47c2-85c5-3dec6e748d1a', 'Lorena', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10648,8 +10648,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6a0889e7-71ce-4414-87aa-678557370e0f', 'Asaph', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'abfd8fea-dbdd-4b3f-b6dd-bfa31b1fe93f', 'Asaph', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Colonial', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10661,8 +10661,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '6fa2d7da-daeb-4cea-9b02-fea2168bfb01', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '7ec438d7-bd9f-4c18-ae9c-e785ca10a5bd', 'Leandro', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Vianópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10674,8 +10674,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd7096cec-4242-458a-9999-6ec2bfc84eb2', 'Tainara', NULL, NULL, NULL, NULL, NULL, 'F',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    'a5dbd7da-0387-44dd-9ec6-4a4e3dec3924', 'Tainara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Casado(a)', 'Vianópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Lucas', now()
@@ -10687,8 +10687,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a5bdf968-9e12-4d84-8bc7-1d40b25f8a79', 'Théo', NULL, NULL, NULL, NULL, NULL, 'M',
-    '04a6bc60-55cd-4da5-9512-4b2be231863e', true, false, false, false, false,
+    '65e727a5-9e8a-4c8b-8e20-73f8d36a550b', 'Théo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'c122f72e-3a70-45fa-b29d-a8d730705b70', true, false, false, false, false,
     'Solteiro(a)', 'Vianópolis', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10700,8 +10700,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7d4c46f0-4ed3-4bf6-ae29-98c1df090fca', 'Cláudio Lopes', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    'fcba7dea-23cb-4da3-9d0b-e065b51b20f3', 'Cláudio Lopes', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Casado(a)', 'Interlagos - Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Douglas Martins', now()
@@ -10713,8 +10713,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'cb31b953-06da-43eb-8b0e-af0b9390a0ae', 'Zulmira Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    'cea68f7b-66ad-4c71-aa2f-c8a55a802249', 'Zulmira Lopes', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Casado(a)', 'Interlagos - Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Welen Cristina', now()
@@ -10726,8 +10726,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '7ef881ab-7e0d-4d21-87bd-8eb74904a379', 'Cristina Barbosa', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    '1cd47f96-3a56-4685-aad6-62edc8de8804', 'Cristina Barbosa', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Solteiro(a)', 'Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Welen Cristina', now()
@@ -10739,8 +10739,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'd5314492-4f0c-410f-844b-e0328304bc5a', 'Ismênia Ferreira Rezende', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    '30e75c10-5e13-4085-b84a-7410d4d90492', 'Ismênia Ferreira Rezende', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Solteiro(a)', 'Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina Barbosa', now()
@@ -10752,8 +10752,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '62c7254d-5c57-491d-ade0-34071ca96681', 'Maria das Graças', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    '6aa9b43e-c138-4bc7-a76c-44bab723a3a5', 'Maria das Graças', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Solteiro(a)', 'Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Cristina Barbosa', now()
@@ -10765,8 +10765,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'b45ce3b0-9910-4544-b199-0a91fddd9ce9', 'Samuel Rabelo Guimarães', NULL, NULL, NULL, NULL, NULL, 'M',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    'ce29b36b-bac6-49ba-bf63-72cebaa163cb', 'Samuel Rabelo Guimarães', NULL, NULL, NULL, NULL, NULL, 'M',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Casado(a)', 'Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Danilo Ferreira', now()
@@ -10778,8 +10778,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '07193709-1bc4-41ec-bddc-02c409210275', 'Kamila Rabelo Guimarães', NULL, NULL, NULL, NULL, NULL, 'F',
-    '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db', true, false, false, false, false,
+    'e1ed96e0-bd55-4bf2-82aa-23315c3f83aa', 'Kamila Rabelo Guimarães', NULL, NULL, NULL, NULL, NULL, 'F',
+    'fa04c60a-6a06-4d31-bbcc-533829613f1f', true, false, false, false, false,
     'Casado(a)', 'Sete Lagoas', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Melry Laine', now()
@@ -10791,8 +10791,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '4778ed70-4974-4e5a-ab7b-f4d50c257bd5', 'José Antônio', NULL, NULL, NULL, NULL, NULL, 'M',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'cda888cd-6996-4f6e-a1f0-a7d4eed04285', 'José Antônio', NULL, NULL, NULL, NULL, NULL, 'M',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Marinho', now()
@@ -10804,8 +10804,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '015ef6dc-288f-4266-ae6c-7eb878294df3', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '88f729e3-7586-49e8-a7f5-ff8ac7bca5cb', 'Eliane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Quênia', now()
@@ -10817,8 +10817,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'e4cb38f5-0fc2-4af1-9431-23e61e51bf0b', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '4e89d3dc-6c15-433c-9003-ec23404704c1', 'Geraldo', NULL, NULL, NULL, NULL, NULL, 'M',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Wellington', now()
@@ -10830,8 +10830,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '0a60cc91-b996-4028-8175-a8c8858a67cd', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'd3062ce1-81b4-4795-a533-de12931f2320', 'Adriana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Raquel', now()
@@ -10843,8 +10843,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f0731d7b-5533-4415-87e3-fc5fba5e2287', 'Uyara', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '5dfd82d2-24d2-4362-b946-fea8a3120029', 'Uyara', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Solteiro(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -10856,8 +10856,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'a4a5df28-ad0a-4eb7-9373-299ec6573932', 'Uyrlan', NULL, NULL, NULL, NULL, NULL, 'M',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '908e6a0e-6c72-4e5a-9813-cca396740cb2', 'Uyrlan', NULL, NULL, NULL, NULL, NULL, 'M',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Antônio', now()
@@ -10869,8 +10869,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '94be688c-539d-4a7d-b1fc-b829d40c3692', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'b6692a55-d3ea-415e-a366-55754965a0af', 'Luíza', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eliane', now()
@@ -10882,8 +10882,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '835cd260-fd18-4184-ae80-6bf27b21a158', 'Suzana', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '1023b947-a174-47d3-94c9-83da43276d79', 'Suzana', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Solteiro(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10895,8 +10895,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ce7f1091-e6a6-40f5-9aa6-6a1dd38d34c5', 'Welington', NULL, NULL, NULL, NULL, NULL, 'M',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '2876eca3-511f-4ce1-bf54-e33cb81e8393', 'Welington', NULL, NULL, NULL, NULL, NULL, 'M',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'José Antônio', now()
@@ -10908,8 +10908,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'c1134a6f-178d-40fa-affd-6d94d8fae52f', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '020fab36-7f91-4da1-b9c7-cc0a6c86131d', 'Patrícia', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Eliane', now()
@@ -10921,8 +10921,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'f6de8a28-dcb2-4453-b41d-dfeec0ed42fd', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'f95020cc-f8b9-4bb9-83f0-134e39a731a6', 'Nicole', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Solteiro(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -10934,8 +10934,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '68e36a98-50b2-41e9-806e-d00fd37c580a', 'Ariane', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'c992d89f-9a6e-4592-8a11-4d432ec4b3ed', 'Ariane', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Solteiro(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Adriana', now()
@@ -10947,8 +10947,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '05374aa2-ab3c-4909-9393-e0dd371f36f4', 'Hebert', NULL, NULL, NULL, NULL, NULL, 'M',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    'c037ee51-bdc5-4495-9ba2-f735467eda2f', 'Hebert', NULL, NULL, NULL, NULL, NULL, 'M',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, 'Flávio', now()
@@ -10960,8 +10960,8 @@ BEGIN
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    'ad1328a6-078f-4e85-835b-6a422cf12fdb', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
-    'f607a18b-e503-4039-a662-51ac41abfff9', true, false, false, false, false,
+    '94bd167e-c692-43bb-9083-413b723a3c46', 'Natália', NULL, NULL, NULL, NULL, NULL, 'F',
+    'db96195d-e3ce-4095-b8a1-bafe0c5a21a5', true, false, false, false, false,
     'Casado(a)', 'Santa Bárbara', 'Belo Horizonte', 'MG',
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, now()
@@ -10997,698 +10997,698 @@ BEGIN
       now(), now(), 'authenticated', 'authenticated', '', '', '', ''
     );
 
-  -- Vinculação explícita de user_id nos perfis principais
-  UPDATE public.profiles SET user_id = gabriel_auth_id WHERE id = gabriel_id;
-  UPDATE public.profiles SET user_id = fernando_auth_id WHERE id = fernando_id;
-  UPDATE public.profiles SET user_id = clara_auth_id WHERE id = clara_id;
+  -- Vinculação explícita de user_id nos perfis principais e garantia de avatar_url NULL
+  UPDATE public.profiles SET user_id = gabriel_auth_id, avatar_url = NULL WHERE id = gabriel_id;
+  UPDATE public.profiles SET user_id = fernando_auth_id, avatar_url = NULL WHERE id = fernando_id;
+  UPDATE public.profiles SET user_id = clara_auth_id, avatar_url = NULL WHERE id = clara_id;
 
 
   -- ==========================================================================
   -- 5. ATUALIZAR LÍDERES DOS GCs (35 Grupos)
   -- ==========================================================================
 
-  UPDATE public.home_groups SET leader_1_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1', leader_2_id = NULL WHERE id = '4650dacd-e1f8-4f2c-a11a-47da76f39fea';
-  UPDATE public.home_groups SET leader_1_id = '76385bbe-a540-4638-8013-609b49a6a2fe', leader_2_id = '2020229d-7979-4cbb-8fab-f021f18b825e' WHERE id = '00500a12-bfa8-4555-94e1-aeb4ab033573';
-  UPDATE public.home_groups SET leader_1_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1', leader_2_id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68' WHERE id = '789dae9f-84df-4b2f-b4be-473752444c8f';
-  UPDATE public.home_groups SET leader_1_id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb', leader_2_id = NULL WHERE id = '5396eee2-7aa4-4f85-ba46-5941f198a06d';
-  UPDATE public.home_groups SET leader_1_id = '20537b91-617f-4d87-85b9-3ce0577c9b5c', leader_2_id = NULL WHERE id = 'e36115b1-cdf7-42d4-b957-bd9f616cbe46';
-  UPDATE public.home_groups SET leader_1_id = 'a648effe-54bf-4d50-9a1e-4772e71bbe3e', leader_2_id = NULL WHERE id = '46d15d87-d30e-4ac0-9991-3749a4f72c67';
-  UPDATE public.home_groups SET leader_1_id = '7af0ac74-e184-4e33-bb80-bd12b75bc1cb', leader_2_id = NULL WHERE id = '30ca5fe2-0981-4900-8db9-6ba7c6cc0cb2';
-  UPDATE public.home_groups SET leader_1_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d', leader_2_id = NULL WHERE id = '86fed0c9-3cea-4a3a-abd5-7f54e82d28b8';
-  UPDATE public.home_groups SET leader_1_id = '959b2fae-5169-4dea-a573-5f4bb069fbc3', leader_2_id = NULL WHERE id = 'e2fa43ed-bb4e-4422-a77e-f51e9cb6c452';
-  UPDATE public.home_groups SET leader_1_id = '526cc3b4-cb7a-4b0a-b89d-6c1064ddd257', leader_2_id = NULL WHERE id = '09782827-90f8-404c-9018-2308258a795c';
-  UPDATE public.home_groups SET leader_1_id = '28bab668-c8b2-4246-b2ca-d4a3329e88b2', leader_2_id = '01cffd07-e218-42d6-89f9-c12af443e8fe' WHERE id = '2764260c-e49f-4cbd-9daa-0803989641d3';
-  UPDATE public.home_groups SET leader_1_id = '60d5d00e-1ad7-43df-8cd4-a78be04e6f66', leader_2_id = '5ffeca61-7cd6-4cf1-adc6-d48959409cb0' WHERE id = 'baa7dafb-99d5-4812-bc48-3b5642a82365';
-  UPDATE public.home_groups SET leader_1_id = '39ba647e-b4c9-4d9d-a376-c7b4b5b05ee1', leader_2_id = NULL WHERE id = '9a52e5a9-3676-4492-809f-2daf46fd1e77';
-  UPDATE public.home_groups SET leader_1_id = '060c9b8a-9173-4c73-afb1-348868616c14', leader_2_id = NULL WHERE id = '6ec2e0df-6b9f-4f7d-915a-b945cff55c0c';
-  UPDATE public.home_groups SET leader_1_id = '2677d29f-1562-41cd-9165-d007e2ebd21c', leader_2_id = NULL WHERE id = 'e86669d4-fd46-4053-b003-b2e19603ab3c';
-  UPDATE public.home_groups SET leader_1_id = '2ff78bac-b9be-4f2b-82e3-b072780d15b8', leader_2_id = 'fd3b4ca9-f0f3-4e55-a710-718bbbc4ff96' WHERE id = '9148f457-4658-4cc8-8fcb-eaa22ff2a2fb';
-  UPDATE public.home_groups SET leader_1_id = 'e4b579fe-e0da-4041-a958-a78e79c805dd', leader_2_id = '7cc5d3fd-5602-41b8-a8b0-2a601502657c' WHERE id = '3380d492-b8a0-4b4a-b532-fbde9e288f0e';
-  UPDATE public.home_groups SET leader_1_id = '20e07137-576a-499e-8fda-2bbc44badc2d', leader_2_id = '796d53cc-857c-4dc2-a2ab-004f6a37324c' WHERE id = '91cb3ff8-9bfc-4a65-a379-18d6c8d644e3';
-  UPDATE public.home_groups SET leader_1_id = '75140740-0ff3-4301-80e2-d690e8c3631a', leader_2_id = NULL WHERE id = '38438326-8b6f-41e4-894f-5514e834a762';
-  UPDATE public.home_groups SET leader_1_id = '60f23c80-fef9-4368-87c8-4fad26594ad8', leader_2_id = NULL WHERE id = '22e95001-26cc-4b11-aca6-06ddb854bc6d';
-  UPDATE public.home_groups SET leader_1_id = '4b33e034-5341-4e8a-a7cc-e86aa07de102', leader_2_id = '64fed90e-bed3-477b-b296-e3284bd747c3' WHERE id = '4c9a7389-ba43-4fbb-b635-f03229f9eade';
-  UPDATE public.home_groups SET leader_1_id = '27dcb3c1-c18e-4218-80b4-05d0a1b8a5ab', leader_2_id = NULL WHERE id = '9baef366-eb8b-409c-bfdb-363fb9cc5b0a';
-  UPDATE public.home_groups SET leader_1_id = '81659905-131f-4a84-aafb-1ab3d9f0693d', leader_2_id = NULL WHERE id = '64791204-ba0c-4881-b13f-f14d2ceeac20';
-  UPDATE public.home_groups SET leader_1_id = 'f7d3c8ab-4309-4b4f-a235-da8204f07b86', leader_2_id = 'a6dfb526-08b9-452d-bc99-7384ffb0e521' WHERE id = 'bf4cb59b-2698-4530-aeb4-fb4522387152';
-  UPDATE public.home_groups SET leader_1_id = '747b38d7-b84b-4039-9033-6fee34f9bddf', leader_2_id = NULL WHERE id = '8a447ab1-0b6a-4b93-ba2c-0026ca85b730';
-  UPDATE public.home_groups SET leader_1_id = '15b6d388-0772-477d-91b1-bc3504a0bb21', leader_2_id = NULL WHERE id = '03acbb31-1865-4ed9-be93-b16da9be65b2';
-  UPDATE public.home_groups SET leader_1_id = '6a6a3f14-83fa-4a44-b0cb-f33de4ba029c', leader_2_id = '01de7ea5-c4fe-4330-a5db-e90ee9b75999' WHERE id = 'b4cfb8ac-be3e-4afa-a686-aacd79c79e6c';
-  UPDATE public.home_groups SET leader_1_id = 'f80cfe6c-f07f-4461-852c-b8a3ed25d767', leader_2_id = NULL WHERE id = '827ab195-4359-478b-9826-17dc7c69f545';
-  UPDATE public.home_groups SET leader_1_id = '9d85386a-2977-44f0-abf2-ca36fb815f2d', leader_2_id = NULL WHERE id = '36b7c8fe-ff4d-46fc-9809-b5381810ca35';
-  UPDATE public.home_groups SET leader_1_id = '83893c76-725f-448b-b55c-791bba040776', leader_2_id = 'f07fb6d8-6385-492f-a864-9c10519a2c7f' WHERE id = '66077532-f18c-43b8-b205-adb8eb21dca1';
-  UPDATE public.home_groups SET leader_1_id = 'a863cacd-926d-4dbf-b533-d22e45d80139', leader_2_id = NULL WHERE id = '83f01f9e-4107-42e2-83ee-a37cef34f184';
-  UPDATE public.home_groups SET leader_1_id = 'f85efaba-9cf9-44a9-bae8-fdaf808ebe77', leader_2_id = NULL WHERE id = '4320d5da-ec05-4d97-9118-03d326fae3e2';
-  UPDATE public.home_groups SET leader_1_id = '10f27076-8ad1-4b6c-96b6-0bcfce118d21', leader_2_id = NULL WHERE id = '04a6bc60-55cd-4da5-9512-4b2be231863e';
-  UPDATE public.home_groups SET leader_1_id = '7d4c46f0-4ed3-4bf6-ae29-98c1df090fca', leader_2_id = NULL WHERE id = '6f3832b4-1a02-48e3-bbf3-8fcb75aef0db';
-  UPDATE public.home_groups SET leader_1_id = '4778ed70-4974-4e5a-ab7b-f4d50c257bd5', leader_2_id = NULL WHERE id = 'f607a18b-e503-4039-a662-51ac41abfff9';
+  UPDATE public.home_groups SET leader_1_id = '19ec4776-52dc-43c8-8c08-e272cc157732', leader_2_id = NULL WHERE id = 'b366e6bf-7874-49f6-b9e1-8db54a692033';
+  UPDATE public.home_groups SET leader_1_id = '41538203-0a7e-426e-9f6e-176315fa44a5', leader_2_id = 'a6285c83-e760-4a9c-9c0d-364f54ebbdf0' WHERE id = '63938120-2da3-4289-b043-54453759b8d4';
+  UPDATE public.home_groups SET leader_1_id = '46feee7e-f65c-4367-989d-d27a9a28c60f', leader_2_id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6' WHERE id = 'e30756e5-e290-4b4a-b615-3fc795b75a7e';
+  UPDATE public.home_groups SET leader_1_id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8', leader_2_id = NULL WHERE id = '167bcb15-3046-4f0a-b314-5190dba9b7fb';
+  UPDATE public.home_groups SET leader_1_id = '51d8feb7-3c2f-48ec-b34d-4bcf12c0b903', leader_2_id = NULL WHERE id = '3347a7eb-d4de-494e-8be4-7b34a99aa203';
+  UPDATE public.home_groups SET leader_1_id = '1a1cb155-63dc-48aa-be97-629e7f164085', leader_2_id = NULL WHERE id = 'b0bbefe0-256e-4cd3-98fe-254236c2b742';
+  UPDATE public.home_groups SET leader_1_id = '6b86a8db-1d0f-4912-ae80-29200ade426b', leader_2_id = NULL WHERE id = '8cb6ba0d-7db2-40b2-b12e-54abb1fdda5a';
+  UPDATE public.home_groups SET leader_1_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335', leader_2_id = NULL WHERE id = 'ccdbd19e-c15b-47af-9415-57a1481c56aa';
+  UPDATE public.home_groups SET leader_1_id = '089eb37a-3539-4603-9f28-1fdfc68d8787', leader_2_id = NULL WHERE id = 'cd47bc1a-e589-4890-b53d-e0f3f732d155';
+  UPDATE public.home_groups SET leader_1_id = '2d34ce73-838d-4d99-90fa-e1893a87cdb1', leader_2_id = NULL WHERE id = '5ab6502a-ab7d-4da8-a2da-db3fe5c6e491';
+  UPDATE public.home_groups SET leader_1_id = 'dd6a067d-0080-4f7e-bddc-cff252ae6682', leader_2_id = '1761642d-1189-4fe0-b79c-eafc71831e79' WHERE id = 'ad393be8-666a-4ad4-a48a-711217306577';
+  UPDATE public.home_groups SET leader_1_id = 'd18c42bf-13f3-4db1-9a2c-4cb3a1824765', leader_2_id = '2805af4b-4afd-4694-846c-4f7a8dbc5f86' WHERE id = 'e6b4096f-e087-41cc-8c5e-d083980b13c4';
+  UPDATE public.home_groups SET leader_1_id = 'aad4af3c-f8dd-46cd-92cd-6ae4620a28e3', leader_2_id = NULL WHERE id = 'adc03c88-e531-4494-8a68-ceef7762e4f7';
+  UPDATE public.home_groups SET leader_1_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e', leader_2_id = NULL WHERE id = 'fad1fef2-d71e-4783-b11e-8f26cb3faff6';
+  UPDATE public.home_groups SET leader_1_id = 'ac596a22-212d-4e17-82de-97f07cf80528', leader_2_id = NULL WHERE id = 'b6cab6d6-a3a7-4739-a93e-ed674aed58df';
+  UPDATE public.home_groups SET leader_1_id = '23657810-988d-4cc3-9e1b-1751ebbbdcd4', leader_2_id = '30b3bb90-624e-43ac-a2bb-2e02a95c9d4b' WHERE id = '09661dad-55e9-4d67-b9fd-6c1a983fa100';
+  UPDATE public.home_groups SET leader_1_id = 'db93cb34-835d-4fe6-8e35-53621fd147e7', leader_2_id = '9ec0d723-674b-4224-bd42-d046f79d6910' WHERE id = '84bad7cb-be75-434f-b9d5-1a303aac4464';
+  UPDATE public.home_groups SET leader_1_id = '81eed824-2776-4c5f-b12e-17febc2d8435', leader_2_id = '5bd5ed21-ce40-4633-adbf-f98469b1d98a' WHERE id = '3c098744-82ba-45e8-8090-a1f387bfaa97';
+  UPDATE public.home_groups SET leader_1_id = '8843c203-2474-4a86-abb2-f795dd099fe3', leader_2_id = NULL WHERE id = '002a3ca8-197b-486f-b24e-d146480c6e72';
+  UPDATE public.home_groups SET leader_1_id = '8b571057-7c94-4269-81a7-a6fb34dd1373', leader_2_id = NULL WHERE id = '08015614-b513-4bd1-86a3-c268609a6a3f';
+  UPDATE public.home_groups SET leader_1_id = '7c8a73a8-ee9e-4100-a523-730a700be20f', leader_2_id = '085fd5cd-72d7-4435-aa37-050a5733b4f3' WHERE id = 'c2852ff1-bc44-463f-9dce-1774ebc16a8b';
+  UPDATE public.home_groups SET leader_1_id = 'a4e32b83-b201-4c50-b72f-ae4738145c21', leader_2_id = NULL WHERE id = '454c813e-f396-4ba8-97eb-c8af1c44da78';
+  UPDATE public.home_groups SET leader_1_id = '6a7a69f2-740b-45a7-8399-3db32c96ac8a', leader_2_id = NULL WHERE id = 'dbb6bb31-295c-4584-b95f-699a1ca55cef';
+  UPDATE public.home_groups SET leader_1_id = 'ae42aed7-1e27-4999-9dd9-af3c31b28b7e', leader_2_id = '49061166-5ee7-46aa-ad69-c830e8040bb9' WHERE id = '3322eaa1-2a5b-4419-b356-bbf9d9439789';
+  UPDATE public.home_groups SET leader_1_id = '99969e7f-7eba-4b22-b80f-61ca77a97b1f', leader_2_id = NULL WHERE id = '8a371e51-c2a3-4e06-bd53-4636c93a86ed';
+  UPDATE public.home_groups SET leader_1_id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314', leader_2_id = NULL WHERE id = '586db6a6-33c5-48bc-9e4a-17b464a4f428';
+  UPDATE public.home_groups SET leader_1_id = 'bd688ad9-23df-474b-aac0-fc8e23ceae9e', leader_2_id = 'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b' WHERE id = 'd2a8d8cf-217d-44c6-b171-a971ecb6f405';
+  UPDATE public.home_groups SET leader_1_id = '2593d98a-bf0c-4ee9-bce6-396691bef474', leader_2_id = NULL WHERE id = '7a245029-b248-4fae-b8a1-555e3596985a';
+  UPDATE public.home_groups SET leader_1_id = 'd17bef0c-89e9-466d-9df4-6a18677aa0a3', leader_2_id = NULL WHERE id = 'ba4a9672-3e50-461d-856e-af3b4d5dacd8';
+  UPDATE public.home_groups SET leader_1_id = '7f6a897d-f307-4429-afdf-f50c86822fa1', leader_2_id = '619e54b6-6171-44f2-a081-1bdb77914858' WHERE id = '81eedfc8-0117-42b2-a349-d03eba6bee08';
+  UPDATE public.home_groups SET leader_1_id = '92e26edd-467f-41f2-8fa7-438886aee0c4', leader_2_id = NULL WHERE id = 'a6ca0670-ea44-44a4-a415-1577eaafd0c1';
+  UPDATE public.home_groups SET leader_1_id = 'b9c372cd-0253-4162-8336-9a11ad7258cd', leader_2_id = NULL WHERE id = 'ff816d34-d01d-4b8f-abfb-ebba5de5f9be';
+  UPDATE public.home_groups SET leader_1_id = '6bf0a643-6a4e-4599-8f3e-6784437768d0', leader_2_id = NULL WHERE id = 'c122f72e-3a70-45fa-b29d-a8d730705b70';
+  UPDATE public.home_groups SET leader_1_id = 'fcba7dea-23cb-4da3-9d0b-e065b51b20f3', leader_2_id = NULL WHERE id = 'fa04c60a-6a06-4d31-bbcc-533829613f1f';
+  UPDATE public.home_groups SET leader_1_id = 'cda888cd-6996-4f6e-a1f0-a7d4eed04285', leader_2_id = NULL WHERE id = 'db96195d-e3ce-4095-b8a1-bafe0c5a21a5';
 
   -- ==========================================================================
   -- 6. ATUALIZAR CASAMENTOS (spouse_id) E FILIAÇÃO (father_id, mother_id)
   -- ==========================================================================
 
-  UPDATE public.profiles SET spouse_id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896' WHERE id = 'd10f39b4-92c7-4967-9a82-69ad771457a1';
-  UPDATE public.profiles SET spouse_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896';
-  UPDATE public.profiles SET spouse_id = 'a52a6748-767f-4c5d-b6c4-3cd96572cd59' WHERE id = 'ed56e011-a066-49c8-8233-e3b5f50140af';
-  UPDATE public.profiles SET spouse_id = 'ed56e011-a066-49c8-8233-e3b5f50140af' WHERE id = 'a52a6748-767f-4c5d-b6c4-3cd96572cd59';
-  UPDATE public.profiles SET spouse_id = 'b48c1d94-9e72-445b-b469-4a2c00a74e99' WHERE id = '57d74b4b-3280-497a-87fc-9929e70eddcd';
-  UPDATE public.profiles SET spouse_id = '57d74b4b-3280-497a-87fc-9929e70eddcd' WHERE id = 'b48c1d94-9e72-445b-b469-4a2c00a74e99';
-  UPDATE public.profiles SET spouse_id = '2c08372b-4163-45f2-b106-ee4fe57cd0c9' WHERE id = '2092d89f-7c41-4cde-9666-72db932250e5';
-  UPDATE public.profiles SET spouse_id = '2092d89f-7c41-4cde-9666-72db932250e5' WHERE id = '2c08372b-4163-45f2-b106-ee4fe57cd0c9';
-  UPDATE public.profiles SET spouse_id = '6b604757-d4ef-40d7-beb0-514888126d1e' WHERE id = '18199521-b88c-45ba-8973-194040fe970b';
-  UPDATE public.profiles SET spouse_id = '18199521-b88c-45ba-8973-194040fe970b' WHERE id = '6b604757-d4ef-40d7-beb0-514888126d1e';
-  UPDATE public.profiles SET spouse_id = 'f1acb2a6-60ed-43ca-927b-7737c7a799b5' WHERE id = '6717d16b-3add-4977-a824-a9c6bc2f9c13';
-  UPDATE public.profiles SET spouse_id = '6717d16b-3add-4977-a824-a9c6bc2f9c13' WHERE id = 'f1acb2a6-60ed-43ca-927b-7737c7a799b5';
-  UPDATE public.profiles SET spouse_id = 'eaffce78-f113-4ead-aa0d-5ae9a8c5a110' WHERE id = '95da0514-9444-4f29-a788-9d782b842895';
-  UPDATE public.profiles SET spouse_id = '95da0514-9444-4f29-a788-9d782b842895' WHERE id = 'eaffce78-f113-4ead-aa0d-5ae9a8c5a110';
-  UPDATE public.profiles SET spouse_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '76385bbe-a540-4638-8013-609b49a6a2fe';
-  UPDATE public.profiles SET spouse_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f';
-  UPDATE public.profiles SET spouse_id = '8774e4d7-3520-464a-9ba9-3ef1d0c6e261' WHERE id = 'eb88342d-ad13-4b1a-9059-e5ff58db0ead';
-  UPDATE public.profiles SET spouse_id = 'eb88342d-ad13-4b1a-9059-e5ff58db0ead' WHERE id = '8774e4d7-3520-464a-9ba9-3ef1d0c6e261';
-  UPDATE public.profiles SET spouse_id = 'a23f3eb2-c9e5-495b-84c3-ecc4670bcb26' WHERE id = '0f0f28df-102c-4071-894e-389e41360cb1';
-  UPDATE public.profiles SET spouse_id = '0f0f28df-102c-4071-894e-389e41360cb1' WHERE id = 'a23f3eb2-c9e5-495b-84c3-ecc4670bcb26';
-  UPDATE public.profiles SET spouse_id = '93ce9392-ac77-4f5b-a4a0-bc3fa8ee0644' WHERE id = 'c163c8a6-d96f-4980-8242-fe3e94f85fb7';
-  UPDATE public.profiles SET spouse_id = 'c163c8a6-d96f-4980-8242-fe3e94f85fb7' WHERE id = '93ce9392-ac77-4f5b-a4a0-bc3fa8ee0644';
-  UPDATE public.profiles SET spouse_id = '451700ce-7eff-49d7-a787-f99a9eda2f8e' WHERE id = '075eabfb-81bd-4211-a4dd-a20b3e7fed47';
-  UPDATE public.profiles SET spouse_id = '075eabfb-81bd-4211-a4dd-a20b3e7fed47' WHERE id = '451700ce-7eff-49d7-a787-f99a9eda2f8e';
-  UPDATE public.profiles SET spouse_id = '1dc0ac57-4bbb-46b5-abae-938828807b02' WHERE id = '6ed4afbd-1081-4c81-be12-f03628822bba';
-  UPDATE public.profiles SET spouse_id = '6ed4afbd-1081-4c81-be12-f03628822bba' WHERE id = '1dc0ac57-4bbb-46b5-abae-938828807b02';
-  UPDATE public.profiles SET spouse_id = '18cbb5f8-0567-41a9-974b-1182d38942d5' WHERE id = '2020229d-7979-4cbb-8fab-f021f18b825e';
-  UPDATE public.profiles SET spouse_id = '2020229d-7979-4cbb-8fab-f021f18b825e' WHERE id = '18cbb5f8-0567-41a9-974b-1182d38942d5';
-  UPDATE public.profiles SET spouse_id = '70d7271f-0612-4434-9bab-d8c5ad38bb86' WHERE id = 'a3c9a07c-017c-4c35-a164-9fca6da79b4c';
-  UPDATE public.profiles SET spouse_id = 'a3c9a07c-017c-4c35-a164-9fca6da79b4c' WHERE id = '70d7271f-0612-4434-9bab-d8c5ad38bb86';
-  UPDATE public.profiles SET spouse_id = '8103138f-6084-4eb2-b852-be3d55cd19ba' WHERE id = '094adf18-1186-4802-a0c2-01852547ca63';
-  UPDATE public.profiles SET spouse_id = '094adf18-1186-4802-a0c2-01852547ca63' WHERE id = '8103138f-6084-4eb2-b852-be3d55cd19ba';
-  UPDATE public.profiles SET spouse_id = 'ee51a38f-1fa5-4a3a-bf56-403db185980b' WHERE id = '38644b54-ac21-4bfd-8444-85619f985a83';
-  UPDATE public.profiles SET spouse_id = '38644b54-ac21-4bfd-8444-85619f985a83' WHERE id = 'ee51a38f-1fa5-4a3a-bf56-403db185980b';
-  UPDATE public.profiles SET spouse_id = '584fa9fb-c171-46f5-8196-1a056d89527b' WHERE id = '2bf1deac-98cb-43ab-878e-aa8d559cca75';
-  UPDATE public.profiles SET spouse_id = '2bf1deac-98cb-43ab-878e-aa8d559cca75' WHERE id = '584fa9fb-c171-46f5-8196-1a056d89527b';
-  UPDATE public.profiles SET spouse_id = '88505968-39c9-4785-aa66-1eed08165c32' WHERE id = '31ca95d0-c658-4dc9-8116-8048726048f3';
-  UPDATE public.profiles SET spouse_id = '31ca95d0-c658-4dc9-8116-8048726048f3' WHERE id = '88505968-39c9-4785-aa66-1eed08165c32';
-  UPDATE public.profiles SET spouse_id = '02bf68cb-e556-4b65-a89e-7b236d235693' WHERE id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68';
-  UPDATE public.profiles SET spouse_id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68' WHERE id = '02bf68cb-e556-4b65-a89e-7b236d235693';
-  UPDATE public.profiles SET spouse_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = 'eb49b757-df17-400b-ae00-8e0cd3397de1';
-  UPDATE public.profiles SET spouse_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '77da84a6-4557-4582-a4ca-5d11246e5e99';
-  UPDATE public.profiles SET spouse_id = '299d81b7-08b1-4fa6-b026-f45a65c684e0' WHERE id = 'a573ee8c-e8c2-4501-b484-dfef25e04a6c';
-  UPDATE public.profiles SET spouse_id = 'a573ee8c-e8c2-4501-b484-dfef25e04a6c' WHERE id = '299d81b7-08b1-4fa6-b026-f45a65c684e0';
-  UPDATE public.profiles SET spouse_id = '8bcec8d5-0fdf-402d-a963-61de788fc967' WHERE id = '9cb51b1b-c865-4d6e-a6c9-29730d247a65';
-  UPDATE public.profiles SET spouse_id = '9cb51b1b-c865-4d6e-a6c9-29730d247a65' WHERE id = '8bcec8d5-0fdf-402d-a963-61de788fc967';
-  UPDATE public.profiles SET spouse_id = 'f10adea6-2436-468e-b214-937f20a4e094' WHERE id = '1681cb6a-b484-4030-bfb1-b33aea39ca9d';
-  UPDATE public.profiles SET spouse_id = '1681cb6a-b484-4030-bfb1-b33aea39ca9d' WHERE id = 'f10adea6-2436-468e-b214-937f20a4e094';
-  UPDATE public.profiles SET spouse_id = '86c3cf40-e6be-4004-a67b-30a8e1bc6801' WHERE id = 'efa67ef3-8431-4adf-817b-3485bdf5526e';
-  UPDATE public.profiles SET spouse_id = 'efa67ef3-8431-4adf-817b-3485bdf5526e' WHERE id = '86c3cf40-e6be-4004-a67b-30a8e1bc6801';
-  UPDATE public.profiles SET spouse_id = '9471ce5d-592b-43a5-b642-eca9376ade77' WHERE id = '135eb50a-71cd-4534-8edc-4d70e441f992';
-  UPDATE public.profiles SET spouse_id = '135eb50a-71cd-4534-8edc-4d70e441f992' WHERE id = '9471ce5d-592b-43a5-b642-eca9376ade77';
-  UPDATE public.profiles SET spouse_id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2' WHERE id = 'd601c038-8bef-439d-8abd-8e441694e063';
-  UPDATE public.profiles SET spouse_id = 'd601c038-8bef-439d-8abd-8e441694e063' WHERE id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2';
-  UPDATE public.profiles SET spouse_id = '70215bab-9e3d-4a7c-94e4-762e1a164792' WHERE id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb';
-  UPDATE public.profiles SET spouse_id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb' WHERE id = '70215bab-9e3d-4a7c-94e4-762e1a164792';
-  UPDATE public.profiles SET spouse_id = '7e7eccaf-13ba-4a6e-8314-25a385bd99e1' WHERE id = 'e3186275-49bc-4908-8bb0-1a703d6e04f4';
-  UPDATE public.profiles SET spouse_id = 'e3186275-49bc-4908-8bb0-1a703d6e04f4' WHERE id = '7e7eccaf-13ba-4a6e-8314-25a385bd99e1';
-  UPDATE public.profiles SET spouse_id = '8497d209-25dd-4c37-848a-71a5ce583a4e' WHERE id = '18a9e871-da19-4167-ae79-0a0f4d7ee177';
-  UPDATE public.profiles SET spouse_id = '18a9e871-da19-4167-ae79-0a0f4d7ee177' WHERE id = '8497d209-25dd-4c37-848a-71a5ce583a4e';
-  UPDATE public.profiles SET spouse_id = '91a31c18-cc8e-4cb8-ace6-1dba6277426c' WHERE id = '2be9bae1-598f-4ef9-8bae-29c5b7f8ec75';
-  UPDATE public.profiles SET spouse_id = '2be9bae1-598f-4ef9-8bae-29c5b7f8ec75' WHERE id = '91a31c18-cc8e-4cb8-ace6-1dba6277426c';
-  UPDATE public.profiles SET spouse_id = '550512f2-af6c-4275-b162-28eaabd2f610' WHERE id = '432d4817-9d00-43de-b3cb-980b6f076573';
-  UPDATE public.profiles SET spouse_id = '432d4817-9d00-43de-b3cb-980b6f076573' WHERE id = '550512f2-af6c-4275-b162-28eaabd2f610';
-  UPDATE public.profiles SET spouse_id = '92bcf7d0-2e22-43f6-a552-223cd710b0f4' WHERE id = 'baa8946b-a7c8-4644-9ac0-60d4ee5b1fd8';
-  UPDATE public.profiles SET spouse_id = 'baa8946b-a7c8-4644-9ac0-60d4ee5b1fd8' WHERE id = '92bcf7d0-2e22-43f6-a552-223cd710b0f4';
-  UPDATE public.profiles SET spouse_id = '2f962c77-17f1-4a34-ab50-4a916dd3ea67' WHERE id = 'a01be850-e0a9-43bc-a1fe-71a8fc25584a';
-  UPDATE public.profiles SET spouse_id = 'a01be850-e0a9-43bc-a1fe-71a8fc25584a' WHERE id = '2f962c77-17f1-4a34-ab50-4a916dd3ea67';
-  UPDATE public.profiles SET spouse_id = 'e92ae35a-3b83-4244-be87-6c7b66a093e5' WHERE id = '738e96d7-e9b4-4ef0-ad0e-3fb8c58cb409';
-  UPDATE public.profiles SET spouse_id = '738e96d7-e9b4-4ef0-ad0e-3fb8c58cb409' WHERE id = 'e92ae35a-3b83-4244-be87-6c7b66a093e5';
-  UPDATE public.profiles SET spouse_id = '291c477b-a8b1-4b96-b0fe-464ffb3a657c' WHERE id = '20537b91-617f-4d87-85b9-3ce0577c9b5c';
-  UPDATE public.profiles SET spouse_id = '20537b91-617f-4d87-85b9-3ce0577c9b5c' WHERE id = '291c477b-a8b1-4b96-b0fe-464ffb3a657c';
-  UPDATE public.profiles SET spouse_id = '859de62b-bf20-4d15-be6d-04ff434704ca' WHERE id = 'f384022d-8284-4319-af6e-9fbe52e69d6f';
-  UPDATE public.profiles SET spouse_id = 'f384022d-8284-4319-af6e-9fbe52e69d6f' WHERE id = '859de62b-bf20-4d15-be6d-04ff434704ca';
-  UPDATE public.profiles SET spouse_id = '3fe1a147-3ca9-4bd0-8b52-7a37bfb4bc91' WHERE id = '8f015bf8-de81-46bc-a02e-0e3c73981164';
-  UPDATE public.profiles SET spouse_id = '8f015bf8-de81-46bc-a02e-0e3c73981164' WHERE id = '3fe1a147-3ca9-4bd0-8b52-7a37bfb4bc91';
-  UPDATE public.profiles SET spouse_id = 'a0eef8b7-9ebe-4f37-bfd7-da7af7b5af42' WHERE id = '4f545f60-8a6c-46b3-98e7-5e9a9241b39c';
-  UPDATE public.profiles SET spouse_id = '4f545f60-8a6c-46b3-98e7-5e9a9241b39c' WHERE id = 'a0eef8b7-9ebe-4f37-bfd7-da7af7b5af42';
-  UPDATE public.profiles SET spouse_id = '21edf05f-e86a-4d56-a79b-f6e05fc1e228' WHERE id = '2e1b4dcf-50cd-47bd-b89a-4f39199fdb61';
-  UPDATE public.profiles SET spouse_id = '2e1b4dcf-50cd-47bd-b89a-4f39199fdb61' WHERE id = '21edf05f-e86a-4d56-a79b-f6e05fc1e228';
-  UPDATE public.profiles SET spouse_id = '827269bb-113e-48b7-ae0a-df513f706c0c' WHERE id = 'a648effe-54bf-4d50-9a1e-4772e71bbe3e';
-  UPDATE public.profiles SET spouse_id = 'a648effe-54bf-4d50-9a1e-4772e71bbe3e' WHERE id = '827269bb-113e-48b7-ae0a-df513f706c0c';
-  UPDATE public.profiles SET spouse_id = '2bf5aa3a-d062-405c-bb4f-d647ab8c6f07' WHERE id = '7079bc19-c16e-40e1-94fc-adfac82af3e5';
-  UPDATE public.profiles SET spouse_id = '7079bc19-c16e-40e1-94fc-adfac82af3e5' WHERE id = '2bf5aa3a-d062-405c-bb4f-d647ab8c6f07';
-  UPDATE public.profiles SET spouse_id = 'e89dbd5d-af0f-47f2-823c-5c0f2c6b304d' WHERE id = '5ebad0a7-908d-48b6-a9c1-d4ba7a78ab3e';
-  UPDATE public.profiles SET spouse_id = '5ebad0a7-908d-48b6-a9c1-d4ba7a78ab3e' WHERE id = 'e89dbd5d-af0f-47f2-823c-5c0f2c6b304d';
-  UPDATE public.profiles SET spouse_id = '1f346268-7371-47f7-bb24-51808b5823aa' WHERE id = '30e1a2ae-6be3-4203-9068-372425d39a05';
-  UPDATE public.profiles SET spouse_id = '30e1a2ae-6be3-4203-9068-372425d39a05' WHERE id = '1f346268-7371-47f7-bb24-51808b5823aa';
-  UPDATE public.profiles SET spouse_id = '97e8a600-d08b-421b-8d1b-9a28daf5a7be' WHERE id = '0d390dc3-aa8a-4863-a8c7-dfc2ebdca5cb';
-  UPDATE public.profiles SET spouse_id = '0d390dc3-aa8a-4863-a8c7-dfc2ebdca5cb' WHERE id = '97e8a600-d08b-421b-8d1b-9a28daf5a7be';
-  UPDATE public.profiles SET spouse_id = '173d4037-e958-4821-95a9-79e7299e94b9' WHERE id = '7af0ac74-e184-4e33-bb80-bd12b75bc1cb';
-  UPDATE public.profiles SET spouse_id = '7af0ac74-e184-4e33-bb80-bd12b75bc1cb' WHERE id = '173d4037-e958-4821-95a9-79e7299e94b9';
-  UPDATE public.profiles SET spouse_id = '6052821f-8200-493d-827d-52ffe6b6aa34' WHERE id = 'be0ca2d4-8557-4d83-a075-0c942654646e';
-  UPDATE public.profiles SET spouse_id = 'be0ca2d4-8557-4d83-a075-0c942654646e' WHERE id = '6052821f-8200-493d-827d-52ffe6b6aa34';
-  UPDATE public.profiles SET spouse_id = '1d636a29-8d27-493a-9973-e35e74476c54' WHERE id = '53105f33-5e45-45e6-960a-4992d916d7f7';
-  UPDATE public.profiles SET spouse_id = '53105f33-5e45-45e6-960a-4992d916d7f7' WHERE id = '1d636a29-8d27-493a-9973-e35e74476c54';
-  UPDATE public.profiles SET spouse_id = 'a79f053e-25b7-46fd-bdea-1901ba8328e7' WHERE id = 'cf5751da-3cec-4a07-a3a0-9bd18e08a16b';
-  UPDATE public.profiles SET spouse_id = 'cf5751da-3cec-4a07-a3a0-9bd18e08a16b' WHERE id = 'a79f053e-25b7-46fd-bdea-1901ba8328e7';
-  UPDATE public.profiles SET spouse_id = '721c5d9e-004f-4848-986f-1264faacdfae' WHERE id = 'c8d77dab-1aaf-4893-865b-708b3a426ed9';
-  UPDATE public.profiles SET spouse_id = 'c8d77dab-1aaf-4893-865b-708b3a426ed9' WHERE id = '721c5d9e-004f-4848-986f-1264faacdfae';
-  UPDATE public.profiles SET spouse_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d';
-  UPDATE public.profiles SET spouse_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde';
-  UPDATE public.profiles SET spouse_id = 'bc3cb641-22c2-4740-97c5-de8bfb35aebc' WHERE id = '1a6883bd-6cd3-4b77-b3d0-2d316b80a676';
-  UPDATE public.profiles SET spouse_id = '1a6883bd-6cd3-4b77-b3d0-2d316b80a676' WHERE id = 'bc3cb641-22c2-4740-97c5-de8bfb35aebc';
-  UPDATE public.profiles SET spouse_id = 'cd5dabff-935b-499d-991c-d5b06494981f' WHERE id = '49069bca-a1ca-4346-b1eb-aa00419a5c81';
-  UPDATE public.profiles SET spouse_id = '49069bca-a1ca-4346-b1eb-aa00419a5c81' WHERE id = 'cd5dabff-935b-499d-991c-d5b06494981f';
-  UPDATE public.profiles SET spouse_id = 'e86f8f13-6779-4961-907a-1c8c6fa870b1' WHERE id = 'aa3d2a3c-7f0c-467b-bf85-2952cca85639';
-  UPDATE public.profiles SET spouse_id = 'aa3d2a3c-7f0c-467b-bf85-2952cca85639' WHERE id = 'e86f8f13-6779-4961-907a-1c8c6fa870b1';
-  UPDATE public.profiles SET spouse_id = '3550ae89-e7cc-426d-bbb5-3bc74cf2775e' WHERE id = '7e630638-b948-429e-b5e0-1f0ff0dcaa30';
-  UPDATE public.profiles SET spouse_id = '7e630638-b948-429e-b5e0-1f0ff0dcaa30' WHERE id = '3550ae89-e7cc-426d-bbb5-3bc74cf2775e';
-  UPDATE public.profiles SET spouse_id = '8e8fc92d-956e-4c2b-a9fd-1eafcc4f99a3' WHERE id = '83133cf2-3975-4311-8806-3cba0bffeaab';
-  UPDATE public.profiles SET spouse_id = '83133cf2-3975-4311-8806-3cba0bffeaab' WHERE id = '8e8fc92d-956e-4c2b-a9fd-1eafcc4f99a3';
-  UPDATE public.profiles SET spouse_id = '7db85295-7a6a-4fef-ac5d-530737b9de8b' WHERE id = '2a3eb895-768b-4ff2-bb77-4218c6431631';
-  UPDATE public.profiles SET spouse_id = '2a3eb895-768b-4ff2-bb77-4218c6431631' WHERE id = '7db85295-7a6a-4fef-ac5d-530737b9de8b';
-  UPDATE public.profiles SET spouse_id = '4b26e83c-029a-44d9-ba6d-ddfd24a22371' WHERE id = 'e1439e40-56c7-4d8f-9e0e-2de14aa23470';
-  UPDATE public.profiles SET spouse_id = 'e1439e40-56c7-4d8f-9e0e-2de14aa23470' WHERE id = '4b26e83c-029a-44d9-ba6d-ddfd24a22371';
-  UPDATE public.profiles SET spouse_id = 'e329ffd2-65d6-4202-9969-432a4fe276af' WHERE id = '0ababef1-5f5d-436e-8abd-4c06321a96fb';
-  UPDATE public.profiles SET spouse_id = '0ababef1-5f5d-436e-8abd-4c06321a96fb' WHERE id = 'e329ffd2-65d6-4202-9969-432a4fe276af';
-  UPDATE public.profiles SET spouse_id = '983f9a5f-0ade-42ef-afe0-263ce1440ad2' WHERE id = '959b2fae-5169-4dea-a573-5f4bb069fbc3';
-  UPDATE public.profiles SET spouse_id = '959b2fae-5169-4dea-a573-5f4bb069fbc3' WHERE id = '983f9a5f-0ade-42ef-afe0-263ce1440ad2';
-  UPDATE public.profiles SET spouse_id = '2642fe06-67a6-4311-8fdf-e99729e30ab0' WHERE id = '3a24ed42-84e7-4591-90a4-8a1d5f3e94a5';
-  UPDATE public.profiles SET spouse_id = '3a24ed42-84e7-4591-90a4-8a1d5f3e94a5' WHERE id = '2642fe06-67a6-4311-8fdf-e99729e30ab0';
-  UPDATE public.profiles SET spouse_id = '0f0e3aa4-63d3-448c-a2d3-5f58458804ff' WHERE id = 'd9eec09c-4d55-4394-9b46-cfeb465535fa';
-  UPDATE public.profiles SET spouse_id = 'd9eec09c-4d55-4394-9b46-cfeb465535fa' WHERE id = '0f0e3aa4-63d3-448c-a2d3-5f58458804ff';
-  UPDATE public.profiles SET spouse_id = '97ccb0b0-481c-49ee-9c2b-2f7cc8dff8d7' WHERE id = 'd387f54a-2404-4d75-8abf-ec8e15e2b192';
-  UPDATE public.profiles SET spouse_id = 'd387f54a-2404-4d75-8abf-ec8e15e2b192' WHERE id = '97ccb0b0-481c-49ee-9c2b-2f7cc8dff8d7';
-  UPDATE public.profiles SET spouse_id = 'cc099159-251d-4faf-bcaf-98498a7f6e53' WHERE id = '19e646e3-8ee2-4759-bce9-271eb6210b0f';
-  UPDATE public.profiles SET spouse_id = '19e646e3-8ee2-4759-bce9-271eb6210b0f' WHERE id = 'cc099159-251d-4faf-bcaf-98498a7f6e53';
-  UPDATE public.profiles SET spouse_id = 'b039b08d-0e01-4bdc-b987-3ab6f901e3a1' WHERE id = '5bf8572e-cab5-43f6-9f15-9df1cee486e0';
-  UPDATE public.profiles SET spouse_id = '5bf8572e-cab5-43f6-9f15-9df1cee486e0' WHERE id = 'b039b08d-0e01-4bdc-b987-3ab6f901e3a1';
-  UPDATE public.profiles SET spouse_id = 'a9073378-aa09-4134-945a-aec6e223b4f8' WHERE id = '526cc3b4-cb7a-4b0a-b89d-6c1064ddd257';
-  UPDATE public.profiles SET spouse_id = '526cc3b4-cb7a-4b0a-b89d-6c1064ddd257' WHERE id = 'a9073378-aa09-4134-945a-aec6e223b4f8';
-  UPDATE public.profiles SET spouse_id = 'f11fa2bd-91cf-4be9-8abf-c5982da1bd68' WHERE id = '5aeda46e-fc73-49f3-9df8-a981e1f36d5f';
-  UPDATE public.profiles SET spouse_id = '5aeda46e-fc73-49f3-9df8-a981e1f36d5f' WHERE id = 'f11fa2bd-91cf-4be9-8abf-c5982da1bd68';
-  UPDATE public.profiles SET spouse_id = '09b74721-af05-489b-9fa8-51aeca18c043' WHERE id = '98e013bb-c845-4a01-9f29-e30418085f80';
-  UPDATE public.profiles SET spouse_id = '98e013bb-c845-4a01-9f29-e30418085f80' WHERE id = '09b74721-af05-489b-9fa8-51aeca18c043';
-  UPDATE public.profiles SET spouse_id = 'cb63660a-b0f6-421b-9b5b-06fdaf28de9c' WHERE id = '1d1cdf88-22c8-4687-883f-b1dd4b8fd4b0';
-  UPDATE public.profiles SET spouse_id = '1d1cdf88-22c8-4687-883f-b1dd4b8fd4b0' WHERE id = 'cb63660a-b0f6-421b-9b5b-06fdaf28de9c';
-  UPDATE public.profiles SET spouse_id = '11d54fe2-8e08-4557-b6aa-9d8fe99ce3e9' WHERE id = 'b97783df-67db-4a60-ad67-dcb6b4ddf9fa';
-  UPDATE public.profiles SET spouse_id = 'b97783df-67db-4a60-ad67-dcb6b4ddf9fa' WHERE id = '11d54fe2-8e08-4557-b6aa-9d8fe99ce3e9';
-  UPDATE public.profiles SET spouse_id = 'ed4c0016-fa08-4317-ac7b-d4851c1fb11a' WHERE id = 'd2486560-7e90-4ec9-947b-aa53900f970a';
-  UPDATE public.profiles SET spouse_id = 'd2486560-7e90-4ec9-947b-aa53900f970a' WHERE id = 'ed4c0016-fa08-4317-ac7b-d4851c1fb11a';
-  UPDATE public.profiles SET spouse_id = 'dacf9dd1-d154-47a3-af1b-9f5663eb172e' WHERE id = '01cffd07-e218-42d6-89f9-c12af443e8fe';
-  UPDATE public.profiles SET spouse_id = '01cffd07-e218-42d6-89f9-c12af443e8fe' WHERE id = 'dacf9dd1-d154-47a3-af1b-9f5663eb172e';
-  UPDATE public.profiles SET spouse_id = 'ff747f86-e7fa-414a-996b-2962be8a6743' WHERE id = '28bab668-c8b2-4246-b2ca-d4a3329e88b2';
-  UPDATE public.profiles SET spouse_id = '28bab668-c8b2-4246-b2ca-d4a3329e88b2' WHERE id = 'ff747f86-e7fa-414a-996b-2962be8a6743';
-  UPDATE public.profiles SET spouse_id = 'b9c1eb03-54db-4bf2-88a6-226be1640d57' WHERE id = '61bb229d-5043-4586-a1cb-b5e7809b9a42';
-  UPDATE public.profiles SET spouse_id = '61bb229d-5043-4586-a1cb-b5e7809b9a42' WHERE id = 'b9c1eb03-54db-4bf2-88a6-226be1640d57';
-  UPDATE public.profiles SET spouse_id = '43f76c8d-5a51-4323-90b4-20542b056dd7' WHERE id = '22f124a9-befb-447e-8e8c-e16d14c14f40';
-  UPDATE public.profiles SET spouse_id = '22f124a9-befb-447e-8e8c-e16d14c14f40' WHERE id = '43f76c8d-5a51-4323-90b4-20542b056dd7';
-  UPDATE public.profiles SET spouse_id = 'cf1d34ee-2080-4088-b5d8-d7731199901a' WHERE id = '770b9d65-c331-466a-854f-4134401e8154';
-  UPDATE public.profiles SET spouse_id = '770b9d65-c331-466a-854f-4134401e8154' WHERE id = 'cf1d34ee-2080-4088-b5d8-d7731199901a';
-  UPDATE public.profiles SET spouse_id = '233b4286-6217-4db6-a7b9-735f7d08f9e3' WHERE id = '300309cf-bc6b-4b04-8680-25c794dcf29b';
-  UPDATE public.profiles SET spouse_id = '300309cf-bc6b-4b04-8680-25c794dcf29b' WHERE id = '233b4286-6217-4db6-a7b9-735f7d08f9e3';
-  UPDATE public.profiles SET spouse_id = '52416985-e4a7-4a49-b4b0-433878205c4d' WHERE id = '70f111a7-ed80-4cb9-8df9-a57b334042a5';
-  UPDATE public.profiles SET spouse_id = '70f111a7-ed80-4cb9-8df9-a57b334042a5' WHERE id = '52416985-e4a7-4a49-b4b0-433878205c4d';
-  UPDATE public.profiles SET spouse_id = '93a88ed5-e784-4d6b-a69c-d7debb496bf3' WHERE id = 'cc31648e-f28f-422a-a4e4-d4f6d4a8a081';
-  UPDATE public.profiles SET spouse_id = 'cc31648e-f28f-422a-a4e4-d4f6d4a8a081' WHERE id = '93a88ed5-e784-4d6b-a69c-d7debb496bf3';
-  UPDATE public.profiles SET spouse_id = '2a75f8bc-d048-437f-85f3-f2c0f94dee00' WHERE id = 'dc23aa70-fbb4-4b81-9d74-3e5543cca2cb';
-  UPDATE public.profiles SET spouse_id = 'dc23aa70-fbb4-4b81-9d74-3e5543cca2cb' WHERE id = '2a75f8bc-d048-437f-85f3-f2c0f94dee00';
-  UPDATE public.profiles SET spouse_id = '20eb0250-1390-4a45-8abd-3f3ba349d2c3' WHERE id = '60d5d00e-1ad7-43df-8cd4-a78be04e6f66';
-  UPDATE public.profiles SET spouse_id = '60d5d00e-1ad7-43df-8cd4-a78be04e6f66' WHERE id = '20eb0250-1390-4a45-8abd-3f3ba349d2c3';
-  UPDATE public.profiles SET spouse_id = '9ae11fee-96fb-4c81-a6cd-57af2541291f' WHERE id = '5ffeca61-7cd6-4cf1-adc6-d48959409cb0';
-  UPDATE public.profiles SET spouse_id = '5ffeca61-7cd6-4cf1-adc6-d48959409cb0' WHERE id = '9ae11fee-96fb-4c81-a6cd-57af2541291f';
-  UPDATE public.profiles SET spouse_id = 'a8403eae-74c6-4fef-a79f-2847d04efcec' WHERE id = '1eacbe73-b7b9-4b19-b4f8-4396f357f975';
-  UPDATE public.profiles SET spouse_id = '1eacbe73-b7b9-4b19-b4f8-4396f357f975' WHERE id = 'a8403eae-74c6-4fef-a79f-2847d04efcec';
-  UPDATE public.profiles SET spouse_id = '37a7eca7-d590-4f26-8fda-d63a6377914e' WHERE id = 'b02b4f4f-5b40-4085-a3c9-82db4c266582';
-  UPDATE public.profiles SET spouse_id = 'b02b4f4f-5b40-4085-a3c9-82db4c266582' WHERE id = '37a7eca7-d590-4f26-8fda-d63a6377914e';
-  UPDATE public.profiles SET spouse_id = 'ba920b1c-2c4f-46c3-ab83-4eef8c657c4a' WHERE id = 'a3f3e01d-de9f-4355-afd9-163ef2baa6ab';
-  UPDATE public.profiles SET spouse_id = 'a3f3e01d-de9f-4355-afd9-163ef2baa6ab' WHERE id = 'ba920b1c-2c4f-46c3-ab83-4eef8c657c4a';
-  UPDATE public.profiles SET spouse_id = '8b01e7d2-fdb5-4873-beec-0f255c9c1be3' WHERE id = '667b7671-f41e-411c-9c09-650bdf3c3fbf';
-  UPDATE public.profiles SET spouse_id = '667b7671-f41e-411c-9c09-650bdf3c3fbf' WHERE id = '8b01e7d2-fdb5-4873-beec-0f255c9c1be3';
-  UPDATE public.profiles SET spouse_id = '18cb4392-3c16-46ff-bbac-96af09d8c07c' WHERE id = '39ba647e-b4c9-4d9d-a376-c7b4b5b05ee1';
-  UPDATE public.profiles SET spouse_id = '39ba647e-b4c9-4d9d-a376-c7b4b5b05ee1' WHERE id = '18cb4392-3c16-46ff-bbac-96af09d8c07c';
-  UPDATE public.profiles SET spouse_id = '5a9dab15-3181-461b-8979-220324e65540' WHERE id = '3769e1a2-b80f-4c23-9328-7d7e2d733e55';
-  UPDATE public.profiles SET spouse_id = '3769e1a2-b80f-4c23-9328-7d7e2d733e55' WHERE id = '5a9dab15-3181-461b-8979-220324e65540';
-  UPDATE public.profiles SET spouse_id = '0dc1bb25-5c61-4473-a337-2e2d2f66e3a9' WHERE id = '255b5be3-2f4d-45b8-ae42-f41dc52596f5';
-  UPDATE public.profiles SET spouse_id = '255b5be3-2f4d-45b8-ae42-f41dc52596f5' WHERE id = '0dc1bb25-5c61-4473-a337-2e2d2f66e3a9';
-  UPDATE public.profiles SET spouse_id = 'fbd6a317-24a5-41f9-8da1-f3aa22a33cbf' WHERE id = '5a1d7c3c-cf7f-4c14-ad35-6377e89fbc6c';
-  UPDATE public.profiles SET spouse_id = '5a1d7c3c-cf7f-4c14-ad35-6377e89fbc6c' WHERE id = 'fbd6a317-24a5-41f9-8da1-f3aa22a33cbf';
-  UPDATE public.profiles SET spouse_id = 'cdcb7800-a3c8-44c9-b782-d0cc98431d61' WHERE id = '3bb28abb-1e36-4b4c-86be-39ede123499b';
-  UPDATE public.profiles SET spouse_id = '3bb28abb-1e36-4b4c-86be-39ede123499b' WHERE id = 'cdcb7800-a3c8-44c9-b782-d0cc98431d61';
-  UPDATE public.profiles SET spouse_id = '134164ad-c0fb-4c9b-ba42-a512c1aad399' WHERE id = '04691149-7822-419e-af0c-0abc4ca89778';
-  UPDATE public.profiles SET spouse_id = '04691149-7822-419e-af0c-0abc4ca89778' WHERE id = '134164ad-c0fb-4c9b-ba42-a512c1aad399';
-  UPDATE public.profiles SET spouse_id = 'abfa588a-96e0-468a-85f2-c63a08d5cc96' WHERE id = '1f3eb3b0-f1c2-4c9f-a202-5d52180e8bc5';
-  UPDATE public.profiles SET spouse_id = '1f3eb3b0-f1c2-4c9f-a202-5d52180e8bc5' WHERE id = 'abfa588a-96e0-468a-85f2-c63a08d5cc96';
-  UPDATE public.profiles SET spouse_id = 'a1e470e1-3742-444f-8834-8f5891892096' WHERE id = 'e9754ebb-7614-4040-9d7f-5b741d07b633';
-  UPDATE public.profiles SET spouse_id = 'e9754ebb-7614-4040-9d7f-5b741d07b633' WHERE id = 'a1e470e1-3742-444f-8834-8f5891892096';
-  UPDATE public.profiles SET spouse_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = '060c9b8a-9173-4c73-afb1-348868616c14';
-  UPDATE public.profiles SET spouse_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = '94734ad2-5b56-4a13-99a1-e8ea21226daa';
-  UPDATE public.profiles SET spouse_id = '81a0a170-8930-48f2-b505-8cd13b9883c2' WHERE id = 'c0dff264-dc84-45d6-9a4e-da18d047dd73';
-  UPDATE public.profiles SET spouse_id = 'c0dff264-dc84-45d6-9a4e-da18d047dd73' WHERE id = '81a0a170-8930-48f2-b505-8cd13b9883c2';
-  UPDATE public.profiles SET spouse_id = '3d98a907-ca71-444c-a6e6-c91e31d9ff5c' WHERE id = '2677d29f-1562-41cd-9165-d007e2ebd21c';
-  UPDATE public.profiles SET spouse_id = '2677d29f-1562-41cd-9165-d007e2ebd21c' WHERE id = '3d98a907-ca71-444c-a6e6-c91e31d9ff5c';
-  UPDATE public.profiles SET spouse_id = 'e69c3258-eecc-422d-aad5-72c658281486' WHERE id = 'b348d9cf-050a-4d0c-a8e2-e1120dc44ce9';
-  UPDATE public.profiles SET spouse_id = 'b348d9cf-050a-4d0c-a8e2-e1120dc44ce9' WHERE id = 'e69c3258-eecc-422d-aad5-72c658281486';
-  UPDATE public.profiles SET spouse_id = '2c668ccd-0f93-41b2-8743-66b74b4b533b' WHERE id = '6f91d776-8634-4ece-94ae-f3994a84d1a5';
-  UPDATE public.profiles SET spouse_id = '6f91d776-8634-4ece-94ae-f3994a84d1a5' WHERE id = '2c668ccd-0f93-41b2-8743-66b74b4b533b';
-  UPDATE public.profiles SET spouse_id = '757b9efb-8eda-4fd7-8405-7576e2aa32dd' WHERE id = '461cb7b4-aa06-4eb9-bef5-480815827ebe';
-  UPDATE public.profiles SET spouse_id = '461cb7b4-aa06-4eb9-bef5-480815827ebe' WHERE id = '757b9efb-8eda-4fd7-8405-7576e2aa32dd';
-  UPDATE public.profiles SET spouse_id = '12bd3171-e22d-4d74-b50d-91c8a20dc721' WHERE id = 'a0a8c1f3-b85b-4651-909e-4676c741b2b9';
-  UPDATE public.profiles SET spouse_id = 'a0a8c1f3-b85b-4651-909e-4676c741b2b9' WHERE id = '12bd3171-e22d-4d74-b50d-91c8a20dc721';
-  UPDATE public.profiles SET spouse_id = '0b1b930d-73f2-4de5-a858-75faa09fd567' WHERE id = '4fa95ea1-a476-4748-b497-89ae3e5585f8';
-  UPDATE public.profiles SET spouse_id = '4fa95ea1-a476-4748-b497-89ae3e5585f8' WHERE id = '0b1b930d-73f2-4de5-a858-75faa09fd567';
-  UPDATE public.profiles SET spouse_id = '5d5d13b8-48b6-4458-a9d0-bb5aae9c215e' WHERE id = '2ff78bac-b9be-4f2b-82e3-b072780d15b8';
-  UPDATE public.profiles SET spouse_id = '2ff78bac-b9be-4f2b-82e3-b072780d15b8' WHERE id = '5d5d13b8-48b6-4458-a9d0-bb5aae9c215e';
-  UPDATE public.profiles SET spouse_id = '563ec794-3f1b-431a-9d37-f3d88b351158' WHERE id = 'fd3b4ca9-f0f3-4e55-a710-718bbbc4ff96';
-  UPDATE public.profiles SET spouse_id = 'fd3b4ca9-f0f3-4e55-a710-718bbbc4ff96' WHERE id = '563ec794-3f1b-431a-9d37-f3d88b351158';
-  UPDATE public.profiles SET spouse_id = 'bed91864-53a2-4c6e-b35d-ba593e895143' WHERE id = '8c7eeb03-e45d-4b66-8d61-f45d482b344b';
-  UPDATE public.profiles SET spouse_id = '8c7eeb03-e45d-4b66-8d61-f45d482b344b' WHERE id = 'bed91864-53a2-4c6e-b35d-ba593e895143';
-  UPDATE public.profiles SET spouse_id = '7c4dce9c-31a4-47ad-898d-402428f5afc3' WHERE id = 'e4b579fe-e0da-4041-a958-a78e79c805dd';
-  UPDATE public.profiles SET spouse_id = 'e4b579fe-e0da-4041-a958-a78e79c805dd' WHERE id = '7c4dce9c-31a4-47ad-898d-402428f5afc3';
-  UPDATE public.profiles SET spouse_id = 'f8fc3a94-f3fd-4467-a992-52262a94b14a' WHERE id = 'c3dee27d-46b7-4b6f-b312-7e0a1f5e3ca8';
-  UPDATE public.profiles SET spouse_id = 'c3dee27d-46b7-4b6f-b312-7e0a1f5e3ca8' WHERE id = 'f8fc3a94-f3fd-4467-a992-52262a94b14a';
-  UPDATE public.profiles SET spouse_id = 'b9181151-41c7-441a-90a6-949a703ae525' WHERE id = 'a6ca3f63-53e2-407b-a9fa-ae1f9c695380';
-  UPDATE public.profiles SET spouse_id = 'a6ca3f63-53e2-407b-a9fa-ae1f9c695380' WHERE id = 'b9181151-41c7-441a-90a6-949a703ae525';
-  UPDATE public.profiles SET spouse_id = '947b92b9-c68d-4f75-a8cd-5785f3e1b00c' WHERE id = '8a9a91d2-1bf6-40a1-8a45-e858192d0fb2';
-  UPDATE public.profiles SET spouse_id = '8a9a91d2-1bf6-40a1-8a45-e858192d0fb2' WHERE id = '947b92b9-c68d-4f75-a8cd-5785f3e1b00c';
-  UPDATE public.profiles SET spouse_id = 'e7f688c6-a018-4870-9f61-ec7be9da2b24' WHERE id = '7cc5d3fd-5602-41b8-a8b0-2a601502657c';
-  UPDATE public.profiles SET spouse_id = '7cc5d3fd-5602-41b8-a8b0-2a601502657c' WHERE id = 'e7f688c6-a018-4870-9f61-ec7be9da2b24';
-  UPDATE public.profiles SET spouse_id = '520c80c9-aa39-4e3b-b2dc-25f244134337' WHERE id = '1d980dc9-edef-4d20-8f4e-06b5ca740b25';
-  UPDATE public.profiles SET spouse_id = '1d980dc9-edef-4d20-8f4e-06b5ca740b25' WHERE id = '520c80c9-aa39-4e3b-b2dc-25f244134337';
-  UPDATE public.profiles SET spouse_id = '06d3daf5-c876-4098-b629-a15511ab4f91' WHERE id = 'cc48aec5-2f4c-4cdb-8e61-4680e3df8c83';
-  UPDATE public.profiles SET spouse_id = 'cc48aec5-2f4c-4cdb-8e61-4680e3df8c83' WHERE id = '06d3daf5-c876-4098-b629-a15511ab4f91';
-  UPDATE public.profiles SET spouse_id = 'e95ff5f1-2d83-4d91-b128-9b90e3545799' WHERE id = '949959ee-1dd0-409e-b9f8-32ed32900042';
-  UPDATE public.profiles SET spouse_id = '949959ee-1dd0-409e-b9f8-32ed32900042' WHERE id = 'e95ff5f1-2d83-4d91-b128-9b90e3545799';
-  UPDATE public.profiles SET spouse_id = '9aa0ae66-d55f-4866-a489-2adfeb6986f0' WHERE id = '75140740-0ff3-4301-80e2-d690e8c3631a';
-  UPDATE public.profiles SET spouse_id = '75140740-0ff3-4301-80e2-d690e8c3631a' WHERE id = '9aa0ae66-d55f-4866-a489-2adfeb6986f0';
-  UPDATE public.profiles SET spouse_id = '3bf01b20-b2d7-4a79-ac09-dfe57cb53f85' WHERE id = '6d436adf-b847-406e-bc81-08edec7082d5';
-  UPDATE public.profiles SET spouse_id = '6d436adf-b847-406e-bc81-08edec7082d5' WHERE id = '3bf01b20-b2d7-4a79-ac09-dfe57cb53f85';
-  UPDATE public.profiles SET spouse_id = 'e71efd7c-f1fb-4657-b177-222ffbbe45f3' WHERE id = 'bac00a53-6c8b-4e62-a103-377d2b317a9b';
-  UPDATE public.profiles SET spouse_id = 'bac00a53-6c8b-4e62-a103-377d2b317a9b' WHERE id = 'e71efd7c-f1fb-4657-b177-222ffbbe45f3';
-  UPDATE public.profiles SET spouse_id = 'ab486074-4430-4145-a18e-a057cc12ea24' WHERE id = 'b0169324-5c7e-490f-a060-50ffffb76fcc';
-  UPDATE public.profiles SET spouse_id = 'b0169324-5c7e-490f-a060-50ffffb76fcc' WHERE id = 'ab486074-4430-4145-a18e-a057cc12ea24';
-  UPDATE public.profiles SET spouse_id = 'c6cd2239-d26e-49f0-9f83-f983b0bce48b' WHERE id = '01eb5520-da87-40b5-81eb-e38425e82968';
-  UPDATE public.profiles SET spouse_id = '01eb5520-da87-40b5-81eb-e38425e82968' WHERE id = 'c6cd2239-d26e-49f0-9f83-f983b0bce48b';
-  UPDATE public.profiles SET spouse_id = 'f759ea07-6f82-4d13-8e86-4aa62bd8743c' WHERE id = 'b5da54bb-bbb8-4761-a7a7-56e2d3067853';
-  UPDATE public.profiles SET spouse_id = 'b5da54bb-bbb8-4761-a7a7-56e2d3067853' WHERE id = 'f759ea07-6f82-4d13-8e86-4aa62bd8743c';
-  UPDATE public.profiles SET spouse_id = 'e12a6c53-a805-4a5c-a371-56565afdd0ea' WHERE id = '2a2b6b04-2392-4488-9907-fcb1ca1ef972';
-  UPDATE public.profiles SET spouse_id = '2a2b6b04-2392-4488-9907-fcb1ca1ef972' WHERE id = 'e12a6c53-a805-4a5c-a371-56565afdd0ea';
-  UPDATE public.profiles SET spouse_id = 'ac525d55-2834-4af2-8998-525a077c5131' WHERE id = 'a1e245a9-a9e8-40fa-b5e7-c77f8254f413';
-  UPDATE public.profiles SET spouse_id = 'a1e245a9-a9e8-40fa-b5e7-c77f8254f413' WHERE id = 'ac525d55-2834-4af2-8998-525a077c5131';
-  UPDATE public.profiles SET spouse_id = '0a10e106-c70e-4577-83b4-4fd3692e19bc' WHERE id = '6eb8f32f-32c9-42fd-9bc8-c1eb531f8f64';
-  UPDATE public.profiles SET spouse_id = '6eb8f32f-32c9-42fd-9bc8-c1eb531f8f64' WHERE id = '0a10e106-c70e-4577-83b4-4fd3692e19bc';
-  UPDATE public.profiles SET spouse_id = '3941c095-38e1-48ce-a448-493641f2b4dc' WHERE id = '60f23c80-fef9-4368-87c8-4fad26594ad8';
-  UPDATE public.profiles SET spouse_id = '60f23c80-fef9-4368-87c8-4fad26594ad8' WHERE id = '3941c095-38e1-48ce-a448-493641f2b4dc';
-  UPDATE public.profiles SET spouse_id = '9480e978-7d5f-4bc1-ba15-22616f3c2a62' WHERE id = 'e9b7b08d-8b13-4757-b553-b7e7fbee5209';
-  UPDATE public.profiles SET spouse_id = 'e9b7b08d-8b13-4757-b553-b7e7fbee5209' WHERE id = '9480e978-7d5f-4bc1-ba15-22616f3c2a62';
-  UPDATE public.profiles SET spouse_id = '92f70a03-0c90-4011-b42f-2d96b9072737' WHERE id = '3be62807-f4e5-4bf4-8d97-2d1311753175';
-  UPDATE public.profiles SET spouse_id = '3be62807-f4e5-4bf4-8d97-2d1311753175' WHERE id = '92f70a03-0c90-4011-b42f-2d96b9072737';
-  UPDATE public.profiles SET spouse_id = '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e' WHERE id = 'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd';
-  UPDATE public.profiles SET spouse_id = 'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd' WHERE id = '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e';
-  UPDATE public.profiles SET spouse_id = '306da3f7-8b19-4248-8cdf-2c2df9002d8b' WHERE id = '577a8a70-5414-44ed-b9e2-2992cdb0e083';
-  UPDATE public.profiles SET spouse_id = '577a8a70-5414-44ed-b9e2-2992cdb0e083' WHERE id = '306da3f7-8b19-4248-8cdf-2c2df9002d8b';
-  UPDATE public.profiles SET spouse_id = '153aeb2c-be7c-4ef1-bd7c-a3b3da2370f1' WHERE id = '4b33e034-5341-4e8a-a7cc-e86aa07de102';
-  UPDATE public.profiles SET spouse_id = '4b33e034-5341-4e8a-a7cc-e86aa07de102' WHERE id = '153aeb2c-be7c-4ef1-bd7c-a3b3da2370f1';
-  UPDATE public.profiles SET spouse_id = '62c5805d-ffe9-421f-b0ac-2df896b149d9' WHERE id = '64fed90e-bed3-477b-b296-e3284bd747c3';
-  UPDATE public.profiles SET spouse_id = '64fed90e-bed3-477b-b296-e3284bd747c3' WHERE id = '62c5805d-ffe9-421f-b0ac-2df896b149d9';
-  UPDATE public.profiles SET spouse_id = 'eeb05682-ff4e-47c3-801e-72417c44fa17' WHERE id = '39817ad5-f1e9-41d2-8a36-327b874917cb';
-  UPDATE public.profiles SET spouse_id = '39817ad5-f1e9-41d2-8a36-327b874917cb' WHERE id = 'eeb05682-ff4e-47c3-801e-72417c44fa17';
-  UPDATE public.profiles SET spouse_id = '3bd2fa63-835c-425d-b59c-4f5e7347dc5d' WHERE id = 'df359988-6e42-4170-adbc-0770f27492d8';
-  UPDATE public.profiles SET spouse_id = 'df359988-6e42-4170-adbc-0770f27492d8' WHERE id = '3bd2fa63-835c-425d-b59c-4f5e7347dc5d';
-  UPDATE public.profiles SET spouse_id = '1d932706-4669-4b65-8216-2e27ad245971' WHERE id = 'a6bd54a5-7ba6-459e-87c1-6b59e27efec6';
-  UPDATE public.profiles SET spouse_id = 'a6bd54a5-7ba6-459e-87c1-6b59e27efec6' WHERE id = '1d932706-4669-4b65-8216-2e27ad245971';
-  UPDATE public.profiles SET spouse_id = '11cfdb38-c2d1-43fc-b83d-5bfaf42fbbbb' WHERE id = '27dcb3c1-c18e-4218-80b4-05d0a1b8a5ab';
-  UPDATE public.profiles SET spouse_id = '27dcb3c1-c18e-4218-80b4-05d0a1b8a5ab' WHERE id = '11cfdb38-c2d1-43fc-b83d-5bfaf42fbbbb';
-  UPDATE public.profiles SET spouse_id = '16333488-0d3b-4795-8597-9dcb7d9dc128' WHERE id = 'bedd45d3-8d32-4efd-8147-7534488b749a';
-  UPDATE public.profiles SET spouse_id = 'bedd45d3-8d32-4efd-8147-7534488b749a' WHERE id = '16333488-0d3b-4795-8597-9dcb7d9dc128';
-  UPDATE public.profiles SET spouse_id = '56633d3f-4763-4a50-a729-697468846aaf' WHERE id = 'c98f9811-3687-423e-aff0-82190ae57698';
-  UPDATE public.profiles SET spouse_id = 'c98f9811-3687-423e-aff0-82190ae57698' WHERE id = '56633d3f-4763-4a50-a729-697468846aaf';
-  UPDATE public.profiles SET spouse_id = 'e055729a-4b76-4528-b260-4f2b1a0eeeff' WHERE id = '4696bddf-98ff-4307-97ea-82fcb9ff317f';
-  UPDATE public.profiles SET spouse_id = '4696bddf-98ff-4307-97ea-82fcb9ff317f' WHERE id = 'e055729a-4b76-4528-b260-4f2b1a0eeeff';
-  UPDATE public.profiles SET spouse_id = 'ed73084d-85c8-420d-b6ae-a404985a3138' WHERE id = '81659905-131f-4a84-aafb-1ab3d9f0693d';
-  UPDATE public.profiles SET spouse_id = '81659905-131f-4a84-aafb-1ab3d9f0693d' WHERE id = 'ed73084d-85c8-420d-b6ae-a404985a3138';
-  UPDATE public.profiles SET spouse_id = '75d62d1e-646c-4f27-b61f-1736ff071923' WHERE id = 'de2648cb-4bac-436d-b4d5-a97741b3e50f';
-  UPDATE public.profiles SET spouse_id = 'de2648cb-4bac-436d-b4d5-a97741b3e50f' WHERE id = '75d62d1e-646c-4f27-b61f-1736ff071923';
-  UPDATE public.profiles SET spouse_id = '7f3b532f-5421-4b9f-8ba0-2e717ddc1f93' WHERE id = '7205e063-55e5-41b9-906b-8cc83e2f9b0d';
-  UPDATE public.profiles SET spouse_id = '7205e063-55e5-41b9-906b-8cc83e2f9b0d' WHERE id = '7f3b532f-5421-4b9f-8ba0-2e717ddc1f93';
-  UPDATE public.profiles SET spouse_id = '52b16034-cbcf-4896-a7b2-7336375ffe30' WHERE id = 'a6dfb526-08b9-452d-bc99-7384ffb0e521';
-  UPDATE public.profiles SET spouse_id = 'a6dfb526-08b9-452d-bc99-7384ffb0e521' WHERE id = '52b16034-cbcf-4896-a7b2-7336375ffe30';
-  UPDATE public.profiles SET spouse_id = '10ee34d4-888d-4409-88df-699a366c8cef' WHERE id = 'f7d3c8ab-4309-4b4f-a235-da8204f07b86';
-  UPDATE public.profiles SET spouse_id = 'f7d3c8ab-4309-4b4f-a235-da8204f07b86' WHERE id = '10ee34d4-888d-4409-88df-699a366c8cef';
-  UPDATE public.profiles SET spouse_id = '374dc646-b0ad-4830-b353-6b12f5ff2561' WHERE id = '0961cec1-bf5a-4cf8-aba3-c89efd4421bf';
-  UPDATE public.profiles SET spouse_id = '0961cec1-bf5a-4cf8-aba3-c89efd4421bf' WHERE id = '374dc646-b0ad-4830-b353-6b12f5ff2561';
-  UPDATE public.profiles SET spouse_id = 'a2a83320-2e09-4258-a3d5-8aaacbb043e0' WHERE id = '09ff0348-354e-43c2-b372-181bac3bddfb';
-  UPDATE public.profiles SET spouse_id = '09ff0348-354e-43c2-b372-181bac3bddfb' WHERE id = 'a2a83320-2e09-4258-a3d5-8aaacbb043e0';
-  UPDATE public.profiles SET spouse_id = '75208da3-b8ba-486e-8665-e765a183883b' WHERE id = '747b38d7-b84b-4039-9033-6fee34f9bddf';
-  UPDATE public.profiles SET spouse_id = '747b38d7-b84b-4039-9033-6fee34f9bddf' WHERE id = '75208da3-b8ba-486e-8665-e765a183883b';
-  UPDATE public.profiles SET spouse_id = 'd9f00b9c-8e29-42c2-8874-1801b2f0290e' WHERE id = 'a9702713-6d0a-48dd-b1da-cb915ad1ce71';
-  UPDATE public.profiles SET spouse_id = 'a9702713-6d0a-48dd-b1da-cb915ad1ce71' WHERE id = 'd9f00b9c-8e29-42c2-8874-1801b2f0290e';
-  UPDATE public.profiles SET spouse_id = '0257e477-a7b6-4121-a5a8-27919652d373' WHERE id = '6936238c-4151-4795-92e8-1b238739f7ed';
-  UPDATE public.profiles SET spouse_id = '6936238c-4151-4795-92e8-1b238739f7ed' WHERE id = '0257e477-a7b6-4121-a5a8-27919652d373';
-  UPDATE public.profiles SET spouse_id = '107ca685-65b8-4780-bc0f-c943e09aa8ef' WHERE id = '7fb7dc20-c84e-4590-9f05-10156435ee5f';
-  UPDATE public.profiles SET spouse_id = '7fb7dc20-c84e-4590-9f05-10156435ee5f' WHERE id = '107ca685-65b8-4780-bc0f-c943e09aa8ef';
-  UPDATE public.profiles SET spouse_id = 'f1eedb72-e58a-4905-8b59-d6db370a2b32' WHERE id = '4f6caee5-fe21-4c66-b050-28a3766c802c';
-  UPDATE public.profiles SET spouse_id = '4f6caee5-fe21-4c66-b050-28a3766c802c' WHERE id = 'f1eedb72-e58a-4905-8b59-d6db370a2b32';
-  UPDATE public.profiles SET spouse_id = 'c6ca5e65-7c90-4d00-b1d9-d9c03744a72c' WHERE id = 'c3fc759d-6814-46ad-b336-01c59a63da94';
-  UPDATE public.profiles SET spouse_id = 'c3fc759d-6814-46ad-b336-01c59a63da94' WHERE id = 'c6ca5e65-7c90-4d00-b1d9-d9c03744a72c';
-  UPDATE public.profiles SET spouse_id = '32f624ea-0788-480e-b963-0d5fa2bd24d6' WHERE id = '722a8040-c020-4878-a2aa-0424f57d868d';
-  UPDATE public.profiles SET spouse_id = '722a8040-c020-4878-a2aa-0424f57d868d' WHERE id = '32f624ea-0788-480e-b963-0d5fa2bd24d6';
-  UPDATE public.profiles SET spouse_id = '1bd07e79-5900-4d35-960c-f7b6f6b7c5a6' WHERE id = '32b950d9-6474-4e1e-a513-555280617278';
-  UPDATE public.profiles SET spouse_id = '32b950d9-6474-4e1e-a513-555280617278' WHERE id = '1bd07e79-5900-4d35-960c-f7b6f6b7c5a6';
-  UPDATE public.profiles SET spouse_id = 'c986ba93-3f40-44ba-82b6-7147178a2c67' WHERE id = '15b6d388-0772-477d-91b1-bc3504a0bb21';
-  UPDATE public.profiles SET spouse_id = '15b6d388-0772-477d-91b1-bc3504a0bb21' WHERE id = 'c986ba93-3f40-44ba-82b6-7147178a2c67';
-  UPDATE public.profiles SET spouse_id = 'fe58ac90-83fc-4708-bc8e-d7a7f2080fe9' WHERE id = '01de7ea5-c4fe-4330-a5db-e90ee9b75999';
-  UPDATE public.profiles SET spouse_id = '01de7ea5-c4fe-4330-a5db-e90ee9b75999' WHERE id = 'fe58ac90-83fc-4708-bc8e-d7a7f2080fe9';
-  UPDATE public.profiles SET spouse_id = '4c496562-332f-4350-8713-36deb6c0ab95' WHERE id = '111fc211-6520-4e68-ad30-d99663fb7f12';
-  UPDATE public.profiles SET spouse_id = '111fc211-6520-4e68-ad30-d99663fb7f12' WHERE id = '4c496562-332f-4350-8713-36deb6c0ab95';
-  UPDATE public.profiles SET spouse_id = '1355f355-3402-4c7b-9fa8-aa7a1e426c2d' WHERE id = 'a794e044-0c16-479d-a039-b544402e1422';
-  UPDATE public.profiles SET spouse_id = 'a794e044-0c16-479d-a039-b544402e1422' WHERE id = '1355f355-3402-4c7b-9fa8-aa7a1e426c2d';
-  UPDATE public.profiles SET spouse_id = '4f8be18d-1754-481e-ab8f-870005082348' WHERE id = '6a6a3f14-83fa-4a44-b0cb-f33de4ba029c';
-  UPDATE public.profiles SET spouse_id = '6a6a3f14-83fa-4a44-b0cb-f33de4ba029c' WHERE id = '4f8be18d-1754-481e-ab8f-870005082348';
-  UPDATE public.profiles SET spouse_id = '4d4704b4-9513-403d-8499-17c560f45254' WHERE id = '18e11abb-1bd3-4901-aacf-177af5aa8960';
-  UPDATE public.profiles SET spouse_id = '18e11abb-1bd3-4901-aacf-177af5aa8960' WHERE id = '4d4704b4-9513-403d-8499-17c560f45254';
-  UPDATE public.profiles SET spouse_id = 'ff3f31ab-7908-484b-811d-6c9300452d95' WHERE id = 'f80cfe6c-f07f-4461-852c-b8a3ed25d767';
-  UPDATE public.profiles SET spouse_id = 'f80cfe6c-f07f-4461-852c-b8a3ed25d767' WHERE id = 'ff3f31ab-7908-484b-811d-6c9300452d95';
-  UPDATE public.profiles SET spouse_id = '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc' WHERE id = '84006fda-8503-4753-9bf5-3df051516634';
-  UPDATE public.profiles SET spouse_id = '84006fda-8503-4753-9bf5-3df051516634' WHERE id = '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc';
-  UPDATE public.profiles SET spouse_id = '18b71168-2c8d-4a0b-9858-f547f3b67c5e' WHERE id = '4dc5a04a-3281-4cee-968a-bc61d83f1210';
-  UPDATE public.profiles SET spouse_id = '4dc5a04a-3281-4cee-968a-bc61d83f1210' WHERE id = '18b71168-2c8d-4a0b-9858-f547f3b67c5e';
-  UPDATE public.profiles SET spouse_id = '58f5593b-6ccd-4576-b9ba-3a327901c487' WHERE id = 'aa0cb027-08d8-4433-92fe-6bd9e4a7eec6';
-  UPDATE public.profiles SET spouse_id = 'aa0cb027-08d8-4433-92fe-6bd9e4a7eec6' WHERE id = '58f5593b-6ccd-4576-b9ba-3a327901c487';
-  UPDATE public.profiles SET spouse_id = 'ed35496c-3a32-410c-8757-cd3abebc4a67' WHERE id = '4a5f5788-797a-45f1-b6d7-e3f6e77745eb';
-  UPDATE public.profiles SET spouse_id = '4a5f5788-797a-45f1-b6d7-e3f6e77745eb' WHERE id = 'ed35496c-3a32-410c-8757-cd3abebc4a67';
-  UPDATE public.profiles SET spouse_id = 'cef669da-d59e-4963-af3c-a18cb59a0a9c' WHERE id = '93ea2784-ac7a-4374-8e8c-7b3337858f2b';
-  UPDATE public.profiles SET spouse_id = '93ea2784-ac7a-4374-8e8c-7b3337858f2b' WHERE id = 'cef669da-d59e-4963-af3c-a18cb59a0a9c';
-  UPDATE public.profiles SET spouse_id = 'c474b9e3-67e9-4639-a1b3-2a210b64148e' WHERE id = '9d85386a-2977-44f0-abf2-ca36fb815f2d';
-  UPDATE public.profiles SET spouse_id = '9d85386a-2977-44f0-abf2-ca36fb815f2d' WHERE id = 'c474b9e3-67e9-4639-a1b3-2a210b64148e';
-  UPDATE public.profiles SET spouse_id = '903d0419-b1bd-46a5-9537-a5a8b99b3c1d' WHERE id = 'f0968a66-f3e9-400c-bc80-32affb37034b';
-  UPDATE public.profiles SET spouse_id = 'f0968a66-f3e9-400c-bc80-32affb37034b' WHERE id = '903d0419-b1bd-46a5-9537-a5a8b99b3c1d';
-  UPDATE public.profiles SET spouse_id = '52a865e0-cd3c-45cf-9db7-6312f51cbe3e' WHERE id = 'f85afe51-62f0-4587-871e-a09c1030b1fe';
-  UPDATE public.profiles SET spouse_id = 'f85afe51-62f0-4587-871e-a09c1030b1fe' WHERE id = '52a865e0-cd3c-45cf-9db7-6312f51cbe3e';
-  UPDATE public.profiles SET spouse_id = '55f6d5f6-2e1e-472d-b08a-477a87ca34a6' WHERE id = '83893c76-725f-448b-b55c-791bba040776';
-  UPDATE public.profiles SET spouse_id = '83893c76-725f-448b-b55c-791bba040776' WHERE id = '55f6d5f6-2e1e-472d-b08a-477a87ca34a6';
-  UPDATE public.profiles SET spouse_id = '145c5222-1c13-48a9-8eef-0a206fe1f549' WHERE id = 'f07fb6d8-6385-492f-a864-9c10519a2c7f';
-  UPDATE public.profiles SET spouse_id = 'f07fb6d8-6385-492f-a864-9c10519a2c7f' WHERE id = '145c5222-1c13-48a9-8eef-0a206fe1f549';
-  UPDATE public.profiles SET spouse_id = '5e193f39-6b9f-414e-bcde-98599d93adf5' WHERE id = '3c2c1c31-bad2-428d-b1c1-1e98fee4bfd5';
-  UPDATE public.profiles SET spouse_id = '3c2c1c31-bad2-428d-b1c1-1e98fee4bfd5' WHERE id = '5e193f39-6b9f-414e-bcde-98599d93adf5';
-  UPDATE public.profiles SET spouse_id = '0e444243-f06a-497e-ae34-29e52db8d1ab' WHERE id = '2de6beb6-fef1-4f67-b588-946d9ad6889b';
-  UPDATE public.profiles SET spouse_id = '2de6beb6-fef1-4f67-b588-946d9ad6889b' WHERE id = '0e444243-f06a-497e-ae34-29e52db8d1ab';
-  UPDATE public.profiles SET spouse_id = 'e0da7c6c-7b50-4845-a29a-e50c020311e1' WHERE id = '0210b6d7-2bee-4b12-b998-facc98d5e391';
-  UPDATE public.profiles SET spouse_id = '0210b6d7-2bee-4b12-b998-facc98d5e391' WHERE id = 'e0da7c6c-7b50-4845-a29a-e50c020311e1';
-  UPDATE public.profiles SET spouse_id = '4f35c61f-1da4-4882-b94f-f54369d8eab5' WHERE id = '5299325a-efc6-4992-9c13-cd875e2e0810';
-  UPDATE public.profiles SET spouse_id = '5299325a-efc6-4992-9c13-cd875e2e0810' WHERE id = '4f35c61f-1da4-4882-b94f-f54369d8eab5';
-  UPDATE public.profiles SET spouse_id = '467666c6-93ce-4458-821c-a54ef6a7dd3b' WHERE id = '2705d104-941d-41ed-aa42-ca742dcb51db';
-  UPDATE public.profiles SET spouse_id = '2705d104-941d-41ed-aa42-ca742dcb51db' WHERE id = '467666c6-93ce-4458-821c-a54ef6a7dd3b';
-  UPDATE public.profiles SET spouse_id = 'd7f09103-d5db-4df4-b30c-9f41a5a1f33d' WHERE id = 'a863cacd-926d-4dbf-b533-d22e45d80139';
-  UPDATE public.profiles SET spouse_id = 'a863cacd-926d-4dbf-b533-d22e45d80139' WHERE id = 'd7f09103-d5db-4df4-b30c-9f41a5a1f33d';
-  UPDATE public.profiles SET spouse_id = 'bb48c596-0afe-4438-ac36-eccc37ce7f1e' WHERE id = '3be39136-25f7-4c76-b912-68867a128786';
-  UPDATE public.profiles SET spouse_id = '3be39136-25f7-4c76-b912-68867a128786' WHERE id = 'bb48c596-0afe-4438-ac36-eccc37ce7f1e';
-  UPDATE public.profiles SET spouse_id = 'f8f7d7a8-d9d0-4666-a254-858eb78f1bc3' WHERE id = '7840225c-8d31-4ca8-aeae-a627fcae7c4e';
-  UPDATE public.profiles SET spouse_id = '7840225c-8d31-4ca8-aeae-a627fcae7c4e' WHERE id = 'f8f7d7a8-d9d0-4666-a254-858eb78f1bc3';
-  UPDATE public.profiles SET spouse_id = '78a85e6b-6af6-463b-9775-20f19af29e6e' WHERE id = '7a3513b1-9ad3-4f99-a56e-f361f8738812';
-  UPDATE public.profiles SET spouse_id = '7a3513b1-9ad3-4f99-a56e-f361f8738812' WHERE id = '78a85e6b-6af6-463b-9775-20f19af29e6e';
-  UPDATE public.profiles SET spouse_id = 'eedb5897-a1b1-4656-9066-c6d82289bf03' WHERE id = 'be3216a8-a15e-41f7-94fb-cf03402e4328';
-  UPDATE public.profiles SET spouse_id = 'be3216a8-a15e-41f7-94fb-cf03402e4328' WHERE id = 'eedb5897-a1b1-4656-9066-c6d82289bf03';
-  UPDATE public.profiles SET spouse_id = '963e2e20-b96f-411f-b77a-58400ece2293' WHERE id = '0db29e6a-c54a-44e6-93b1-9bf2f4052433';
-  UPDATE public.profiles SET spouse_id = '0db29e6a-c54a-44e6-93b1-9bf2f4052433' WHERE id = '963e2e20-b96f-411f-b77a-58400ece2293';
-  UPDATE public.profiles SET spouse_id = '426ad53a-a1ef-4472-ab9b-a42a06879e51' WHERE id = 'c29c03e9-40f4-4a49-95d9-c70f011d4002';
-  UPDATE public.profiles SET spouse_id = 'c29c03e9-40f4-4a49-95d9-c70f011d4002' WHERE id = '426ad53a-a1ef-4472-ab9b-a42a06879e51';
-  UPDATE public.profiles SET spouse_id = 'ab518771-bb8d-4399-b516-2d912164dfe8' WHERE id = '02c0f4ec-7d50-4314-af0a-5ef9758dcd11';
-  UPDATE public.profiles SET spouse_id = '02c0f4ec-7d50-4314-af0a-5ef9758dcd11' WHERE id = 'ab518771-bb8d-4399-b516-2d912164dfe8';
-  UPDATE public.profiles SET spouse_id = '908f6a9f-f179-4492-9778-a1d617623be6' WHERE id = 'f85efaba-9cf9-44a9-bae8-fdaf808ebe77';
-  UPDATE public.profiles SET spouse_id = 'f85efaba-9cf9-44a9-bae8-fdaf808ebe77' WHERE id = '908f6a9f-f179-4492-9778-a1d617623be6';
-  UPDATE public.profiles SET spouse_id = '58b4b501-3778-40a5-82be-6cc8c86dd3af' WHERE id = '96dc0c0f-88b8-4e7d-a2ab-1e08712c8b06';
-  UPDATE public.profiles SET spouse_id = '96dc0c0f-88b8-4e7d-a2ab-1e08712c8b06' WHERE id = '58b4b501-3778-40a5-82be-6cc8c86dd3af';
-  UPDATE public.profiles SET spouse_id = 'cf3c4250-2e8b-4779-adf8-d1bc6cd281f0' WHERE id = '7effff7e-ff89-4ea1-957d-f09afb0bafe2';
-  UPDATE public.profiles SET spouse_id = '7effff7e-ff89-4ea1-957d-f09afb0bafe2' WHERE id = 'cf3c4250-2e8b-4779-adf8-d1bc6cd281f0';
-  UPDATE public.profiles SET spouse_id = '14ad3d68-7bdf-4ae0-9586-0041f218d732' WHERE id = 'f1d794c5-eeaf-438f-a083-61e37db7f481';
-  UPDATE public.profiles SET spouse_id = 'f1d794c5-eeaf-438f-a083-61e37db7f481' WHERE id = '14ad3d68-7bdf-4ae0-9586-0041f218d732';
-  UPDATE public.profiles SET spouse_id = 'd1c42487-08d1-4cf9-b697-77cf9246cf61' WHERE id = '1656669f-a404-4b39-94b4-02fde1f89672';
-  UPDATE public.profiles SET spouse_id = '1656669f-a404-4b39-94b4-02fde1f89672' WHERE id = 'd1c42487-08d1-4cf9-b697-77cf9246cf61';
-  UPDATE public.profiles SET spouse_id = 'f3beee46-fb10-49c0-a584-df0fab331614' WHERE id = '1ed8b73d-1a8a-46e2-b0aa-6ba8360db32f';
-  UPDATE public.profiles SET spouse_id = '1ed8b73d-1a8a-46e2-b0aa-6ba8360db32f' WHERE id = 'f3beee46-fb10-49c0-a584-df0fab331614';
-  UPDATE public.profiles SET spouse_id = 'e4fb9fdc-8ef5-40d5-99c5-a79638f569fc' WHERE id = '10f27076-8ad1-4b6c-96b6-0bcfce118d21';
-  UPDATE public.profiles SET spouse_id = '10f27076-8ad1-4b6c-96b6-0bcfce118d21' WHERE id = 'e4fb9fdc-8ef5-40d5-99c5-a79638f569fc';
-  UPDATE public.profiles SET spouse_id = 'a8f224cf-d8b8-4c91-aea0-2080a88ccde4' WHERE id = '23868771-e51d-46a5-a2bc-d2680ecd2194';
-  UPDATE public.profiles SET spouse_id = '23868771-e51d-46a5-a2bc-d2680ecd2194' WHERE id = 'a8f224cf-d8b8-4c91-aea0-2080a88ccde4';
-  UPDATE public.profiles SET spouse_id = 'bfe75fc9-f016-44e7-90f5-2aa7a745383b' WHERE id = '563b566b-c35d-46ec-9583-72b47d07281d';
-  UPDATE public.profiles SET spouse_id = '563b566b-c35d-46ec-9583-72b47d07281d' WHERE id = 'bfe75fc9-f016-44e7-90f5-2aa7a745383b';
-  UPDATE public.profiles SET spouse_id = '775b69aa-09b8-40fb-90a5-b8147eefe466' WHERE id = 'e245e00f-8c14-490e-88ef-ba6a0a10b43f';
-  UPDATE public.profiles SET spouse_id = 'e245e00f-8c14-490e-88ef-ba6a0a10b43f' WHERE id = '775b69aa-09b8-40fb-90a5-b8147eefe466';
-  UPDATE public.profiles SET spouse_id = '1e692cbb-dde9-4f45-823c-6686487116f5' WHERE id = 'f6bcf7f9-945d-4272-bdc2-75021465bc1c';
-  UPDATE public.profiles SET spouse_id = 'f6bcf7f9-945d-4272-bdc2-75021465bc1c' WHERE id = '1e692cbb-dde9-4f45-823c-6686487116f5';
-  UPDATE public.profiles SET spouse_id = '6a392324-bef0-4715-ab94-85a334eb2d91' WHERE id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834';
-  UPDATE public.profiles SET spouse_id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834' WHERE id = '6a392324-bef0-4715-ab94-85a334eb2d91';
-  UPDATE public.profiles SET spouse_id = 'd7096cec-4242-458a-9999-6ec2bfc84eb2' WHERE id = '6fa2d7da-daeb-4cea-9b02-fea2168bfb01';
-  UPDATE public.profiles SET spouse_id = '6fa2d7da-daeb-4cea-9b02-fea2168bfb01' WHERE id = 'd7096cec-4242-458a-9999-6ec2bfc84eb2';
-  UPDATE public.profiles SET spouse_id = 'cb31b953-06da-43eb-8b0e-af0b9390a0ae' WHERE id = '7d4c46f0-4ed3-4bf6-ae29-98c1df090fca';
-  UPDATE public.profiles SET spouse_id = '7d4c46f0-4ed3-4bf6-ae29-98c1df090fca' WHERE id = 'cb31b953-06da-43eb-8b0e-af0b9390a0ae';
-  UPDATE public.profiles SET spouse_id = '07193709-1bc4-41ec-bddc-02c409210275' WHERE id = 'b45ce3b0-9910-4544-b199-0a91fddd9ce9';
-  UPDATE public.profiles SET spouse_id = 'b45ce3b0-9910-4544-b199-0a91fddd9ce9' WHERE id = '07193709-1bc4-41ec-bddc-02c409210275';
-  UPDATE public.profiles SET spouse_id = '015ef6dc-288f-4266-ae6c-7eb878294df3' WHERE id = '4778ed70-4974-4e5a-ab7b-f4d50c257bd5';
-  UPDATE public.profiles SET spouse_id = '4778ed70-4974-4e5a-ab7b-f4d50c257bd5' WHERE id = '015ef6dc-288f-4266-ae6c-7eb878294df3';
-  UPDATE public.profiles SET spouse_id = '0a60cc91-b996-4028-8175-a8c8858a67cd' WHERE id = 'e4cb38f5-0fc2-4af1-9431-23e61e51bf0b';
-  UPDATE public.profiles SET spouse_id = 'e4cb38f5-0fc2-4af1-9431-23e61e51bf0b' WHERE id = '0a60cc91-b996-4028-8175-a8c8858a67cd';
-  UPDATE public.profiles SET spouse_id = '94be688c-539d-4a7d-b1fc-b829d40c3692' WHERE id = 'a4a5df28-ad0a-4eb7-9373-299ec6573932';
-  UPDATE public.profiles SET spouse_id = 'a4a5df28-ad0a-4eb7-9373-299ec6573932' WHERE id = '94be688c-539d-4a7d-b1fc-b829d40c3692';
-  UPDATE public.profiles SET spouse_id = 'c1134a6f-178d-40fa-affd-6d94d8fae52f' WHERE id = 'ce7f1091-e6a6-40f5-9aa6-6a1dd38d34c5';
-  UPDATE public.profiles SET spouse_id = 'ce7f1091-e6a6-40f5-9aa6-6a1dd38d34c5' WHERE id = 'c1134a6f-178d-40fa-affd-6d94d8fae52f';
-  UPDATE public.profiles SET spouse_id = 'ad1328a6-078f-4e85-835b-6a422cf12fdb' WHERE id = '05374aa2-ab3c-4909-9393-e0dd371f36f4';
-  UPDATE public.profiles SET spouse_id = '05374aa2-ab3c-4909-9393-e0dd371f36f4' WHERE id = 'ad1328a6-078f-4e85-835b-6a422cf12fdb';
-  UPDATE public.profiles SET father_id = '18199521-b88c-45ba-8973-194040fe970b', mother_id = '6b604757-d4ef-40d7-beb0-514888126d1e' WHERE id = '581bef00-4815-40fa-b731-7152debcbc7c';
-  UPDATE public.profiles SET father_id = '95da0514-9444-4f29-a788-9d782b842895', mother_id = 'eaffce78-f113-4ead-aa0d-5ae9a8c5a110' WHERE id = '133bfc28-1807-4762-9986-176a0ead795c';
-  UPDATE public.profiles SET father_id = '76385bbe-a540-4638-8013-609b49a6a2fe', mother_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '777363ae-fa07-4e54-b1dc-3a994e33839b';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '842cb647-a695-438e-bde3-21c1d435ed6b' WHERE id = '19ee4823-f87d-4aa2-b33b-513cbf18384c';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '842cb647-a695-438e-bde3-21c1d435ed6b' WHERE id = '7357b7aa-ec4c-4b46-ba88-83fe74926a5b';
-  UPDATE public.profiles SET father_id = '075eabfb-81bd-4211-a4dd-a20b3e7fed47', mother_id = '451700ce-7eff-49d7-a787-f99a9eda2f8e' WHERE id = '885c1205-df30-4b76-a404-4f78abeda3d4';
-  UPDATE public.profiles SET father_id = '075eabfb-81bd-4211-a4dd-a20b3e7fed47', mother_id = '451700ce-7eff-49d7-a787-f99a9eda2f8e' WHERE id = '91aac336-92ac-4490-9c85-14d3830fdf9b';
-  UPDATE public.profiles SET father_id = '6ed4afbd-1081-4c81-be12-f03628822bba', mother_id = '1dc0ac57-4bbb-46b5-abae-938828807b02' WHERE id = '30999b0d-f37c-45f2-99ba-67f30e20a4bb';
-  UPDATE public.profiles SET father_id = '6ed4afbd-1081-4c81-be12-f03628822bba', mother_id = '1dc0ac57-4bbb-46b5-abae-938828807b02' WHERE id = '6c852113-aeb7-44a8-b6df-e73b57f27071';
-  UPDATE public.profiles SET father_id = '9cb51b1b-c865-4d6e-a6c9-29730d247a65', mother_id = '8bcec8d5-0fdf-402d-a963-61de788fc967' WHERE id = 'bb6baa23-618f-484f-ae33-349e641e8d19';
-  UPDATE public.profiles SET father_id = '9cb51b1b-c865-4d6e-a6c9-29730d247a65', mother_id = '8bcec8d5-0fdf-402d-a963-61de788fc967' WHERE id = 'd256d873-e62b-48a5-b174-58f2cfefd55b';
-  UPDATE public.profiles SET father_id = 'efa67ef3-8431-4adf-817b-3485bdf5526e', mother_id = '86c3cf40-e6be-4004-a67b-30a8e1bc6801' WHERE id = '930c2e88-4c8c-46bc-8e28-da953c85e383';
-  UPDATE public.profiles SET father_id = 'efa67ef3-8431-4adf-817b-3485bdf5526e', mother_id = '86c3cf40-e6be-4004-a67b-30a8e1bc6801' WHERE id = '072a6edb-b5df-4906-80d0-b9dac1e96fe2';
-  UPDATE public.profiles SET father_id = 'd601c038-8bef-439d-8abd-8e441694e063', mother_id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2' WHERE id = '9107e676-25c7-447b-a76a-225065d0f7e3';
-  UPDATE public.profiles SET father_id = 'd601c038-8bef-439d-8abd-8e441694e063', mother_id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2' WHERE id = 'f51523ee-bb76-4f72-8888-6b2188619b51';
-  UPDATE public.profiles SET father_id = 'd601c038-8bef-439d-8abd-8e441694e063', mother_id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2' WHERE id = '0a426482-c3d2-410c-97bc-d99ba99739dc';
-  UPDATE public.profiles SET father_id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb', mother_id = '70215bab-9e3d-4a7c-94e4-762e1a164792' WHERE id = '8d3c3b62-5639-4c6d-9645-1568a467d2b2';
-  UPDATE public.profiles SET father_id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb', mother_id = '70215bab-9e3d-4a7c-94e4-762e1a164792' WHERE id = '180da680-795d-4398-94f2-51382ef42017';
-  UPDATE public.profiles SET father_id = 'd1952ca6-0fc8-4d25-bb5c-27e539f5e1eb', mother_id = '70215bab-9e3d-4a7c-94e4-762e1a164792' WHERE id = '65ae8c33-5a09-4085-85fd-a55a5c03a3c6';
-  UPDATE public.profiles SET father_id = 'e3186275-49bc-4908-8bb0-1a703d6e04f4', mother_id = '7e7eccaf-13ba-4a6e-8314-25a385bd99e1' WHERE id = 'e1e0f36e-1be0-457a-974e-c655061d1b21';
-  UPDATE public.profiles SET father_id = 'e3186275-49bc-4908-8bb0-1a703d6e04f4', mother_id = '7e7eccaf-13ba-4a6e-8314-25a385bd99e1' WHERE id = 'b376638a-df6f-42b7-bf6d-11e1567d00d4';
-  UPDATE public.profiles SET father_id = '18a9e871-da19-4167-ae79-0a0f4d7ee177', mother_id = '8497d209-25dd-4c37-848a-71a5ce583a4e' WHERE id = 'fa032bf6-7835-4f28-9033-62a4bfd4e0f9';
-  UPDATE public.profiles SET father_id = '18a9e871-da19-4167-ae79-0a0f4d7ee177', mother_id = '8497d209-25dd-4c37-848a-71a5ce583a4e' WHERE id = 'dbf1815b-7a91-4bf3-8df0-2101132816d0';
-  UPDATE public.profiles SET father_id = '2be9bae1-598f-4ef9-8bae-29c5b7f8ec75', mother_id = '91a31c18-cc8e-4cb8-ace6-1dba6277426c' WHERE id = '90f386fd-e904-41a7-bcf9-66dc29d656cb';
-  UPDATE public.profiles SET father_id = '2be9bae1-598f-4ef9-8bae-29c5b7f8ec75', mother_id = '91a31c18-cc8e-4cb8-ace6-1dba6277426c' WHERE id = '48e17972-1250-4cb9-b914-b784fbfd7d18';
-  UPDATE public.profiles SET father_id = '432d4817-9d00-43de-b3cb-980b6f076573', mother_id = '550512f2-af6c-4275-b162-28eaabd2f610' WHERE id = '83c13cf4-fced-45c7-9049-119cb42d37de';
-  UPDATE public.profiles SET father_id = 'baa8946b-a7c8-4644-9ac0-60d4ee5b1fd8', mother_id = '92bcf7d0-2e22-43f6-a552-223cd710b0f4' WHERE id = 'ab07bca1-c5de-48db-879b-24c22123f0e8';
-  UPDATE public.profiles SET father_id = 'a01be850-e0a9-43bc-a1fe-71a8fc25584a', mother_id = '2f962c77-17f1-4a34-ab50-4a916dd3ea67' WHERE id = '2e5727d8-17e5-48e4-aa72-2730570ca9c7';
-  UPDATE public.profiles SET father_id = 'f384022d-8284-4319-af6e-9fbe52e69d6f', mother_id = '859de62b-bf20-4d15-be6d-04ff434704ca' WHERE id = '7973d621-acd9-4a74-a822-1786b5228c88';
-  UPDATE public.profiles SET father_id = '4f545f60-8a6c-46b3-98e7-5e9a9241b39c', mother_id = 'a0eef8b7-9ebe-4f37-bfd7-da7af7b5af42' WHERE id = 'd8343644-12d9-401d-bbfb-61fcea213ed4';
-  UPDATE public.profiles SET father_id = NULL, mother_id = 'b3cc8109-5fd1-48cb-b536-cdbd634ea728' WHERE id = '193d59e6-b5e3-4f04-9008-76cbcda9645f';
-  UPDATE public.profiles SET father_id = '53105f33-5e45-45e6-960a-4992d916d7f7', mother_id = '1d636a29-8d27-493a-9973-e35e74476c54' WHERE id = '8e012c82-8158-4b0b-a0dd-4d14de6d4a3a';
-  UPDATE public.profiles SET father_id = '53105f33-5e45-45e6-960a-4992d916d7f7', mother_id = '1d636a29-8d27-493a-9973-e35e74476c54' WHERE id = '9eb079bb-b5b6-4e51-8514-b056f3f5b4dd';
-  UPDATE public.profiles SET father_id = '49069bca-a1ca-4346-b1eb-aa00419a5c81', mother_id = 'cd5dabff-935b-499d-991c-d5b06494981f' WHERE id = '5b83aa0c-916f-4e7e-b10a-6982209769d9';
-  UPDATE public.profiles SET father_id = 'aa3d2a3c-7f0c-467b-bf85-2952cca85639', mother_id = 'e86f8f13-6779-4961-907a-1c8c6fa870b1' WHERE id = 'e363ccc4-8a99-4919-ae43-879ce4ccd49e';
-  UPDATE public.profiles SET father_id = 'e1439e40-56c7-4d8f-9e0e-2de14aa23470', mother_id = '4b26e83c-029a-44d9-ba6d-ddfd24a22371' WHERE id = '6965a4f8-1a2f-4169-bba2-68db6d4b3cd4';
-  UPDATE public.profiles SET father_id = 'e1439e40-56c7-4d8f-9e0e-2de14aa23470', mother_id = '4b26e83c-029a-44d9-ba6d-ddfd24a22371' WHERE id = '24e24b6a-73ca-4b95-9e4c-2b93d3cbb95b';
-  UPDATE public.profiles SET father_id = '3a24ed42-84e7-4591-90a4-8a1d5f3e94a5', mother_id = '2642fe06-67a6-4311-8fdf-e99729e30ab0' WHERE id = '8f079d27-b2b2-4e41-abee-5d291bddcc86';
-  UPDATE public.profiles SET father_id = 'd387f54a-2404-4d75-8abf-ec8e15e2b192', mother_id = '97ccb0b0-481c-49ee-9c2b-2f7cc8dff8d7' WHERE id = 'a87f0c0e-3451-4e7c-8944-6fa2b3a3ac47';
-  UPDATE public.profiles SET father_id = '19e646e3-8ee2-4759-bce9-271eb6210b0f', mother_id = 'cc099159-251d-4faf-bcaf-98498a7f6e53' WHERE id = '7da20361-8881-4494-b296-eeb7dc4b43fb';
-  UPDATE public.profiles SET father_id = '19e646e3-8ee2-4759-bce9-271eb6210b0f', mother_id = 'cc099159-251d-4faf-bcaf-98498a7f6e53' WHERE id = 'aab2ea78-c623-49ba-a2eb-18feec255606';
-  UPDATE public.profiles SET father_id = '5bf8572e-cab5-43f6-9f15-9df1cee486e0', mother_id = 'b039b08d-0e01-4bdc-b987-3ab6f901e3a1' WHERE id = '80588dd5-54c3-4f20-862d-a46e811b9eee';
-  UPDATE public.profiles SET father_id = '5aeda46e-fc73-49f3-9df8-a981e1f36d5f', mother_id = 'f11fa2bd-91cf-4be9-8abf-c5982da1bd68' WHERE id = '83a538e0-dbc7-4ccd-ae80-0c68496cd7de';
-  UPDATE public.profiles SET father_id = '5aeda46e-fc73-49f3-9df8-a981e1f36d5f', mother_id = 'f11fa2bd-91cf-4be9-8abf-c5982da1bd68' WHERE id = '4332ba7f-05a0-4a12-b963-9044e6a0fbf7';
-  UPDATE public.profiles SET father_id = '1d1cdf88-22c8-4687-883f-b1dd4b8fd4b0', mother_id = 'cb63660a-b0f6-421b-9b5b-06fdaf28de9c' WHERE id = '4bf188b3-00b1-4e9b-adc7-25a4b71f2f34';
-  UPDATE public.profiles SET father_id = '1d1cdf88-22c8-4687-883f-b1dd4b8fd4b0', mother_id = 'cb63660a-b0f6-421b-9b5b-06fdaf28de9c' WHERE id = '814458ef-8078-412b-97c7-343887eb4063';
-  UPDATE public.profiles SET father_id = NULL, mother_id = 'fa45817b-3c0a-4b86-95ec-321028d8a7ce' WHERE id = '58a5cdee-8bd2-409f-ab45-b567841e54f8';
-  UPDATE public.profiles SET father_id = NULL, mother_id = 'fa45817b-3c0a-4b86-95ec-321028d8a7ce' WHERE id = '789c375b-e6a5-411c-9f37-6b6b187f2e29';
-  UPDATE public.profiles SET father_id = 'b97783df-67db-4a60-ad67-dcb6b4ddf9fa', mother_id = '11d54fe2-8e08-4557-b6aa-9d8fe99ce3e9' WHERE id = '1ca82797-5aac-4631-8573-fda8becdc21c';
-  UPDATE public.profiles SET father_id = '01cffd07-e218-42d6-89f9-c12af443e8fe', mother_id = 'dacf9dd1-d154-47a3-af1b-9f5663eb172e' WHERE id = 'ea6ee148-3d17-4e6f-a678-5ab5a616f020';
-  UPDATE public.profiles SET father_id = '28bab668-c8b2-4246-b2ca-d4a3329e88b2', mother_id = 'ff747f86-e7fa-414a-996b-2962be8a6743' WHERE id = '9138a49b-cb8c-4b52-86c1-e1abb8c5e08f';
-  UPDATE public.profiles SET father_id = '28bab668-c8b2-4246-b2ca-d4a3329e88b2', mother_id = 'ff747f86-e7fa-414a-996b-2962be8a6743' WHERE id = '7303622e-0996-437a-bcd2-bd90701cd504';
-  UPDATE public.profiles SET father_id = '61bb229d-5043-4586-a1cb-b5e7809b9a42', mother_id = 'b9c1eb03-54db-4bf2-88a6-226be1640d57' WHERE id = '5f9cac0f-a150-4031-8916-303254cfc6d4';
-  UPDATE public.profiles SET father_id = '770b9d65-c331-466a-854f-4134401e8154', mother_id = 'cf1d34ee-2080-4088-b5d8-d7731199901a' WHERE id = 'cc10d9de-3840-4c7c-b09b-d582d71fbdf4';
-  UPDATE public.profiles SET father_id = '770b9d65-c331-466a-854f-4134401e8154', mother_id = 'cf1d34ee-2080-4088-b5d8-d7731199901a' WHERE id = '05283e93-f2cf-4c81-93b3-c64b6a304a33';
-  UPDATE public.profiles SET father_id = 'cc31648e-f28f-422a-a4e4-d4f6d4a8a081', mother_id = '93a88ed5-e784-4d6b-a69c-d7debb496bf3' WHERE id = '933d612d-44d4-4314-b93b-4c704564f331';
-  UPDATE public.profiles SET father_id = 'dc23aa70-fbb4-4b81-9d74-3e5543cca2cb', mother_id = '2a75f8bc-d048-437f-85f3-f2c0f94dee00' WHERE id = '3691fc35-2237-4afd-8520-851c5c1bbc1f';
-  UPDATE public.profiles SET father_id = '5ffeca61-7cd6-4cf1-adc6-d48959409cb0', mother_id = '9ae11fee-96fb-4c81-a6cd-57af2541291f' WHERE id = '03a773d6-637f-41a4-adb3-3bf7fa3ab362';
-  UPDATE public.profiles SET father_id = '5ffeca61-7cd6-4cf1-adc6-d48959409cb0', mother_id = '9ae11fee-96fb-4c81-a6cd-57af2541291f' WHERE id = 'b8b4f899-40ce-4dde-908d-96e407622fae';
-  UPDATE public.profiles SET father_id = 'b02b4f4f-5b40-4085-a3c9-82db4c266582', mother_id = '37a7eca7-d590-4f26-8fda-d63a6377914e' WHERE id = '82682c32-09ec-4d57-b696-b7ced5cfc50f';
-  UPDATE public.profiles SET father_id = 'b02b4f4f-5b40-4085-a3c9-82db4c266582', mother_id = '37a7eca7-d590-4f26-8fda-d63a6377914e' WHERE id = '5318dcf2-79e5-4ce1-abd5-bc4df72634cd';
-  UPDATE public.profiles SET father_id = 'a3f3e01d-de9f-4355-afd9-163ef2baa6ab', mother_id = 'ba920b1c-2c4f-46c3-ab83-4eef8c657c4a' WHERE id = '95330e5e-f741-4ea7-a125-9f51deb9365e';
-  UPDATE public.profiles SET father_id = '3769e1a2-b80f-4c23-9328-7d7e2d733e55', mother_id = '5a9dab15-3181-461b-8979-220324e65540' WHERE id = '7bf2a8a1-1d38-413b-a2b5-77663f2a3255';
-  UPDATE public.profiles SET father_id = '3bb28abb-1e36-4b4c-86be-39ede123499b', mother_id = 'cdcb7800-a3c8-44c9-b782-d0cc98431d61' WHERE id = '7b72a571-653f-41a2-a491-191dcc7b9841';
-  UPDATE public.profiles SET father_id = '3bb28abb-1e36-4b4c-86be-39ede123499b', mother_id = 'cdcb7800-a3c8-44c9-b782-d0cc98431d61' WHERE id = 'a483ef3f-4ffb-4a60-8c7d-b1e5034c47e3';
-  UPDATE public.profiles SET father_id = '04691149-7822-419e-af0c-0abc4ca89778', mother_id = '134164ad-c0fb-4c9b-ba42-a512c1aad399' WHERE id = '67f26cae-b7bc-4b15-84e3-c8f5e20d51af';
-  UPDATE public.profiles SET father_id = '1f3eb3b0-f1c2-4c9f-a202-5d52180e8bc5', mother_id = 'abfa588a-96e0-468a-85f2-c63a08d5cc96' WHERE id = 'd1c45d05-e092-47cf-8894-ac568acf70ac';
-  UPDATE public.profiles SET father_id = 'e9754ebb-7614-4040-9d7f-5b741d07b633', mother_id = 'a1e470e1-3742-444f-8834-8f5891892096' WHERE id = 'bfbbefbe-e661-4882-9f41-c6b6c6e5564e';
-  UPDATE public.profiles SET father_id = 'e9754ebb-7614-4040-9d7f-5b741d07b633', mother_id = 'a1e470e1-3742-444f-8834-8f5891892096' WHERE id = 'a59946d3-9c25-40fd-b87b-dd2f98990461';
-  UPDATE public.profiles SET father_id = 'c0dff264-dc84-45d6-9a4e-da18d047dd73', mother_id = '81a0a170-8930-48f2-b505-8cd13b9883c2' WHERE id = '568fdb5d-b1c2-4756-88d9-c335ef1c9a13';
-  UPDATE public.profiles SET father_id = 'c0dff264-dc84-45d6-9a4e-da18d047dd73', mother_id = '81a0a170-8930-48f2-b505-8cd13b9883c2' WHERE id = '9a4e1669-97cf-47c7-8335-8a3b9737244d';
-  UPDATE public.profiles SET father_id = '6f91d776-8634-4ece-94ae-f3994a84d1a5', mother_id = '2c668ccd-0f93-41b2-8743-66b74b4b533b' WHERE id = '8c0ccb5c-4000-4b4f-aad3-69e04bdd7c13';
-  UPDATE public.profiles SET father_id = '6f91d776-8634-4ece-94ae-f3994a84d1a5', mother_id = '2c668ccd-0f93-41b2-8743-66b74b4b533b' WHERE id = '388126b0-bd32-4968-be8b-3e0de8ba6d47';
-  UPDATE public.profiles SET father_id = NULL, mother_id = 'b4d865c4-14ff-4d3e-b41f-9a2865d9d1a6' WHERE id = '968867ff-0c83-4604-9a4a-23d81d82c8ea';
-  UPDATE public.profiles SET father_id = 'c3dee27d-46b7-4b6f-b312-7e0a1f5e3ca8', mother_id = 'f8fc3a94-f3fd-4467-a992-52262a94b14a' WHERE id = '8122c13c-b1a1-4749-bf2c-6016c6a0d81e';
-  UPDATE public.profiles SET father_id = 'a6ca3f63-53e2-407b-a9fa-ae1f9c695380', mother_id = 'b9181151-41c7-441a-90a6-949a703ae525' WHERE id = 'da9f0ce9-0bc4-48c0-892e-400bd72edfdf';
-  UPDATE public.profiles SET father_id = '8a9a91d2-1bf6-40a1-8a45-e858192d0fb2', mother_id = '947b92b9-c68d-4f75-a8cd-5785f3e1b00c' WHERE id = '5f7f3124-4088-41e2-ad70-4057634c6b52';
-  UPDATE public.profiles SET father_id = '8a9a91d2-1bf6-40a1-8a45-e858192d0fb2', mother_id = '947b92b9-c68d-4f75-a8cd-5785f3e1b00c' WHERE id = '8c3d244b-6ea8-46df-8291-f3898d806424';
-  UPDATE public.profiles SET father_id = '7cc5d3fd-5602-41b8-a8b0-2a601502657c', mother_id = 'e7f688c6-a018-4870-9f61-ec7be9da2b24' WHERE id = '6032d844-5ec8-42af-a542-9681d754b965';
-  UPDATE public.profiles SET father_id = '949959ee-1dd0-409e-b9f8-32ed32900042', mother_id = 'e95ff5f1-2d83-4d91-b128-9b90e3545799' WHERE id = '952e38d0-ef7a-4c11-85f4-b7cbe0b2bfda';
-  UPDATE public.profiles SET father_id = 'bac00a53-6c8b-4e62-a103-377d2b317a9b', mother_id = 'e71efd7c-f1fb-4657-b177-222ffbbe45f3' WHERE id = '0d081af7-f83d-4d99-9633-e388c59f5a6c';
-  UPDATE public.profiles SET father_id = '60f23c80-fef9-4368-87c8-4fad26594ad8', mother_id = '3941c095-38e1-48ce-a448-493641f2b4dc' WHERE id = 'df4ca1be-3d48-4d9e-b860-106303126eab';
-  UPDATE public.profiles SET father_id = '60f23c80-fef9-4368-87c8-4fad26594ad8', mother_id = '3941c095-38e1-48ce-a448-493641f2b4dc' WHERE id = '844cf6a5-101d-4f55-b65a-c57ba6c44973';
-  UPDATE public.profiles SET father_id = '60f23c80-fef9-4368-87c8-4fad26594ad8', mother_id = '3941c095-38e1-48ce-a448-493641f2b4dc' WHERE id = 'ac734394-c100-4219-81d8-4fcf7102a2ac';
-  UPDATE public.profiles SET father_id = 'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd', mother_id = '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e' WHERE id = '33cb1e8d-98f3-4c10-b053-d8be68f7c31c';
-  UPDATE public.profiles SET father_id = 'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd', mother_id = '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e' WHERE id = '798cf288-c38b-4544-8423-f92af5397a93';
-  UPDATE public.profiles SET father_id = 'e4dc0ee6-6287-431d-acf5-0c62d50cb4cd', mother_id = '3ad0382a-7f9b-4371-8bda-1c55d3a90e0e' WHERE id = '2f46f6d9-3bb2-4a89-bf67-675dfb61673e';
-  UPDATE public.profiles SET father_id = '64fed90e-bed3-477b-b296-e3284bd747c3', mother_id = '62c5805d-ffe9-421f-b0ac-2df896b149d9' WHERE id = 'fa1bd922-ad4f-4696-b684-57bc7e8be418';
-  UPDATE public.profiles SET father_id = '39817ad5-f1e9-41d2-8a36-327b874917cb', mother_id = 'eeb05682-ff4e-47c3-801e-72417c44fa17' WHERE id = 'fa28fa92-7095-4a97-84c6-5759e4029598';
-  UPDATE public.profiles SET father_id = '39817ad5-f1e9-41d2-8a36-327b874917cb', mother_id = 'eeb05682-ff4e-47c3-801e-72417c44fa17' WHERE id = '5af65d2f-06f8-43f1-9fa7-445d7b276af3';
-  UPDATE public.profiles SET father_id = '81659905-131f-4a84-aafb-1ab3d9f0693d', mother_id = 'ed73084d-85c8-420d-b6ae-a404985a3138' WHERE id = 'ef6ce8ca-85f3-4942-a155-050ca4116b3b';
-  UPDATE public.profiles SET father_id = 'a6dfb526-08b9-452d-bc99-7384ffb0e521', mother_id = '52b16034-cbcf-4896-a7b2-7336375ffe30' WHERE id = 'a31ce4ca-beed-465b-993c-f76976c3673f';
-  UPDATE public.profiles SET father_id = 'a6dfb526-08b9-452d-bc99-7384ffb0e521', mother_id = '52b16034-cbcf-4896-a7b2-7336375ffe30' WHERE id = 'f0d995e6-5117-472f-bace-a139b34b0d89';
-  UPDATE public.profiles SET father_id = '0961cec1-bf5a-4cf8-aba3-c89efd4421bf', mother_id = '374dc646-b0ad-4830-b353-6b12f5ff2561' WHERE id = 'aa5acfc5-035e-44ae-9dc2-45b1d7b8df50';
-  UPDATE public.profiles SET father_id = '0961cec1-bf5a-4cf8-aba3-c89efd4421bf', mother_id = '374dc646-b0ad-4830-b353-6b12f5ff2561' WHERE id = '01d9b464-7053-4f22-8815-874c13796ed8';
-  UPDATE public.profiles SET father_id = '6936238c-4151-4795-92e8-1b238739f7ed', mother_id = '0257e477-a7b6-4121-a5a8-27919652d373' WHERE id = 'fd84b5f8-115e-4bc8-8ae7-9cd5b84d10a7';
-  UPDATE public.profiles SET father_id = '4f6caee5-fe21-4c66-b050-28a3766c802c', mother_id = 'f1eedb72-e58a-4905-8b59-d6db370a2b32' WHERE id = 'f338f154-5c97-4529-8b12-9b90478740bd';
-  UPDATE public.profiles SET father_id = '722a8040-c020-4878-a2aa-0424f57d868d', mother_id = '32f624ea-0788-480e-b963-0d5fa2bd24d6' WHERE id = 'bf98590e-ccc0-4929-835c-ba1e9846d679';
-  UPDATE public.profiles SET father_id = '32b950d9-6474-4e1e-a513-555280617278', mother_id = '1bd07e79-5900-4d35-960c-f7b6f6b7c5a6' WHERE id = '4b4383f1-0c5e-48e3-82ef-1ac67dae9231';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '251b4abd-0ebb-49f5-8773-1cba771cb36d' WHERE id = 'b008f08b-016d-4067-8e31-aa26ad8196b5';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '251b4abd-0ebb-49f5-8773-1cba771cb36d' WHERE id = '2ab6692a-78b5-4c50-b2ca-fd04799988c2';
-  UPDATE public.profiles SET father_id = '15b6d388-0772-477d-91b1-bc3504a0bb21', mother_id = 'c986ba93-3f40-44ba-82b6-7147178a2c67' WHERE id = 'f81d2bdc-4497-460f-a60b-b759afdec6a9';
-  UPDATE public.profiles SET father_id = '15b6d388-0772-477d-91b1-bc3504a0bb21', mother_id = 'c986ba93-3f40-44ba-82b6-7147178a2c67' WHERE id = 'cb9ba05f-c74c-4bd2-8270-3b2ada1297a7';
-  UPDATE public.profiles SET father_id = '15b6d388-0772-477d-91b1-bc3504a0bb21', mother_id = 'c986ba93-3f40-44ba-82b6-7147178a2c67' WHERE id = 'b8b2e930-80b1-42cd-a0dd-530afb3de1a7';
-  UPDATE public.profiles SET father_id = '01de7ea5-c4fe-4330-a5db-e90ee9b75999', mother_id = 'fe58ac90-83fc-4708-bc8e-d7a7f2080fe9' WHERE id = '3bac8349-bdeb-4f5c-8837-846f9fee43f1';
-  UPDATE public.profiles SET father_id = '01de7ea5-c4fe-4330-a5db-e90ee9b75999', mother_id = 'fe58ac90-83fc-4708-bc8e-d7a7f2080fe9' WHERE id = '9ac2d7c2-17bf-464d-9333-89e0735c493e';
-  UPDATE public.profiles SET father_id = '111fc211-6520-4e68-ad30-d99663fb7f12', mother_id = '4c496562-332f-4350-8713-36deb6c0ab95' WHERE id = '20a8f04e-66ec-4fbd-ade3-80b59ac244dd';
-  UPDATE public.profiles SET father_id = '6a6a3f14-83fa-4a44-b0cb-f33de4ba029c', mother_id = '4f8be18d-1754-481e-ab8f-870005082348' WHERE id = 'de2e7b1c-98c1-440b-995d-eeb21e4b3a53';
-  UPDATE public.profiles SET father_id = '84006fda-8503-4753-9bf5-3df051516634', mother_id = '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc' WHERE id = 'f9c4ebef-9a80-4e30-96d6-c8ce1ff81ca7';
-  UPDATE public.profiles SET father_id = '84006fda-8503-4753-9bf5-3df051516634', mother_id = '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc' WHERE id = '28f4a5d3-fcfe-49af-b514-22b5f8177e32';
-  UPDATE public.profiles SET father_id = '84006fda-8503-4753-9bf5-3df051516634', mother_id = '4ddbc50f-0c2b-4d34-90a5-6b1229b900cc' WHERE id = '76c416c9-b8e8-4644-9b80-04458484213b';
-  UPDATE public.profiles SET father_id = '4dc5a04a-3281-4cee-968a-bc61d83f1210', mother_id = '18b71168-2c8d-4a0b-9858-f547f3b67c5e' WHERE id = '8c884b5a-603f-4c43-82dd-38eaba21bbdd';
-  UPDATE public.profiles SET father_id = 'aa0cb027-08d8-4433-92fe-6bd9e4a7eec6', mother_id = '58f5593b-6ccd-4576-b9ba-3a327901c487' WHERE id = '4ea36c0f-71e4-49e7-ab1d-7c8d9b91ad13';
-  UPDATE public.profiles SET father_id = 'aa0cb027-08d8-4433-92fe-6bd9e4a7eec6', mother_id = '58f5593b-6ccd-4576-b9ba-3a327901c487' WHERE id = '9bdc7d0d-388d-40a8-b3ee-d0408cf5c19e';
-  UPDATE public.profiles SET father_id = 'f85afe51-62f0-4587-871e-a09c1030b1fe', mother_id = '52a865e0-cd3c-45cf-9db7-6312f51cbe3e' WHERE id = 'bedc2468-4c37-4434-9ead-95e68a42f126';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '7a05ad9b-21d4-46b3-88a4-9df066afb94d' WHERE id = '3b8b46fb-8aff-4205-bae5-e356e7a2fb1a';
-  UPDATE public.profiles SET father_id = NULL, mother_id = '7a05ad9b-21d4-46b3-88a4-9df066afb94d' WHERE id = '69f5a2e2-b8be-47f3-8273-fc387c929a34';
-  UPDATE public.profiles SET father_id = '3c2c1c31-bad2-428d-b1c1-1e98fee4bfd5', mother_id = '5e193f39-6b9f-414e-bcde-98599d93adf5' WHERE id = 'a41f4c5c-d0ac-46de-9a87-47d0df1fda09';
-  UPDATE public.profiles SET father_id = '0210b6d7-2bee-4b12-b998-facc98d5e391', mother_id = 'e0da7c6c-7b50-4845-a29a-e50c020311e1' WHERE id = '046b9437-4d75-498f-9091-6ba825d8d942';
-  UPDATE public.profiles SET father_id = '2705d104-941d-41ed-aa42-ca742dcb51db', mother_id = '467666c6-93ce-4458-821c-a54ef6a7dd3b' WHERE id = 'ca9c295c-146c-4547-af57-40d91de534b5';
-  UPDATE public.profiles SET father_id = '2705d104-941d-41ed-aa42-ca742dcb51db', mother_id = '467666c6-93ce-4458-821c-a54ef6a7dd3b' WHERE id = '3f7f941f-8fce-46a7-a365-cc992467c40d';
-  UPDATE public.profiles SET father_id = 'a863cacd-926d-4dbf-b533-d22e45d80139', mother_id = 'd7f09103-d5db-4df4-b30c-9f41a5a1f33d' WHERE id = '9b88b8e5-e42a-4535-9dfe-21bb83b52c9b';
-  UPDATE public.profiles SET father_id = '7a3513b1-9ad3-4f99-a56e-f361f8738812', mother_id = '78a85e6b-6af6-463b-9775-20f19af29e6e' WHERE id = '5699e7ef-6769-444f-89db-bc8800071738';
-  UPDATE public.profiles SET father_id = 'be3216a8-a15e-41f7-94fb-cf03402e4328', mother_id = 'eedb5897-a1b1-4656-9066-c6d82289bf03' WHERE id = '544b01f8-a1f6-4425-9913-aa39035ce596';
-  UPDATE public.profiles SET father_id = 'be3216a8-a15e-41f7-94fb-cf03402e4328', mother_id = 'eedb5897-a1b1-4656-9066-c6d82289bf03' WHERE id = '190d674e-6c67-4d3b-9555-8603d2db2873';
-  UPDATE public.profiles SET father_id = 'c29c03e9-40f4-4a49-95d9-c70f011d4002', mother_id = '426ad53a-a1ef-4472-ab9b-a42a06879e51' WHERE id = '588c1bf6-986f-49b7-a199-c3ba39487d8a';
-  UPDATE public.profiles SET father_id = '02c0f4ec-7d50-4314-af0a-5ef9758dcd11', mother_id = 'ab518771-bb8d-4399-b516-2d912164dfe8' WHERE id = 'c68989a1-e2d8-4ce7-bc6d-15a68d4c8292';
-  UPDATE public.profiles SET father_id = 'e1a3052a-79d6-4bb5-bf7a-a19b88ba18f3', mother_id = NULL WHERE id = '88001175-a896-46ee-8372-d22b2e255f83';
-  UPDATE public.profiles SET father_id = 'e1a3052a-79d6-4bb5-bf7a-a19b88ba18f3', mother_id = NULL WHERE id = 'cae2d2e9-173a-48fa-9a49-52bde41244bc';
-  UPDATE public.profiles SET father_id = 'f85efaba-9cf9-44a9-bae8-fdaf808ebe77', mother_id = '908f6a9f-f179-4492-9778-a1d617623be6' WHERE id = '1066a960-6088-4925-b731-4ea27bc7a3da';
-  UPDATE public.profiles SET father_id = '96dc0c0f-88b8-4e7d-a2ab-1e08712c8b06', mother_id = '58b4b501-3778-40a5-82be-6cc8c86dd3af' WHERE id = '794837e7-a382-4ee3-8e96-f9759370af81';
-  UPDATE public.profiles SET father_id = '7effff7e-ff89-4ea1-957d-f09afb0bafe2', mother_id = 'cf3c4250-2e8b-4779-adf8-d1bc6cd281f0' WHERE id = '3bac46fe-d2f8-4b11-bc0e-87496bfbbe50';
-  UPDATE public.profiles SET father_id = '7effff7e-ff89-4ea1-957d-f09afb0bafe2', mother_id = 'cf3c4250-2e8b-4779-adf8-d1bc6cd281f0' WHERE id = 'fac15d86-4066-41c3-8908-cff49ad3e522';
-  UPDATE public.profiles SET father_id = 'f1d794c5-eeaf-438f-a083-61e37db7f481', mother_id = '14ad3d68-7bdf-4ae0-9586-0041f218d732' WHERE id = '13b0029d-6203-4918-a0ea-d5e0b8129ab8';
-  UPDATE public.profiles SET father_id = '1656669f-a404-4b39-94b4-02fde1f89672', mother_id = 'd1c42487-08d1-4cf9-b697-77cf9246cf61' WHERE id = '01eed741-7f47-4b43-9d50-3e9d2345bb93';
-  UPDATE public.profiles SET father_id = '1656669f-a404-4b39-94b4-02fde1f89672', mother_id = 'd1c42487-08d1-4cf9-b697-77cf9246cf61' WHERE id = '38f49a15-36d2-451e-8d60-4ff8ab93d731';
-  UPDATE public.profiles SET father_id = '1ed8b73d-1a8a-46e2-b0aa-6ba8360db32f', mother_id = 'f3beee46-fb10-49c0-a584-df0fab331614' WHERE id = 'd0fd103a-198e-4ef8-9d2c-6fdc70f0b448';
-  UPDATE public.profiles SET father_id = '10f27076-8ad1-4b6c-96b6-0bcfce118d21', mother_id = 'e4fb9fdc-8ef5-40d5-99c5-a79638f569fc' WHERE id = '6ed21ce0-d15a-46d6-938e-e46bc0192bf6';
-  UPDATE public.profiles SET father_id = '23868771-e51d-46a5-a2bc-d2680ecd2194', mother_id = 'a8f224cf-d8b8-4c91-aea0-2080a88ccde4' WHERE id = '0ad14a21-1b97-4ccb-a41f-887c0ac7cf7a';
-  UPDATE public.profiles SET father_id = '23868771-e51d-46a5-a2bc-d2680ecd2194', mother_id = 'a8f224cf-d8b8-4c91-aea0-2080a88ccde4' WHERE id = 'a040ae8f-ab01-4c18-9411-b3b3c00d676c';
-  UPDATE public.profiles SET father_id = '563b566b-c35d-46ec-9583-72b47d07281d', mother_id = 'bfe75fc9-f016-44e7-90f5-2aa7a745383b' WHERE id = '091f9dc9-92bd-4685-853c-5d80c7e86921';
-  UPDATE public.profiles SET father_id = '563b566b-c35d-46ec-9583-72b47d07281d', mother_id = 'bfe75fc9-f016-44e7-90f5-2aa7a745383b' WHERE id = '55d77b7f-629b-4cd2-9b0b-2ad824f983b4';
-  UPDATE public.profiles SET father_id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834', mother_id = '6a392324-bef0-4715-ab94-85a334eb2d91' WHERE id = '34d024c4-6173-4469-9e95-07d489c9f665';
-  UPDATE public.profiles SET father_id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834', mother_id = '6a392324-bef0-4715-ab94-85a334eb2d91' WHERE id = 'ac1a10a0-153d-4eb3-a105-14803f82c0df';
-  UPDATE public.profiles SET father_id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834', mother_id = '6a392324-bef0-4715-ab94-85a334eb2d91' WHERE id = 'ebb403e9-ec1f-44b6-875a-9fe7e03d4c84';
-  UPDATE public.profiles SET father_id = 'f04dda79-d9e1-475d-928c-a5dce6bd5834', mother_id = '6a392324-bef0-4715-ab94-85a334eb2d91' WHERE id = '6a0889e7-71ce-4414-87aa-678557370e0f';
-  UPDATE public.profiles SET father_id = '6fa2d7da-daeb-4cea-9b02-fea2168bfb01', mother_id = 'd7096cec-4242-458a-9999-6ec2bfc84eb2' WHERE id = 'a5bdf968-9e12-4d84-8bc7-1d40b25f8a79';
-  UPDATE public.profiles SET father_id = 'a4a5df28-ad0a-4eb7-9373-299ec6573932', mother_id = '94be688c-539d-4a7d-b1fc-b829d40c3692' WHERE id = '835cd260-fd18-4184-ae80-6bf27b21a158';
+  UPDATE public.profiles SET spouse_id = '2ee8740d-b1fe-4614-baf7-da870e0ac155' WHERE id = '19ec4776-52dc-43c8-8c08-e272cc157732';
+  UPDATE public.profiles SET spouse_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = '2ee8740d-b1fe-4614-baf7-da870e0ac155';
+  UPDATE public.profiles SET spouse_id = '1bc2068a-b1c1-4775-9a46-2437674461dc' WHERE id = 'b7b9a6a9-483c-4652-9ce5-5ee31e7e949a';
+  UPDATE public.profiles SET spouse_id = 'b7b9a6a9-483c-4652-9ce5-5ee31e7e949a' WHERE id = '1bc2068a-b1c1-4775-9a46-2437674461dc';
+  UPDATE public.profiles SET spouse_id = 'd46c69da-3468-4e73-8d78-c1a6a8a50924' WHERE id = 'bc3cc745-dcd0-4c79-b8a1-bde6e336b28f';
+  UPDATE public.profiles SET spouse_id = 'bc3cc745-dcd0-4c79-b8a1-bde6e336b28f' WHERE id = 'd46c69da-3468-4e73-8d78-c1a6a8a50924';
+  UPDATE public.profiles SET spouse_id = '8fb69cc8-44c0-46ac-be75-4568d2a0e3a6' WHERE id = 'cfefe8cc-f85e-4427-ad60-149ae73e1dad';
+  UPDATE public.profiles SET spouse_id = 'cfefe8cc-f85e-4427-ad60-149ae73e1dad' WHERE id = '8fb69cc8-44c0-46ac-be75-4568d2a0e3a6';
+  UPDATE public.profiles SET spouse_id = 'fe51e018-12b5-4ca2-9164-ade04b45ea55' WHERE id = '23bd5f9b-0dec-4888-bf3b-c6d78a74a8dc';
+  UPDATE public.profiles SET spouse_id = '23bd5f9b-0dec-4888-bf3b-c6d78a74a8dc' WHERE id = 'fe51e018-12b5-4ca2-9164-ade04b45ea55';
+  UPDATE public.profiles SET spouse_id = 'c9451d88-3d0b-4366-9dee-49bf4b1a665c' WHERE id = '5862029e-8e82-439b-a8e8-a45b3f954987';
+  UPDATE public.profiles SET spouse_id = '5862029e-8e82-439b-a8e8-a45b3f954987' WHERE id = 'c9451d88-3d0b-4366-9dee-49bf4b1a665c';
+  UPDATE public.profiles SET spouse_id = 'b79deef6-8e02-4da3-8996-4a68d349a5f6' WHERE id = '87ccf9ea-c9af-475b-8d80-2fe92f9b5c8c';
+  UPDATE public.profiles SET spouse_id = '87ccf9ea-c9af-475b-8d80-2fe92f9b5c8c' WHERE id = 'b79deef6-8e02-4da3-8996-4a68d349a5f6';
+  UPDATE public.profiles SET spouse_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = '41538203-0a7e-426e-9f6e-176315fa44a5';
+  UPDATE public.profiles SET spouse_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb';
+  UPDATE public.profiles SET spouse_id = '679737de-e2ed-4c93-b0f9-61172109ec1a' WHERE id = '1996717f-e08a-44e3-9b6f-7c44aaf8fe9a';
+  UPDATE public.profiles SET spouse_id = '1996717f-e08a-44e3-9b6f-7c44aaf8fe9a' WHERE id = '679737de-e2ed-4c93-b0f9-61172109ec1a';
+  UPDATE public.profiles SET spouse_id = 'c53698e8-a13d-48a6-9f01-218732f58b3a' WHERE id = '1dce335d-9640-4178-8675-8a35bcef33f3';
+  UPDATE public.profiles SET spouse_id = '1dce335d-9640-4178-8675-8a35bcef33f3' WHERE id = 'c53698e8-a13d-48a6-9f01-218732f58b3a';
+  UPDATE public.profiles SET spouse_id = '1d94db5d-33e8-47c8-b74b-89c3baf318af' WHERE id = '284c583e-eeb5-4896-94c9-4ecfe43ba1bf';
+  UPDATE public.profiles SET spouse_id = '284c583e-eeb5-4896-94c9-4ecfe43ba1bf' WHERE id = '1d94db5d-33e8-47c8-b74b-89c3baf318af';
+  UPDATE public.profiles SET spouse_id = '9996439c-760a-4ee1-9278-26091fb1988f' WHERE id = '831e59c6-147c-4042-a81c-bc3f19f6ea36';
+  UPDATE public.profiles SET spouse_id = '831e59c6-147c-4042-a81c-bc3f19f6ea36' WHERE id = '9996439c-760a-4ee1-9278-26091fb1988f';
+  UPDATE public.profiles SET spouse_id = '1a803e04-1fc7-460e-b5bc-1b8d294dec66' WHERE id = '4156a63d-cfd6-443f-8f75-94a85a73bc40';
+  UPDATE public.profiles SET spouse_id = '4156a63d-cfd6-443f-8f75-94a85a73bc40' WHERE id = '1a803e04-1fc7-460e-b5bc-1b8d294dec66';
+  UPDATE public.profiles SET spouse_id = '47a23238-4217-468e-ab65-fabf7a365838' WHERE id = 'a6285c83-e760-4a9c-9c0d-364f54ebbdf0';
+  UPDATE public.profiles SET spouse_id = 'a6285c83-e760-4a9c-9c0d-364f54ebbdf0' WHERE id = '47a23238-4217-468e-ab65-fabf7a365838';
+  UPDATE public.profiles SET spouse_id = '4effb9f2-0cff-4fa4-ac68-49a93c2628fa' WHERE id = '48410ac0-1787-4c7e-a6e7-4e6806642850';
+  UPDATE public.profiles SET spouse_id = '48410ac0-1787-4c7e-a6e7-4e6806642850' WHERE id = '4effb9f2-0cff-4fa4-ac68-49a93c2628fa';
+  UPDATE public.profiles SET spouse_id = 'fb825f48-ceee-4081-85e4-6dd94bca5a50' WHERE id = 'a72d4939-2969-45b4-9e45-a4247325519b';
+  UPDATE public.profiles SET spouse_id = 'a72d4939-2969-45b4-9e45-a4247325519b' WHERE id = 'fb825f48-ceee-4081-85e4-6dd94bca5a50';
+  UPDATE public.profiles SET spouse_id = 'ce3ad9d1-0ae8-4940-9b51-2519e39e712c' WHERE id = '4db2d7d9-a30f-44c6-8615-a3f64bee5c01';
+  UPDATE public.profiles SET spouse_id = '4db2d7d9-a30f-44c6-8615-a3f64bee5c01' WHERE id = 'ce3ad9d1-0ae8-4940-9b51-2519e39e712c';
+  UPDATE public.profiles SET spouse_id = 'eb53ac6a-789b-412b-aba3-e86e8a4566db' WHERE id = '91ca2fe2-9032-4d9c-a4c6-7969b4197f0f';
+  UPDATE public.profiles SET spouse_id = '91ca2fe2-9032-4d9c-a4c6-7969b4197f0f' WHERE id = 'eb53ac6a-789b-412b-aba3-e86e8a4566db';
+  UPDATE public.profiles SET spouse_id = 'ac1fdb69-a924-4214-9205-52be933cdd77' WHERE id = '7ac247cc-b99a-43b4-b54b-8fadf2432dee';
+  UPDATE public.profiles SET spouse_id = '7ac247cc-b99a-43b4-b54b-8fadf2432dee' WHERE id = 'ac1fdb69-a924-4214-9205-52be933cdd77';
+  UPDATE public.profiles SET spouse_id = '1e7d0844-9b45-4144-8f6a-47e5eded8daa' WHERE id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6';
+  UPDATE public.profiles SET spouse_id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6' WHERE id = '1e7d0844-9b45-4144-8f6a-47e5eded8daa';
+  UPDATE public.profiles SET spouse_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = '46feee7e-f65c-4367-989d-d27a9a28c60f';
+  UPDATE public.profiles SET spouse_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = '46a2f154-615b-4f58-974e-332e17d3f528';
+  UPDATE public.profiles SET spouse_id = '7d4694d8-84c5-4a1f-9ab4-f8e148296d02' WHERE id = 'fcf6ad83-5564-407a-a912-1d58481f6369';
+  UPDATE public.profiles SET spouse_id = 'fcf6ad83-5564-407a-a912-1d58481f6369' WHERE id = '7d4694d8-84c5-4a1f-9ab4-f8e148296d02';
+  UPDATE public.profiles SET spouse_id = '58ad8446-19dd-4099-bb89-5c27a099aacc' WHERE id = '07ddb69d-a9f8-4284-8ab6-54d2409fda68';
+  UPDATE public.profiles SET spouse_id = '07ddb69d-a9f8-4284-8ab6-54d2409fda68' WHERE id = '58ad8446-19dd-4099-bb89-5c27a099aacc';
+  UPDATE public.profiles SET spouse_id = 'fa88c3be-f2b6-4547-8af5-01c2104cdc53' WHERE id = '27065ca5-f568-4eac-b77a-7a8de42baa75';
+  UPDATE public.profiles SET spouse_id = '27065ca5-f568-4eac-b77a-7a8de42baa75' WHERE id = 'fa88c3be-f2b6-4547-8af5-01c2104cdc53';
+  UPDATE public.profiles SET spouse_id = 'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e' WHERE id = 'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56';
+  UPDATE public.profiles SET spouse_id = 'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56' WHERE id = 'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e';
+  UPDATE public.profiles SET spouse_id = '364de290-003a-4eb6-b113-af145a2c2734' WHERE id = 'd8896391-af7e-4956-9c68-2eb4fc530398';
+  UPDATE public.profiles SET spouse_id = 'd8896391-af7e-4956-9c68-2eb4fc530398' WHERE id = '364de290-003a-4eb6-b113-af145a2c2734';
+  UPDATE public.profiles SET spouse_id = '1ba39a4d-451d-450f-8338-69cfb187defd' WHERE id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5';
+  UPDATE public.profiles SET spouse_id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5' WHERE id = '1ba39a4d-451d-450f-8338-69cfb187defd';
+  UPDATE public.profiles SET spouse_id = 'da9efe8a-2833-40d3-a43d-0143dc822d90' WHERE id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8';
+  UPDATE public.profiles SET spouse_id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8' WHERE id = 'da9efe8a-2833-40d3-a43d-0143dc822d90';
+  UPDATE public.profiles SET spouse_id = '7e006f19-2157-49d2-9281-fbd612b85730' WHERE id = 'fa76f2d1-ddf1-4f9b-930b-78716a3f9eec';
+  UPDATE public.profiles SET spouse_id = 'fa76f2d1-ddf1-4f9b-930b-78716a3f9eec' WHERE id = '7e006f19-2157-49d2-9281-fbd612b85730';
+  UPDATE public.profiles SET spouse_id = '1f11629a-6d93-402d-ac55-5ee99afea65a' WHERE id = '3cce93d3-8d87-4935-867c-cd4ca496d75c';
+  UPDATE public.profiles SET spouse_id = '3cce93d3-8d87-4935-867c-cd4ca496d75c' WHERE id = '1f11629a-6d93-402d-ac55-5ee99afea65a';
+  UPDATE public.profiles SET spouse_id = '9394181d-3464-408d-a3bd-bb935dbe3b32' WHERE id = '8976bfcd-ce49-4c0c-b03f-d8f8d6d2aeb8';
+  UPDATE public.profiles SET spouse_id = '8976bfcd-ce49-4c0c-b03f-d8f8d6d2aeb8' WHERE id = '9394181d-3464-408d-a3bd-bb935dbe3b32';
+  UPDATE public.profiles SET spouse_id = 'ae582e8f-fece-45ed-b752-3460084f0213' WHERE id = 'c5a32184-3d3e-455b-a177-c1ccf55f0511';
+  UPDATE public.profiles SET spouse_id = 'c5a32184-3d3e-455b-a177-c1ccf55f0511' WHERE id = 'ae582e8f-fece-45ed-b752-3460084f0213';
+  UPDATE public.profiles SET spouse_id = 'e7b36a58-1821-4656-877b-41b87727603c' WHERE id = '702dfacb-7739-4b6a-bce8-84b1d0a14f0f';
+  UPDATE public.profiles SET spouse_id = '702dfacb-7739-4b6a-bce8-84b1d0a14f0f' WHERE id = 'e7b36a58-1821-4656-877b-41b87727603c';
+  UPDATE public.profiles SET spouse_id = 'adca2ec6-fd09-486d-bd25-8a5b4bcaf02d' WHERE id = '25c6bce5-0268-4b7b-8a5a-56a672f2afd4';
+  UPDATE public.profiles SET spouse_id = '25c6bce5-0268-4b7b-8a5a-56a672f2afd4' WHERE id = 'adca2ec6-fd09-486d-bd25-8a5b4bcaf02d';
+  UPDATE public.profiles SET spouse_id = '08c3f7e2-c9df-40fa-babb-ba557cc5010c' WHERE id = '7bfbc39c-a734-4e15-9d6a-edecf30c4cfa';
+  UPDATE public.profiles SET spouse_id = '7bfbc39c-a734-4e15-9d6a-edecf30c4cfa' WHERE id = '08c3f7e2-c9df-40fa-babb-ba557cc5010c';
+  UPDATE public.profiles SET spouse_id = 'bd7c7442-5fd8-4c00-bcd3-aecb129ab6c5' WHERE id = '51d8feb7-3c2f-48ec-b34d-4bcf12c0b903';
+  UPDATE public.profiles SET spouse_id = '51d8feb7-3c2f-48ec-b34d-4bcf12c0b903' WHERE id = 'bd7c7442-5fd8-4c00-bcd3-aecb129ab6c5';
+  UPDATE public.profiles SET spouse_id = 'e722fd77-ec0b-4545-bde5-444e71101dfd' WHERE id = '125e543a-302f-433b-be68-a09e63c507a9';
+  UPDATE public.profiles SET spouse_id = '125e543a-302f-433b-be68-a09e63c507a9' WHERE id = 'e722fd77-ec0b-4545-bde5-444e71101dfd';
+  UPDATE public.profiles SET spouse_id = 'd7328036-ca54-4e76-94de-ab6165728b8c' WHERE id = '2d0dc693-7089-4ace-9484-a67442012d7d';
+  UPDATE public.profiles SET spouse_id = '2d0dc693-7089-4ace-9484-a67442012d7d' WHERE id = 'd7328036-ca54-4e76-94de-ab6165728b8c';
+  UPDATE public.profiles SET spouse_id = '642fc83d-6711-47e5-a177-6601936cbba1' WHERE id = '2139cc2a-b8fb-432b-b0d4-da50222acc48';
+  UPDATE public.profiles SET spouse_id = '2139cc2a-b8fb-432b-b0d4-da50222acc48' WHERE id = '642fc83d-6711-47e5-a177-6601936cbba1';
+  UPDATE public.profiles SET spouse_id = 'ed10e654-ace7-49ad-a1a5-493443dfa681' WHERE id = '879960b8-e1f7-469d-b510-2f639c3d621c';
+  UPDATE public.profiles SET spouse_id = '879960b8-e1f7-469d-b510-2f639c3d621c' WHERE id = 'ed10e654-ace7-49ad-a1a5-493443dfa681';
+  UPDATE public.profiles SET spouse_id = 'dc2fe539-c283-4a93-9c35-88809f4dbddc' WHERE id = '1a1cb155-63dc-48aa-be97-629e7f164085';
+  UPDATE public.profiles SET spouse_id = '1a1cb155-63dc-48aa-be97-629e7f164085' WHERE id = 'dc2fe539-c283-4a93-9c35-88809f4dbddc';
+  UPDATE public.profiles SET spouse_id = '4be2bee7-f6ab-4ff3-aa01-d8b4139e6b1e' WHERE id = 'f43aae06-e095-4d2e-bb57-442e4f068c93';
+  UPDATE public.profiles SET spouse_id = 'f43aae06-e095-4d2e-bb57-442e4f068c93' WHERE id = '4be2bee7-f6ab-4ff3-aa01-d8b4139e6b1e';
+  UPDATE public.profiles SET spouse_id = 'b5e2d682-430c-49f1-87b7-4260c4275e09' WHERE id = '31e6b766-d663-4b16-b4a7-89a6398035ba';
+  UPDATE public.profiles SET spouse_id = '31e6b766-d663-4b16-b4a7-89a6398035ba' WHERE id = 'b5e2d682-430c-49f1-87b7-4260c4275e09';
+  UPDATE public.profiles SET spouse_id = '7b31ef9f-ffe4-4394-af3f-da7738c4ebce' WHERE id = '52db34c2-0a5a-4959-b6a0-3d02bee1a6cd';
+  UPDATE public.profiles SET spouse_id = '52db34c2-0a5a-4959-b6a0-3d02bee1a6cd' WHERE id = '7b31ef9f-ffe4-4394-af3f-da7738c4ebce';
+  UPDATE public.profiles SET spouse_id = '047e97f9-2410-49aa-b71f-a03d60b2018c' WHERE id = '2ec480e4-4dcd-4ecf-9a9c-b4286b1a7bc0';
+  UPDATE public.profiles SET spouse_id = '2ec480e4-4dcd-4ecf-9a9c-b4286b1a7bc0' WHERE id = '047e97f9-2410-49aa-b71f-a03d60b2018c';
+  UPDATE public.profiles SET spouse_id = '40a0515b-0a57-49e7-af3e-8ecee4111ccb' WHERE id = '6b86a8db-1d0f-4912-ae80-29200ade426b';
+  UPDATE public.profiles SET spouse_id = '6b86a8db-1d0f-4912-ae80-29200ade426b' WHERE id = '40a0515b-0a57-49e7-af3e-8ecee4111ccb';
+  UPDATE public.profiles SET spouse_id = '039fbf33-f317-48e5-8e0d-936db31d9160' WHERE id = '1a356435-f1e5-4182-92c9-9fd264cb6eff';
+  UPDATE public.profiles SET spouse_id = '1a356435-f1e5-4182-92c9-9fd264cb6eff' WHERE id = '039fbf33-f317-48e5-8e0d-936db31d9160';
+  UPDATE public.profiles SET spouse_id = '6d2cc23c-fba4-47e9-83ac-a621040cecc5' WHERE id = '0867a620-f94b-4f40-bd61-953032e28ec0';
+  UPDATE public.profiles SET spouse_id = '0867a620-f94b-4f40-bd61-953032e28ec0' WHERE id = '6d2cc23c-fba4-47e9-83ac-a621040cecc5';
+  UPDATE public.profiles SET spouse_id = '33765832-7f7c-4222-9e37-a9d9934cc6af' WHERE id = '1b2fc3d7-126f-45ba-83b1-afa799634795';
+  UPDATE public.profiles SET spouse_id = '1b2fc3d7-126f-45ba-83b1-afa799634795' WHERE id = '33765832-7f7c-4222-9e37-a9d9934cc6af';
+  UPDATE public.profiles SET spouse_id = '2e9695b2-f370-49f3-90be-6c37215f10b6' WHERE id = 'bc417f2e-81fa-473c-94d1-76d564d4305f';
+  UPDATE public.profiles SET spouse_id = 'bc417f2e-81fa-473c-94d1-76d564d4305f' WHERE id = '2e9695b2-f370-49f3-90be-6c37215f10b6';
+  UPDATE public.profiles SET spouse_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = 'f57ad015-e7c3-438a-9f12-db36c09a4335';
+  UPDATE public.profiles SET spouse_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = '612d29d8-f49d-4e39-a109-673bf53aa47f';
+  UPDATE public.profiles SET spouse_id = 'f7eea24c-008a-41dd-9932-6503c9b9f7b3' WHERE id = 'bb54e705-da5d-49f6-9810-4a1b6e45fd4a';
+  UPDATE public.profiles SET spouse_id = 'bb54e705-da5d-49f6-9810-4a1b6e45fd4a' WHERE id = 'f7eea24c-008a-41dd-9932-6503c9b9f7b3';
+  UPDATE public.profiles SET spouse_id = '14897482-dd97-4401-82d1-ba8e0b9ed06d' WHERE id = 'b51a6cfe-82cc-46e0-b163-256680d98407';
+  UPDATE public.profiles SET spouse_id = 'b51a6cfe-82cc-46e0-b163-256680d98407' WHERE id = '14897482-dd97-4401-82d1-ba8e0b9ed06d';
+  UPDATE public.profiles SET spouse_id = '0dd7e454-0797-491c-8fe3-3475b659065c' WHERE id = 'd92eb4ed-858b-4c09-ae09-3306f30f63fd';
+  UPDATE public.profiles SET spouse_id = 'd92eb4ed-858b-4c09-ae09-3306f30f63fd' WHERE id = '0dd7e454-0797-491c-8fe3-3475b659065c';
+  UPDATE public.profiles SET spouse_id = '6de44343-a9d4-4c3a-b5a7-398ed6e5fcaf' WHERE id = 'cda61385-c64a-463a-9ce6-31eef0d3ab34';
+  UPDATE public.profiles SET spouse_id = 'cda61385-c64a-463a-9ce6-31eef0d3ab34' WHERE id = '6de44343-a9d4-4c3a-b5a7-398ed6e5fcaf';
+  UPDATE public.profiles SET spouse_id = 'b2264eb8-2acc-45fc-8683-6f5eb5e6543d' WHERE id = 'a31da5a4-deec-4d5c-b792-d528bcf4f10c';
+  UPDATE public.profiles SET spouse_id = 'a31da5a4-deec-4d5c-b792-d528bcf4f10c' WHERE id = 'b2264eb8-2acc-45fc-8683-6f5eb5e6543d';
+  UPDATE public.profiles SET spouse_id = '5c140d14-54e9-4f14-b3ba-676d0d9a4fb3' WHERE id = '14259a65-cac5-4ef0-8e66-f1fac5cc8770';
+  UPDATE public.profiles SET spouse_id = '14259a65-cac5-4ef0-8e66-f1fac5cc8770' WHERE id = '5c140d14-54e9-4f14-b3ba-676d0d9a4fb3';
+  UPDATE public.profiles SET spouse_id = 'bed3384b-b1cc-4c02-a002-6214c87b050b' WHERE id = '40fffba6-b4fd-4fe7-b10b-95ccccf3776b';
+  UPDATE public.profiles SET spouse_id = '40fffba6-b4fd-4fe7-b10b-95ccccf3776b' WHERE id = 'bed3384b-b1cc-4c02-a002-6214c87b050b';
+  UPDATE public.profiles SET spouse_id = '80b7b173-3745-430a-bd84-80bec9ada5f8' WHERE id = '625835a3-2962-45c1-9971-7d369cf17589';
+  UPDATE public.profiles SET spouse_id = '625835a3-2962-45c1-9971-7d369cf17589' WHERE id = '80b7b173-3745-430a-bd84-80bec9ada5f8';
+  UPDATE public.profiles SET spouse_id = 'e42cecff-79c7-4c65-a4ba-44a08c50571a' WHERE id = '089eb37a-3539-4603-9f28-1fdfc68d8787';
+  UPDATE public.profiles SET spouse_id = '089eb37a-3539-4603-9f28-1fdfc68d8787' WHERE id = 'e42cecff-79c7-4c65-a4ba-44a08c50571a';
+  UPDATE public.profiles SET spouse_id = '6f3a51d6-af0d-456a-8227-4b82351bc7ed' WHERE id = 'e1bb5bee-f50b-4fd2-b81b-9358977cfd20';
+  UPDATE public.profiles SET spouse_id = 'e1bb5bee-f50b-4fd2-b81b-9358977cfd20' WHERE id = '6f3a51d6-af0d-456a-8227-4b82351bc7ed';
+  UPDATE public.profiles SET spouse_id = '69f162e6-04dd-4c01-ae32-480a7303db7c' WHERE id = '0a9096c0-86cb-4372-bd1b-ea8f5dee3d57';
+  UPDATE public.profiles SET spouse_id = '0a9096c0-86cb-4372-bd1b-ea8f5dee3d57' WHERE id = '69f162e6-04dd-4c01-ae32-480a7303db7c';
+  UPDATE public.profiles SET spouse_id = 'd9d1717b-bab3-47ee-89fc-c35482d78999' WHERE id = '71f43006-bb6e-440d-bb1a-2209585f1431';
+  UPDATE public.profiles SET spouse_id = '71f43006-bb6e-440d-bb1a-2209585f1431' WHERE id = 'd9d1717b-bab3-47ee-89fc-c35482d78999';
+  UPDATE public.profiles SET spouse_id = 'a7583aa9-6991-4796-a3f9-38b34c58ce6d' WHERE id = '6dc72ec1-1e88-44ee-96b1-569b6a06e931';
+  UPDATE public.profiles SET spouse_id = '6dc72ec1-1e88-44ee-96b1-569b6a06e931' WHERE id = 'a7583aa9-6991-4796-a3f9-38b34c58ce6d';
+  UPDATE public.profiles SET spouse_id = '775e0a4b-70a0-494f-b29b-3aad35c558c5' WHERE id = '68614af5-bb97-4eb4-a806-83b6b4c45379';
+  UPDATE public.profiles SET spouse_id = '68614af5-bb97-4eb4-a806-83b6b4c45379' WHERE id = '775e0a4b-70a0-494f-b29b-3aad35c558c5';
+  UPDATE public.profiles SET spouse_id = 'a2ec4427-e18b-4cdf-ac52-13b2e029ed11' WHERE id = '2d34ce73-838d-4d99-90fa-e1893a87cdb1';
+  UPDATE public.profiles SET spouse_id = '2d34ce73-838d-4d99-90fa-e1893a87cdb1' WHERE id = 'a2ec4427-e18b-4cdf-ac52-13b2e029ed11';
+  UPDATE public.profiles SET spouse_id = '474c1aae-45b4-4128-a1f7-8c0b9bf2a3ce' WHERE id = 'd2089a49-259e-4892-9a84-fbcb7e915f9e';
+  UPDATE public.profiles SET spouse_id = 'd2089a49-259e-4892-9a84-fbcb7e915f9e' WHERE id = '474c1aae-45b4-4128-a1f7-8c0b9bf2a3ce';
+  UPDATE public.profiles SET spouse_id = '6d08ebb9-54c6-46cb-bed2-90e56d34ed6c' WHERE id = 'bdec47df-9b01-4517-837d-bb645f9381df';
+  UPDATE public.profiles SET spouse_id = 'bdec47df-9b01-4517-837d-bb645f9381df' WHERE id = '6d08ebb9-54c6-46cb-bed2-90e56d34ed6c';
+  UPDATE public.profiles SET spouse_id = '360c341a-3bf4-4314-b55b-f74d3b59e1f3' WHERE id = 'de0db994-0506-4e43-b721-141f1d8bdb48';
+  UPDATE public.profiles SET spouse_id = 'de0db994-0506-4e43-b721-141f1d8bdb48' WHERE id = '360c341a-3bf4-4314-b55b-f74d3b59e1f3';
+  UPDATE public.profiles SET spouse_id = 'edc19318-a69b-4db3-a2e2-7c9b2932d654' WHERE id = 'b16e6ebe-42d3-4e27-9ff1-254bba818ee0';
+  UPDATE public.profiles SET spouse_id = 'b16e6ebe-42d3-4e27-9ff1-254bba818ee0' WHERE id = 'edc19318-a69b-4db3-a2e2-7c9b2932d654';
+  UPDATE public.profiles SET spouse_id = '88bb1d75-c78d-4e78-9350-2e83c1da8c53' WHERE id = '5655e0b9-1480-4450-a22e-a8f643342549';
+  UPDATE public.profiles SET spouse_id = '5655e0b9-1480-4450-a22e-a8f643342549' WHERE id = '88bb1d75-c78d-4e78-9350-2e83c1da8c53';
+  UPDATE public.profiles SET spouse_id = '0d371dcc-40d7-4e2f-9de5-8922139c8b92' WHERE id = '1761642d-1189-4fe0-b79c-eafc71831e79';
+  UPDATE public.profiles SET spouse_id = '1761642d-1189-4fe0-b79c-eafc71831e79' WHERE id = '0d371dcc-40d7-4e2f-9de5-8922139c8b92';
+  UPDATE public.profiles SET spouse_id = 'c0b8d474-507e-4b27-bac5-ccacaa05fa73' WHERE id = 'dd6a067d-0080-4f7e-bddc-cff252ae6682';
+  UPDATE public.profiles SET spouse_id = 'dd6a067d-0080-4f7e-bddc-cff252ae6682' WHERE id = 'c0b8d474-507e-4b27-bac5-ccacaa05fa73';
+  UPDATE public.profiles SET spouse_id = '70c49972-7aad-4029-9b20-74076b37f028' WHERE id = '744ca85f-dba9-4219-acb5-fcfaf1f5978c';
+  UPDATE public.profiles SET spouse_id = '744ca85f-dba9-4219-acb5-fcfaf1f5978c' WHERE id = '70c49972-7aad-4029-9b20-74076b37f028';
+  UPDATE public.profiles SET spouse_id = '0481c99b-14b4-4920-95f7-311da08dbbe7' WHERE id = 'a51c8e32-cd17-466d-999f-117f5a13981c';
+  UPDATE public.profiles SET spouse_id = 'a51c8e32-cd17-466d-999f-117f5a13981c' WHERE id = '0481c99b-14b4-4920-95f7-311da08dbbe7';
+  UPDATE public.profiles SET spouse_id = '19b30595-09ac-4f93-894a-1ceedef35175' WHERE id = '13c6339c-9465-4a0f-8ca0-0f4f0831b509';
+  UPDATE public.profiles SET spouse_id = '13c6339c-9465-4a0f-8ca0-0f4f0831b509' WHERE id = '19b30595-09ac-4f93-894a-1ceedef35175';
+  UPDATE public.profiles SET spouse_id = '4752f70f-7d70-4ca7-857f-409f227f754f' WHERE id = 'da8bea45-51f1-48d1-99b2-942db494f2bb';
+  UPDATE public.profiles SET spouse_id = 'da8bea45-51f1-48d1-99b2-942db494f2bb' WHERE id = '4752f70f-7d70-4ca7-857f-409f227f754f';
+  UPDATE public.profiles SET spouse_id = 'd3c6d8cd-fc9b-472d-b021-45faf880b98d' WHERE id = 'aba43f40-f39a-491f-a092-6d2f5ea99604';
+  UPDATE public.profiles SET spouse_id = 'aba43f40-f39a-491f-a092-6d2f5ea99604' WHERE id = 'd3c6d8cd-fc9b-472d-b021-45faf880b98d';
+  UPDATE public.profiles SET spouse_id = 'd64395ae-9107-4a15-b6be-c339264d6f3e' WHERE id = '00f4778b-c13f-443b-8f3b-d0b094875c04';
+  UPDATE public.profiles SET spouse_id = '00f4778b-c13f-443b-8f3b-d0b094875c04' WHERE id = 'd64395ae-9107-4a15-b6be-c339264d6f3e';
+  UPDATE public.profiles SET spouse_id = '1273ca07-f66e-4498-b69d-6314956f1dcc' WHERE id = '9438c0a2-be20-4658-b485-3c2b33bb472d';
+  UPDATE public.profiles SET spouse_id = '9438c0a2-be20-4658-b485-3c2b33bb472d' WHERE id = '1273ca07-f66e-4498-b69d-6314956f1dcc';
+  UPDATE public.profiles SET spouse_id = 'fd7421dc-e24d-4ab1-8e2e-523534d30e36' WHERE id = 'd18c42bf-13f3-4db1-9a2c-4cb3a1824765';
+  UPDATE public.profiles SET spouse_id = 'd18c42bf-13f3-4db1-9a2c-4cb3a1824765' WHERE id = 'fd7421dc-e24d-4ab1-8e2e-523534d30e36';
+  UPDATE public.profiles SET spouse_id = 'd0efb40a-1e42-4d2c-a201-750031eeaf16' WHERE id = '2805af4b-4afd-4694-846c-4f7a8dbc5f86';
+  UPDATE public.profiles SET spouse_id = '2805af4b-4afd-4694-846c-4f7a8dbc5f86' WHERE id = 'd0efb40a-1e42-4d2c-a201-750031eeaf16';
+  UPDATE public.profiles SET spouse_id = 'f82f2d40-3ef2-44b7-bc9c-f1ea0d745553' WHERE id = 'd50e316f-3e08-4531-975f-c2f4f1e8057f';
+  UPDATE public.profiles SET spouse_id = 'd50e316f-3e08-4531-975f-c2f4f1e8057f' WHERE id = 'f82f2d40-3ef2-44b7-bc9c-f1ea0d745553';
+  UPDATE public.profiles SET spouse_id = '9af18973-f83c-4eca-9643-9fe7564ff0d2' WHERE id = 'a353767c-9979-4023-a653-40cc2202ca2c';
+  UPDATE public.profiles SET spouse_id = 'a353767c-9979-4023-a653-40cc2202ca2c' WHERE id = '9af18973-f83c-4eca-9643-9fe7564ff0d2';
+  UPDATE public.profiles SET spouse_id = 'b3346ac1-df4f-4038-acf3-a5a3e5b13347' WHERE id = '5a2883f5-144e-4b79-a8a5-4badd593a645';
+  UPDATE public.profiles SET spouse_id = '5a2883f5-144e-4b79-a8a5-4badd593a645' WHERE id = 'b3346ac1-df4f-4038-acf3-a5a3e5b13347';
+  UPDATE public.profiles SET spouse_id = '02bbe8c4-7103-412d-aed1-7e4913774813' WHERE id = 'a91e3152-bbe1-49d5-a5b9-a2366a173a01';
+  UPDATE public.profiles SET spouse_id = 'a91e3152-bbe1-49d5-a5b9-a2366a173a01' WHERE id = '02bbe8c4-7103-412d-aed1-7e4913774813';
+  UPDATE public.profiles SET spouse_id = '81c36f7d-917e-4ad6-82bc-da56fb728c92' WHERE id = 'aad4af3c-f8dd-46cd-92cd-6ae4620a28e3';
+  UPDATE public.profiles SET spouse_id = 'aad4af3c-f8dd-46cd-92cd-6ae4620a28e3' WHERE id = '81c36f7d-917e-4ad6-82bc-da56fb728c92';
+  UPDATE public.profiles SET spouse_id = 'e2c8d6e5-c6fb-4744-bb9a-e0182140abb8' WHERE id = '9ab5e99a-a169-4984-b54e-2027ba37cc36';
+  UPDATE public.profiles SET spouse_id = '9ab5e99a-a169-4984-b54e-2027ba37cc36' WHERE id = 'e2c8d6e5-c6fb-4744-bb9a-e0182140abb8';
+  UPDATE public.profiles SET spouse_id = 'c4409645-87a8-41cf-b2d0-46bb3deb6049' WHERE id = '17d89c23-f27f-46d4-8f96-208196d8b6fc';
+  UPDATE public.profiles SET spouse_id = '17d89c23-f27f-46d4-8f96-208196d8b6fc' WHERE id = 'c4409645-87a8-41cf-b2d0-46bb3deb6049';
+  UPDATE public.profiles SET spouse_id = '72015b0c-ec6e-4d54-a88d-ae44c62711ac' WHERE id = 'efa9933a-800d-421f-a3f5-f0a859bd19b4';
+  UPDATE public.profiles SET spouse_id = 'efa9933a-800d-421f-a3f5-f0a859bd19b4' WHERE id = '72015b0c-ec6e-4d54-a88d-ae44c62711ac';
+  UPDATE public.profiles SET spouse_id = '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea' WHERE id = 'c525665c-41c9-428f-b2bf-19f75c3273e3';
+  UPDATE public.profiles SET spouse_id = 'c525665c-41c9-428f-b2bf-19f75c3273e3' WHERE id = '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea';
+  UPDATE public.profiles SET spouse_id = 'd1c722d8-77f0-42a3-884e-1137f1d91cc0' WHERE id = 'cf1346c9-c3bb-4a47-a31c-8c1f77324d4a';
+  UPDATE public.profiles SET spouse_id = 'cf1346c9-c3bb-4a47-a31c-8c1f77324d4a' WHERE id = 'd1c722d8-77f0-42a3-884e-1137f1d91cc0';
+  UPDATE public.profiles SET spouse_id = 'f9c5dcae-bcd0-409a-bec0-107b57f022ea' WHERE id = '0ca60d3b-1d10-433a-80ef-5c6b44c5f856';
+  UPDATE public.profiles SET spouse_id = '0ca60d3b-1d10-433a-80ef-5c6b44c5f856' WHERE id = 'f9c5dcae-bcd0-409a-bec0-107b57f022ea';
+  UPDATE public.profiles SET spouse_id = '9cf018e2-8a26-4a6c-9c19-2a7218850108' WHERE id = 'afc0ea06-9e6e-416b-9323-9a512af12fd1';
+  UPDATE public.profiles SET spouse_id = 'afc0ea06-9e6e-416b-9323-9a512af12fd1' WHERE id = '9cf018e2-8a26-4a6c-9c19-2a7218850108';
+  UPDATE public.profiles SET spouse_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e';
+  UPDATE public.profiles SET spouse_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = '2f4f85aa-dec6-40a3-8468-0907a169020c';
+  UPDATE public.profiles SET spouse_id = '2bf2e6ff-2041-4e56-9a02-89a1f6940655' WHERE id = '417e8bea-be9f-40b2-a359-ba75007a0ac4';
+  UPDATE public.profiles SET spouse_id = '417e8bea-be9f-40b2-a359-ba75007a0ac4' WHERE id = '2bf2e6ff-2041-4e56-9a02-89a1f6940655';
+  UPDATE public.profiles SET spouse_id = '2506aea3-8c4b-41a0-8237-e11cf9dd0130' WHERE id = 'ac596a22-212d-4e17-82de-97f07cf80528';
+  UPDATE public.profiles SET spouse_id = 'ac596a22-212d-4e17-82de-97f07cf80528' WHERE id = '2506aea3-8c4b-41a0-8237-e11cf9dd0130';
+  UPDATE public.profiles SET spouse_id = '6426769b-3361-4e5c-92ca-71faa0b1933f' WHERE id = '808a6473-f076-43be-9408-6f62697e824a';
+  UPDATE public.profiles SET spouse_id = '808a6473-f076-43be-9408-6f62697e824a' WHERE id = '6426769b-3361-4e5c-92ca-71faa0b1933f';
+  UPDATE public.profiles SET spouse_id = 'ebccc2ac-a542-43a8-8074-06124a38cbc3' WHERE id = '63433d51-1305-46ac-9be8-c4a6f0e3b2a0';
+  UPDATE public.profiles SET spouse_id = '63433d51-1305-46ac-9be8-c4a6f0e3b2a0' WHERE id = 'ebccc2ac-a542-43a8-8074-06124a38cbc3';
+  UPDATE public.profiles SET spouse_id = '9e594c78-e783-459c-9697-2bd526a6d353' WHERE id = '26b23ba2-14e0-48d8-9f75-1aa39e56fe84';
+  UPDATE public.profiles SET spouse_id = '26b23ba2-14e0-48d8-9f75-1aa39e56fe84' WHERE id = '9e594c78-e783-459c-9697-2bd526a6d353';
+  UPDATE public.profiles SET spouse_id = '213af085-8b16-4e13-8377-737f0c8a020d' WHERE id = '185d1daf-adfe-4222-be33-64f8865fc357';
+  UPDATE public.profiles SET spouse_id = '185d1daf-adfe-4222-be33-64f8865fc357' WHERE id = '213af085-8b16-4e13-8377-737f0c8a020d';
+  UPDATE public.profiles SET spouse_id = '3c742c4d-ed01-4a67-9096-b2610d24e075' WHERE id = '725bfde5-fdce-4c16-94fb-229932618416';
+  UPDATE public.profiles SET spouse_id = '725bfde5-fdce-4c16-94fb-229932618416' WHERE id = '3c742c4d-ed01-4a67-9096-b2610d24e075';
+  UPDATE public.profiles SET spouse_id = '4fb6d3c1-820f-4cfb-b31b-d880223d3d1a' WHERE id = '23657810-988d-4cc3-9e1b-1751ebbbdcd4';
+  UPDATE public.profiles SET spouse_id = '23657810-988d-4cc3-9e1b-1751ebbbdcd4' WHERE id = '4fb6d3c1-820f-4cfb-b31b-d880223d3d1a';
+  UPDATE public.profiles SET spouse_id = 'ec488ee3-4fd9-4f38-8ea9-f528c97dd46b' WHERE id = '30b3bb90-624e-43ac-a2bb-2e02a95c9d4b';
+  UPDATE public.profiles SET spouse_id = '30b3bb90-624e-43ac-a2bb-2e02a95c9d4b' WHERE id = 'ec488ee3-4fd9-4f38-8ea9-f528c97dd46b';
+  UPDATE public.profiles SET spouse_id = 'a3b432cb-5e5c-4672-b812-ecffebc204ee' WHERE id = '57c8cae9-25b3-4cb1-8dd3-8eb5d6142966';
+  UPDATE public.profiles SET spouse_id = '57c8cae9-25b3-4cb1-8dd3-8eb5d6142966' WHERE id = 'a3b432cb-5e5c-4672-b812-ecffebc204ee';
+  UPDATE public.profiles SET spouse_id = '5ce3d7af-196e-4675-aa48-19c96f622d99' WHERE id = 'db93cb34-835d-4fe6-8e35-53621fd147e7';
+  UPDATE public.profiles SET spouse_id = 'db93cb34-835d-4fe6-8e35-53621fd147e7' WHERE id = '5ce3d7af-196e-4675-aa48-19c96f622d99';
+  UPDATE public.profiles SET spouse_id = 'df3db365-38ea-4aca-abeb-c4c4a2207333' WHERE id = '08b473e2-eaf9-44ef-84eb-6f02b72e4a25';
+  UPDATE public.profiles SET spouse_id = '08b473e2-eaf9-44ef-84eb-6f02b72e4a25' WHERE id = 'df3db365-38ea-4aca-abeb-c4c4a2207333';
+  UPDATE public.profiles SET spouse_id = '9ce2ff98-f302-4130-93d2-45942b07913c' WHERE id = 'b21328c6-5e07-41c1-a852-50a44cc78f53';
+  UPDATE public.profiles SET spouse_id = 'b21328c6-5e07-41c1-a852-50a44cc78f53' WHERE id = '9ce2ff98-f302-4130-93d2-45942b07913c';
+  UPDATE public.profiles SET spouse_id = 'f603b12a-a7c3-4e06-ae3c-9925ad08fcea' WHERE id = '69b48c21-3834-4c15-aa7c-585de935dac7';
+  UPDATE public.profiles SET spouse_id = '69b48c21-3834-4c15-aa7c-585de935dac7' WHERE id = 'f603b12a-a7c3-4e06-ae3c-9925ad08fcea';
+  UPDATE public.profiles SET spouse_id = '01a42d7a-9374-475c-83c2-b2c5c75af0a6' WHERE id = '9ec0d723-674b-4224-bd42-d046f79d6910';
+  UPDATE public.profiles SET spouse_id = '9ec0d723-674b-4224-bd42-d046f79d6910' WHERE id = '01a42d7a-9374-475c-83c2-b2c5c75af0a6';
+  UPDATE public.profiles SET spouse_id = 'ee2ca227-aafa-40f8-9f43-a2fa3090b2bb' WHERE id = 'fb4ae27f-7799-4940-956e-6e5c337fe981';
+  UPDATE public.profiles SET spouse_id = 'fb4ae27f-7799-4940-956e-6e5c337fe981' WHERE id = 'ee2ca227-aafa-40f8-9f43-a2fa3090b2bb';
+  UPDATE public.profiles SET spouse_id = 'c94e4491-9993-425e-90ad-6bcdf906ae32' WHERE id = '8277576d-b0ea-4107-9bdb-6917cce5ea7a';
+  UPDATE public.profiles SET spouse_id = '8277576d-b0ea-4107-9bdb-6917cce5ea7a' WHERE id = 'c94e4491-9993-425e-90ad-6bcdf906ae32';
+  UPDATE public.profiles SET spouse_id = '5f633223-b89e-46ec-bd19-e1ef8f9b286b' WHERE id = '1f54b7ab-e0c3-427b-b925-58e81d0b821a';
+  UPDATE public.profiles SET spouse_id = '1f54b7ab-e0c3-427b-b925-58e81d0b821a' WHERE id = '5f633223-b89e-46ec-bd19-e1ef8f9b286b';
+  UPDATE public.profiles SET spouse_id = '7428d4ba-dda0-4c0f-8908-12ce3b72318b' WHERE id = '8843c203-2474-4a86-abb2-f795dd099fe3';
+  UPDATE public.profiles SET spouse_id = '8843c203-2474-4a86-abb2-f795dd099fe3' WHERE id = '7428d4ba-dda0-4c0f-8908-12ce3b72318b';
+  UPDATE public.profiles SET spouse_id = '3f6d0078-c3ae-4c3e-9ce4-1c8e77aafb09' WHERE id = '3eb49b3d-9266-40c2-910b-5d494115ccb8';
+  UPDATE public.profiles SET spouse_id = '3eb49b3d-9266-40c2-910b-5d494115ccb8' WHERE id = '3f6d0078-c3ae-4c3e-9ce4-1c8e77aafb09';
+  UPDATE public.profiles SET spouse_id = 'a3a1c2d2-6b49-44c2-92d6-e47dad320e98' WHERE id = '90cdc2d3-2770-44fc-81a7-cd0701bb68a4';
+  UPDATE public.profiles SET spouse_id = '90cdc2d3-2770-44fc-81a7-cd0701bb68a4' WHERE id = 'a3a1c2d2-6b49-44c2-92d6-e47dad320e98';
+  UPDATE public.profiles SET spouse_id = '59bb6092-e518-423d-9540-4d154ce46b02' WHERE id = '98088ecf-01ce-48fd-860a-9adf4dc29213';
+  UPDATE public.profiles SET spouse_id = '98088ecf-01ce-48fd-860a-9adf4dc29213' WHERE id = '59bb6092-e518-423d-9540-4d154ce46b02';
+  UPDATE public.profiles SET spouse_id = 'b8d07260-54af-48d0-b333-127674addbaf' WHERE id = 'c9682429-807a-4396-85e8-9a89a921e164';
+  UPDATE public.profiles SET spouse_id = 'c9682429-807a-4396-85e8-9a89a921e164' WHERE id = 'b8d07260-54af-48d0-b333-127674addbaf';
+  UPDATE public.profiles SET spouse_id = 'afd46cc5-f631-4bb4-aa0c-ae57bf4a636c' WHERE id = '72f5e5cf-692c-4044-8b0c-9fb979ffd8cd';
+  UPDATE public.profiles SET spouse_id = '72f5e5cf-692c-4044-8b0c-9fb979ffd8cd' WHERE id = 'afd46cc5-f631-4bb4-aa0c-ae57bf4a636c';
+  UPDATE public.profiles SET spouse_id = 'fd88bbc8-210d-40f9-97c9-ec359641e5fc' WHERE id = '05ff2ee7-58c2-4c27-b9fd-1fca15e846a8';
+  UPDATE public.profiles SET spouse_id = '05ff2ee7-58c2-4c27-b9fd-1fca15e846a8' WHERE id = 'fd88bbc8-210d-40f9-97c9-ec359641e5fc';
+  UPDATE public.profiles SET spouse_id = '6d1a49fa-af42-45cb-9414-2ad4afe3f1de' WHERE id = 'a8bbce5d-6d63-4f65-af39-879a0ab3a334';
+  UPDATE public.profiles SET spouse_id = 'a8bbce5d-6d63-4f65-af39-879a0ab3a334' WHERE id = '6d1a49fa-af42-45cb-9414-2ad4afe3f1de';
+  UPDATE public.profiles SET spouse_id = '6ee994ae-4df5-46e2-b29c-ad7af8d99760' WHERE id = '1976e0e6-9420-4e46-a6f1-ef6a15a26610';
+  UPDATE public.profiles SET spouse_id = '1976e0e6-9420-4e46-a6f1-ef6a15a26610' WHERE id = '6ee994ae-4df5-46e2-b29c-ad7af8d99760';
+  UPDATE public.profiles SET spouse_id = '77ffe695-e38b-4cab-a160-59fed1eb0e70' WHERE id = '8b571057-7c94-4269-81a7-a6fb34dd1373';
+  UPDATE public.profiles SET spouse_id = '8b571057-7c94-4269-81a7-a6fb34dd1373' WHERE id = '77ffe695-e38b-4cab-a160-59fed1eb0e70';
+  UPDATE public.profiles SET spouse_id = '77914e9f-026d-4eba-9a5b-2b83b978d90f' WHERE id = '1b79371e-80e6-4dc9-80b3-46ce809a72fb';
+  UPDATE public.profiles SET spouse_id = '1b79371e-80e6-4dc9-80b3-46ce809a72fb' WHERE id = '77914e9f-026d-4eba-9a5b-2b83b978d90f';
+  UPDATE public.profiles SET spouse_id = '4d6438a0-6cb6-4699-8c19-4e8caf732cc5' WHERE id = '2888b159-eac2-4102-b88f-24d50d554435';
+  UPDATE public.profiles SET spouse_id = '2888b159-eac2-4102-b88f-24d50d554435' WHERE id = '4d6438a0-6cb6-4699-8c19-4e8caf732cc5';
+  UPDATE public.profiles SET spouse_id = '409646e0-bbab-49d8-86d9-94df0c8ad46a' WHERE id = '1d9f23a3-43a1-4fd4-b1a4-357a79842155';
+  UPDATE public.profiles SET spouse_id = '1d9f23a3-43a1-4fd4-b1a4-357a79842155' WHERE id = '409646e0-bbab-49d8-86d9-94df0c8ad46a';
+  UPDATE public.profiles SET spouse_id = '273d760d-2569-4f6c-9372-c7833dd656df' WHERE id = 'cb44faa7-fada-4754-9a48-b4c2c911cf94';
+  UPDATE public.profiles SET spouse_id = 'cb44faa7-fada-4754-9a48-b4c2c911cf94' WHERE id = '273d760d-2569-4f6c-9372-c7833dd656df';
+  UPDATE public.profiles SET spouse_id = 'dc89b869-08ce-46d5-a8c8-0330a73060ba' WHERE id = '7c8a73a8-ee9e-4100-a523-730a700be20f';
+  UPDATE public.profiles SET spouse_id = '7c8a73a8-ee9e-4100-a523-730a700be20f' WHERE id = 'dc89b869-08ce-46d5-a8c8-0330a73060ba';
+  UPDATE public.profiles SET spouse_id = '03f38c79-742f-4e08-8b12-51ddda20cc5a' WHERE id = '085fd5cd-72d7-4435-aa37-050a5733b4f3';
+  UPDATE public.profiles SET spouse_id = '085fd5cd-72d7-4435-aa37-050a5733b4f3' WHERE id = '03f38c79-742f-4e08-8b12-51ddda20cc5a';
+  UPDATE public.profiles SET spouse_id = '15cabd86-de1e-4944-8c19-384bc67c087b' WHERE id = '7ac9f5be-d838-46d1-9cd2-790674800465';
+  UPDATE public.profiles SET spouse_id = '7ac9f5be-d838-46d1-9cd2-790674800465' WHERE id = '15cabd86-de1e-4944-8c19-384bc67c087b';
+  UPDATE public.profiles SET spouse_id = '6fe9081b-f611-40d2-ae14-50bb53d225fb' WHERE id = 'cdf3160e-2e83-4d35-93f8-ba9f0fc6cda4';
+  UPDATE public.profiles SET spouse_id = 'cdf3160e-2e83-4d35-93f8-ba9f0fc6cda4' WHERE id = '6fe9081b-f611-40d2-ae14-50bb53d225fb';
+  UPDATE public.profiles SET spouse_id = '03d23d2b-2c50-4e6a-9cad-dd19b028c468' WHERE id = '074d5c14-3d7b-4b17-b7d5-cf27d8386e04';
+  UPDATE public.profiles SET spouse_id = '074d5c14-3d7b-4b17-b7d5-cf27d8386e04' WHERE id = '03d23d2b-2c50-4e6a-9cad-dd19b028c468';
+  UPDATE public.profiles SET spouse_id = 'e782760e-8183-48a0-9ca3-642a58f98c87' WHERE id = 'a4e32b83-b201-4c50-b72f-ae4738145c21';
+  UPDATE public.profiles SET spouse_id = 'a4e32b83-b201-4c50-b72f-ae4738145c21' WHERE id = 'e782760e-8183-48a0-9ca3-642a58f98c87';
+  UPDATE public.profiles SET spouse_id = '634ebf19-5d6f-4553-a482-0d9b795cdb5b' WHERE id = 'b0cb4d2d-f134-48cb-96c8-cf2a98e596d2';
+  UPDATE public.profiles SET spouse_id = 'b0cb4d2d-f134-48cb-96c8-cf2a98e596d2' WHERE id = '634ebf19-5d6f-4553-a482-0d9b795cdb5b';
+  UPDATE public.profiles SET spouse_id = 'c0281d29-ea62-47dc-b713-3fa61a914d50' WHERE id = 'd845a0d0-cbaa-4432-91cb-40a13c5232cc';
+  UPDATE public.profiles SET spouse_id = 'd845a0d0-cbaa-4432-91cb-40a13c5232cc' WHERE id = 'c0281d29-ea62-47dc-b713-3fa61a914d50';
+  UPDATE public.profiles SET spouse_id = '30ec8b53-fa37-4d68-8f78-82ba961ed646' WHERE id = '47397373-f6de-47b3-b15e-8e4f0c97a7d4';
+  UPDATE public.profiles SET spouse_id = '47397373-f6de-47b3-b15e-8e4f0c97a7d4' WHERE id = '30ec8b53-fa37-4d68-8f78-82ba961ed646';
+  UPDATE public.profiles SET spouse_id = '84fcc302-3b37-43c3-b3ff-d6e5978183c6' WHERE id = '6a7a69f2-740b-45a7-8399-3db32c96ac8a';
+  UPDATE public.profiles SET spouse_id = '6a7a69f2-740b-45a7-8399-3db32c96ac8a' WHERE id = '84fcc302-3b37-43c3-b3ff-d6e5978183c6';
+  UPDATE public.profiles SET spouse_id = 'cc02327c-e58f-4f11-8bca-b7f936147b76' WHERE id = 'd4888e55-62e1-4003-964c-263847bbeb25';
+  UPDATE public.profiles SET spouse_id = 'd4888e55-62e1-4003-964c-263847bbeb25' WHERE id = 'cc02327c-e58f-4f11-8bca-b7f936147b76';
+  UPDATE public.profiles SET spouse_id = 'e10dec81-fb8d-42e2-8cc8-b488a9fa03e6' WHERE id = '5fc9f0b4-bb35-473e-a445-f0d7eacf0185';
+  UPDATE public.profiles SET spouse_id = '5fc9f0b4-bb35-473e-a445-f0d7eacf0185' WHERE id = 'e10dec81-fb8d-42e2-8cc8-b488a9fa03e6';
+  UPDATE public.profiles SET spouse_id = 'b33b9b1e-4817-4d06-8c51-b6a55293b79c' WHERE id = '49061166-5ee7-46aa-ad69-c830e8040bb9';
+  UPDATE public.profiles SET spouse_id = '49061166-5ee7-46aa-ad69-c830e8040bb9' WHERE id = 'b33b9b1e-4817-4d06-8c51-b6a55293b79c';
+  UPDATE public.profiles SET spouse_id = '90131381-befd-4e28-a84c-df5e8cd3b2c9' WHERE id = 'ae42aed7-1e27-4999-9dd9-af3c31b28b7e';
+  UPDATE public.profiles SET spouse_id = 'ae42aed7-1e27-4999-9dd9-af3c31b28b7e' WHERE id = '90131381-befd-4e28-a84c-df5e8cd3b2c9';
+  UPDATE public.profiles SET spouse_id = 'fec8cecd-1a12-47a6-9f39-5d8dd95d2066' WHERE id = 'f4ae810a-a538-4628-84ee-b081625f4e1c';
+  UPDATE public.profiles SET spouse_id = 'f4ae810a-a538-4628-84ee-b081625f4e1c' WHERE id = 'fec8cecd-1a12-47a6-9f39-5d8dd95d2066';
+  UPDATE public.profiles SET spouse_id = '9a472a03-3019-433a-a844-aab960d371a1' WHERE id = 'd2611ef7-f80d-493c-9d81-d2d7d2cddd06';
+  UPDATE public.profiles SET spouse_id = 'd2611ef7-f80d-493c-9d81-d2d7d2cddd06' WHERE id = '9a472a03-3019-433a-a844-aab960d371a1';
+  UPDATE public.profiles SET spouse_id = '9f7ef2d9-ab1d-44e0-b277-a1f4659cd464' WHERE id = '99969e7f-7eba-4b22-b80f-61ca77a97b1f';
+  UPDATE public.profiles SET spouse_id = '99969e7f-7eba-4b22-b80f-61ca77a97b1f' WHERE id = '9f7ef2d9-ab1d-44e0-b277-a1f4659cd464';
+  UPDATE public.profiles SET spouse_id = '58ebe276-7a77-4b63-9dfb-0dfe71c1f3bf' WHERE id = 'e918e722-10da-48b4-92bb-b243e560420a';
+  UPDATE public.profiles SET spouse_id = 'e918e722-10da-48b4-92bb-b243e560420a' WHERE id = '58ebe276-7a77-4b63-9dfb-0dfe71c1f3bf';
+  UPDATE public.profiles SET spouse_id = '77948d79-6a1e-4a9b-8ca1-7d1683c1e8ae' WHERE id = 'b6f75b58-ff57-47d5-9d53-7ee7617b57e7';
+  UPDATE public.profiles SET spouse_id = 'b6f75b58-ff57-47d5-9d53-7ee7617b57e7' WHERE id = '77948d79-6a1e-4a9b-8ca1-7d1683c1e8ae';
+  UPDATE public.profiles SET spouse_id = '80a73aff-0b63-47db-8f3e-748be9b6b3fa' WHERE id = 'b2bda8fe-9444-4780-bfcd-556c19d39d96';
+  UPDATE public.profiles SET spouse_id = 'b2bda8fe-9444-4780-bfcd-556c19d39d96' WHERE id = '80a73aff-0b63-47db-8f3e-748be9b6b3fa';
+  UPDATE public.profiles SET spouse_id = 'a6e41747-32b3-4124-b6a8-08063bcf1362' WHERE id = '6cd9c6dd-091b-4458-be1b-649c9cfbf5dc';
+  UPDATE public.profiles SET spouse_id = '6cd9c6dd-091b-4458-be1b-649c9cfbf5dc' WHERE id = 'a6e41747-32b3-4124-b6a8-08063bcf1362';
+  UPDATE public.profiles SET spouse_id = 'b667ba62-263f-44d5-9cd2-1afbaf7bce8d' WHERE id = 'd7dbbb9b-2ab7-4ca6-8b25-ecac282ef660';
+  UPDATE public.profiles SET spouse_id = 'd7dbbb9b-2ab7-4ca6-8b25-ecac282ef660' WHERE id = 'b667ba62-263f-44d5-9cd2-1afbaf7bce8d';
+  UPDATE public.profiles SET spouse_id = 'e805b9ca-eaca-42a0-9a18-153be8c8d218' WHERE id = 'b8d744bf-242e-4c11-a7de-29a8e19236e4';
+  UPDATE public.profiles SET spouse_id = 'b8d744bf-242e-4c11-a7de-29a8e19236e4' WHERE id = 'e805b9ca-eaca-42a0-9a18-153be8c8d218';
+  UPDATE public.profiles SET spouse_id = 'f57e52f9-0018-446a-9862-45fc2ee9adfc' WHERE id = 'ac4683a2-4a53-46f2-be91-8a06195a7a67';
+  UPDATE public.profiles SET spouse_id = 'ac4683a2-4a53-46f2-be91-8a06195a7a67' WHERE id = 'f57e52f9-0018-446a-9862-45fc2ee9adfc';
+  UPDATE public.profiles SET spouse_id = '90ed5647-d80f-4994-a497-488663a76f6a' WHERE id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314';
+  UPDATE public.profiles SET spouse_id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314' WHERE id = '90ed5647-d80f-4994-a497-488663a76f6a';
+  UPDATE public.profiles SET spouse_id = '412281ef-14cc-4bf5-8c8c-3a99801ac0c5' WHERE id = 'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b';
+  UPDATE public.profiles SET spouse_id = 'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b' WHERE id = '412281ef-14cc-4bf5-8c8c-3a99801ac0c5';
+  UPDATE public.profiles SET spouse_id = 'e90f4120-ed2f-4388-9983-c669dc5ed409' WHERE id = 'd36ce245-1130-49a0-ac1e-e165e9edce0c';
+  UPDATE public.profiles SET spouse_id = 'd36ce245-1130-49a0-ac1e-e165e9edce0c' WHERE id = 'e90f4120-ed2f-4388-9983-c669dc5ed409';
+  UPDATE public.profiles SET spouse_id = 'f55a0aab-53b9-448f-a57d-84f2eb9068f4' WHERE id = '9a8bd12f-e8ea-42b3-8114-6268cf77f9a9';
+  UPDATE public.profiles SET spouse_id = '9a8bd12f-e8ea-42b3-8114-6268cf77f9a9' WHERE id = 'f55a0aab-53b9-448f-a57d-84f2eb9068f4';
+  UPDATE public.profiles SET spouse_id = 'f7d55a4f-8e34-4cf0-81ce-b69e9c196e14' WHERE id = 'bd688ad9-23df-474b-aac0-fc8e23ceae9e';
+  UPDATE public.profiles SET spouse_id = 'bd688ad9-23df-474b-aac0-fc8e23ceae9e' WHERE id = 'f7d55a4f-8e34-4cf0-81ce-b69e9c196e14';
+  UPDATE public.profiles SET spouse_id = '0c57ff88-fdca-4ccb-a579-01eb98babac7' WHERE id = '66b84a63-a1c2-443a-b29c-5cc2767b6a3d';
+  UPDATE public.profiles SET spouse_id = '66b84a63-a1c2-443a-b29c-5cc2767b6a3d' WHERE id = '0c57ff88-fdca-4ccb-a579-01eb98babac7';
+  UPDATE public.profiles SET spouse_id = '40f58745-8172-49b5-ad40-9adcdc0864d6' WHERE id = '2593d98a-bf0c-4ee9-bce6-396691bef474';
+  UPDATE public.profiles SET spouse_id = '2593d98a-bf0c-4ee9-bce6-396691bef474' WHERE id = '40f58745-8172-49b5-ad40-9adcdc0864d6';
+  UPDATE public.profiles SET spouse_id = '07505fcb-bbab-4c23-a738-4127501f402e' WHERE id = '8ae246e6-0b5d-4075-997c-7e6b6c9ca984';
+  UPDATE public.profiles SET spouse_id = '8ae246e6-0b5d-4075-997c-7e6b6c9ca984' WHERE id = '07505fcb-bbab-4c23-a738-4127501f402e';
+  UPDATE public.profiles SET spouse_id = '4842d3df-262e-4f5f-a9e4-e94e264f8942' WHERE id = 'e14d477f-7d43-4b78-8c59-309bb9e43c8e';
+  UPDATE public.profiles SET spouse_id = 'e14d477f-7d43-4b78-8c59-309bb9e43c8e' WHERE id = '4842d3df-262e-4f5f-a9e4-e94e264f8942';
+  UPDATE public.profiles SET spouse_id = '59da7ad8-e573-43a6-b2b6-0cc612f75412' WHERE id = '9b7e123e-8a4b-4cbf-b1ea-91018cc09710';
+  UPDATE public.profiles SET spouse_id = '9b7e123e-8a4b-4cbf-b1ea-91018cc09710' WHERE id = '59da7ad8-e573-43a6-b2b6-0cc612f75412';
+  UPDATE public.profiles SET spouse_id = '05b2ac6e-5494-439a-93db-10e6eab77f8f' WHERE id = '82923ff5-0618-43e3-b9f9-1543f681b4a6';
+  UPDATE public.profiles SET spouse_id = '82923ff5-0618-43e3-b9f9-1543f681b4a6' WHERE id = '05b2ac6e-5494-439a-93db-10e6eab77f8f';
+  UPDATE public.profiles SET spouse_id = 'd387d30a-45a6-425d-8be0-67726f688e9d' WHERE id = '487fc304-5040-4e9f-810f-296ca99cbc2c';
+  UPDATE public.profiles SET spouse_id = '487fc304-5040-4e9f-810f-296ca99cbc2c' WHERE id = 'd387d30a-45a6-425d-8be0-67726f688e9d';
+  UPDATE public.profiles SET spouse_id = '8e6174b6-6d89-457e-b2d8-3f5988b0e829' WHERE id = 'd17bef0c-89e9-466d-9df4-6a18677aa0a3';
+  UPDATE public.profiles SET spouse_id = 'd17bef0c-89e9-466d-9df4-6a18677aa0a3' WHERE id = '8e6174b6-6d89-457e-b2d8-3f5988b0e829';
+  UPDATE public.profiles SET spouse_id = 'b9fcb867-cf5b-406a-a004-032d7aaaaca7' WHERE id = '9266f1dc-f06f-48b1-b47b-9fe4f5020955';
+  UPDATE public.profiles SET spouse_id = '9266f1dc-f06f-48b1-b47b-9fe4f5020955' WHERE id = 'b9fcb867-cf5b-406a-a004-032d7aaaaca7';
+  UPDATE public.profiles SET spouse_id = '636c7fb2-7f99-43d0-80a6-f29da2a21526' WHERE id = '2b3352f4-d8db-4322-a1b3-b16625e164b9';
+  UPDATE public.profiles SET spouse_id = '2b3352f4-d8db-4322-a1b3-b16625e164b9' WHERE id = '636c7fb2-7f99-43d0-80a6-f29da2a21526';
+  UPDATE public.profiles SET spouse_id = '698c6074-257b-43b4-a379-45585b53de97' WHERE id = '7f6a897d-f307-4429-afdf-f50c86822fa1';
+  UPDATE public.profiles SET spouse_id = '7f6a897d-f307-4429-afdf-f50c86822fa1' WHERE id = '698c6074-257b-43b4-a379-45585b53de97';
+  UPDATE public.profiles SET spouse_id = 'cf1e668b-d5c6-4bfe-a4c8-c63cecdf3f3c' WHERE id = '619e54b6-6171-44f2-a081-1bdb77914858';
+  UPDATE public.profiles SET spouse_id = '619e54b6-6171-44f2-a081-1bdb77914858' WHERE id = 'cf1e668b-d5c6-4bfe-a4c8-c63cecdf3f3c';
+  UPDATE public.profiles SET spouse_id = 'e898433b-71b2-495a-b778-88cffac37816' WHERE id = 'ee643bef-3d93-486f-be03-1ec6e30b9fa7';
+  UPDATE public.profiles SET spouse_id = 'ee643bef-3d93-486f-be03-1ec6e30b9fa7' WHERE id = 'e898433b-71b2-495a-b778-88cffac37816';
+  UPDATE public.profiles SET spouse_id = 'fb0d32fb-4fd4-483d-8c81-a5b0a800ecc2' WHERE id = '884cd615-51a4-466a-b34a-353ce7f54aaf';
+  UPDATE public.profiles SET spouse_id = '884cd615-51a4-466a-b34a-353ce7f54aaf' WHERE id = 'fb0d32fb-4fd4-483d-8c81-a5b0a800ecc2';
+  UPDATE public.profiles SET spouse_id = '5e780f3e-0a2b-4e61-8dc3-0b45f686d554' WHERE id = '3f756cdb-0c88-474c-961e-16d00943f790';
+  UPDATE public.profiles SET spouse_id = '3f756cdb-0c88-474c-961e-16d00943f790' WHERE id = '5e780f3e-0a2b-4e61-8dc3-0b45f686d554';
+  UPDATE public.profiles SET spouse_id = 'bef040a4-97fc-41cc-8400-86caab8bc675' WHERE id = '6ab35f69-d80e-4531-b8f7-4d2833f92c1b';
+  UPDATE public.profiles SET spouse_id = '6ab35f69-d80e-4531-b8f7-4d2833f92c1b' WHERE id = 'bef040a4-97fc-41cc-8400-86caab8bc675';
+  UPDATE public.profiles SET spouse_id = 'be24d372-c67b-4814-84b5-dea54dca0c36' WHERE id = '03283ddf-1330-468f-bb6d-8a9b5f9b6ede';
+  UPDATE public.profiles SET spouse_id = '03283ddf-1330-468f-bb6d-8a9b5f9b6ede' WHERE id = 'be24d372-c67b-4814-84b5-dea54dca0c36';
+  UPDATE public.profiles SET spouse_id = 'bb5c9636-55d4-4df0-92e4-3b8d60cfc829' WHERE id = '92e26edd-467f-41f2-8fa7-438886aee0c4';
+  UPDATE public.profiles SET spouse_id = '92e26edd-467f-41f2-8fa7-438886aee0c4' WHERE id = 'bb5c9636-55d4-4df0-92e4-3b8d60cfc829';
+  UPDATE public.profiles SET spouse_id = '53fe2ad5-6b9a-4c61-88de-f5f3038679b2' WHERE id = '16fc3cae-b943-4e46-8bec-d7f01baa4f31';
+  UPDATE public.profiles SET spouse_id = '16fc3cae-b943-4e46-8bec-d7f01baa4f31' WHERE id = '53fe2ad5-6b9a-4c61-88de-f5f3038679b2';
+  UPDATE public.profiles SET spouse_id = '927e05a8-c64b-497d-9cff-922bcb8adf92' WHERE id = 'ffe90127-a721-4c5d-a767-0601449ab591';
+  UPDATE public.profiles SET spouse_id = 'ffe90127-a721-4c5d-a767-0601449ab591' WHERE id = '927e05a8-c64b-497d-9cff-922bcb8adf92';
+  UPDATE public.profiles SET spouse_id = 'bfaf2255-9cea-451d-ba83-65873c2525f1' WHERE id = '0b41474e-5a7c-41f9-8cac-2c94dbcb5b02';
+  UPDATE public.profiles SET spouse_id = '0b41474e-5a7c-41f9-8cac-2c94dbcb5b02' WHERE id = 'bfaf2255-9cea-451d-ba83-65873c2525f1';
+  UPDATE public.profiles SET spouse_id = '908d2ecc-65f7-4160-b782-30f6e0fe8559' WHERE id = '6504260b-9f34-4c87-b35f-331b555967cb';
+  UPDATE public.profiles SET spouse_id = '6504260b-9f34-4c87-b35f-331b555967cb' WHERE id = '908d2ecc-65f7-4160-b782-30f6e0fe8559';
+  UPDATE public.profiles SET spouse_id = '6e63bfd5-5879-49a9-94cc-89ef65e53633' WHERE id = 'd4445397-62d1-4780-bceb-9cfdd30b99bf';
+  UPDATE public.profiles SET spouse_id = 'd4445397-62d1-4780-bceb-9cfdd30b99bf' WHERE id = '6e63bfd5-5879-49a9-94cc-89ef65e53633';
+  UPDATE public.profiles SET spouse_id = '0b3d3917-9a4c-4f06-b6e5-2bf0442ed694' WHERE id = 'fd388df9-b123-4c2d-b18a-7f2d869bcee9';
+  UPDATE public.profiles SET spouse_id = 'fd388df9-b123-4c2d-b18a-7f2d869bcee9' WHERE id = '0b3d3917-9a4c-4f06-b6e5-2bf0442ed694';
+  UPDATE public.profiles SET spouse_id = '9b2e2647-6f18-4546-97e4-5c47ffb6805f' WHERE id = '2b313e6c-35af-4309-9170-a485fabb45e8';
+  UPDATE public.profiles SET spouse_id = '2b313e6c-35af-4309-9170-a485fabb45e8' WHERE id = '9b2e2647-6f18-4546-97e4-5c47ffb6805f';
+  UPDATE public.profiles SET spouse_id = 'ed6abaed-ed59-42db-bb8e-64d26b8ea1c1' WHERE id = 'b9c372cd-0253-4162-8336-9a11ad7258cd';
+  UPDATE public.profiles SET spouse_id = 'b9c372cd-0253-4162-8336-9a11ad7258cd' WHERE id = 'ed6abaed-ed59-42db-bb8e-64d26b8ea1c1';
+  UPDATE public.profiles SET spouse_id = 'c735630e-4256-4ec4-a557-d74b25ff1564' WHERE id = 'ceecba38-dbf1-4e71-9527-b75bca08248d';
+  UPDATE public.profiles SET spouse_id = 'ceecba38-dbf1-4e71-9527-b75bca08248d' WHERE id = 'c735630e-4256-4ec4-a557-d74b25ff1564';
+  UPDATE public.profiles SET spouse_id = '8bb8d56e-6b43-4997-a4ac-053b78ca0a9b' WHERE id = '311b2c8d-bd25-4bca-a569-257bcdf6583c';
+  UPDATE public.profiles SET spouse_id = '311b2c8d-bd25-4bca-a569-257bcdf6583c' WHERE id = '8bb8d56e-6b43-4997-a4ac-053b78ca0a9b';
+  UPDATE public.profiles SET spouse_id = '7c47fad3-84c7-49b7-b56b-ea9e470ca582' WHERE id = 'bbb8a195-549d-46d6-96cf-84a45ec4f5ae';
+  UPDATE public.profiles SET spouse_id = 'bbb8a195-549d-46d6-96cf-84a45ec4f5ae' WHERE id = '7c47fad3-84c7-49b7-b56b-ea9e470ca582';
+  UPDATE public.profiles SET spouse_id = 'a37df668-d01b-41f9-a54d-d326f2a17d3f' WHERE id = 'b521d801-f99a-4835-8b3e-a3625884da65';
+  UPDATE public.profiles SET spouse_id = 'b521d801-f99a-4835-8b3e-a3625884da65' WHERE id = 'a37df668-d01b-41f9-a54d-d326f2a17d3f';
+  UPDATE public.profiles SET spouse_id = '1c2406c3-adf3-4d5b-956d-ff488006f0d4' WHERE id = 'c36f9d58-e6ae-447a-b8ad-be60805d9fa7';
+  UPDATE public.profiles SET spouse_id = 'c36f9d58-e6ae-447a-b8ad-be60805d9fa7' WHERE id = '1c2406c3-adf3-4d5b-956d-ff488006f0d4';
+  UPDATE public.profiles SET spouse_id = '3b257027-3160-4e0f-bc58-0b6aa5813ff9' WHERE id = '6bf0a643-6a4e-4599-8f3e-6784437768d0';
+  UPDATE public.profiles SET spouse_id = '6bf0a643-6a4e-4599-8f3e-6784437768d0' WHERE id = '3b257027-3160-4e0f-bc58-0b6aa5813ff9';
+  UPDATE public.profiles SET spouse_id = '2cf0d866-0648-4ceb-9004-ba32cdc093b3' WHERE id = '462f996d-dbf5-471a-8cbb-db5e2144aa26';
+  UPDATE public.profiles SET spouse_id = '462f996d-dbf5-471a-8cbb-db5e2144aa26' WHERE id = '2cf0d866-0648-4ceb-9004-ba32cdc093b3';
+  UPDATE public.profiles SET spouse_id = '58e950e1-6ad8-40e7-89aa-8773d96bf0df' WHERE id = '54cb5c5a-153a-4dc4-bb2b-64d3a979b158';
+  UPDATE public.profiles SET spouse_id = '54cb5c5a-153a-4dc4-bb2b-64d3a979b158' WHERE id = '58e950e1-6ad8-40e7-89aa-8773d96bf0df';
+  UPDATE public.profiles SET spouse_id = '2f3a54eb-ecd1-481a-91a2-fa8523e226e5' WHERE id = 'aac7b23c-9a35-41f4-815c-7a92d531f782';
+  UPDATE public.profiles SET spouse_id = 'aac7b23c-9a35-41f4-815c-7a92d531f782' WHERE id = '2f3a54eb-ecd1-481a-91a2-fa8523e226e5';
+  UPDATE public.profiles SET spouse_id = '2546a5f2-6c35-4de2-b940-8b959f4df61c' WHERE id = '84b3aca0-ef20-4436-aa64-082c92b5c60d';
+  UPDATE public.profiles SET spouse_id = '84b3aca0-ef20-4436-aa64-082c92b5c60d' WHERE id = '2546a5f2-6c35-4de2-b940-8b959f4df61c';
+  UPDATE public.profiles SET spouse_id = '7418d54e-e2af-49dd-8c1f-413289b4671f' WHERE id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1';
+  UPDATE public.profiles SET spouse_id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1' WHERE id = '7418d54e-e2af-49dd-8c1f-413289b4671f';
+  UPDATE public.profiles SET spouse_id = 'a5dbd7da-0387-44dd-9ec6-4a4e3dec3924' WHERE id = '7ec438d7-bd9f-4c18-ae9c-e785ca10a5bd';
+  UPDATE public.profiles SET spouse_id = '7ec438d7-bd9f-4c18-ae9c-e785ca10a5bd' WHERE id = 'a5dbd7da-0387-44dd-9ec6-4a4e3dec3924';
+  UPDATE public.profiles SET spouse_id = 'cea68f7b-66ad-4c71-aa2f-c8a55a802249' WHERE id = 'fcba7dea-23cb-4da3-9d0b-e065b51b20f3';
+  UPDATE public.profiles SET spouse_id = 'fcba7dea-23cb-4da3-9d0b-e065b51b20f3' WHERE id = 'cea68f7b-66ad-4c71-aa2f-c8a55a802249';
+  UPDATE public.profiles SET spouse_id = 'e1ed96e0-bd55-4bf2-82aa-23315c3f83aa' WHERE id = 'ce29b36b-bac6-49ba-bf63-72cebaa163cb';
+  UPDATE public.profiles SET spouse_id = 'ce29b36b-bac6-49ba-bf63-72cebaa163cb' WHERE id = 'e1ed96e0-bd55-4bf2-82aa-23315c3f83aa';
+  UPDATE public.profiles SET spouse_id = '88f729e3-7586-49e8-a7f5-ff8ac7bca5cb' WHERE id = 'cda888cd-6996-4f6e-a1f0-a7d4eed04285';
+  UPDATE public.profiles SET spouse_id = 'cda888cd-6996-4f6e-a1f0-a7d4eed04285' WHERE id = '88f729e3-7586-49e8-a7f5-ff8ac7bca5cb';
+  UPDATE public.profiles SET spouse_id = 'd3062ce1-81b4-4795-a533-de12931f2320' WHERE id = '4e89d3dc-6c15-433c-9003-ec23404704c1';
+  UPDATE public.profiles SET spouse_id = '4e89d3dc-6c15-433c-9003-ec23404704c1' WHERE id = 'd3062ce1-81b4-4795-a533-de12931f2320';
+  UPDATE public.profiles SET spouse_id = 'b6692a55-d3ea-415e-a366-55754965a0af' WHERE id = '908e6a0e-6c72-4e5a-9813-cca396740cb2';
+  UPDATE public.profiles SET spouse_id = '908e6a0e-6c72-4e5a-9813-cca396740cb2' WHERE id = 'b6692a55-d3ea-415e-a366-55754965a0af';
+  UPDATE public.profiles SET spouse_id = '020fab36-7f91-4da1-b9c7-cc0a6c86131d' WHERE id = '2876eca3-511f-4ce1-bf54-e33cb81e8393';
+  UPDATE public.profiles SET spouse_id = '2876eca3-511f-4ce1-bf54-e33cb81e8393' WHERE id = '020fab36-7f91-4da1-b9c7-cc0a6c86131d';
+  UPDATE public.profiles SET spouse_id = '94bd167e-c692-43bb-9083-413b723a3c46' WHERE id = 'c037ee51-bdc5-4495-9ba2-f735467eda2f';
+  UPDATE public.profiles SET spouse_id = 'c037ee51-bdc5-4495-9ba2-f735467eda2f' WHERE id = '94bd167e-c692-43bb-9083-413b723a3c46';
+  UPDATE public.profiles SET father_id = '23bd5f9b-0dec-4888-bf3b-c6d78a74a8dc', mother_id = 'fe51e018-12b5-4ca2-9164-ade04b45ea55' WHERE id = 'aaf5e5aa-b3b3-4f56-8884-0ca9b6ff98d2';
+  UPDATE public.profiles SET father_id = '87ccf9ea-c9af-475b-8d80-2fe92f9b5c8c', mother_id = 'b79deef6-8e02-4da3-8996-4a68d349a5f6' WHERE id = '21382e4a-8fd4-4ec9-9df2-bf9adaba9dac';
+  UPDATE public.profiles SET father_id = '41538203-0a7e-426e-9f6e-176315fa44a5', mother_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'ba4715d3-dafd-4c10-bec8-205b39e154a5';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'b42b968a-b5f3-4b49-a9c1-39fcf5b5e928' WHERE id = '915cf368-3a76-477f-8f7e-3c56b2602b24';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'b42b968a-b5f3-4b49-a9c1-39fcf5b5e928' WHERE id = '2fb3c448-d198-4c58-b50f-532032d13e8e';
+  UPDATE public.profiles SET father_id = '831e59c6-147c-4042-a81c-bc3f19f6ea36', mother_id = '9996439c-760a-4ee1-9278-26091fb1988f' WHERE id = '58cf7bf8-953b-4a7b-b2a9-8f0fc0975084';
+  UPDATE public.profiles SET father_id = '831e59c6-147c-4042-a81c-bc3f19f6ea36', mother_id = '9996439c-760a-4ee1-9278-26091fb1988f' WHERE id = 'bce95976-eed0-4b1b-8c6b-8efe0f6f1d18';
+  UPDATE public.profiles SET father_id = '4156a63d-cfd6-443f-8f75-94a85a73bc40', mother_id = '1a803e04-1fc7-460e-b5bc-1b8d294dec66' WHERE id = 'e2a08832-e454-4de2-8b0d-10b59362e49b';
+  UPDATE public.profiles SET father_id = '4156a63d-cfd6-443f-8f75-94a85a73bc40', mother_id = '1a803e04-1fc7-460e-b5bc-1b8d294dec66' WHERE id = 'f002bd09-01c5-4132-9ffa-2410534196d5';
+  UPDATE public.profiles SET father_id = '07ddb69d-a9f8-4284-8ab6-54d2409fda68', mother_id = '58ad8446-19dd-4099-bb89-5c27a099aacc' WHERE id = '557bc446-6c90-4815-b650-e1e3c9299eeb';
+  UPDATE public.profiles SET father_id = '07ddb69d-a9f8-4284-8ab6-54d2409fda68', mother_id = '58ad8446-19dd-4099-bb89-5c27a099aacc' WHERE id = '41984054-409f-4f5b-a416-2a457b27867a';
+  UPDATE public.profiles SET father_id = 'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56', mother_id = 'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e' WHERE id = '9272fd6c-c4e0-4df3-9064-266ead281479';
+  UPDATE public.profiles SET father_id = 'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56', mother_id = 'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e' WHERE id = '7fe3ee6e-1682-4af1-995b-d80d6b14033d';
+  UPDATE public.profiles SET father_id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5', mother_id = '1ba39a4d-451d-450f-8338-69cfb187defd' WHERE id = '2105f44b-d2b2-4cb6-9c20-ea411fae11ed';
+  UPDATE public.profiles SET father_id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5', mother_id = '1ba39a4d-451d-450f-8338-69cfb187defd' WHERE id = '70af37f8-013e-4740-a3b0-71dd1bf3adb7';
+  UPDATE public.profiles SET father_id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5', mother_id = '1ba39a4d-451d-450f-8338-69cfb187defd' WHERE id = '56e83202-89ad-409d-a988-1257989ea096';
+  UPDATE public.profiles SET father_id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8', mother_id = 'da9efe8a-2833-40d3-a43d-0143dc822d90' WHERE id = 'baf63c47-7914-4719-962d-5827d78c9ffb';
+  UPDATE public.profiles SET father_id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8', mother_id = 'da9efe8a-2833-40d3-a43d-0143dc822d90' WHERE id = '2fba4517-8374-46e1-b278-154ea6e2c80e';
+  UPDATE public.profiles SET father_id = 'deb039b9-2c43-4b85-a74a-a3d4886969a8', mother_id = 'da9efe8a-2833-40d3-a43d-0143dc822d90' WHERE id = '29b270b9-3d7c-46ac-95a4-2755825d5420';
+  UPDATE public.profiles SET father_id = 'fa76f2d1-ddf1-4f9b-930b-78716a3f9eec', mother_id = '7e006f19-2157-49d2-9281-fbd612b85730' WHERE id = '5376f2b1-22d0-46e0-b6e9-49afde19830b';
+  UPDATE public.profiles SET father_id = 'fa76f2d1-ddf1-4f9b-930b-78716a3f9eec', mother_id = '7e006f19-2157-49d2-9281-fbd612b85730' WHERE id = '053498e9-b39c-465e-800f-fdcd995b0e67';
+  UPDATE public.profiles SET father_id = '3cce93d3-8d87-4935-867c-cd4ca496d75c', mother_id = '1f11629a-6d93-402d-ac55-5ee99afea65a' WHERE id = 'd9b833e7-3a2a-42e4-9a31-1ff994e370e1';
+  UPDATE public.profiles SET father_id = '3cce93d3-8d87-4935-867c-cd4ca496d75c', mother_id = '1f11629a-6d93-402d-ac55-5ee99afea65a' WHERE id = 'fdf67716-b692-4b04-a2d3-e1f9dde50c59';
+  UPDATE public.profiles SET father_id = '8976bfcd-ce49-4c0c-b03f-d8f8d6d2aeb8', mother_id = '9394181d-3464-408d-a3bd-bb935dbe3b32' WHERE id = 'a23ae893-9aa5-444f-8987-68b2ebbcfea4';
+  UPDATE public.profiles SET father_id = '8976bfcd-ce49-4c0c-b03f-d8f8d6d2aeb8', mother_id = '9394181d-3464-408d-a3bd-bb935dbe3b32' WHERE id = '7b30110e-468e-4a89-b0ee-3815befe8175';
+  UPDATE public.profiles SET father_id = 'c5a32184-3d3e-455b-a177-c1ccf55f0511', mother_id = 'ae582e8f-fece-45ed-b752-3460084f0213' WHERE id = 'a6c53dcc-9b74-406f-9c63-f9fc6bcbdd7e';
+  UPDATE public.profiles SET father_id = '702dfacb-7739-4b6a-bce8-84b1d0a14f0f', mother_id = 'e7b36a58-1821-4656-877b-41b87727603c' WHERE id = 'a37ca909-88b0-44c4-a92b-f713f5a7eb8d';
+  UPDATE public.profiles SET father_id = '25c6bce5-0268-4b7b-8a5a-56a672f2afd4', mother_id = 'adca2ec6-fd09-486d-bd25-8a5b4bcaf02d' WHERE id = 'ed6b30b7-982b-48d5-927a-85456a41f266';
+  UPDATE public.profiles SET father_id = '125e543a-302f-433b-be68-a09e63c507a9', mother_id = 'e722fd77-ec0b-4545-bde5-444e71101dfd' WHERE id = '8517e549-b579-4402-86f5-0b0855d62962';
+  UPDATE public.profiles SET father_id = '2139cc2a-b8fb-432b-b0d4-da50222acc48', mother_id = '642fc83d-6711-47e5-a177-6601936cbba1' WHERE id = 'cfdfe0d1-e7e7-4577-96bb-d04716b3a83e';
+  UPDATE public.profiles SET father_id = NULL, mother_id = '272c6631-a509-4fd6-ad4b-c8cdeb57120e' WHERE id = '529d7a2d-cb61-4dd8-9b1c-fa30265d39c8';
+  UPDATE public.profiles SET father_id = '0867a620-f94b-4f40-bd61-953032e28ec0', mother_id = '6d2cc23c-fba4-47e9-83ac-a621040cecc5' WHERE id = 'ab9589c3-52f2-43c8-9ad1-128ed4a9ed1a';
+  UPDATE public.profiles SET father_id = '0867a620-f94b-4f40-bd61-953032e28ec0', mother_id = '6d2cc23c-fba4-47e9-83ac-a621040cecc5' WHERE id = '69ba3739-912c-47a0-97b7-6e8832b54c64';
+  UPDATE public.profiles SET father_id = 'b51a6cfe-82cc-46e0-b163-256680d98407', mother_id = '14897482-dd97-4401-82d1-ba8e0b9ed06d' WHERE id = 'a3933113-4ab7-4ef5-8666-f8857be95db2';
+  UPDATE public.profiles SET father_id = 'd92eb4ed-858b-4c09-ae09-3306f30f63fd', mother_id = '0dd7e454-0797-491c-8fe3-3475b659065c' WHERE id = '33c3cb37-6fa2-4063-98a7-13ce081e1191';
+  UPDATE public.profiles SET father_id = '40fffba6-b4fd-4fe7-b10b-95ccccf3776b', mother_id = 'bed3384b-b1cc-4c02-a002-6214c87b050b' WHERE id = 'bff87838-abd9-46f4-8aef-5ee7530edfc4';
+  UPDATE public.profiles SET father_id = '40fffba6-b4fd-4fe7-b10b-95ccccf3776b', mother_id = 'bed3384b-b1cc-4c02-a002-6214c87b050b' WHERE id = '8f8a7f9b-19d0-4dd5-a941-dfc2930171d6';
+  UPDATE public.profiles SET father_id = 'e1bb5bee-f50b-4fd2-b81b-9358977cfd20', mother_id = '6f3a51d6-af0d-456a-8227-4b82351bc7ed' WHERE id = 'a5fa06f0-a3b8-488c-a24a-21266eaf2b40';
+  UPDATE public.profiles SET father_id = '71f43006-bb6e-440d-bb1a-2209585f1431', mother_id = 'd9d1717b-bab3-47ee-89fc-c35482d78999' WHERE id = 'a53e98f4-7a95-49b1-b3cd-093d1ac25158';
+  UPDATE public.profiles SET father_id = '6dc72ec1-1e88-44ee-96b1-569b6a06e931', mother_id = 'a7583aa9-6991-4796-a3f9-38b34c58ce6d' WHERE id = '99be6504-c702-4136-9ba6-827b93a4a67f';
+  UPDATE public.profiles SET father_id = '6dc72ec1-1e88-44ee-96b1-569b6a06e931', mother_id = 'a7583aa9-6991-4796-a3f9-38b34c58ce6d' WHERE id = '3d420810-dc4d-42b5-9e03-eecfbf114225';
+  UPDATE public.profiles SET father_id = '68614af5-bb97-4eb4-a806-83b6b4c45379', mother_id = '775e0a4b-70a0-494f-b29b-3aad35c558c5' WHERE id = 'c3af21fa-bbb9-4f62-b2e7-ae151a7c12dc';
+  UPDATE public.profiles SET father_id = 'd2089a49-259e-4892-9a84-fbcb7e915f9e', mother_id = '474c1aae-45b4-4128-a1f7-8c0b9bf2a3ce' WHERE id = 'dad33f58-b3c0-472f-bee9-256bd3e0b8c8';
+  UPDATE public.profiles SET father_id = 'd2089a49-259e-4892-9a84-fbcb7e915f9e', mother_id = '474c1aae-45b4-4128-a1f7-8c0b9bf2a3ce' WHERE id = 'd9b07b7c-fa36-4595-b92d-bf7a2c1fdbe5';
+  UPDATE public.profiles SET father_id = 'de0db994-0506-4e43-b721-141f1d8bdb48', mother_id = '360c341a-3bf4-4314-b55b-f74d3b59e1f3' WHERE id = '7042236a-9f19-429c-85cc-04c5dad769aa';
+  UPDATE public.profiles SET father_id = 'de0db994-0506-4e43-b721-141f1d8bdb48', mother_id = '360c341a-3bf4-4314-b55b-f74d3b59e1f3' WHERE id = 'e1f7ca2c-69af-4210-8c96-00d9598a3a38';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'd4e6646b-e624-4737-8404-250150e042a5' WHERE id = 'de5694c4-4a09-44ef-9ac0-e220770589ca';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'd4e6646b-e624-4737-8404-250150e042a5' WHERE id = '6f8f6c75-5033-4a55-888e-0c871d6cf1b7';
+  UPDATE public.profiles SET father_id = 'b16e6ebe-42d3-4e27-9ff1-254bba818ee0', mother_id = 'edc19318-a69b-4db3-a2e2-7c9b2932d654' WHERE id = '5a761c43-04bf-4f31-b434-3524c3e40646';
+  UPDATE public.profiles SET father_id = '1761642d-1189-4fe0-b79c-eafc71831e79', mother_id = '0d371dcc-40d7-4e2f-9de5-8922139c8b92' WHERE id = '0df8e0aa-c692-4ab3-b2a9-7411b514db6f';
+  UPDATE public.profiles SET father_id = 'dd6a067d-0080-4f7e-bddc-cff252ae6682', mother_id = 'c0b8d474-507e-4b27-bac5-ccacaa05fa73' WHERE id = 'fe7c93c0-4bb0-4616-a91a-e1f59e567478';
+  UPDATE public.profiles SET father_id = 'dd6a067d-0080-4f7e-bddc-cff252ae6682', mother_id = 'c0b8d474-507e-4b27-bac5-ccacaa05fa73' WHERE id = '5e65ad20-51be-47a7-b97a-7ceda57183cf';
+  UPDATE public.profiles SET father_id = '744ca85f-dba9-4219-acb5-fcfaf1f5978c', mother_id = '70c49972-7aad-4029-9b20-74076b37f028' WHERE id = '1a473189-1e8f-47d0-bd72-efa4dfb348ae';
+  UPDATE public.profiles SET father_id = '13c6339c-9465-4a0f-8ca0-0f4f0831b509', mother_id = '19b30595-09ac-4f93-894a-1ceedef35175' WHERE id = '94b81417-d088-4b6a-aa12-bf0835c4a2bd';
+  UPDATE public.profiles SET father_id = '13c6339c-9465-4a0f-8ca0-0f4f0831b509', mother_id = '19b30595-09ac-4f93-894a-1ceedef35175' WHERE id = '34ecb3c7-74a7-4088-bbcc-144214f72813';
+  UPDATE public.profiles SET father_id = '00f4778b-c13f-443b-8f3b-d0b094875c04', mother_id = 'd64395ae-9107-4a15-b6be-c339264d6f3e' WHERE id = '31f4f517-90cb-4b29-a722-d0c624827352';
+  UPDATE public.profiles SET father_id = '9438c0a2-be20-4658-b485-3c2b33bb472d', mother_id = '1273ca07-f66e-4498-b69d-6314956f1dcc' WHERE id = 'feb3706a-0dbc-421c-b907-015f0fa3d935';
+  UPDATE public.profiles SET father_id = '2805af4b-4afd-4694-846c-4f7a8dbc5f86', mother_id = 'd0efb40a-1e42-4d2c-a201-750031eeaf16' WHERE id = '1c8a03df-e828-4c54-986e-b10c83e2a75c';
+  UPDATE public.profiles SET father_id = '2805af4b-4afd-4694-846c-4f7a8dbc5f86', mother_id = 'd0efb40a-1e42-4d2c-a201-750031eeaf16' WHERE id = '0e12c45b-851a-4d82-939a-0bb025f3f997';
+  UPDATE public.profiles SET father_id = 'a353767c-9979-4023-a653-40cc2202ca2c', mother_id = '9af18973-f83c-4eca-9643-9fe7564ff0d2' WHERE id = '26d99b5a-3d64-41f8-8c18-fb8a79ae96e5';
+  UPDATE public.profiles SET father_id = 'a353767c-9979-4023-a653-40cc2202ca2c', mother_id = '9af18973-f83c-4eca-9643-9fe7564ff0d2' WHERE id = '26ed3d69-7653-46e6-b02e-3e41f66ed7f3';
+  UPDATE public.profiles SET father_id = '5a2883f5-144e-4b79-a8a5-4badd593a645', mother_id = 'b3346ac1-df4f-4038-acf3-a5a3e5b13347' WHERE id = '9863a27e-45f0-4c72-b394-f5cf0eb5923d';
+  UPDATE public.profiles SET father_id = '9ab5e99a-a169-4984-b54e-2027ba37cc36', mother_id = 'e2c8d6e5-c6fb-4744-bb9a-e0182140abb8' WHERE id = '0c82ea83-5f16-4a45-b1e7-b99e1d941b4f';
+  UPDATE public.profiles SET father_id = 'c525665c-41c9-428f-b2bf-19f75c3273e3', mother_id = '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea' WHERE id = '5a5c0fdd-a581-41b9-b347-00e02d8febc2';
+  UPDATE public.profiles SET father_id = 'c525665c-41c9-428f-b2bf-19f75c3273e3', mother_id = '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea' WHERE id = '9e1c75ea-6a67-4d38-9238-6d38ef75fb06';
+  UPDATE public.profiles SET father_id = 'cf1346c9-c3bb-4a47-a31c-8c1f77324d4a', mother_id = 'd1c722d8-77f0-42a3-884e-1137f1d91cc0' WHERE id = '61cefda3-feab-46ab-bb34-095634d5a25e';
+  UPDATE public.profiles SET father_id = '0ca60d3b-1d10-433a-80ef-5c6b44c5f856', mother_id = 'f9c5dcae-bcd0-409a-bec0-107b57f022ea' WHERE id = 'a9fa1bb6-eff3-42fc-b88b-d92b771b9180';
+  UPDATE public.profiles SET father_id = 'afc0ea06-9e6e-416b-9323-9a512af12fd1', mother_id = '9cf018e2-8a26-4a6c-9c19-2a7218850108' WHERE id = '715a65a9-9f5e-4183-9221-2801902de422';
+  UPDATE public.profiles SET father_id = 'afc0ea06-9e6e-416b-9323-9a512af12fd1', mother_id = '9cf018e2-8a26-4a6c-9c19-2a7218850108' WHERE id = '6c3875b3-c265-427f-ac39-2dc4152f4bd0';
+  UPDATE public.profiles SET father_id = '417e8bea-be9f-40b2-a359-ba75007a0ac4', mother_id = '2bf2e6ff-2041-4e56-9a02-89a1f6940655' WHERE id = '4bc2b2ab-8fa9-4d0a-aebf-62242e45e599';
+  UPDATE public.profiles SET father_id = '417e8bea-be9f-40b2-a359-ba75007a0ac4', mother_id = '2bf2e6ff-2041-4e56-9a02-89a1f6940655' WHERE id = '9a8f086a-2a27-43e3-ae74-d985189cf57b';
+  UPDATE public.profiles SET father_id = '63433d51-1305-46ac-9be8-c4a6f0e3b2a0', mother_id = 'ebccc2ac-a542-43a8-8074-06124a38cbc3' WHERE id = '1a1aa17e-1e40-43ba-be3c-d1233180b37f';
+  UPDATE public.profiles SET father_id = '63433d51-1305-46ac-9be8-c4a6f0e3b2a0', mother_id = 'ebccc2ac-a542-43a8-8074-06124a38cbc3' WHERE id = 'c3e9e50a-771d-4b61-960e-1e3497d7e738';
+  UPDATE public.profiles SET father_id = NULL, mother_id = '493d0e03-fd47-48d0-a921-7d1a07835444' WHERE id = '3f34f2a2-21ca-40e6-92c0-c8b63b7af9b0';
+  UPDATE public.profiles SET father_id = '08b473e2-eaf9-44ef-84eb-6f02b72e4a25', mother_id = 'df3db365-38ea-4aca-abeb-c4c4a2207333' WHERE id = '7d775daf-ccf6-4977-977a-fe015751b1d3';
+  UPDATE public.profiles SET father_id = 'b21328c6-5e07-41c1-a852-50a44cc78f53', mother_id = '9ce2ff98-f302-4130-93d2-45942b07913c' WHERE id = '6b506bab-3ceb-48d4-9ca0-8efad398eae6';
+  UPDATE public.profiles SET father_id = '69b48c21-3834-4c15-aa7c-585de935dac7', mother_id = 'f603b12a-a7c3-4e06-ae3c-9925ad08fcea' WHERE id = '9bc1eb46-0ea5-40bd-ae7d-de083ce66d20';
+  UPDATE public.profiles SET father_id = '69b48c21-3834-4c15-aa7c-585de935dac7', mother_id = 'f603b12a-a7c3-4e06-ae3c-9925ad08fcea' WHERE id = '838deeec-42e3-4c82-9aca-30c7c8b660df';
+  UPDATE public.profiles SET father_id = '9ec0d723-674b-4224-bd42-d046f79d6910', mother_id = '01a42d7a-9374-475c-83c2-b2c5c75af0a6' WHERE id = '78eabb9c-bc6e-467a-93ed-9d879a2490d5';
+  UPDATE public.profiles SET father_id = '1f54b7ab-e0c3-427b-b925-58e81d0b821a', mother_id = '5f633223-b89e-46ec-bd19-e1ef8f9b286b' WHERE id = 'b979a29c-5f5e-4b42-ab28-228966f55bde';
+  UPDATE public.profiles SET father_id = '90cdc2d3-2770-44fc-81a7-cd0701bb68a4', mother_id = 'a3a1c2d2-6b49-44c2-92d6-e47dad320e98' WHERE id = 'a8c9400a-bd69-4622-a2a3-03256f1b59ee';
+  UPDATE public.profiles SET father_id = '8b571057-7c94-4269-81a7-a6fb34dd1373', mother_id = '77ffe695-e38b-4cab-a160-59fed1eb0e70' WHERE id = '36eadb01-e784-4323-bfea-a0c338661606';
+  UPDATE public.profiles SET father_id = '8b571057-7c94-4269-81a7-a6fb34dd1373', mother_id = '77ffe695-e38b-4cab-a160-59fed1eb0e70' WHERE id = 'ba8976aa-e017-4088-bd2e-1e243a27f5d6';
+  UPDATE public.profiles SET father_id = '8b571057-7c94-4269-81a7-a6fb34dd1373', mother_id = '77ffe695-e38b-4cab-a160-59fed1eb0e70' WHERE id = 'f65f52ba-68a3-4389-aa17-66e3de488a69';
+  UPDATE public.profiles SET father_id = '1d9f23a3-43a1-4fd4-b1a4-357a79842155', mother_id = '409646e0-bbab-49d8-86d9-94df0c8ad46a' WHERE id = '3841be2a-af59-4e6f-ba10-35b90a91b39e';
+  UPDATE public.profiles SET father_id = '1d9f23a3-43a1-4fd4-b1a4-357a79842155', mother_id = '409646e0-bbab-49d8-86d9-94df0c8ad46a' WHERE id = '65168bb1-4eae-4179-8e1a-99900496ee0e';
+  UPDATE public.profiles SET father_id = '1d9f23a3-43a1-4fd4-b1a4-357a79842155', mother_id = '409646e0-bbab-49d8-86d9-94df0c8ad46a' WHERE id = '99a660a9-c04c-4ee6-8b03-45d55309b4a9';
+  UPDATE public.profiles SET father_id = '085fd5cd-72d7-4435-aa37-050a5733b4f3', mother_id = '03f38c79-742f-4e08-8b12-51ddda20cc5a' WHERE id = '7dfe1f40-15d7-41d7-b38d-b40edb925636';
+  UPDATE public.profiles SET father_id = '7ac9f5be-d838-46d1-9cd2-790674800465', mother_id = '15cabd86-de1e-4944-8c19-384bc67c087b' WHERE id = '33c9a9f6-4073-43c0-8815-9cd7acbc500d';
+  UPDATE public.profiles SET father_id = '7ac9f5be-d838-46d1-9cd2-790674800465', mother_id = '15cabd86-de1e-4944-8c19-384bc67c087b' WHERE id = 'd32944f6-f859-4093-8f1a-7c4f7d2fd9cf';
+  UPDATE public.profiles SET father_id = '6a7a69f2-740b-45a7-8399-3db32c96ac8a', mother_id = '84fcc302-3b37-43c3-b3ff-d6e5978183c6' WHERE id = 'f2b9159e-8d29-491b-a5aa-25446a426482';
+  UPDATE public.profiles SET father_id = '49061166-5ee7-46aa-ad69-c830e8040bb9', mother_id = 'b33b9b1e-4817-4d06-8c51-b6a55293b79c' WHERE id = '3740abe5-1fba-4a4b-a766-ead9e7b96e34';
+  UPDATE public.profiles SET father_id = '49061166-5ee7-46aa-ad69-c830e8040bb9', mother_id = 'b33b9b1e-4817-4d06-8c51-b6a55293b79c' WHERE id = '413d642a-2bef-4c76-8fc3-49d13b80a213';
+  UPDATE public.profiles SET father_id = 'f4ae810a-a538-4628-84ee-b081625f4e1c', mother_id = 'fec8cecd-1a12-47a6-9f39-5d8dd95d2066' WHERE id = '318b2c39-07c1-4beb-bf9a-2464253c4c60';
+  UPDATE public.profiles SET father_id = 'f4ae810a-a538-4628-84ee-b081625f4e1c', mother_id = 'fec8cecd-1a12-47a6-9f39-5d8dd95d2066' WHERE id = 'b8a334d2-b79d-4079-8b72-596a2e9d7adb';
+  UPDATE public.profiles SET father_id = 'b6f75b58-ff57-47d5-9d53-7ee7617b57e7', mother_id = '77948d79-6a1e-4a9b-8ca1-7d1683c1e8ae' WHERE id = '2defd892-a663-4a86-a58d-58b35c3fd551';
+  UPDATE public.profiles SET father_id = '6cd9c6dd-091b-4458-be1b-649c9cfbf5dc', mother_id = 'a6e41747-32b3-4124-b6a8-08063bcf1362' WHERE id = '86e27d3e-8314-406f-9cc3-4cd0f579c56b';
+  UPDATE public.profiles SET father_id = 'b8d744bf-242e-4c11-a7de-29a8e19236e4', mother_id = 'e805b9ca-eaca-42a0-9a18-153be8c8d218' WHERE id = '17e8b845-f21e-4fb8-bce3-48b7e85d7297';
+  UPDATE public.profiles SET father_id = 'ac4683a2-4a53-46f2-be91-8a06195a7a67', mother_id = 'f57e52f9-0018-446a-9862-45fc2ee9adfc' WHERE id = '986f57e1-6461-4afb-bef6-b5adbe9e3def';
+  UPDATE public.profiles SET father_id = NULL, mother_id = '68b3e7f5-2706-4dda-8732-f863519dc42e' WHERE id = '96457c4e-0c26-4fd4-b9cc-3b85c2930dcb';
+  UPDATE public.profiles SET father_id = NULL, mother_id = '68b3e7f5-2706-4dda-8732-f863519dc42e' WHERE id = '94f28d5c-67be-450e-b946-37149156fb40';
+  UPDATE public.profiles SET father_id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314', mother_id = '90ed5647-d80f-4994-a497-488663a76f6a' WHERE id = '8a319402-8ada-4a10-bbec-49bb860534af';
+  UPDATE public.profiles SET father_id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314', mother_id = '90ed5647-d80f-4994-a497-488663a76f6a' WHERE id = '7a7829a1-d58d-4ce2-ba69-a62774218d81';
+  UPDATE public.profiles SET father_id = 'a3572e00-8fb9-496f-8d39-e2e39c35f314', mother_id = '90ed5647-d80f-4994-a497-488663a76f6a' WHERE id = 'a657daa7-e94d-48c3-a424-dbc8b4eaeca3';
+  UPDATE public.profiles SET father_id = 'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b', mother_id = '412281ef-14cc-4bf5-8c8c-3a99801ac0c5' WHERE id = 'a6ef5c5f-36be-45f4-a7b4-ac7e8f9f83ef';
+  UPDATE public.profiles SET father_id = 'e12eba1f-e0b9-4e48-87a0-e4b6722f4f3b', mother_id = '412281ef-14cc-4bf5-8c8c-3a99801ac0c5' WHERE id = '3e56fc68-c292-4638-9aae-7b9caad492ab';
+  UPDATE public.profiles SET father_id = 'd36ce245-1130-49a0-ac1e-e165e9edce0c', mother_id = 'e90f4120-ed2f-4388-9983-c669dc5ed409' WHERE id = '7e17132c-bb7d-4092-8bc2-4287069bda10';
+  UPDATE public.profiles SET father_id = 'bd688ad9-23df-474b-aac0-fc8e23ceae9e', mother_id = 'f7d55a4f-8e34-4cf0-81ce-b69e9c196e14' WHERE id = '218bb895-e627-4cd2-9838-597c68681e15';
+  UPDATE public.profiles SET father_id = '8ae246e6-0b5d-4075-997c-7e6b6c9ca984', mother_id = '07505fcb-bbab-4c23-a738-4127501f402e' WHERE id = '35df79d8-19ec-40b5-9985-4def6cfcf4ba';
+  UPDATE public.profiles SET father_id = '8ae246e6-0b5d-4075-997c-7e6b6c9ca984', mother_id = '07505fcb-bbab-4c23-a738-4127501f402e' WHERE id = '41520468-e8fc-4f30-8432-5bef0e656ba3';
+  UPDATE public.profiles SET father_id = '8ae246e6-0b5d-4075-997c-7e6b6c9ca984', mother_id = '07505fcb-bbab-4c23-a738-4127501f402e' WHERE id = '95050668-c07e-43f4-9927-5aa3ee62d4b9';
+  UPDATE public.profiles SET father_id = 'e14d477f-7d43-4b78-8c59-309bb9e43c8e', mother_id = '4842d3df-262e-4f5f-a9e4-e94e264f8942' WHERE id = 'ac0b9f71-629b-4624-a2fe-5b4ea4c87e87';
+  UPDATE public.profiles SET father_id = '9b7e123e-8a4b-4cbf-b1ea-91018cc09710', mother_id = '59da7ad8-e573-43a6-b2b6-0cc612f75412' WHERE id = '6ff366f4-e6d3-4212-bd49-f25a5228a488';
+  UPDATE public.profiles SET father_id = '9b7e123e-8a4b-4cbf-b1ea-91018cc09710', mother_id = '59da7ad8-e573-43a6-b2b6-0cc612f75412' WHERE id = '31a63e84-70b9-4dcb-9d8d-745170332492';
+  UPDATE public.profiles SET father_id = '2b3352f4-d8db-4322-a1b3-b16625e164b9', mother_id = '636c7fb2-7f99-43d0-80a6-f29da2a21526' WHERE id = '83957f34-947c-417b-855a-9e9c98dee6b7';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'ba1c755d-4d4f-4032-b825-2a7647ad9c2e' WHERE id = 'd27fcaa9-e95b-4293-82e7-2fcf807a0d9a';
+  UPDATE public.profiles SET father_id = NULL, mother_id = 'ba1c755d-4d4f-4032-b825-2a7647ad9c2e' WHERE id = '7f847425-4ad3-46d5-bd70-faedda8adccd';
+  UPDATE public.profiles SET father_id = 'ee643bef-3d93-486f-be03-1ec6e30b9fa7', mother_id = 'e898433b-71b2-495a-b778-88cffac37816' WHERE id = '013ca4c2-23ec-4927-8870-33ff6a9e86f1';
+  UPDATE public.profiles SET father_id = '3f756cdb-0c88-474c-961e-16d00943f790', mother_id = '5e780f3e-0a2b-4e61-8dc3-0b45f686d554' WHERE id = 'cabf2f97-704d-41ec-be3a-3d61ce65b308';
+  UPDATE public.profiles SET father_id = '03283ddf-1330-468f-bb6d-8a9b5f9b6ede', mother_id = 'be24d372-c67b-4814-84b5-dea54dca0c36' WHERE id = '7a97bef5-e295-4445-bb5f-73b5cb909c8b';
+  UPDATE public.profiles SET father_id = '03283ddf-1330-468f-bb6d-8a9b5f9b6ede', mother_id = 'be24d372-c67b-4814-84b5-dea54dca0c36' WHERE id = '88e17c40-137a-445c-b6a0-73c95fc9738b';
+  UPDATE public.profiles SET father_id = '92e26edd-467f-41f2-8fa7-438886aee0c4', mother_id = 'bb5c9636-55d4-4df0-92e4-3b8d60cfc829' WHERE id = '37187d46-cba3-4c95-8bab-0f5f04a5fa01';
+  UPDATE public.profiles SET father_id = '0b41474e-5a7c-41f9-8cac-2c94dbcb5b02', mother_id = 'bfaf2255-9cea-451d-ba83-65873c2525f1' WHERE id = '0327b2c7-2b8c-4079-9203-4c9275ba120b';
+  UPDATE public.profiles SET father_id = '6504260b-9f34-4c87-b35f-331b555967cb', mother_id = '908d2ecc-65f7-4160-b782-30f6e0fe8559' WHERE id = 'f35c8560-6530-4238-bc60-6f861fb8de96';
+  UPDATE public.profiles SET father_id = '6504260b-9f34-4c87-b35f-331b555967cb', mother_id = '908d2ecc-65f7-4160-b782-30f6e0fe8559' WHERE id = 'a37f60bf-47c8-4aa0-9681-9502f1d9cf70';
+  UPDATE public.profiles SET father_id = 'fd388df9-b123-4c2d-b18a-7f2d869bcee9', mother_id = '0b3d3917-9a4c-4f06-b6e5-2bf0442ed694' WHERE id = 'e8ff1aa2-e0fe-4dcf-9f30-e72a8b9c9dca';
+  UPDATE public.profiles SET father_id = '2b313e6c-35af-4309-9170-a485fabb45e8', mother_id = '9b2e2647-6f18-4546-97e4-5c47ffb6805f' WHERE id = '45576048-b424-4d53-9d88-e4308ac55741';
+  UPDATE public.profiles SET father_id = 'c5ecb4b2-ef2d-465d-82c7-e860bc32c5e5', mother_id = NULL WHERE id = '42812fa4-c163-44d6-a74c-dbc554a44e3b';
+  UPDATE public.profiles SET father_id = 'c5ecb4b2-ef2d-465d-82c7-e860bc32c5e5', mother_id = NULL WHERE id = '274d21ff-f182-4c57-8f95-8d06a31ac710';
+  UPDATE public.profiles SET father_id = 'b9c372cd-0253-4162-8336-9a11ad7258cd', mother_id = 'ed6abaed-ed59-42db-bb8e-64d26b8ea1c1' WHERE id = 'bbfaa8e8-781a-4b42-9fac-a37cd6c46542';
+  UPDATE public.profiles SET father_id = 'ceecba38-dbf1-4e71-9527-b75bca08248d', mother_id = 'c735630e-4256-4ec4-a557-d74b25ff1564' WHERE id = 'f5499f30-0123-42b6-b744-f16c50722a76';
+  UPDATE public.profiles SET father_id = '311b2c8d-bd25-4bca-a569-257bcdf6583c', mother_id = '8bb8d56e-6b43-4997-a4ac-053b78ca0a9b' WHERE id = '62c7b3ef-9732-481c-aae3-37ec063ccb99';
+  UPDATE public.profiles SET father_id = '311b2c8d-bd25-4bca-a569-257bcdf6583c', mother_id = '8bb8d56e-6b43-4997-a4ac-053b78ca0a9b' WHERE id = '6557adf5-8e87-474e-8883-bf1fa0ae18f2';
+  UPDATE public.profiles SET father_id = 'bbb8a195-549d-46d6-96cf-84a45ec4f5ae', mother_id = '7c47fad3-84c7-49b7-b56b-ea9e470ca582' WHERE id = '4c0c9695-0939-44f0-965f-cb25fd8bb7a0';
+  UPDATE public.profiles SET father_id = 'b521d801-f99a-4835-8b3e-a3625884da65', mother_id = 'a37df668-d01b-41f9-a54d-d326f2a17d3f' WHERE id = 'b028ead5-8ecf-421e-ab7e-8675231fd1da';
+  UPDATE public.profiles SET father_id = 'b521d801-f99a-4835-8b3e-a3625884da65', mother_id = 'a37df668-d01b-41f9-a54d-d326f2a17d3f' WHERE id = '1309f57e-a4bd-440b-a7af-c982600700f2';
+  UPDATE public.profiles SET father_id = 'c36f9d58-e6ae-447a-b8ad-be60805d9fa7', mother_id = '1c2406c3-adf3-4d5b-956d-ff488006f0d4' WHERE id = '2ea8ebfc-4d46-430b-a4f5-58b4721d4d2f';
+  UPDATE public.profiles SET father_id = '6bf0a643-6a4e-4599-8f3e-6784437768d0', mother_id = '3b257027-3160-4e0f-bc58-0b6aa5813ff9' WHERE id = '6891fe8e-3abb-471c-a02e-be10435a3301';
+  UPDATE public.profiles SET father_id = '462f996d-dbf5-471a-8cbb-db5e2144aa26', mother_id = '2cf0d866-0648-4ceb-9004-ba32cdc093b3' WHERE id = '6662b5c5-0b15-4a96-be3e-f94fc1393c59';
+  UPDATE public.profiles SET father_id = '462f996d-dbf5-471a-8cbb-db5e2144aa26', mother_id = '2cf0d866-0648-4ceb-9004-ba32cdc093b3' WHERE id = 'e00093b5-0e0a-4562-8c58-990a77c29110';
+  UPDATE public.profiles SET father_id = '54cb5c5a-153a-4dc4-bb2b-64d3a979b158', mother_id = '58e950e1-6ad8-40e7-89aa-8773d96bf0df' WHERE id = '8132f25c-541d-415e-b0d8-08ac92337875';
+  UPDATE public.profiles SET father_id = '54cb5c5a-153a-4dc4-bb2b-64d3a979b158', mother_id = '58e950e1-6ad8-40e7-89aa-8773d96bf0df' WHERE id = '9a9caf5f-4d30-4599-bc87-74c8cd7a7aec';
+  UPDATE public.profiles SET father_id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1', mother_id = '7418d54e-e2af-49dd-8c1f-413289b4671f' WHERE id = '25f16537-4989-48ee-afb2-936ff389fbf1';
+  UPDATE public.profiles SET father_id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1', mother_id = '7418d54e-e2af-49dd-8c1f-413289b4671f' WHERE id = '83f17c9d-9955-4a25-8f48-ef5326a4fb2b';
+  UPDATE public.profiles SET father_id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1', mother_id = '7418d54e-e2af-49dd-8c1f-413289b4671f' WHERE id = '537ef7da-9bfb-47c2-85c5-3dec6e748d1a';
+  UPDATE public.profiles SET father_id = 'e788d9fe-04b1-4dd0-9ab0-09b3a2360ef1', mother_id = '7418d54e-e2af-49dd-8c1f-413289b4671f' WHERE id = 'abfd8fea-dbdd-4b3f-b6dd-bfa31b1fe93f';
+  UPDATE public.profiles SET father_id = '7ec438d7-bd9f-4c18-ae9c-e785ca10a5bd', mother_id = 'a5dbd7da-0387-44dd-9ec6-4a4e3dec3924' WHERE id = '65e727a5-9e8a-4c8b-8e20-73f8d36a550b';
+  UPDATE public.profiles SET father_id = '908e6a0e-6c72-4e5a-9813-cca396740cb2', mother_id = 'b6692a55-d3ea-415e-a366-55754965a0af' WHERE id = '1023b947-a174-47d3-94c9-83da43276d79';
 
   -- ==========================================================================
   -- 7. ATUALIZAR DISCIPULADO (discipler_id)
   -- ==========================================================================
 
-  UPDATE public.profiles SET discipler_id = 'd9431731-50c0-44f2-947d-dc88a309b3d6' WHERE id = '69eecf4a-7ba6-4c53-be51-ed9d202715e8';
-  UPDATE public.profiles SET discipler_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = 'ed56e011-a066-49c8-8233-e3b5f50140af';
-  UPDATE public.profiles SET discipler_id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896' WHERE id = 'a52a6748-767f-4c5d-b6c4-3cd96572cd59';
-  UPDATE public.profiles SET discipler_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = '57d74b4b-3280-497a-87fc-9929e70eddcd';
-  UPDATE public.profiles SET discipler_id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896' WHERE id = 'b48c1d94-9e72-445b-b469-4a2c00a74e99';
-  UPDATE public.profiles SET discipler_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = '266c8e68-4192-47a8-9f1e-10708d388e54';
-  UPDATE public.profiles SET discipler_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '2092d89f-7c41-4cde-9666-72db932250e5';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = '6717d16b-3add-4977-a824-a9c6bc2f9c13';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = 'f1acb2a6-60ed-43ca-927b-7737c7a799b5';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '842cb647-a695-438e-bde3-21c1d435ed6b';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = '0f0f28df-102c-4071-894e-389e41360cb1';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = 'a23f3eb2-c9e5-495b-84c3-ecc4670bcb26';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = 'c163c8a6-d96f-4980-8242-fe3e94f85fb7';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '93ce9392-ac77-4f5b-a4a0-bc3fa8ee0644';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = '075eabfb-81bd-4211-a4dd-a20b3e7fed47';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '451700ce-7eff-49d7-a787-f99a9eda2f8e';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = '6ed4afbd-1081-4c81-be12-f03628822bba';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '1dc0ac57-4bbb-46b5-abae-938828807b02';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '1989e812-e291-4e83-89b3-b848aef84570';
-  UPDATE public.profiles SET discipler_id = 'd9431731-50c0-44f2-947d-dc88a309b3d6' WHERE id = 'dc8f98f8-306b-47ce-b650-645fed3c2f65';
-  UPDATE public.profiles SET discipler_id = '6717d16b-3add-4977-a824-a9c6bc2f9c13' WHERE id = '30039d06-4756-40f8-8d7d-2a91466fc5b9';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '1b10c655-7452-4b91-820e-4b4a47fe12f6';
-  UPDATE public.profiles SET discipler_id = '6717d16b-3add-4977-a824-a9c6bc2f9c13' WHERE id = '2020229d-7979-4cbb-8fab-f021f18b825e';
-  UPDATE public.profiles SET discipler_id = 'a573ee8c-e8c2-4501-b484-dfef25e04a6c' WHERE id = 'a3c9a07c-017c-4c35-a164-9fca6da79b4c';
-  UPDATE public.profiles SET discipler_id = '299d81b7-08b1-4fa6-b026-f45a65c684e0' WHERE id = '70d7271f-0612-4434-9bab-d8c5ad38bb86';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '094adf18-1186-4802-a0c2-01852547ca63';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '8103138f-6084-4eb2-b852-be3d55cd19ba';
-  UPDATE public.profiles SET discipler_id = '02bf68cb-e556-4b65-a89e-7b236d235693' WHERE id = '13f92f18-e27a-409d-a2a6-461e2da8ef4b';
-  UPDATE public.profiles SET discipler_id = '2020229d-7979-4cbb-8fab-f021f18b825e' WHERE id = '7581ff85-77d8-4f7e-8f48-2ef15f39fa7c';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '38644b54-ac21-4bfd-8444-85619f985a83';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = 'ee51a38f-1fa5-4a3a-bf56-403db185980b';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '2bf1deac-98cb-43ab-878e-aa8d559cca75';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '584fa9fb-c171-46f5-8196-1a056d89527b';
-  UPDATE public.profiles SET discipler_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '31ca95d0-c658-4dc9-8116-8048726048f3';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = '88505968-39c9-4785-aa66-1eed08165c32';
-  UPDATE public.profiles SET discipler_id = '31ca95d0-c658-4dc9-8116-8048726048f3' WHERE id = 'dbb46454-9eff-4e9e-85e0-46b10d664ade';
-  UPDATE public.profiles SET discipler_id = '88505968-39c9-4785-aa66-1eed08165c32' WHERE id = '8f2c7cd0-dc24-4fcd-8da5-7c8f18af2f26';
-  UPDATE public.profiles SET discipler_id = '1a6883bd-6cd3-4b77-b3d0-2d316b80a676' WHERE id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68';
-  UPDATE public.profiles SET discipler_id = 'bc3cb641-22c2-4740-97c5-de8bfb35aebc' WHERE id = '02bf68cb-e556-4b65-a89e-7b236d235693';
-  UPDATE public.profiles SET discipler_id = '76385bbe-a540-4638-8013-609b49a6a2fe' WHERE id = 'eb49b757-df17-400b-ae00-8e0cd3397de1';
-  UPDATE public.profiles SET discipler_id = 'd490eba5-fbb2-4281-9777-d8226e71aa9f' WHERE id = '77da84a6-4557-4582-a4ca-5d11246e5e99';
-  UPDATE public.profiles SET discipler_id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68' WHERE id = '9bd2e2fa-4e02-4ece-aaa4-3fcf13265ebf';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '1ed2f9fb-b2d6-4bbb-8d52-56e641fb9048';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = 'b2dff33d-b4b7-41d5-94e5-d2a8f8516d93';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = 'a573ee8c-e8c2-4501-b484-dfef25e04a6c';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '299d81b7-08b1-4fa6-b026-f45a65c684e0';
-  UPDATE public.profiles SET discipler_id = '9bd2e2fa-4e02-4ece-aaa4-3fcf13265ebf' WHERE id = '9c9f8af5-87de-4405-b5cb-32d8b6d5b2ab';
-  UPDATE public.profiles SET discipler_id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68' WHERE id = '9cb51b1b-c865-4d6e-a6c9-29730d247a65';
-  UPDATE public.profiles SET discipler_id = '02bf68cb-e556-4b65-a89e-7b236d235693' WHERE id = '8bcec8d5-0fdf-402d-a963-61de788fc967';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '8b5b308b-d51a-49de-b525-694ddb924372';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = 'f10adea6-2436-468e-b214-937f20a4e094';
-  UPDATE public.profiles SET discipler_id = '9bd2e2fa-4e02-4ece-aaa4-3fcf13265ebf' WHERE id = '1681cb6a-b484-4030-bfb1-b33aea39ca9d';
-  UPDATE public.profiles SET discipler_id = '86e61bad-d320-4bfc-9941-f61b6fae964c' WHERE id = '9029c57c-8190-40e6-bf07-a46caa76baa2';
-  UPDATE public.profiles SET discipler_id = '78a85e6b-6af6-463b-9775-20f19af29e6e' WHERE id = '86e61bad-d320-4bfc-9941-f61b6fae964c';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = 'efa67ef3-8431-4adf-817b-3485bdf5526e';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '86c3cf40-e6be-4004-a67b-30a8e1bc6801';
-  UPDATE public.profiles SET discipler_id = '62cdd14f-499e-4fd7-bfc8-60c7d79eca68' WHERE id = '3b4775c4-d7d4-43c2-8153-52345ac65971';
-  UPDATE public.profiles SET discipler_id = '9029c57c-8190-40e6-bf07-a46caa76baa2' WHERE id = 'df674479-c6c1-4105-afe0-1b5f1660954e';
-  UPDATE public.profiles SET discipler_id = '299d81b7-08b1-4fa6-b026-f45a65c684e0' WHERE id = '529addb2-b920-40b8-ab0d-e2a56ac50201';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = '135eb50a-71cd-4534-8edc-4d70e441f992';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '9471ce5d-592b-43a5-b642-eca9376ade77';
-  UPDATE public.profiles SET discipler_id = 'eb49b757-df17-400b-ae00-8e0cd3397de1' WHERE id = 'd601c038-8bef-439d-8abd-8e441694e063';
-  UPDATE public.profiles SET discipler_id = '77da84a6-4557-4582-a4ca-5d11246e5e99' WHERE id = '54b85487-74c4-47fc-9a54-4a7ad7440ce2';
-  UPDATE public.profiles SET discipler_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d';
-  UPDATE public.profiles SET discipler_id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896' WHERE id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde';
-  UPDATE public.profiles SET discipler_id = 'd10f39b4-92c7-4967-9a82-69ad771457a1' WHERE id = '1a6883bd-6cd3-4b77-b3d0-2d316b80a676';
-  UPDATE public.profiles SET discipler_id = '9c9ad423-9cd4-46c8-acd4-05e1053d9896' WHERE id = 'bc3cb641-22c2-4740-97c5-de8bfb35aebc';
-  UPDATE public.profiles SET discipler_id = '1a6883bd-6cd3-4b77-b3d0-2d316b80a676' WHERE id = 'aa3d2a3c-7f0c-467b-bf85-2952cca85639';
-  UPDATE public.profiles SET discipler_id = 'bc3cb641-22c2-4740-97c5-de8bfb35aebc' WHERE id = 'e86f8f13-6779-4961-907a-1c8c6fa870b1';
-  UPDATE public.profiles SET discipler_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '7e630638-b948-429e-b5e0-1f0ff0dcaa30';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = '3550ae89-e7cc-426d-bbb5-3bc74cf2775e';
-  UPDATE public.profiles SET discipler_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '83133cf2-3975-4311-8806-3cba0bffeaab';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = '8e8fc92d-956e-4c2b-a9fd-1eafcc4f99a3';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = 'c1baf135-aeef-45ed-9373-bd9cad49d2e4';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = '7db85295-7a6a-4fef-ac5d-530737b9de8b';
-  UPDATE public.profiles SET discipler_id = '5b92e638-151a-4e3d-8e80-c8712d01ae8d' WHERE id = '0ababef1-5f5d-436e-8abd-4c06321a96fb';
-  UPDATE public.profiles SET discipler_id = '9dedb40f-0760-4b7d-8819-aac8f5c47fde' WHERE id = 'e329ffd2-65d6-4202-9969-432a4fe276af';
-  UPDATE public.profiles SET discipler_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = '3bb28abb-1e36-4b4c-86be-39ede123499b';
-  UPDATE public.profiles SET discipler_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = 'cdcb7800-a3c8-44c9-b782-d0cc98431d61';
-  UPDATE public.profiles SET discipler_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = '134164ad-c0fb-4c9b-ba42-a512c1aad399';
-  UPDATE public.profiles SET discipler_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = '36710d40-c124-4852-85d8-c8100d14adaf';
-  UPDATE public.profiles SET discipler_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = '1f3eb3b0-f1c2-4c9f-a202-5d52180e8bc5';
-  UPDATE public.profiles SET discipler_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = 'e9754ebb-7614-4040-9d7f-5b741d07b633';
-  UPDATE public.profiles SET discipler_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = 'a1e470e1-3742-444f-8834-8f5891892096';
-  UPDATE public.profiles SET discipler_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = 'e527af2d-6f17-459c-aefe-e24cbeb824fe';
-  UPDATE public.profiles SET discipler_id = '060c9b8a-9173-4c73-afb1-348868616c14' WHERE id = 'c0dff264-dc84-45d6-9a4e-da18d047dd73';
-  UPDATE public.profiles SET discipler_id = '94734ad2-5b56-4a13-99a1-e8ea21226daa' WHERE id = '81a0a170-8930-48f2-b505-8cd13b9883c2';
+  UPDATE public.profiles SET discipler_id = '5407bf48-52d2-4fef-a85f-086f39640c4c' WHERE id = '71f8eedc-9d7b-48d1-991e-ae98013a5fbe';
+  UPDATE public.profiles SET discipler_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = 'b7b9a6a9-483c-4652-9ce5-5ee31e7e949a';
+  UPDATE public.profiles SET discipler_id = '2ee8740d-b1fe-4614-baf7-da870e0ac155' WHERE id = '1bc2068a-b1c1-4775-9a46-2437674461dc';
+  UPDATE public.profiles SET discipler_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = 'bc3cc745-dcd0-4c79-b8a1-bde6e336b28f';
+  UPDATE public.profiles SET discipler_id = '2ee8740d-b1fe-4614-baf7-da870e0ac155' WHERE id = 'd46c69da-3468-4e73-8d78-c1a6a8a50924';
+  UPDATE public.profiles SET discipler_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = '2d0e7358-423b-4c27-b1bc-e4c6bc17b647';
+  UPDATE public.profiles SET discipler_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = 'cfefe8cc-f85e-4427-ad60-149ae73e1dad';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '5862029e-8e82-439b-a8e8-a45b3f954987';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'c9451d88-3d0b-4366-9dee-49bf4b1a665c';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'b42b968a-b5f3-4b49-a9c1-39fcf5b5e928';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '1dce335d-9640-4178-8675-8a35bcef33f3';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'c53698e8-a13d-48a6-9f01-218732f58b3a';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '284c583e-eeb5-4896-94c9-4ecfe43ba1bf';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = '1d94db5d-33e8-47c8-b74b-89c3baf318af';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '831e59c6-147c-4042-a81c-bc3f19f6ea36';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = '9996439c-760a-4ee1-9278-26091fb1988f';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '4156a63d-cfd6-443f-8f75-94a85a73bc40';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = '1a803e04-1fc7-460e-b5bc-1b8d294dec66';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'b80e234e-5b89-4200-84b6-0a5f0f1b6a25';
+  UPDATE public.profiles SET discipler_id = '5407bf48-52d2-4fef-a85f-086f39640c4c' WHERE id = '60028e2c-f736-4a3c-8f3b-d3d4b0f5032c';
+  UPDATE public.profiles SET discipler_id = '5862029e-8e82-439b-a8e8-a45b3f954987' WHERE id = '21bf9e0b-a641-4a24-8abe-be94e19aa01c';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = 'fde66a1a-78b6-4327-918e-187d1c6f1965';
+  UPDATE public.profiles SET discipler_id = '5862029e-8e82-439b-a8e8-a45b3f954987' WHERE id = 'a6285c83-e760-4a9c-9c0d-364f54ebbdf0';
+  UPDATE public.profiles SET discipler_id = 'fcf6ad83-5564-407a-a912-1d58481f6369' WHERE id = '48410ac0-1787-4c7e-a6e7-4e6806642850';
+  UPDATE public.profiles SET discipler_id = '7d4694d8-84c5-4a1f-9ab4-f8e148296d02' WHERE id = '4effb9f2-0cff-4fa4-ac68-49a93c2628fa';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = 'a72d4939-2969-45b4-9e45-a4247325519b';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'fb825f48-ceee-4081-85e4-6dd94bca5a50';
+  UPDATE public.profiles SET discipler_id = '1e7d0844-9b45-4144-8f6a-47e5eded8daa' WHERE id = '0f68b9d6-4519-49c0-80fb-ccd8f8054f42';
+  UPDATE public.profiles SET discipler_id = 'a6285c83-e760-4a9c-9c0d-364f54ebbdf0' WHERE id = 'f17f1d00-d885-4ef9-b56b-b3dee6f7d281';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = '4db2d7d9-a30f-44c6-8615-a3f64bee5c01';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'ce3ad9d1-0ae8-4940-9b51-2519e39e712c';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = '91ca2fe2-9032-4d9c-a4c6-7969b4197f0f';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'eb53ac6a-789b-412b-aba3-e86e8a4566db';
+  UPDATE public.profiles SET discipler_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = '7ac247cc-b99a-43b4-b54b-8fadf2432dee';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = 'ac1fdb69-a924-4214-9205-52be933cdd77';
+  UPDATE public.profiles SET discipler_id = '7ac247cc-b99a-43b4-b54b-8fadf2432dee' WHERE id = '03628cd7-f794-4b9b-9d3e-b0c6f8b0ea1e';
+  UPDATE public.profiles SET discipler_id = 'ac1fdb69-a924-4214-9205-52be933cdd77' WHERE id = '163bc3f2-162a-4add-8746-5442599c1855';
+  UPDATE public.profiles SET discipler_id = 'bb54e705-da5d-49f6-9810-4a1b6e45fd4a' WHERE id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6';
+  UPDATE public.profiles SET discipler_id = 'f7eea24c-008a-41dd-9932-6503c9b9f7b3' WHERE id = '1e7d0844-9b45-4144-8f6a-47e5eded8daa';
+  UPDATE public.profiles SET discipler_id = '41538203-0a7e-426e-9f6e-176315fa44a5' WHERE id = '46feee7e-f65c-4367-989d-d27a9a28c60f';
+  UPDATE public.profiles SET discipler_id = 'e58d0305-1872-4e1a-8d0f-d9804c26d8cb' WHERE id = '46a2f154-615b-4f58-974e-332e17d3f528';
+  UPDATE public.profiles SET discipler_id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6' WHERE id = '740e35a6-aa00-4aa8-a166-f3fcb1106267';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = 'd852000c-53c1-4b7a-bd16-6d81c145d5da';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'a05697b6-6904-45a7-88c3-b6b7098d96b1';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = 'fcf6ad83-5564-407a-a912-1d58481f6369';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = '7d4694d8-84c5-4a1f-9ab4-f8e148296d02';
+  UPDATE public.profiles SET discipler_id = '740e35a6-aa00-4aa8-a166-f3fcb1106267' WHERE id = '531b1665-fd27-4591-af6d-f355deffc0c8';
+  UPDATE public.profiles SET discipler_id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6' WHERE id = '07ddb69d-a9f8-4284-8ab6-54d2409fda68';
+  UPDATE public.profiles SET discipler_id = '1e7d0844-9b45-4144-8f6a-47e5eded8daa' WHERE id = '58ad8446-19dd-4099-bb89-5c27a099aacc';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = '1782517b-7a4a-41d6-ac9d-ace9095fd531';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'fa88c3be-f2b6-4547-8af5-01c2104cdc53';
+  UPDATE public.profiles SET discipler_id = '740e35a6-aa00-4aa8-a166-f3fcb1106267' WHERE id = '27065ca5-f568-4eac-b77a-7a8de42baa75';
+  UPDATE public.profiles SET discipler_id = '9f207e7a-ec9f-45ac-a292-3cd93919221d' WHERE id = '220cf2c5-d1f4-417b-8045-d62cbe1f1658';
+  UPDATE public.profiles SET discipler_id = 'bfaf2255-9cea-451d-ba83-65873c2525f1' WHERE id = '9f207e7a-ec9f-45ac-a292-3cd93919221d';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = 'dbc8c225-9ea2-4c3d-a5e4-e4c55a92dc56';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = 'ea84cd9e-0fb3-41d2-ab96-c9543ff1c59e';
+  UPDATE public.profiles SET discipler_id = 'a1d267e0-60bc-4f79-b56c-de041d22f9b6' WHERE id = '1f80df5a-433f-4200-9325-d03c79743fbe';
+  UPDATE public.profiles SET discipler_id = '220cf2c5-d1f4-417b-8045-d62cbe1f1658' WHERE id = '836aa21c-9e3a-4b07-80d8-5850c77d5550';
+  UPDATE public.profiles SET discipler_id = '7d4694d8-84c5-4a1f-9ab4-f8e148296d02' WHERE id = '4ac72fae-635c-40cf-af54-657b5d2fdf42';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = 'd8896391-af7e-4956-9c68-2eb4fc530398';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = '364de290-003a-4eb6-b113-af145a2c2734';
+  UPDATE public.profiles SET discipler_id = '46feee7e-f65c-4367-989d-d27a9a28c60f' WHERE id = '8c776d66-666f-4f16-94b1-772ec6dbd3a5';
+  UPDATE public.profiles SET discipler_id = '46a2f154-615b-4f58-974e-332e17d3f528' WHERE id = '1ba39a4d-451d-450f-8338-69cfb187defd';
+  UPDATE public.profiles SET discipler_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = 'f57ad015-e7c3-438a-9f12-db36c09a4335';
+  UPDATE public.profiles SET discipler_id = '2ee8740d-b1fe-4614-baf7-da870e0ac155' WHERE id = '612d29d8-f49d-4e39-a109-673bf53aa47f';
+  UPDATE public.profiles SET discipler_id = '19ec4776-52dc-43c8-8c08-e272cc157732' WHERE id = 'bb54e705-da5d-49f6-9810-4a1b6e45fd4a';
+  UPDATE public.profiles SET discipler_id = '2ee8740d-b1fe-4614-baf7-da870e0ac155' WHERE id = 'f7eea24c-008a-41dd-9932-6503c9b9f7b3';
+  UPDATE public.profiles SET discipler_id = 'bb54e705-da5d-49f6-9810-4a1b6e45fd4a' WHERE id = 'd92eb4ed-858b-4c09-ae09-3306f30f63fd';
+  UPDATE public.profiles SET discipler_id = 'f7eea24c-008a-41dd-9932-6503c9b9f7b3' WHERE id = '0dd7e454-0797-491c-8fe3-3475b659065c';
+  UPDATE public.profiles SET discipler_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = 'cda61385-c64a-463a-9ce6-31eef0d3ab34';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = '6de44343-a9d4-4c3a-b5a7-398ed6e5fcaf';
+  UPDATE public.profiles SET discipler_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = 'a31da5a4-deec-4d5c-b792-d528bcf4f10c';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = 'b2264eb8-2acc-45fc-8683-6f5eb5e6543d';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = '8957807a-e715-4d48-a8a6-3b33305425d3';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = '5c140d14-54e9-4f14-b3ba-676d0d9a4fb3';
+  UPDATE public.profiles SET discipler_id = 'f57ad015-e7c3-438a-9f12-db36c09a4335' WHERE id = '625835a3-2962-45c1-9971-7d369cf17589';
+  UPDATE public.profiles SET discipler_id = '612d29d8-f49d-4e39-a109-673bf53aa47f' WHERE id = '80b7b173-3745-430a-bd84-80bec9ada5f8';
+  UPDATE public.profiles SET discipler_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = 'c525665c-41c9-428f-b2bf-19f75c3273e3';
+  UPDATE public.profiles SET discipler_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = '4da0d483-7562-4aa3-8ce1-bae3cf26d0ea';
+  UPDATE public.profiles SET discipler_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = 'd1c722d8-77f0-42a3-884e-1137f1d91cc0';
+  UPDATE public.profiles SET discipler_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = '30820239-cfa7-40a1-b100-5f8f37acd1b2';
+  UPDATE public.profiles SET discipler_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = '0ca60d3b-1d10-433a-80ef-5c6b44c5f856';
+  UPDATE public.profiles SET discipler_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = 'afc0ea06-9e6e-416b-9323-9a512af12fd1';
+  UPDATE public.profiles SET discipler_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = '9cf018e2-8a26-4a6c-9c19-2a7218850108';
+  UPDATE public.profiles SET discipler_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = '2a24006f-118f-4013-a767-6c8f87c5f161';
+  UPDATE public.profiles SET discipler_id = '82f620bb-0d1c-4e61-8093-92d7ffed8d6e' WHERE id = '417e8bea-be9f-40b2-a359-ba75007a0ac4';
+  UPDATE public.profiles SET discipler_id = '2f4f85aa-dec6-40a3-8468-0907a169020c' WHERE id = '2bf2e6ff-2041-4e56-9a02-89a1f6940655';
   -- Gabriel Góes Braga discipulado por Fernando (Presbítero) e filho de Fernando e Clara
   UPDATE public.profiles 
   SET discipler_id = fernando_id, father_id = fernando_id, mother_id = clara_id 
@@ -12390,7 +12390,7 @@ BEGIN
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '',
+      'mandatory_phone', '(31) 99888-7777',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
       'mandatory_birth_date', '2008-04-02',
@@ -12418,14 +12418,14 @@ BEGIN
     'Chalé Aliança 01',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '',
+      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
       'birthDate', '2008-04-02'
     ),
     jsonb_build_object(
       'Nome Completo', 'Gabriel Góes Braga',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '',
+      'Telefone / WhatsApp', '(31) 99888-7777',
       'Sexo / Gênero', 'Masculino',
       'Cidade / Estado', 'Belo Horizonte / MG',
       'Data de Nascimento / Idade', '2008-04-02',
@@ -12443,7 +12443,7 @@ BEGIN
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '',
+      'mandatory_phone', '(31) 99888-7777',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
       'mandatory_birth_date', '2008-04-02'
@@ -12468,7 +12468,7 @@ BEGIN
     'Alojamento Getsêmani',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '',
+      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
       'birthDate', '2008-04-02'
     ),
@@ -12476,7 +12476,7 @@ BEGIN
       'Nome Completo', 'Gabriel Góes Braga',
       'Sexo / Gênero', 'Masculino',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '',
+      'Telefone / WhatsApp', '(31) 99888-7777',
       'Data de Nascimento / Idade', '2008-04-02'
     )
   ) ON CONFLICT DO NOTHING;

@@ -558,10 +558,10 @@ sqlChunks.push(`
       now(), now(), 'authenticated', 'authenticated', '', '', '', ''
     );
 
-  -- Vinculação explícita de user_id nos perfis principais
-  UPDATE public.profiles SET user_id = gabriel_auth_id WHERE id = gabriel_id;
-  UPDATE public.profiles SET user_id = fernando_auth_id WHERE id = fernando_id;
-  UPDATE public.profiles SET user_id = clara_auth_id WHERE id = clara_id;
+  -- Vinculação explícita de user_id nos perfis principais e garantia de avatar_url NULL
+  UPDATE public.profiles SET user_id = gabriel_auth_id, avatar_url = NULL WHERE id = gabriel_id;
+  UPDATE public.profiles SET user_id = fernando_auth_id, avatar_url = NULL WHERE id = fernando_id;
+  UPDATE public.profiles SET user_id = clara_auth_id, avatar_url = NULL WHERE id = clara_id;
 `);
 
 sqlChunks.push(`
@@ -954,7 +954,7 @@ sqlChunks.push(`
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '',
+      'mandatory_phone', '(31) 99888-7777',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
       'mandatory_birth_date', '2008-04-02',
@@ -982,14 +982,14 @@ sqlChunks.push(`
     'Chalé Aliança 01',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '',
+      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
       'birthDate', '2008-04-02'
     ),
     jsonb_build_object(
       'Nome Completo', 'Gabriel Góes Braga',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '',
+      'Telefone / WhatsApp', '(31) 99888-7777',
       'Sexo / Gênero', 'Masculino',
       'Cidade / Estado', 'Belo Horizonte / MG',
       'Data de Nascimento / Idade', '2008-04-02',
@@ -1007,7 +1007,7 @@ sqlChunks.push(`
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '',
+      'mandatory_phone', '(31) 99888-7777',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
       'mandatory_birth_date', '2008-04-02'
@@ -1032,7 +1032,7 @@ sqlChunks.push(`
     'Alojamento Getsêmani',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '',
+      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
       'birthDate', '2008-04-02'
     ),
@@ -1040,7 +1040,7 @@ sqlChunks.push(`
       'Nome Completo', 'Gabriel Góes Braga',
       'Sexo / Gênero', 'Masculino',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '',
+      'Telefone / WhatsApp', '(31) 99888-7777',
       'Data de Nascimento / Idade', '2008-04-02'
     )
   ) ON CONFLICT DO NOTHING;

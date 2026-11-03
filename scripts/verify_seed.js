@@ -151,22 +151,22 @@ async function verify() {
 
   // Verify Fernando (Presbyter) & Clara
   const fernandoRes = await client.query(`
-    SELECT p.id, p.full_name, p.email, p.phone, p.is_presbyter,
+    SELECT p.id, p.full_name, p.email, p.phone, p.avatar_url, p.is_presbyter,
            (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
            (SELECT count(*) FROM public.profiles WHERE father_id = p.id) as children_count
     FROM public.profiles p
-    WHERE p.full_name IN ('Fernando Gomes Braga', 'Fernando') AND p.is_presbyter = true
+    WHERE p.email = 'fgb80@yahoo.com'
     LIMIT 1
   `);
   console.log('\nFernando (Presbítero) data:');
   console.log(fernandoRes.rows[0]);
 
   const claraRes = await client.query(`
-    SELECT p.id, p.full_name, p.email, p.phone, p.gender,
+    SELECT p.id, p.full_name, p.email, p.phone, p.gender, p.avatar_url,
            (SELECT full_name FROM public.profiles WHERE id = p.spouse_id) as spouse_name,
            (SELECT count(*) FROM public.profiles WHERE mother_id = p.id) as children_count
     FROM public.profiles p
-    WHERE p.full_name IN ('Clara Góes Braga', 'Clara')
+    WHERE p.email = 'claradiscipula@gmail.com'
     LIMIT 1
   `);
   console.log('\nClara data:');
