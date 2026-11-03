@@ -440,7 +440,7 @@ export function RoomManagementTab({
       {/* Dialog para Gerenciar Alocação do Quarto (Lista de Ocupantes + Filtro por Gênero) */}
       {selectedRoomForAllocation && (
         <Dialog open={!!selectedRoomForAllocation} onOpenChange={(open) => !open && setSelectedRoomForAllocation(null)}>
-          <DialogContent className="sm:max-w-2xl max-w-full rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <DialogContent size="lg" className="sm:max-w-2xl md:max-w-3xl rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90dvh] overflow-y-auto custom-scrollbar">
             <DialogHeader className="border-b border-border/40 pb-4">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">
@@ -555,7 +555,7 @@ export function RoomManagementTab({
 
       {/* Dialog para Criar / Editar Quarto */}
       <Dialog open={isRoomDialogOpen} onOpenChange={setIsRoomDialogOpen}>
-        <DialogContent className="sm:max-w-md max-w-full rounded-2xl border border-border bg-card p-6">
+        <DialogContent size="md" className="rounded-2xl border border-border bg-card p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
               {editingRoom ? "Editar Quarto" : "Cadastrar Novo Quarto"}

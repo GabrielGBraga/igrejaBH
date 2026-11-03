@@ -292,7 +292,7 @@ export function RegistrationDetailDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-w-full rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <DialogContent size="xl" className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90dvh] overflow-y-auto custom-scrollbar">
         <DialogHeader className="border-b border-border/50 pb-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">

@@ -35,7 +35,7 @@ export function VideoPlayerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[94vw] sm:w-full p-4 sm:p-6 bg-card border-border/80 shadow-2xl rounded-2xl">
+      <DialogContent size="xl" className="w-[95vw] sm:max-w-4xl lg:max-w-5xl p-4 sm:p-6 bg-card border-border/80 shadow-2xl rounded-2xl">
         <DialogHeader className="text-left space-y-1 mb-2">
           <DialogTitle className="text-base sm:text-xl font-bold tracking-tight text-foreground">
             {title}

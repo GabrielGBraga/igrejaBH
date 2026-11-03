@@ -96,7 +96,7 @@ export function ProfileCompletionBlocker() {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
-        className="pointer-events-auto rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-[425px]"
+        size="md" className="pointer-events-auto rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >

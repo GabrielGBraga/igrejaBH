@@ -37,7 +37,7 @@ export function EventWaitlistDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden border-border/80 bg-background max-h-[92vh] overflow-y-auto">
+      <DialogContent size="md" className="p-0 overflow-hidden border-border/80 bg-background max-h-[92dvh] overflow-y-auto">
         <DialogHeader className="sr-only">
           <DialogTitle>Lista de Espera: {retreat.title}</DialogTitle>
           <DialogDescription>

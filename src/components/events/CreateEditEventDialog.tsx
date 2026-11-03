@@ -220,7 +220,7 @@ export function CreateEditEventDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-w-full rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+      <DialogContent size="xl" className="sm:max-w-3xl lg:max-w-4xl rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-6 md:p-8 max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
             {retreat ? "Editar Encontro/Retiro" : "Criar Novo Encontro/Retiro"}

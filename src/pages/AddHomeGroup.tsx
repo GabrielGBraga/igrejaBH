@@ -408,7 +408,7 @@ export default function AddHomeGroup() {
                 />
 
                 <Dialog open={isSectorDialogOpen} onOpenChange={setIsSectorDialogOpen}>
-                  <DialogContent className="sm:max-w-md">
+                  <DialogContent size="md">
                     <DialogHeader>
                       <DialogTitle className="text-base font-bold">Gerenciar Setores</DialogTitle>
                       <DialogDescription className="text-xs">

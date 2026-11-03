@@ -155,7 +155,7 @@ export function RestrictedGroupLinkDialog({
         onOpenChange(nextOpen)
       }}
     >
-      <DialogContent className="flex flex-col h-[85vh] sm:h-[88vh] max-h-[85vh] sm:max-h-[88vh] w-[calc(100vw-2rem)] sm:max-w-lg md:max-w-xl p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl border border-border/70">
+      <DialogContent size="lg" className="flex flex-col max-h-[88dvh] sm:max-w-xl md:max-w-2xl p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl border border-border/70">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <div className="flex items-center gap-2">
             <Badge

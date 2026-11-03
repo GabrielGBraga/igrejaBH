@@ -269,7 +269,7 @@ export function DiscipleshipSideCard({
 
       {/* Modal de Detalhes dos Discípulos */}
       <Dialog open={isDisciplesModalOpen} onOpenChange={setIsDisciplesModalOpen}>
-        <DialogContent className="max-w-md rounded-xl">
+        <DialogContent size="md" className="p-5 sm:p-6 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base font-bold">
               <Users className="h-5 w-5 text-primary" />

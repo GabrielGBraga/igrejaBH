@@ -754,7 +754,7 @@ export function EventCouponsTab({
 
       {/* CREATE COUPON DIALOG */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-2xl max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+        <DialogContent size="lg" className="sm:max-w-2xl md:max-w-3xl rounded-2xl border border-border bg-card p-6 md:p-8 max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="space-y-2 pb-2">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">

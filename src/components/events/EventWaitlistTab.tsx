@@ -757,7 +757,7 @@ export function EventWaitlistTab({
       {/* 4. Modal para Chamar Participante */}
       {callModalEntry && (
         <Dialog open={!!callModalEntry} onOpenChange={(open) => !open && setCallModalEntry(null)}>
-          <DialogContent className="max-w-lg rounded-2xl border-border/80 bg-background p-6">
+          <DialogContent size="lg" className="rounded-2xl border-border/80 bg-background p-6">
             <DialogHeader>
               <div className="flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -883,7 +883,7 @@ export function EventWaitlistTab({
       {/* 5. Modal de Confirmação de Exclusão */}
       {entryToDelete && (
         <Dialog open={!!entryToDelete} onOpenChange={(open) => !open && setEntryToDelete(null)}>
-          <DialogContent className="max-w-md rounded-2xl border-border/80 bg-background p-6">
+          <DialogContent size="sm" className="rounded-2xl border-border/80 bg-background p-6">
             <DialogHeader>
               <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-destructive" />

@@ -866,7 +866,7 @@ export function EventTeamsTab({
 
       {/* 6. Modal: Atribuir Voluntário */}
       <Dialog open={isAssignModalOpen} onOpenChange={setIsAssignModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />

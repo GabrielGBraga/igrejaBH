@@ -95,7 +95,7 @@ export function NewsDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-5 sm:p-6">
+      <DialogContent size="lg" className="max-h-[88dvh] overflow-y-auto p-5 sm:p-7">
         <DialogHeader className="text-left space-y-3 pb-2 border-b border-border/40">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">

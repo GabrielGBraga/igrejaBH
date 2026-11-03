@@ -1514,7 +1514,7 @@ export default function Events() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md max-w-full rounded-2xl border border-border bg-card p-6">
+        <DialogContent size="md" className="rounded-2xl border border-border bg-card p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />

@@ -690,7 +690,7 @@ export function TextEditor({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90vh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
+            <DialogContent size="2xl" className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90dvh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
                 {editorStyles}
                 <DialogHeader className="flex flex-row justify-between items-center pr-6 pb-2 border-b border-border/40 shrink-0">
                     <div>

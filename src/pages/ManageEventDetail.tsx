@@ -1660,7 +1660,7 @@ export default function ManageEventDetail() {
           open={!!selectedRegistrationForRoomModal}
           onOpenChange={(open) => !open && setSelectedRegistrationForRoomModal(null)}
         >
-          <DialogContent className="sm:max-w-md max-w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+          <DialogContent size="md" className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
             <DialogHeader>
               <DialogTitle className="text-lg font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
                 <Bed className="w-5 h-5 text-primary" />

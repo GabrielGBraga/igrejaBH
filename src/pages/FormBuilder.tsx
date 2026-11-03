@@ -2032,7 +2032,7 @@ export default function FormBuilder() {
 
           return (
             <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/80 p-4 backdrop-blur-xs duration-200 fade-in">
-              <div className="flex max-h-[85vh] w-full max-w-4xl animate-in flex-col overflow-hidden rounded-xl border border-border/80 bg-background shadow-2xl duration-200 zoom-in-95">
+              <div className="flex max-h-[90dvh] w-[95vw] sm:max-w-4xl lg:max-w-5xl animate-in flex-col overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl duration-200 zoom-in-95">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-border p-6">
                   <div>

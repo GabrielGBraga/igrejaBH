@@ -243,7 +243,7 @@ export function EventAnnouncementsTab({ retreat }: EventAnnouncementsTabProps) {
 
       {/* Modal de Criação de Comunicado */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg p-5 sm:p-6">
+        <DialogContent size="lg" className="p-5 sm:p-6">
           <DialogHeader className="text-left space-y-1.5">
             <DialogTitle className="text-lg font-bold">
               Publicar Comunicado do Evento

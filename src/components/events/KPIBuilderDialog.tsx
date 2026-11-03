@@ -425,7 +425,7 @@ export function KPIBuilderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-[96vw] max-w-5xl sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-hidden p-0 rounded-2xl flex flex-col border border-zinc-200 dark:border-zinc-800 shadow-2xl">
+      <DialogContent size="xl" className="w-[96vw] max-w-5xl sm:max-w-4xl lg:max-w-5xl max-h-[90dvh] overflow-hidden p-0 rounded-2xl flex flex-col border border-zinc-200 dark:border-zinc-800 shadow-2xl">
         
         {/* DIALOG HEADER */}
         <DialogHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/70 dark:bg-zinc-900/50 pr-12 sm:pr-14">

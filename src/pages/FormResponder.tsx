@@ -1555,7 +1555,7 @@ export default function FormResponder() {
 
       {showCheckout && (
         <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md animate-in rounded-xl border border-border/80 bg-background p-6 shadow-2xl duration-200 zoom-in-95 text-left">
+          <div className="w-[95vw] sm:max-w-lg md:max-w-xl max-h-[90dvh] overflow-y-auto animate-in rounded-2xl border border-border/80 bg-background p-6 shadow-2xl duration-200 zoom-in-95 text-left custom-scrollbar">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>

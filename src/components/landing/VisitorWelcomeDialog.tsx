@@ -133,7 +133,7 @@ export function VisitorWelcomeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
+      <DialogContent size="md" className="p-6">
         <DialogHeader className="text-left space-y-1.5">
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
 

@@ -395,7 +395,7 @@ export function EventFinanceTab({
 
       {/* Dialog para Lançar / Editar Despesa */}
       <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-        <DialogContent className="sm:max-w-md max-w-full rounded-2xl border border-border bg-card p-6">
+        <DialogContent size="md" className="rounded-2xl border border-border bg-card p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
               {editingExpense ? "Editar Lançamento de Gasto" : "Lançar Nova Despesa"}

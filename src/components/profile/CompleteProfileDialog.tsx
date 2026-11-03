@@ -267,7 +267,7 @@ export function CompleteProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border-border/60 bg-card/95 p-4 backdrop-blur-xl sm:p-6">
+      <DialogContent size="lg" className="max-h-[90dvh] overflow-y-auto rounded-3xl border-border/60 bg-card/95 p-5 backdrop-blur-xl sm:p-7">
         <DialogHeader className="text-left space-y-1.5 pb-2 border-b border-border/40">
           <div className="flex items-center gap-2 text-primary">
             <CheckCircle2Icon className="size-5 shrink-0" />

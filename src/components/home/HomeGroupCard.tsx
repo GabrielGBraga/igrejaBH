@@ -271,7 +271,7 @@ export function HomeGroupCard({
 
       {/* Modal de Lista de Irmãos do Grupo */}
       <Dialog open={isMemberListOpen} onOpenChange={setIsMemberListOpen}>
-        <DialogContent className="max-w-md p-6">
+        <DialogContent size="md" className="p-5 sm:p-6 rounded-2xl">
           <DialogHeader className="text-left space-y-1">
             <DialogTitle className="flex items-center gap-2 text-lg font-bold">
               <Users className="h-5 w-5 text-primary" />

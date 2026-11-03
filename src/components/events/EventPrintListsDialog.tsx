@@ -1030,7 +1030,8 @@ export function EventPrintListsDialog({
       {/* 1. Modal Interativo Ampliado de Visualização e Configurações */}
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
-          className="w-[96vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-6xl xl:max-w-7xl h-[92vh] max-h-[94vh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl no-print"
+          size="2xl"
+          className="w-[96vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-6xl xl:max-w-7xl h-[92dvh] max-h-[94dvh] overflow-hidden flex flex-col p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl no-print"
         >
           <DialogHeader className="shrink-0 pb-3 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

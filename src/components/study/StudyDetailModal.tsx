@@ -99,7 +99,7 @@ export function StudyDetailModal({
 
     return (
         <Dialog open={!!study} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-2xl bg-card border-border/60 shadow-2xl rounded-3xl p-0 overflow-hidden flex flex-col">
+            <DialogContent size="xl" className="max-h-[90dvh] w-[95vw] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl bg-card border-border/60 shadow-2xl rounded-3xl p-0 overflow-hidden flex flex-col">
                 {/* Header */}
                 <DialogHeader className="p-5 sm:p-6 pb-4 border-b border-border/50 shrink-0">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">

@@ -32,7 +32,7 @@ export function CalendarEventDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-lg bg-card border-border/70 shadow-2xl rounded-2xl p-0 overflow-hidden flex flex-col">
+      <DialogContent size="lg" className="max-h-[90dvh] w-[95vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-card border-border/70 shadow-2xl rounded-2xl p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-5 sm:p-6 pb-4 border-b border-border/50 shrink-0 text-left">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Badge
