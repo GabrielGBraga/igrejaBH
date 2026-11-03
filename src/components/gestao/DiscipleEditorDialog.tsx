@@ -796,19 +796,21 @@ export function DiscipleEditorDialog({
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     type="button"
-                    variant={gender === "M" ? "secondary" : "outline"}
-                    className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
+                    variant={gender === "M" ? "default" : "outline"}
+                    className="h-11 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm shadow-xs transition-all gap-1.5 cursor-pointer"
                     onClick={() => handleGenderChange("M")}
                   >
-                    Masculino
+                    {gender === "M" && <Check className="h-4 w-4 shrink-0" />}
+                    <span>Masculino</span>
                   </Button>
                   <Button
                     type="button"
-                    variant={gender === "F" ? "secondary" : "outline"}
-                    className="h-11 min-h-[44px] rounded-xl font-medium text-xs sm:text-sm"
+                    variant={gender === "F" ? "default" : "outline"}
+                    className="h-11 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm shadow-xs transition-all gap-1.5 cursor-pointer"
                     onClick={() => handleGenderChange("F")}
                   >
-                    Feminino
+                    {gender === "F" && <Check className="h-4 w-4 shrink-0" />}
+                    <span>Feminino</span>
                   </Button>
                 </div>
               </div>

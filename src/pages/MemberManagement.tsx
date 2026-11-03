@@ -170,6 +170,22 @@ const formatPhone = (value: string) => {
     return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7, 11)}`;
 };
 
+const toFormGender = (g?: string | null): "masculino" | "feminino" | "" => {
+    if (!g) return "";
+    const v = g.toLowerCase().trim();
+    if (v === "f" || v === "feminino" || v === "mulher") return "feminino";
+    if (v === "m" || v === "masculino" || v === "homem") return "masculino";
+    return "";
+};
+
+const toDbGender = (g?: string | null): "M" | "F" | null => {
+    if (!g) return null;
+    const v = g.toLowerCase().trim();
+    if (v === "f" || v === "feminino" || v === "mulher") return "F";
+    if (v === "m" || v === "masculino" || v === "homem") return "M";
+    return null;
+};
+
 // Zod Schema para perfis provisórios/vinculados
 const phantomUserSchema = z.object({
     registrationType: z.enum(["adult", "child"]),
@@ -187,7 +203,7 @@ const phantomUserSchema = z.object({
     birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data de nascimento é obrigatória (AAAA-MM-DD)." }),
     isBaptized: z.boolean(),
     baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
-    gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
+    gender: z.union([z.enum(["masculino", "feminino"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
     homeGroupId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
     disciplerId: z.union([z.string().uuid(), z.literal("")]).optional().nullable(),
@@ -265,7 +281,7 @@ const linkToChurchSchema = z.object({
     ]).optional().nullable(),
     isBaptized: z.boolean(),
     baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
-    gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
+    gender: z.union([z.enum(["masculino", "feminino"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
 }).superRefine((data, ctx) => {
     if (!data.disciplerId && !data.customDisciplerName?.trim()) {
@@ -450,7 +466,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             birthDate: member.birth_date || "",
             isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || !isChild),
             baptismDate: member.baptism_date || "",
-            gender: (member.gender as any) || "",
+            gender: toFormGender(member.gender),
             maritalStatus: (member.marital_status as any) || "",
             homeGroupId: member.home_group_id || "",
             disciplerId: member.discipler_id || "",
@@ -499,7 +515,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             phone: member.phone || "",
             isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || true),
             baptismDate: member.baptism_date || "",
-            gender: (member.gender as any) || "",
+            gender: toFormGender(member.gender),
             maritalStatus: (member.marital_status as any) || "",
         });
         setIsLinkDialogOpen(true);
@@ -540,7 +556,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                     phone: data.phone || null,
                     is_baptized: data.isBaptized ?? Boolean(data.baptismDate),
                     baptism_date: data.isBaptized ? (data.baptismDate || null) : null,
-                    gender: data.gender || null,
+                    gender: toDbGender(data.gender),
                     marital_status: data.maritalStatus || null,
                 })
                 .eq("id", linkingMember.id);
@@ -621,7 +637,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             birth_date: data.birthDate,
             is_baptized: data.registrationType === "adult" ? Boolean(data.isBaptized) : false,
             baptism_date: data.registrationType === "adult" && data.isBaptized ? (data.baptismDate || null) : null,
-            gender: data.gender || null,
+            gender: toDbGender(data.gender),
             marital_status: data.registrationType === "adult" ? (data.maritalStatus || null) : null,
             home_group_id: data.homeGroupId || null,
             discipler_id: data.registrationType === "adult" ? (data.disciplerId || null) : null,
@@ -1057,7 +1073,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                     </div>
                                     {member.gender && (
                                         <div className="capitalize">
-                                            {member.gender}
+                                            {toFormGender(member.gender) === "feminino" ? "Feminino" : "Masculino"}
                                         </div>
                                     )}
                                 </div>
@@ -1240,7 +1256,6 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <option value="">Selecione...</option>
                                                 <option value="masculino">Masculino</option>
                                                 <option value="feminino">Feminino</option>
-                                                <option value="outro">Outro</option>
                                             </select>
                                             <FieldError errors={[fieldState.error]} />
                                         </Field>
@@ -1398,7 +1413,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 >
                                                     <option value="">Selecione o Discipulador...</option>
                                                     {members
-                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id) && (!watchedGender || m.gender === watchedGender))
+                                                        .filter(m => m.is_church_linked && (!selectedMember || m.id !== selectedMember.id) && (!watchedGender || toDbGender(m.gender) === toDbGender(watchedGender)))
                                                         .map(member => {
                                                             const group = member.home_group_id ? homeGroups.find(g => g.id === member.home_group_id) : null;
                                                             const groupLabel = group ? getGroupLabel(group) : (member.home_groups?.location_text || null);
@@ -1753,7 +1768,6 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 <option value="">Selecione...</option>
                                                 <option value="masculino">Masculino</option>
                                                 <option value="feminino">Feminino</option>
-                                                <option value="outro">Outro</option>
                                             </select>
                                             <FieldError errors={[fieldState.error]} />
                                         </Field>
