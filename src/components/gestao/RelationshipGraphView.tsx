@@ -2205,7 +2205,14 @@ export function RelationshipGraphView({
     const gNodes: GraphNode[] = linkedProfiles.map((p) => {
       const hg = p.home_group_id ? groupMap.get(p.home_group_id) : null
       const sectorObj = hg?.sector_id ? sectorMap.get(hg.sector_id) : null
-      const isChild = !p.baptism_date && !!(p.father_id || p.mother_id)
+      const isChild =
+        !p.is_baptized &&
+        !p.baptism_date &&
+        !!(p.father_id || p.mother_id) &&
+        !p.discipler_id &&
+        !p.spouse_id &&
+        !p.is_presbyter &&
+        !p.is_deacon
       const isPresbyter = !!p.is_presbyter
       const isPresbyterSpouse = !!(p.spouse_id && presbyterIds.has(p.spouse_id))
       const isDeacon = !!p.is_deacon

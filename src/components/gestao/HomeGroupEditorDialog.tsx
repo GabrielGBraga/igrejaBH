@@ -89,7 +89,7 @@ export function HomeGroupEditorDialog({
 
   const leader1Options = useMemo(() => {
     return allProfiles
-      .filter((p) => !p.father_id || !!p.baptism_date)
+      .filter((p) => !p.father_id || p.is_baptized || !!p.baptism_date)
       .map((p) => ({
         value: p.id,
         label: p.full_name,
@@ -103,7 +103,7 @@ export function HomeGroupEditorDialog({
     return [
       { value: "none", label: "Nenhum", keywords: "nenhum sem co-lider" },
       ...allProfiles
-        .filter((p) => (!p.father_id || !!p.baptism_date) && p.id !== leader1Id)
+        .filter((p) => (!p.father_id || p.is_baptized || !!p.baptism_date) && p.id !== leader1Id)
         .map((p) => ({
           value: p.id,
           label: p.full_name,
@@ -303,7 +303,7 @@ export function HomeGroupEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[90vh] sm:h-[85vh] max-h-[90vh] sm:max-h-[85vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
+      <DialogContent size="lg" className="max-h-[90dvh] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isEditing ? "Editar Dados do Grupo Caseiro" : "Novo Grupo Caseiro"}

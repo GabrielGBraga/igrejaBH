@@ -221,7 +221,7 @@ export default function SignUp() {
                 return;
             }
 
-            if (!result.has_baptism_date) {
+            if (!result.has_baptism_date && !result.is_baptized) {
                 setCpfError("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
                 return;
             }
@@ -406,7 +406,7 @@ export default function SignUp() {
                 throw new Error("Este CPF já está vinculado a um usuário registrado.");
             }
 
-            if (!check.has_baptism_date) {
+            if (!check.has_baptism_date && !check.is_baptized) {
                 throw new Error("Seu cadastro está pendente. É necessário que seu discipulador ou um líder de grupo caseiro atualize seu status para batizado antes de realizar o cadastro.");
             }
 
@@ -1335,7 +1335,7 @@ export default function SignUp() {
             )}
 
             <Dialog open={isCropping} onOpenChange={setIsCropping}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent size="lg">
                     <DialogHeader>
                         <DialogTitle>Ajustar Foto</DialogTitle>
                         <DialogDescription>

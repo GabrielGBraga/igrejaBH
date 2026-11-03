@@ -425,6 +425,7 @@ export type Database = {
           address_zip_code: string | null
           avatar_url: string | null
           baptism_date: string | null
+          is_baptized: boolean
           birth_date: string | null
           can_post: boolean | null
           cpf: string | null
@@ -464,6 +465,7 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
+          is_baptized?: boolean
           birth_date?: string | null
           can_post?: boolean | null
           cpf?: string | null
@@ -503,6 +505,7 @@ export type Database = {
           address_zip_code?: string | null
           avatar_url?: string | null
           baptism_date?: string | null
+          is_baptized?: boolean
           birth_date?: string | null
           can_post?: boolean | null
           cpf?: string | null
@@ -1042,6 +1045,7 @@ export type Database = {
           full_name: string
           gender: string
           has_baptism_date: boolean
+          is_baptized?: boolean
           household_income: string
           housing_status: string
           is_linked: boolean

@@ -44,7 +44,14 @@ export function DiscipleCard({
   onTransformChild,
   onTransformToLinked,
 }: DiscipleCardProps) {
-  const isChild = !!(disciple.father_id || disciple.mother_id) && !disciple.baptism_date
+  const isChild =
+    !disciple.is_baptized &&
+    !disciple.baptism_date &&
+    !!(disciple.father_id || disciple.mother_id) &&
+    !disciple.discipler_id &&
+    !disciple.spouse_id &&
+    !disciple.is_presbyter &&
+    !disciple.is_deacon
   const cleanPhone = disciple.phone?.replace(/\D/g, "")
   const hasPhone = !!cleanPhone && cleanPhone.length >= 10
   const whatsappUrl = hasPhone

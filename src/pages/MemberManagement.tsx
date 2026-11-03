@@ -185,6 +185,7 @@ const phantomUserSchema = z.object({
         z.literal("")
     ]).optional().nullable(),
     birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data de nascimento é obrigatória (AAAA-MM-DD)." }),
+    isBaptized: z.boolean(),
     baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
     gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
@@ -262,6 +263,7 @@ const linkToChurchSchema = z.object({
         }),
         z.literal("")
     ]).optional().nullable(),
+    isBaptized: z.boolean(),
     baptismDate: z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Data inválida (AAAA-MM-DD)." }), z.literal("")]).optional().nullable(),
     gender: z.union([z.enum(["masculino", "feminino", "outro"] as const), z.literal("")]).optional().nullable(),
     maritalStatus: z.union([z.enum(["solteiro", "casado", "divorciado", "viuvo"] as const), z.literal("")]).optional().nullable(),
@@ -318,6 +320,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             cpf: "",
             phone: "",
             birthDate: "",
+            isBaptized: true,
             baptismDate: "",
             gender: "",
             maritalStatus: "",
@@ -413,6 +416,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             cpf: "",
             phone: "",
             birthDate: "",
+            isBaptized: true,
             baptismDate: "",
             gender: "",
             maritalStatus: "",
@@ -431,7 +435,12 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             return;
         }
         setSelectedMember(member);
-        const isChild = !!(member.father_id || member.mother_id) && !member.baptism_date;
+        const isChild =
+            !member.is_baptized &&
+            !member.baptism_date &&
+            !!(member.father_id || member.mother_id) &&
+            !member.discipler_id &&
+            !member.spouse_id;
         form.reset({
             registrationType: isChild ? "child" : "adult",
             fullName: member.full_name,
@@ -439,6 +448,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             cpf: member.cpf || "",
             phone: member.phone || "",
             birthDate: member.birth_date || "",
+            isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || !isChild),
             baptismDate: member.baptism_date || "",
             gender: (member.gender as any) || "",
             maritalStatus: (member.marital_status as any) || "",
@@ -487,6 +497,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             disciplerId: member.discipler_id || "",
             customDisciplerName: member.custom_discipler_name || "",
             phone: member.phone || "",
+            isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || true),
             baptismDate: member.baptism_date || "",
             gender: (member.gender as any) || "",
             maritalStatus: (member.marital_status as any) || "",
@@ -527,7 +538,8 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                     discipler_id: data.disciplerId || null,
                     custom_discipler_name: !data.disciplerId && data.customDisciplerName?.trim() ? data.customDisciplerName.trim() : null,
                     phone: data.phone || null,
-                    baptism_date: data.baptismDate || null,
+                    is_baptized: data.isBaptized ?? Boolean(data.baptismDate),
+                    baptism_date: data.isBaptized ? (data.baptismDate || null) : null,
                     gender: data.gender || null,
                     marital_status: data.maritalStatus || null,
                 })
@@ -607,7 +619,8 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             cpf: data.cpf,
             phone: data.registrationType === "adult" ? (data.phone || null) : null,
             birth_date: data.birthDate,
-            baptism_date: data.registrationType === "adult" ? (data.baptismDate || null) : null, // não batizado se for criança
+            is_baptized: data.registrationType === "adult" ? Boolean(data.isBaptized) : false,
+            baptism_date: data.registrationType === "adult" && data.isBaptized ? (data.baptismDate || null) : null,
             gender: data.gender || null,
             marital_status: data.registrationType === "adult" ? (data.maritalStatus || null) : null,
             home_group_id: data.homeGroupId || null,
@@ -879,7 +892,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                                 Líder GC
                                             </span>
                                         )}
-                                        {!member.baptism_date && (member.father_id || member.mother_id) && (
+                                        {!member.is_baptized && !member.baptism_date && (member.father_id || member.mother_id) && !member.discipler_id && !member.spouse_id && (
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
                                                 Filho Não Batizado
                                             </span>
@@ -1082,7 +1095,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
 
             {/* Modal Dialog para Cadastro/Edição de Vinculados */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
+                <DialogContent size="lg" className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90dvh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
                             <UserCheckIcon className="w-5 h-5 text-primary" />
@@ -1282,25 +1295,64 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                 />
                             </div>
 
-                            {/* Data de Batismo (Apenas para Adultos) */}
+                            {/* Batismo (Apenas para Adultos) */}
                             {registrationType === "adult" && (
-                                <div>
+                                <div className="space-y-3">
                                     <Controller
-                                        name="baptismDate"
+                                        name="isBaptized"
                                         control={form.control}
-                                        render={({ field, fieldState }) => (
-                                            <Field data-invalid={fieldState.invalid}>
-                                                <FieldLabel>Data de Batismo</FieldLabel>
-                                                <Input 
-                                                    {...field}
-                                                    type="date"
-                                                    className="bg-background/50 rounded-xl"
-                                                    value={field.value || ""}
-                                                />
-                                                <FieldError errors={[fieldState.error]} />
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel>É Batizado nas Águas?</FieldLabel>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => field.onChange(true)}
+                                                        className={`min-h-[44px] flex-1 rounded-xl text-xs font-semibold px-4 py-2 border transition-all cursor-pointer ${
+                                                            field.value
+                                                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                                                : "bg-background/50 border-input text-muted-foreground hover:bg-muted/60"
+                                                        }`}
+                                                    >
+                                                        Sim
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            field.onChange(false);
+                                                            form.setValue("baptismDate", "");
+                                                        }}
+                                                        className={`min-h-[44px] flex-1 rounded-xl text-xs font-semibold px-4 py-2 border transition-all cursor-pointer ${
+                                                            !field.value
+                                                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                                                : "bg-background/50 border-input text-muted-foreground hover:bg-muted/60"
+                                                        }`}
+                                                    >
+                                                        Não
+                                                    </button>
+                                                </div>
                                             </Field>
                                         )}
                                     />
+
+                                    {form.watch("isBaptized") && (
+                                        <Controller
+                                            name="baptismDate"
+                                            control={form.control}
+                                            render={({ field, fieldState }) => (
+                                                <Field data-invalid={fieldState.invalid}>
+                                                    <FieldLabel>Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span></FieldLabel>
+                                                    <Input 
+                                                        {...field}
+                                                        type="date"
+                                                        className="bg-background/50 rounded-xl"
+                                                        value={field.value || ""}
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} />
+                                                </Field>
+                                            )}
+                                        />
+                                    )}
                                 </div>
                             )}
 
@@ -1459,7 +1511,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
 
             {/* Modal Dialog para Vincular Discípulo à Igreja */}
             <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
-                <DialogContent className="sm:max-w-xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90vh] overflow-y-auto">
+                <DialogContent size="lg" className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90dvh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
                             <UserCheckIcon className="w-5 h-5 text-emerald-600" />
@@ -1626,24 +1678,63 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                                 />
                             </div>
 
-                            {/* Data de Batismo */}
-                            <div>
+                            {/* Batismo */}
+                            <div className="space-y-3">
                                 <Controller
-                                    name="baptismDate"
+                                    name="isBaptized"
                                     control={linkForm.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel>Data de Batismo</FieldLabel>
-                                            <Input
-                                                {...field}
-                                                type="date"
-                                                className="bg-background/50 rounded-xl"
-                                                value={field.value || ""}
-                                            />
-                                            <FieldError errors={[fieldState.error]} />
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel>É Batizado nas Águas?</FieldLabel>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => field.onChange(true)}
+                                                    className={`min-h-[44px] flex-1 rounded-xl text-xs font-semibold px-4 py-2 border transition-all cursor-pointer ${
+                                                        field.value
+                                                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                                            : "bg-background/50 border-input text-muted-foreground hover:bg-muted/60"
+                                                    }`}
+                                                >
+                                                    Sim
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        field.onChange(false);
+                                                        linkForm.setValue("baptismDate", "");
+                                                    }}
+                                                    className={`min-h-[44px] flex-1 rounded-xl text-xs font-semibold px-4 py-2 border transition-all cursor-pointer ${
+                                                        !field.value
+                                                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                                            : "bg-background/50 border-input text-muted-foreground hover:bg-muted/60"
+                                                    }`}
+                                                >
+                                                    Não
+                                                </button>
+                                            </div>
                                         </Field>
                                     )}
                                 />
+
+                                {linkForm.watch("isBaptized") && (
+                                    <Controller
+                                        name="baptismDate"
+                                        control={linkForm.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel>Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span></FieldLabel>
+                                                <Input
+                                                    {...field}
+                                                    type="date"
+                                                    className="bg-background/50 rounded-xl"
+                                                    value={field.value || ""}
+                                                />
+                                                <FieldError errors={[fieldState.error]} />
+                                            </Field>
+                                        )}
+                                    />
+                                )}
                             </div>
 
                             {/* Gênero */}

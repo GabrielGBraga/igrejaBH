@@ -120,7 +120,7 @@ export function buildFamiliesForProfiles<T extends Profile>(profiles: T[]): Fami
       } else {
         // 4. Família individual ou sem vínculos diretos de parentesco
         const adultMen = familyMembers.filter(
-          (m) => m.gender === "M" && (!m.father_id || m.baptism_date)
+          (m) => m.gender === "M" && (!m.father_id || m.is_baptized || !!m.baptism_date)
         )
         head = adultMen.length > 0 ? adultMen[0] : familyMembers[0]
       }

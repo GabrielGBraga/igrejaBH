@@ -70,6 +70,8 @@ const DAYS_OF_WEEK = [
 ]
 
 const checkIsChild = (p: Profile) => {
+  if (p.is_baptized) return false
+  if (p.discipler_id || p.spouse_id || p.is_presbyter || p.is_deacon || p.is_dev) return false
   return !p.baptism_date && !!(p.father_id || p.mother_id)
 }
 
@@ -1501,7 +1503,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
       {/* ========================================================= */}
       {!singleGroupMode && isTier3 && (
         <Dialog open={isSectorDialogOpen} onOpenChange={setIsSectorDialogOpen}>
-          <DialogContent className="max-w-md rounded-2xl p-5">
+          <DialogContent size="md" className="rounded-2xl p-5 sm:p-6">
             <DialogHeader>
               <DialogTitle className="text-lg font-bold">Setores da Cidade</DialogTitle>
               <DialogDescription className="text-xs">

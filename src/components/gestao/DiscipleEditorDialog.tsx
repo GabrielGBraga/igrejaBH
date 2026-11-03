@@ -76,6 +76,8 @@ const formatPhone = (value: string) => {
 }
 
 const checkIsChild = (p: Profile) => {
+  if (p.is_baptized) return false
+  if (p.discipler_id || p.spouse_id || p.is_presbyter || p.is_deacon || p.is_dev) return false
   return !p.baptism_date && !!(p.father_id || p.mother_id)
 }
 
@@ -105,6 +107,7 @@ export function DiscipleEditorDialog({
 
   // Form State
   const [isChild, setIsChild] = useState<boolean>(false)
+  const [isBaptized, setIsBaptized] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>("")
   const [phone, setPhone] = useState<string>("")
   const [gender, setGender] = useState<"M" | "F">("M")
@@ -137,8 +140,10 @@ export function DiscipleEditorDialog({
         const isChildProfile = checkIsChild(disciple)
         const shouldTransform = Boolean(initialTransformToBaptized && isChildProfile)
         const shouldTransformLinked = Boolean(initialTransformToLinked || disciple.is_church_linked === false)
+        const calculatedIsChild = shouldTransform ? false : isChildProfile
 
-        setIsChild(shouldTransform ? false : isChildProfile)
+        setIsChild(calculatedIsChild)
+        setIsBaptized(disciple.is_baptized ?? (shouldTransform ? true : !calculatedIsChild))
         setFullName(disciple.full_name || "")
         setPhone(disciple.phone ? formatPhone(disciple.phone) : "")
         setGender(normalizeGender(disciple.gender))
@@ -175,6 +180,7 @@ export function DiscipleEditorDialog({
       } else {
         // Reset para novo cadastro
         setIsChild(false)
+        setIsBaptized(true)
         setFullName("")
         setPhone("")
         setGender("M")
@@ -466,12 +472,13 @@ export function DiscipleEditorDialog({
           !isChild && spouseId !== "none"
             ? "casado"
             : disciple?.marital_status || "solteiro",
-        father_id: isChild ? (fatherId !== "none" ? fatherId : null) : (disciple?.father_id || null),
-        mother_id: isChild ? (motherId !== "none" ? motherId : null) : (disciple?.mother_id || null),
+        father_id: isChild ? (fatherId !== "none" ? fatherId : null) : (fatherId !== "none" ? fatherId : disciple?.father_id || null),
+        mother_id: isChild ? (motherId !== "none" ? motherId : null) : (motherId !== "none" ? motherId : disciple?.mother_id || null),
         email: cleanEmail,
         cpf: cleanCPF,
         birth_date: cleanBirth,
-        baptism_date: finalBaptism,
+        is_baptized: !isChild && isBaptized,
+        baptism_date: !isChild && isBaptized ? finalBaptism : null,
         is_church_linked: isChurchLinked,
       }
 
@@ -594,7 +601,7 @@ export function DiscipleEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[92vh] sm:h-[88vh] max-h-[92vh] sm:max-h-[88vh] w-full max-w-[calc(100%-1.5rem)] sm:max-w-2xl md:max-w-3xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
+      <DialogContent size="xl" className="h-[92dvh] sm:h-[88dvh] max-h-[92dvh] sm:max-h-[88dvh] sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl flex flex-col p-0 overflow-hidden rounded-2xl gap-0 shadow-2xl">
         <DialogHeader className="px-5 py-4 sm:px-6 border-b border-border/60 shrink-0 bg-background/95 backdrop-blur-xs">
           <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             {isTransformingLinked
@@ -640,7 +647,10 @@ export function DiscipleEditorDialog({
                   type="button"
                   variant={!isChild ? "default" : "outline"}
                   className="h-12 min-h-[48px] gap-2 rounded-xl text-sm font-semibold transition-all shadow-xs"
-                  onClick={() => setIsChild(false)}
+                  onClick={() => {
+                    setIsChild(false)
+                    setIsBaptized(true)
+                  }}
                 >
                   <User className="h-4 w-4" />
                   <span>Adulto / Jovem</span>
@@ -649,7 +659,11 @@ export function DiscipleEditorDialog({
                   type="button"
                   variant={isChild ? "default" : "outline"}
                   className="h-12 min-h-[48px] gap-2 rounded-xl text-sm font-semibold transition-all shadow-xs"
-                  onClick={() => setIsChild(true)}
+                  onClick={() => {
+                    setIsChild(true)
+                    setIsBaptized(false)
+                    setBaptismDate("")
+                  }}
                 >
                   <Baby className="h-4 w-4" />
                   <span>Criança / Filho</span>
@@ -689,6 +703,7 @@ export function DiscipleEditorDialog({
                     type="button"
                     onClick={() => {
                       setIsChild(false)
+                      setIsBaptized(true)
                       if (!baptismDate) {
                         setBaptismDate(new Date().toISOString().split("T")[0])
                       }
@@ -704,6 +719,7 @@ export function DiscipleEditorDialog({
                     variant="outline"
                     onClick={() => {
                       setIsChild(true)
+                      setIsBaptized(false)
                       setBaptismDate("")
                     }}
                     className="h-11 min-h-[44px] shrink-0 gap-1 rounded-xl border-border text-xs font-medium text-muted-foreground hover:text-foreground"
@@ -1005,18 +1021,51 @@ export function DiscipleEditorDialog({
                 )}
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="baptismDate" className="text-xs font-medium text-foreground">
-                      Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span>
-                    </Label>
-                    <Input
-                      id="baptismDate"
-                      type="date"
-                      value={baptismDate}
-                      onChange={(e) => setBaptismDate(e.target.value)}
-                      className="h-11 min-h-[44px] rounded-xl text-sm"
-                    />
-                  </div>
+                  {!isChild && (
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label className="text-xs font-medium text-foreground">
+                        É batizado nas águas?
+                      </Label>
+                      <div className="flex items-center gap-2 max-w-xs">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={isBaptized ? "default" : "outline"}
+                          onClick={() => setIsBaptized(true)}
+                          className="h-11 min-h-[44px] flex-1 text-xs font-semibold rounded-xl"
+                        >
+                          Sim
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={!isBaptized ? "default" : "outline"}
+                          onClick={() => {
+                            setIsBaptized(false)
+                            setBaptismDate("")
+                          }}
+                          className="h-11 min-h-[44px] flex-1 text-xs font-semibold rounded-xl"
+                        >
+                          Não
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {!isChild && isBaptized && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="baptismDate" className="text-xs font-medium text-foreground">
+                        Data de Batismo <span className="text-muted-foreground font-normal">(Opcional)</span>
+                      </Label>
+                      <Input
+                        id="baptismDate"
+                        type="date"
+                        value={baptismDate}
+                        onChange={(e) => setBaptismDate(e.target.value)}
+                        className="h-11 min-h-[44px] rounded-xl text-sm"
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-1.5">
                     <Label htmlFor="cpf" className="text-xs font-medium text-foreground">

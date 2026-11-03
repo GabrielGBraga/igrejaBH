@@ -443,6 +443,7 @@ activeDisciples.forEach((d) => {
   let avatarUrl = null;
   let bDate = null;
   let baptDate = null;
+  const isBaptized = d.Batizado === 'Sim' || d.Situação === 'Vinculado';
 
   let isDev = false;
   let isPresbyter = false;
@@ -513,13 +514,13 @@ activeDisciples.forEach((d) => {
   const customDiscSql = customDiscName ? escapeSql(customDiscName) : 'NULL';
 
   sqlChunks.push(`  INSERT INTO public.profiles (
-    id, full_name, email, cpf, phone, birth_date, baptism_date, gender,
+    id, full_name, email, cpf, phone, birth_date, baptism_date, is_baptized, gender,
     home_group_id, is_church_linked, is_presbyter, is_deacon, is_dev, can_post,
     marital_status, address_neighborhood, address_city, address_state,
     occupation, education_level, employment_status, household_income, housing_status,
     avatar_url, custom_discipler_name, created_at
   ) VALUES (
-    '${pId}', ${escapeSql(fullName)}, ${emailSql}, ${cpfSql}, ${phoneSql}, ${bDateSql}, ${baptSql}, '${genderCode}',
+    '${pId}', ${escapeSql(fullName)}, ${emailSql}, ${cpfSql}, ${phoneSql}, ${bDateSql}, ${baptSql}, ${isBaptized}, '${genderCode}',
     '${gId}', true, ${isPresbyter}, ${isDeacon}, ${isDev}, ${canPost},
     ${escapeSql(mar)}, ${neighSql}, 'Belo Horizonte', 'MG',
     ${occSql}, ${eduSql}, ${empSql}, ${incSql}, ${housSql},

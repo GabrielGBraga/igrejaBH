@@ -81,6 +81,7 @@ export interface ChildProfile {
   avatar_url?: string | null
   birth_date?: string | null
   baptism_date?: string | null
+  is_baptized?: boolean
   gender?: string | null
   user_id?: string | null
   phone?: string | null
@@ -107,6 +108,7 @@ interface UserProfile {
   address_city?: string
   address_state?: string
   address_zip_code?: string
+  is_baptized?: boolean
   baptism_date?: string
   home_group_id?: string
   discipler_id?: string
@@ -233,7 +235,7 @@ export default function Profile() {
         try {
           const { data: childrenData, error: childrenError } = await supabase
             .from("profiles")
-            .select("id, full_name, avatar_url, birth_date, baptism_date, gender, user_id, phone")
+            .select("id, full_name, avatar_url, birth_date, baptism_date, is_baptized, gender, user_id, phone")
             .or(`father_id.eq.${data.id},mother_id.eq.${data.id}`)
             .order("birth_date", { ascending: true })
 
@@ -265,6 +267,7 @@ export default function Profile() {
           address_city: data.address_city || undefined,
           address_state: data.address_state || undefined,
           address_zip_code: data.address_zip_code || undefined,
+          is_baptized: data.is_baptized ?? (Boolean(data.baptism_date) || false),
           baptism_date: data.baptism_date || undefined,
           home_group_id: data.home_group_id || undefined,
           discipler_id: data.discipler_id || undefined,
@@ -961,7 +964,7 @@ export default function Profile() {
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0 ml-2">
-                              {child.baptism_date ? (
+                              {child.is_baptized || child.baptism_date ? (
                                 <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-500/20 dark:text-emerald-400">
                                   Batizado(a)
                                 </span>
@@ -1047,7 +1050,13 @@ export default function Profile() {
               <InfoSection title="Vida Eclesiástica" icon={UsersIcon}>
                 <InfoItem
                   label="Batismo"
-                  value={formatDate(profile.baptism_date)}
+                  value={
+                    profile.is_baptized
+                      ? profile.baptism_date
+                        ? formatDate(profile.baptism_date)
+                        : "Sim (Data não informada)"
+                      : "Não batizado"
+                  }
                   icon={CalendarIcon}
                 />
                 <InfoItem
@@ -1127,7 +1136,7 @@ export default function Profile() {
       {/* Dialogs */}
       {/* Dialog Editar Informações Pessoais */}
       <Dialog open={isEditingPersonal} onOpenChange={setIsEditingPersonal}>
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-md">
+        <DialogContent size="md" className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Editar Informações Pessoais</DialogTitle>
             <DialogDescription>
@@ -1213,7 +1222,7 @@ export default function Profile() {
       />
 
       <Dialog open={isEditingContact} onOpenChange={setIsEditingContact}>
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
+        <DialogContent size="md" className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Editar Contato</DialogTitle>
             <DialogDescription>
@@ -1255,7 +1264,7 @@ export default function Profile() {
       </Dialog>
 
       <Dialog open={isEditingFamily} onOpenChange={setIsEditingFamily}>
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-md">
+        <DialogContent size="lg" className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Vínculos Familiares</DialogTitle>
             <DialogDescription>
@@ -1432,7 +1441,7 @@ export default function Profile() {
       </Dialog>
 
       <Dialog open={isEditingAddress} onOpenChange={setIsEditingAddress}>
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-md">
+        <DialogContent size="md" className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Editar Endereço</DialogTitle>
             <DialogDescription>
@@ -1588,10 +1597,8 @@ export default function Profile() {
         }}
       >
         <DialogContent
-          className={cn(
-            "rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl",
-            isCropping ? "sm:max-w-[425px]" : ""
-          )}
+          size={isCropping ? "lg" : "md"}
+          className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl"
         >
           <DialogHeader>
             <DialogTitle>
@@ -1673,7 +1680,7 @@ export default function Profile() {
         open={isEditingSocioEconomic}
         onOpenChange={setIsEditingSocioEconomic}
       >
-        <DialogContent className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl sm:max-w-lg">
+        <DialogContent size="lg" className="rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Informações Socioeconômicas</DialogTitle>
             <DialogDescription>
