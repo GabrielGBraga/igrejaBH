@@ -457,72 +457,40 @@ activeDisciples.forEach((d) => {
   let mar = isKid ? 'Solteiro(a)' : (spouseMap.has(pId) ? 'Casado(a)' : 'Solteiro(a)');
   let neigh = d.Bairro && d.Bairro.trim() ? d.Bairro.trim() : null;
 
+  // Fidelidade estrita ao CSV: data de nascimento somente quando preenchida na planilha
+  if (d['Data de Nascimento'] && d['Data de Nascimento'].includes('/')) {
+    const parts = d['Data de Nascimento'].split('/');
+    if (parts.length === 3) {
+      bDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    }
+  }
+
+  // Configuração exclusiva das 3 contas de autenticação solicitadas pelo usuário:
+  // 1. Gabriel Góes Braga: email ggoesbraga@gmail.com, permissão de dev SOMENTE (is_dev = true).
+  // 2. Fernando Gomes Braga: email fgb80@yahoo.com, permissão de presbítero (is_presbyter = true).
+  // 3. Clara Góes Braga: email claradiscipula@gmail.com, sem permissões administrativas.
+  // SEM fotos de perfil (avatar_url = NULL para todos) e SEM invenção de dados fictícios.
   if (isGabriel) {
     fullName = 'Gabriel Góes Braga';
     email = 'ggoesbraga@gmail.com';
-    phoneVal = '(31) 99888-7777';
-    cpfVal = '132.507.246-02';
-    bDate = '1995-07-08';
-    baptDate = '2012-06-15';
-    avatarUrl = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80';
     isDev = true;
     isPresbyter = false;
     isDeacon = false;
     canPost = true;
-    occ = 'Desenvolvedor de Software';
-    edu = 'Ensino Superior';
-    emp = 'CLT';
-    inc = 'mais de 5 salários mínimos';
-    hous = 'Própria';
-    mar = 'Solteiro(a)';
-    neigh = 'Heliópolis';
   } else if (isFernando) {
     fullName = 'Fernando Gomes Braga';
     email = 'fgb80@yahoo.com';
-    phoneVal = '(31) 99123-4567';
-    cpfVal = '103.821.540-52';
-    bDate = '1966-04-12';
-    baptDate = '1984-06-20';
-    avatarUrl = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80';
     isPresbyter = true;
     isDev = false;
     isDeacon = false;
     canPost = true;
-    occ = 'Administrador';
-    edu = 'Ensino Superior';
-    emp = 'Empresário';
-    inc = 'mais de 5 salários mínimos';
-    hous = 'Própria';
-    mar = 'Casado(a)';
-    neigh = 'Heliópolis';
   } else if (isClara) {
     fullName = 'Clara Góes Braga';
     email = 'claradiscipula@gmail.com';
-    phoneVal = '(31) 99123-4568';
-    cpfVal = '167.370.473-66';
-    bDate = '1968-09-15';
-    baptDate = '1986-11-10';
-    avatarUrl = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80';
     isPresbyter = false;
     isDev = false;
     isDeacon = false;
     canPost = false;
-    occ = 'Professora de Ensino Básico';
-    edu = 'Ensino Superior';
-    emp = 'CLT';
-    inc = 'mais de 5 salários mínimos';
-    hous = 'Própria';
-    mar = 'Casado(a)';
-    neigh = 'Heliópolis';
-  } else {
-    // Para todos os outros discípulos: fidelidade estrita à planilha
-    // Somente data de nascimento se constar expressamente no CSV (ex: 4 registros)
-    if (d['Data de Nascimento'] && d['Data de Nascimento'].includes('/')) {
-      const parts = d['Data de Nascimento'].split('/');
-      if (parts.length === 3) {
-        bDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-      }
-    }
   }
 
   const emailSql = email ? escapeSql(email) : 'NULL';
@@ -574,19 +542,19 @@ sqlChunks.push(`
     (
       gabriel_auth_id, '00000000-0000-0000-0000-000000000000', 'ggoesbraga@gmail.com', pwd_hash, now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      jsonb_build_object('full_name', 'Gabriel Góes Braga', 'cpf', '132.507.246-02'),
+      jsonb_build_object('full_name', 'Gabriel Góes Braga'),
       now(), now(), 'authenticated', 'authenticated', '', '', '', ''
     ),
     (
       fernando_auth_id, '00000000-0000-0000-0000-000000000000', 'fgb80@yahoo.com', pwd_hash, now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      jsonb_build_object('full_name', 'Fernando Gomes Braga', 'cpf', '103.821.540-52'),
+      jsonb_build_object('full_name', 'Fernando Gomes Braga'),
       now(), now(), 'authenticated', 'authenticated', '', '', '', ''
     ),
     (
       clara_auth_id, '00000000-0000-0000-0000-000000000000', 'claradiscipula@gmail.com', pwd_hash, now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      jsonb_build_object('full_name', 'Clara Góes Braga', 'cpf', '167.370.473-66'),
+      jsonb_build_object('full_name', 'Clara Góes Braga'),
       now(), now(), 'authenticated', 'authenticated', '', '', '', ''
     );
 
@@ -968,11 +936,6 @@ sqlChunks.push(`
     (r_retreat_active, 'LOUVOR100', 100, 'louvor', false, 'Isenção integral para equipe de louvor e instrumentos'),
     (r_retreat_active, 'DIACONIA50', 50, 'cozinha', false, 'Desconto especial para equipe voluntária da cozinha e apoio'),
     (r_retreat_active, 'JOVEM20', 20, 'geral', false, 'Cupom de incentivo aos jovens estudantes');
-
-  INSERT INTO public.event_waitlist (retreat_id, full_name, email, phone, travel_mode, notes, status)
-  VALUES 
-    (r_retreat_active, 'Tiago Guimarães Alencar', 'tiago.guimaraes@email.com', '(31) 98765-4321', 'carro_proprio', 'Disponível para dar carona a até 3 pessoas saindo do Barreiro', 'aguardando'),
-    (r_retreat_active, 'Camila Rocha Viana', 'camila.rocha@email.com', '(31) 99123-4567', 'onibus_igreja', 'Depende de vaga no ônibus que sai do São Gabriel', 'chamado');
 `);
 
 // Inscrições nos retiros: APENAS a inscrição real de Gabriel Góes Braga
@@ -980,7 +943,7 @@ sqlChunks.push(`
   -- ==========================================================================
   -- 14. INSCRIÇÕES OFICIAIS NOS RETIROS
   -- Nenhuma inscrição fictícia é gerada para discípulos das planilhas.
-  -- Inscrição real de Gabriel Góes Braga no Retiro de Solteiros e Carnaval.
+  -- Inscrição de Gabriel Góes Braga no Retiro de Solteiros e Carnaval.
   -- ==========================================================================
   
   -- Retiro Ativo (Solteiros e Jovens 2026)
@@ -991,10 +954,10 @@ sqlChunks.push(`
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '(31) 99888-7777',
+      'mandatory_phone', '',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
-      'mandatory_birth_date', '1995-07-08',
+      'mandatory_birth_date', '2008-04-02',
       'tamanho_camiseta', 'G',
       'transporte', 'Não',
       'restricoes_alimentares', 'Nenhuma'
@@ -1019,17 +982,17 @@ sqlChunks.push(`
     'Chalé Aliança 01',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
+      'email', 'ggoesbraga@gmail.com', 'phone', '',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
-      'birthDate', '1995-07-08'
+      'birthDate', '2008-04-02'
     ),
     jsonb_build_object(
       'Nome Completo', 'Gabriel Góes Braga',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '(31) 99888-7777',
+      'Telefone / WhatsApp', '',
       'Sexo / Gênero', 'Masculino',
       'Cidade / Estado', 'Belo Horizonte / MG',
-      'Data de Nascimento / Idade', '1995-07-08',
+      'Data de Nascimento / Idade', '2008-04-02',
       'Tamanho da Camiseta', 'G',
       'Precisa de Transporte?', 'Não',
       'Restrições Alimentares', 'Nenhuma'
@@ -1044,10 +1007,10 @@ sqlChunks.push(`
     jsonb_build_object(
       'mandatory_full_name', 'Gabriel Góes Braga',
       'mandatory_email', 'ggoesbraga@gmail.com',
-      'mandatory_phone', '(31) 99888-7777',
+      'mandatory_phone', '',
       'mandatory_gender', 'Masculino',
       'mandatory_city_state', 'Belo Horizonte / MG',
-      'mandatory_birth_date', '1995-07-08'
+      'mandatory_birth_date', '2008-04-02'
     ),
     gabriel_auth_id,
     now() - INTERVAL '240 days'
@@ -1069,16 +1032,16 @@ sqlChunks.push(`
     'Alojamento Getsêmani',
     jsonb_build_object(
       'fullName', 'Gabriel Góes Braga', 'full_name', 'Gabriel Góes Braga',
-      'email', 'ggoesbraga@gmail.com', 'phone', '(31) 99888-7777',
+      'email', 'ggoesbraga@gmail.com', 'phone', '',
       'gender', 'Masculino', 'cityState', 'Belo Horizonte / MG', 'city_state', 'Belo Horizonte / MG',
-      'birthDate', '1995-07-08'
+      'birthDate', '2008-04-02'
     ),
     jsonb_build_object(
       'Nome Completo', 'Gabriel Góes Braga',
       'Sexo / Gênero', 'Masculino',
       'E-mail', 'ggoesbraga@gmail.com',
-      'Telefone / WhatsApp', '(31) 99888-7777',
-      'Data de Nascimento / Idade', '1995-07-08'
+      'Telefone / WhatsApp', '',
+      'Data de Nascimento / Idade', '2008-04-02'
     )
   ) ON CONFLICT DO NOTHING;
 

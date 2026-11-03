@@ -108,7 +108,8 @@ async function verify() {
       count(*) FILTER (WHERE email IS NULL) as no_email_count,
       count(*) FILTER (WHERE email IS NOT NULL) as with_email_count,
       count(*) FILTER (WHERE cpf IS NULL) as no_cpf_count,
-      count(*) FILTER (WHERE cpf IS NOT NULL) as with_cpf_count
+      count(*) FILTER (WHERE cpf IS NOT NULL) as with_cpf_count,
+      count(*) FILTER (WHERE avatar_url IS NOT NULL) as avatar_count
     FROM public.profiles;
   `);
   console.log('\nPerfis Fantasmas vs Autenticados:');
