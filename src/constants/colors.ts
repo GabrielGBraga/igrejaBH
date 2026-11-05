@@ -531,20 +531,20 @@ export const SERVICE_TEAM_COLORS: Record<
 // ==========================================
 export const THEME_SWITCH_COLORS = {
   light: {
-    trackBg: "rgba(254, 243, 199, 0.7)", // amber-100/70
-    trackBorder: "rgba(253, 230, 138, 0.8)", // amber-200/80
+    trackBg: "rgba(244, 239, 230, 0.6)", // muted/60 (integrado ao fundo da página)
+    trackBorder: "rgba(229, 231, 235, 0.8)", // border/80
     thumbBg: "#ffffff",
-    thumbBorder: "rgba(252, 211, 77, 0.9)", // amber-300
-    sunIcon: "#92400e", // amber-800 (AAA contrast on white)
-    cloudColor: "rgba(180, 83, 9, 0.4)", // amber-700/40
+    thumbBorder: "rgba(229, 231, 235, 0.7)", // border/70
+    sunIcon: "#d97706", // amber-600
+    cloudColor: "rgba(113, 113, 122, 0.35)", // zinc-500/35
   },
   dark: {
-    trackBg: "rgba(24, 24, 27, 0.95)", // zinc-900/95
+    trackBg: "rgba(24, 24, 27, 0.85)", // zinc-900/85 (integrado ao card da sidebar)
     trackBorder: "rgba(63, 63, 70, 0.8)", // zinc-700/80
     thumbBg: "#27272a", // zinc-800
     thumbBorder: "#3f3f46", // zinc-700
     moonIcon: "#fbbf24", // amber-400 (AAA contrast on dark)
-    starColor: "rgba(254, 240, 138, 0.9)", // yellow-200
+    starColor: "rgba(254, 240, 138, 0.6)", // yellow-200/60
   },
 } as const;
 

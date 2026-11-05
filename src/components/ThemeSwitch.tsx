@@ -10,14 +10,14 @@ export interface ThemeSwitchProps
 
 /**
  * Switch com animação fluida para alternância de tema Claro / Escuro.
- * Utiliza Radix UI Switch Primitive para total acessibilidade (ARIA, foco e teclado),
- * com animação orgânica de translação cúbica (spring physics), squash & stretch ao clicar,
- * transição rotacional entre Sol e Lua e detalhes sutis de dia (nuvem) e noite (estrelas).
+ * Design sóbrio e elegante que se integra naturalmente ao visual da página:
+ * perfil esbelto e baixo (altura de 32px), trilho alongado, física de mola (spring),
+ * squash & stretch tátil, transição rotacional Sol/Lua e detalhes refinados de dia e noite.
  */
 export const ThemeSwitch = React.forwardRef<
   React.ComponentRef<typeof SwitchPrimitive.Root>,
   ThemeSwitchProps
->(({ className, checked, onCheckedChange, size = "md", ...props }, ref) => {
+>(({ className, checked, onCheckedChange, size = "lg", ...props }, ref) => {
   const isDark = Boolean(checked)
 
   return (
@@ -32,35 +32,34 @@ export const ThemeSwitch = React.forwardRef<
         (isDark ? "Alternar para modo claro" : "Alternar para modo escuro")
       }
       className={cn(
-        "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full border transition-all duration-500 ease-out",
+        "group relative inline-flex shrink-0 cursor-pointer items-center rounded-full border transition-all duration-400 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        // Expande a área de toque para garantir o padrão mínimo de 44x44px
+        // Expande o alvo de toque para além de 44x44px
         "before:absolute before:-inset-2 before:content-['']",
-        // Sizes (Track)
+        // Sizes (Perfil esbelto: altura contida de 28px/32px com largura alongada)
         size === "sm" && "h-7 w-12 p-1",
-        size === "md" && "h-8 w-14 p-1",
-        size === "lg" && "h-10 w-20 p-1",
-        size === "xl" && "h-11 w-24 p-1",
-        // Track appearance
+        size === "md" && "h-8 w-16 p-1",
+        size === "lg" && "h-8 w-28 p-1",
+        size === "xl" && "h-8 w-32 p-1",
+        // Track appearance: Cores neutras e sutis integradas à página (Anti-AI Slop)
         isDark
-          ? "border-zinc-700/80 bg-zinc-900/95 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]"
-          : "border-amber-200/80 bg-amber-100/70 shadow-[inset_0_2px_4px_rgba(245,158,11,0.15)]",
+          ? "border-zinc-800 bg-zinc-900/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)]"
+          : "border-border/80 bg-muted/70 hover:bg-muted shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]",
         className
       )}
       {...props}
     >
-      {/* Elementos decorativos no trilho: Estrelas da noite (visíveis no modo escuro) */}
+      {/* Elementos decorativos no trilho: Estrelas da noite sutis (visíveis no modo escuro) */}
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute text-amber-200/90 transition-all duration-500 ease-out motion-reduce:transition-none motion-reduce:transform-none",
-          size === "sm" && "size-2 left-2 top-2",
-          size === "md" && "size-2 left-2 top-2",
-          size === "lg" && "size-2.5 left-2.5 top-2.5",
-          size === "xl" && "size-3 left-3 top-2.5",
+          "pointer-events-none absolute text-amber-300/70 transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
+          (size === "sm" || size === "md") && "size-2 left-2 top-2",
+          size === "lg" && "size-2.5 left-3 top-2",
+          size === "xl" && "size-2.5 left-3.5 top-2",
           isDark
-            ? "scale-100 opacity-100 delay-100 rotate-0"
+            ? "scale-100 opacity-100 delay-75 rotate-0"
             : "scale-0 opacity-0 -rotate-45 -translate-x-1"
         )}
       >
@@ -72,13 +71,12 @@ export const ThemeSwitch = React.forwardRef<
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute rounded-full bg-amber-100/90 transition-all duration-500 ease-out motion-reduce:transition-none motion-reduce:transform-none",
-          size === "sm" && "size-1 left-3.5 bottom-1.5",
-          size === "md" && "size-1 left-3.5 bottom-1.5",
-          size === "lg" && "size-1.5 left-4.5 bottom-2",
-          size === "xl" && "size-1.5 left-5.5 bottom-2.5",
+          "pointer-events-none absolute rounded-full bg-amber-100/70 transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
+          (size === "sm" || size === "md") && "size-1 left-3.5 bottom-1.5",
+          size === "lg" && "size-1 left-6 bottom-2",
+          size === "xl" && "size-1 left-7 bottom-2",
           isDark
-            ? "scale-100 opacity-100 delay-150"
+            ? "scale-100 opacity-100 delay-100"
             : "scale-0 opacity-0 -translate-x-1"
         )}
       />
@@ -86,13 +84,12 @@ export const ThemeSwitch = React.forwardRef<
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute rounded-full bg-amber-200/90 transition-all duration-500 ease-out motion-reduce:transition-none motion-reduce:transform-none",
-          size === "sm" && "size-0.5 left-1.5 bottom-2",
-          size === "md" && "size-0.5 left-1.5 bottom-2",
-          size === "lg" && "size-1 left-2 bottom-2.5",
-          size === "xl" && "size-1 left-2.5 bottom-3",
+          "pointer-events-none absolute rounded-full bg-amber-200/60 transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
+          (size === "sm" || size === "md") && "size-0.5 left-1.5 bottom-2",
+          size === "lg" && "size-0.5 left-2.5 bottom-2",
+          size === "xl" && "size-0.5 left-3 bottom-2",
           isDark
-            ? "scale-100 opacity-100 delay-200"
+            ? "scale-100 opacity-100 delay-150"
             : "scale-0 opacity-0"
         )}
       />
@@ -101,11 +98,11 @@ export const ThemeSwitch = React.forwardRef<
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute text-amber-600/40 transition-all duration-500 ease-out motion-reduce:transition-none motion-reduce:transform-none",
+          "pointer-events-none absolute text-muted-foreground/35 transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
           size === "sm" && "size-3.5 right-1.5",
-          size === "md" && "size-3.5 right-1.5",
-          size === "lg" && "size-4.5 right-2",
-          size === "xl" && "size-5.5 right-2.5",
+          size === "md" && "size-3.5 right-2",
+          size === "lg" && "size-4 right-3",
+          size === "xl" && "size-4 right-3.5",
           isDark
             ? "scale-0 opacity-0 translate-x-2"
             : "scale-100 opacity-100 translate-x-0"
@@ -121,20 +118,20 @@ export const ThemeSwitch = React.forwardRef<
         data-theme-transition
         data-slot="theme-switch-thumb"
         className={cn(
-          "pointer-events-none relative flex items-center justify-center rounded-full transition-all duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+          "pointer-events-none relative flex items-center justify-center rounded-full transition-all duration-400 ease-[cubic-bezier(0.34,1.3,0.64,1)]",
           // Sizes & Translations
           size === "sm" &&
             "size-5 data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
           size === "md" &&
-            "size-6 data-[state=checked]:translate-x-6 data-[state=unchecked]:translate-x-0",
+            "size-6 data-[state=checked]:translate-x-8 data-[state=unchecked]:translate-x-0",
           size === "lg" &&
-            "size-8 data-[state=checked]:translate-x-10 data-[state=unchecked]:translate-x-0",
+            "size-6 data-[state=checked]:translate-x-20 data-[state=unchecked]:translate-x-0",
           size === "xl" &&
-            "size-9 data-[state=checked]:translate-x-[52px] data-[state=unchecked]:translate-x-0",
-          // Appearance
+            "size-6 data-[state=checked]:translate-x-24 data-[state=unchecked]:translate-x-0",
+          // Appearance: Visual clean e sutil que se integra perfeitamente à página
           isDark
-            ? "border border-zinc-700 bg-zinc-800 text-[#fbbf24] shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-            : "border border-amber-200/90 bg-white text-[#92400e] shadow-[0_2px_8px_rgba(245,158,11,0.25)]",
+            ? "border border-zinc-700 bg-zinc-800 text-zinc-100 shadow-xs"
+            : "border border-border/80 bg-background text-foreground shadow-xs",
           // Squash and stretch ao pressionar
           "group-active:scale-x-110 group-active:scale-y-95",
           "motion-reduce:transition-none motion-reduce:transform-none"
@@ -143,11 +140,7 @@ export const ThemeSwitch = React.forwardRef<
         {/* Ícone de Sol */}
         <Sun
           className={cn(
-            "transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
-            size === "sm" && "size-3",
-            size === "md" && "size-3.5",
-            size === "lg" && "size-4.5",
-            size === "xl" && "size-5",
+            "size-3.5 text-amber-600 dark:text-amber-400 transition-all duration-350 ease-out motion-reduce:transition-none motion-reduce:transform-none",
             isDark
               ? "scale-0 rotate-180 opacity-0"
               : "scale-100 rotate-0 opacity-100"
@@ -157,11 +150,7 @@ export const ThemeSwitch = React.forwardRef<
         {/* Ícone de Lua */}
         <Moon
           className={cn(
-            "absolute transition-all duration-400 ease-out motion-reduce:transition-none motion-reduce:transform-none",
-            size === "sm" && "size-3",
-            size === "md" && "size-3.5",
-            size === "lg" && "size-4.5",
-            size === "xl" && "size-5",
+            "absolute size-3.5 text-amber-400 transition-all duration-350 ease-out motion-reduce:transition-none motion-reduce:transform-none",
             isDark
               ? "scale-100 rotate-0 opacity-100"
               : "scale-0 -rotate-180 opacity-0"

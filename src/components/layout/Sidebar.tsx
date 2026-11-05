@@ -208,7 +208,7 @@ export function Sidebar() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <ThemeSwitch
-                    size="xl"
+                    size="lg"
                     checked={isDark}
                     onCheckedChange={toggleTheme}
                     aria-label={
