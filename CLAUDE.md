@@ -51,6 +51,7 @@ Você é um agente encarregado de criar componentes (React, Tailwind, shadcn/ui)
 ### 8. Higiene Visual e Arquitetura Anti-Clichês de IA (Anti-AI Slop)
 * **Banimento de Clichês Visuais:** É proibido usar o ícone `Sparkles` (`✨`), gradientes coloridos de Bento Grid SaaS (`from-emerald-...`, `from-amber-...`, `from-teal-...`), empilhamento de badges/kickers/hashtags ou molduras decorativas de pôster (logos repetidos dentro de cards, badges não-clicáveis com verbos de ação, rodapés internos repetindo datas).
 * **Fluxo Único e Rotas Públicas Seguras:** Nunca crie botões concorrentes que abram formulários de contato duplicados na mesma seção. Nunca aponte CTAs de páginas públicas para rotas protegidas por `<ProtectedRoute>` (como `/eventos`).
+* **Headers Sóbrios e Concisos:** Nunca crie cabeçalhos prolixos com jargões corporativos/LMS ou que listem recursos da tela em subtítulos. Nunca empilhe badges/kickers com versículos ou ícones decorativos sobre o `<h1>`. Use títulos diretos (ex: *"Ensinos"*) e descrições breves.
 * **Copywriting Limpo:** Nunca use a palavra *"instituição"* para descrever a igreja, nunca vaze termos do banco de dados na UI (ex: *"Publicações Públicas"*), nunca use links *"clique aqui"* e nunca insira links de redes sociais apontando para domínios genéricos (`youtube.com`, `instagram.com`).
 
 ---

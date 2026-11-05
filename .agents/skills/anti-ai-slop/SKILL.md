@@ -40,6 +40,7 @@ Inspect the target page and all its subcomponents against these 5 pillars:
 - [ ] **No Misplaced Internal Widgets:** Verify that member-only or internal tracking tools (e.g., full daily catechism study modules with curriculum track badges and WhatsApp sharing utilities) are located on internal dashboards (`/dashboard` or `/ensinos`), not cluttering visitor hero sections.
 
 ### D. Copywriting & Theological Alignment
+- [ ] **No Verbose / Feature-Listing Headers:** Avoid run-on subtitles that catalog every feature using corporate e-learning jargon (e.g., *"Trilhas de aprendizado, acervo bíblico e anotações..."*). Keep headers clean, confident, and direct without decorative pill badges or floating verse citations stacked above the `<h1>`.
 - [ ] **No Forbidden Institutional Vocabulary:** Check for words like *"membros"*, *"instituição"*, or phrases like *"nossa existência enquanto instituição"*. Use *"discípulos"*, *"irmãos"*, *"comunhão local"*, or *"presença na cidade"*.
 - [ ] **No Leaked Database Schema:** Ensure internal database column states (like `is_public = true`) are not exposed as titles (e.g., avoid *"Últimas Publicações Públicas"* in favor of natural phrasing like *"Comunicados e Estudos Recentes"*).
 - [ ] **No Outdated "Clique Aqui":** Avoid hiding core convictions or history behind lazy *"clique aqui"* modal links. Present principles directly on the page in a clean editorial grid.
