@@ -1097,7 +1097,7 @@ export default function FormBuilder() {
             <div>
               <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-foreground">
                 <ClipboardList className="h-8 w-8 text-primary" />
-                Gerenciador de Formulários
+                Formulários
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Crie e configure formulários dinâmicos para a vida comunitária,
