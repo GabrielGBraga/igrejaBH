@@ -1,6 +1,8 @@
+import { marked } from "marked";
+
 /**
  * Bidirectional parsing helpers: Markdown <-> HTML
- * Supports semantic HTML imported from external converters as well as standard Markdown.
+ * Supports semantic HTML imported from external converters as well as standard CommonMark / GFM.
  */
 
 export function escapeHtml(text: string): string {
@@ -13,7 +15,8 @@ export function escapeHtml(text: string): string {
 }
 
 /**
- * Checks whether the given string is primarily structured HTML content
+ * Checks whether the given string is primarily structured, complete HTML content
+ * (e.g. imported from Word, LibreOffice, or an HTML template) rather than Markdown with embedded HTML.
  */
 export function isHtmlContent(content: string): boolean {
     if (!content) return false;
@@ -27,9 +30,17 @@ export function isHtmlContent(content: string): boolean {
         return true;
     }
 
-    // Check for typical HTML opening or block tags
-    const htmlTagPattern = /<\s*(p|div|h[1-6]|table|thead|tbody|tr|td|th|ul|ol|li|blockquote|section|article|span|pre|code|hr|figure|figcaption)[^>]*>/i;
-    return htmlTagPattern.test(trimmed);
+    // Only consider it pure HTML if it clearly begins and ends with matching root HTML tags (like <div>...</div> or <article>...</article>)
+    // and doesn't contain markdown headers or markdown bullets at line start
+    const startsWithHtmlTag = /^<([a-z1-6]+)(?:\s+[^>]*)?>/i.test(trimmed);
+    const endsWithHtmlTag = /<\/[a-z1-6]+>$/i.test(trimmed);
+    const hasMarkdownStructuralFeatures = /(^|\n)(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```)/m.test(trimmed);
+
+    if (startsWithHtmlTag && endsWithHtmlTag && !hasMarkdownStructuralFeatures) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -44,14 +55,25 @@ export function sanitizeHtmlContent(html: string): string {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
 
-        // 1. Remove dangerous or non-content tags
+        // 1. Remove dangerous or non-content tags (keep input specifically for disabled task checkboxes)
         const unsafeTags = [
             "script", "style", "iframe", "object", "embed", "applet", 
-            "meta", "link", "form", "input", "button", "textarea", "select"
+            "meta", "link", "form", "button", "textarea", "select"
         ];
         unsafeTags.forEach(tag => {
             const elements = doc.querySelectorAll(tag);
             elements.forEach(el => el.remove());
+        });
+
+        // Retain only disabled task list checkboxes
+        const inputs = doc.querySelectorAll("input");
+        inputs.forEach(input => {
+            if (input.type === "checkbox") {
+                input.setAttribute("disabled", "true");
+                input.setAttribute("aria-hidden", "true");
+            } else {
+                input.remove();
+            }
         });
 
         // 2. Clean attributes on all remaining elements
@@ -92,11 +114,17 @@ export function sanitizeHtmlContent(html: string): string {
                 }
             }
 
-            // Secure links
+            // Secure and style links
             if (el.tagName === "A") {
                 el.setAttribute("target", "_blank");
                 el.setAttribute("rel", "noopener noreferrer");
                 el.classList.add("text-primary", "hover:underline", "font-medium");
+            }
+
+            // Responsive images & badges
+            if (el.tagName === "IMG") {
+                el.classList.add("max-w-full", "h-auto", "rounded-md", "inline-block", "align-middle");
+                el.setAttribute("loading", "lazy");
             }
         });
 
@@ -152,6 +180,8 @@ export function formatHtmlForEditor(html: string): string {
         .replace(/(<\/table>)/gi, "$1\n\n")
         .replace(/(<ul[^>]*>|<ol[^>]*>)/gi, "\n$1")
         .replace(/(<\/ul>|<\/ol>)/gi, "$1\n")
+        .replace(/(<pre[^>]*>)/gi, "\n\n$1")
+        .replace(/(<\/pre>)/gi, "$1\n\n")
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 
@@ -159,23 +189,12 @@ export function formatHtmlForEditor(html: string): string {
 }
 
 export function parseInlineMarkdownToHtml(text: string): string {
-    const tokenRegex = /(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g;
-    const parts = text.split(tokenRegex);
-    return parts.map(part => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-            return `<strong>${escapeHtml(part.slice(2, -2))}</strong>`;
-        }
-        if (part.startsWith("`") && part.endsWith("`")) {
-            return `<code class="px-1.5 py-0.5 rounded bg-muted font-mono text-xs border border-border">${escapeHtml(part.slice(1, -1))}</code>`;
-        }
-        if (part.startsWith("[") && part.includes("](")) {
-            const closeBracket = part.indexOf("]");
-            const label = part.slice(1, closeBracket);
-            const url = part.slice(closeBracket + 2, -1);
-            return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-medium">${escapeHtml(label)}</a>`;
-        }
-        return escapeHtml(part);
-    }).join("");
+    if (!text) return "";
+    try {
+        return marked.parseInline(text, { gfm: true }) as string;
+    } catch {
+        return escapeHtml(text);
+    }
 }
 
 export function markdownToHtml(markdown: string): string {
@@ -212,108 +231,17 @@ export function markdownToHtml(markdown: string): string {
         return frontmatterHtml + sanitizeHtmlContent(markdownBody);
     }
 
-    let html = frontmatterHtml;
-    const lines = markdownBody.split("\n");
-    let insideBlockquote = false;
+    try {
+        const parsedHtml = marked.parse(markdownBody, {
+            gfm: true,
+            breaks: false
+        }) as string;
 
-    for (let i = 0; i < lines.length; i++) {
-        const rawLine = lines[i];
-        const trimmed = rawLine.trim();
-
-        // Handle blockquote grouping
-        if (trimmed.startsWith(">")) {
-            if (!insideBlockquote) {
-                insideBlockquote = true;
-                html += "<blockquote>";
-            }
-            
-            const contentText = trimmed.startsWith("> ") ? trimmed.slice(2) : (trimmed === ">" ? "" : trimmed.slice(1));
-            const contentTrimmed = contentText.trim();
-            const lowerContent = contentTrimmed.toLowerCase();
-            const isBibleMarker = lowerContent.startsWith("!bible") || lowerContent.startsWith("!bíblia");
-
-            if (isBibleMarker) {
-                html += `<div class="blockquote-badge">📖 Bíblia</div>`;
-                const markerLength = lowerContent.startsWith("!bible") ? 6 : 7;
-                const rest = contentTrimmed.slice(markerLength).trim();
-                if (rest) {
-                    html += `<div>${parseInlineMarkdownToHtml(rest)}</div>`;
-                }
-            } else {
-                html += `<div>${parseInlineMarkdownToHtml(contentText)}</div>`;
-            }
-            continue;
-        } else {
-            if (insideBlockquote) {
-                insideBlockquote = false;
-                html += "</blockquote>";
-            }
-        }
-
-        // HTML styled lines with align
-        const headingAlignMatch = trimmed.match(/^<h([1-4]) align="(center|justify)">(.*)<\/h\d>$/i);
-        if (headingAlignMatch) {
-            const level = headingAlignMatch[1];
-            const align = headingAlignMatch[2];
-            const content = headingAlignMatch[3];
-            html += `<h${level} align="${align}">${parseInlineMarkdownToHtml(content)}</h${level}>`;
-            continue;
-        }
-
-        const pAlignMatch = trimmed.match(/^<p align="(center|justify)">(.*)<\/p>$/i);
-        if (pAlignMatch) {
-            const align = pAlignMatch[1];
-            const content = pAlignMatch[2];
-            html += `<p align="${align}">${parseInlineMarkdownToHtml(content)}</p>`;
-            continue;
-        }
-
-        // Headings
-        if (trimmed.startsWith("# ")) {
-            html += `<h1>${parseInlineMarkdownToHtml(trimmed.slice(2))}</h1>`;
-            continue;
-        }
-        if (trimmed.startsWith("## ")) {
-            html += `<h2>${parseInlineMarkdownToHtml(trimmed.slice(3))}</h2>`;
-            continue;
-        }
-        if (trimmed.startsWith("### ")) {
-            html += `<h3>${parseInlineMarkdownToHtml(trimmed.slice(4))}</h3>`;
-            continue;
-        }
-        if (trimmed.startsWith("#### ")) {
-            html += `<h4>${parseInlineMarkdownToHtml(trimmed.slice(5))}</h4>`;
-            continue;
-        }
-
-        // Unordered lists
-        if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-            html += `<ul><li>${parseInlineMarkdownToHtml(trimmed.slice(2))}</li></ul>`;
-            continue;
-        }
-
-        // Ordered lists
-        if (/^\d+\.\s/.test(trimmed)) {
-            const dotIndex = trimmed.indexOf(".");
-            html += `<ol><li>${parseInlineMarkdownToHtml(trimmed.slice(dotIndex + 1).trim())}</li></ol>`;
-            continue;
-        }
-
-        // Empty line
-        if (trimmed === "") {
-            html += "<p><br></p>";
-            continue;
-        }
-
-        // Normal paragraph
-        html += `<p>${parseInlineMarkdownToHtml(rawLine)}</p>`;
+        return frontmatterHtml + sanitizeHtmlContent(parsedHtml);
+    } catch (e) {
+        console.error("Error parsing markdown to HTML:", e);
+        return frontmatterHtml + `<p>${escapeHtml(markdownBody)}</p>`;
     }
-
-    if (insideBlockquote) {
-        html += "</blockquote>";
-    }
-
-    return html;
 }
 
 export function htmlToMarkdown(html: string): string {
@@ -321,7 +249,6 @@ export function htmlToMarkdown(html: string): string {
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     
-    // If the HTML contains tables, preserve clean HTML blocks
     const markdown = serializeElementToMarkdown(tempDiv);
     return markdown.replace(/\n{3,}/g, "\n\n").trim();
 }
@@ -343,7 +270,7 @@ function serializeElementToMarkdown(node: Node): string {
     // Check alignment attributes or styles
     const align = element.getAttribute("align") || element.style.textAlign;
     let alignAttr = "";
-    if (align === "center" || align === "justify") {
+    if (align === "center" || align === "justify" || align === "right") {
         alignAttr = ` align="${align}"`;
     }
 
@@ -365,6 +292,12 @@ function serializeElementToMarkdown(node: Node): string {
         case "H4":
             if (alignAttr) return `\n<h4${alignAttr}>${childrenMarkdown.trim()}</h4>\n`;
             return `\n#### ${childrenMarkdown.trim()}\n`;
+        case "H5":
+            if (alignAttr) return `\n<h5${alignAttr}>${childrenMarkdown.trim()}</h5>\n`;
+            return `\n##### ${childrenMarkdown.trim()}\n`;
+        case "H6":
+            if (alignAttr) return `\n<h6${alignAttr}>${childrenMarkdown.trim()}</h6>\n`;
+            return `\n###### ${childrenMarkdown.trim()}\n`;
         case "P":
             if (alignAttr) return `\n<p${alignAttr}>${childrenMarkdown.trim()}</p>\n`;
             return `\n${childrenMarkdown.trim()}\n`;
@@ -374,6 +307,10 @@ function serializeElementToMarkdown(node: Node): string {
         case "EM":
         case "I":
             return `*${childrenMarkdown}*`;
+        case "DEL":
+        case "S":
+        case "STRIKE":
+            return `~~${childrenMarkdown}~~`;
         case "U":
             return `<u>${childrenMarkdown}</u>`;
         case "A": {
@@ -405,6 +342,9 @@ function serializeElementToMarkdown(node: Node): string {
         case "PRE":
             return `\n\n\`\`\`\n${element.textContent || ""}\n\`\`\`\n\n`;
         case "CODE":
+            if (element.parentElement?.tagName === "PRE") {
+                return element.textContent || "";
+            }
             return `\`${element.textContent || ""}\``;
         case "IMG": {
             const alt = element.getAttribute("alt") || "";

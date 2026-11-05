@@ -326,7 +326,12 @@ export function TextEditor({
             .prose-editor h1 { font-size: 1.35rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
             .prose-editor h2 { font-size: 1.15rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.5rem; }
             .prose-editor h3 { font-size: 1.05rem; font-weight: 600; color: inherit; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+            .prose-editor h4, .prose-editor h5, .prose-editor h6 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.85; margin-top: 0.75rem; margin-bottom: 0.25rem; }
             .prose-editor p { font-size: 0.925rem; line-height: 1.65; color: inherit; opacity: 0.95; margin-bottom: 0.75rem; }
+            .prose-editor strong { font-weight: 700; color: inherit; }
+            .prose-editor em { font-style: italic; }
+            .prose-editor del, .prose-editor s { text-decoration: line-through; opacity: 0.75; }
+            .prose-editor hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
             .prose-editor blockquote { border-left: 3px solid var(--primary); padding-left: 0.875rem; margin: 0.875rem 0; font-style: italic; color: inherit; opacity: 0.9; background-color: color-mix(in srgb, var(--primary) 8%, transparent); border-radius: 0 0.5rem 0.5rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
             .prose-editor blockquote .blockquote-badge {
                 display: inline-flex;
@@ -344,9 +349,15 @@ export function TextEditor({
             .prose-editor li { font-size: 0.925rem; color: inherit; opacity: 0.95; margin-top: 0.25rem; }
             .prose-editor a { color: var(--primary); text-decoration: underline; font-weight: 500; }
             .prose-editor code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.25rem; border-radius: 0.25rem; border: 1px solid var(--border); }
+            .prose-editor pre { background-color: var(--muted); padding: 0.75rem 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.825rem; overflow-x: auto; border: 1px solid var(--border); margin: 0.75rem 0; }
+            .prose-editor pre code { background: transparent; padding: 0; border: none; font-size: inherit; }
+            .prose-editor img { max-width: 100%; height: auto; border-radius: 0.375rem; display: inline-block; vertical-align: middle; margin: 0.25rem 0.25rem 0.25rem 0; }
             .prose-editor table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; border: 1px solid var(--border); font-size: 0.875rem; border-radius: 0.5rem; overflow: hidden; }
             .prose-editor th { background-color: var(--muted); border: 1px solid var(--border); padding: 0.5rem 0.75rem; font-weight: 600; text-align: left; }
             .prose-editor td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; opacity: 0.9; }
+            .prose-editor [align="center"] { text-align: center; }
+            .prose-editor [align="justify"] { text-align: justify; }
+            .prose-editor [align="right"] { text-align: right; }
             .prose-editor:empty::before,
             .prose-editor > p:only-child:has(br:only-child)::before {
                 content: attr(data-placeholder);
@@ -411,7 +422,7 @@ export function TextEditor({
                 </div>
 
                 {/* 2. Streamlined Single-Row Toolbar */}
-                <div className="px-3 py-1.5 border-b border-border/40 bg-muted/10 flex items-center justify-between gap-1 overflow-x-auto scrollbar-none shrink-0 select-none">
+                <div className="px-3 py-1.5 border-b border-border/40 bg-muted/10 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shrink-0 select-none">
                     <div className="flex items-center gap-0.5 shrink-0">
                         {/* Text Styles */}
                         <Button 

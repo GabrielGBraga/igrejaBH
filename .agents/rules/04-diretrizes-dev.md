@@ -26,9 +26,10 @@
   - Contêiner com rolagem horizontal contida (`overflow-x-auto`) para telas estreitas.
 
 ## 5. Editor de Texto Rico e Markdown (TextEditor & MarkdownUtils)
-- Para criação e edição de conteúdos em Markdown (textos informativos, apostilas e anotações pessoais de estudos/materiais), utilize o componente `TextEditor` (`src/components/TextEditor.tsx`) e utilitários em `src/lib/markdownUtils.ts`.
+- Para criação, visualização e edição de conteúdos em Markdown (textos informativos, apostilas e anotações pessoais de estudos/materiais), utilize o componente `MarkdownViewer` (`src/components/study/MarkdownViewer.tsx`), `TextEditor` (`src/components/TextEditor.tsx`) e utilitários em `src/lib/markdownUtils.ts`.
 - O `TextEditor` suporta tanto exibição modal (`inline={false}`) quanto embutida lado a lado (`inline={true}`), ideal para tomada de notas síncrona enquanto o discípulo consome materiais (vídeos, PDFs, leituras).
-- O editor serializa para Markdown limpo (compatível com citação bíblica `> !bible`, títulos H1-H4, listas e alinhamento) preservando o contraste e integridade do tema dark/light.
+- A renderização de Markdown utiliza a biblioteca leve `marked` com suporte completo a CommonMark e GFM: títulos H1-H6, negrito (`**` e `__`), itálico (`*` e `_`), tachado (`~~`), autolinks (`<url>`), imagens e badges (`![alt](src)` / `[![alt](src)](url)`), tabelas responsivas, caixas de seleção de tarefas e blocos de código formatados.
+- Mantém suporte nativo à extensão de citação bíblica `> !bible` ou `> !bíblia` (com badge estilizado de alto contraste), sanitização HTML estrita e compatibilidade bilateral (Markdown <-> HTML) preservando o contraste e integridade do tema dark/light.
 
 ## 6. MCP e Servidores
 - **Supabase MCP (`supabase-mcp-server`):** Ao ser instruído a alterar o banco de dados (backend), o agente deve propor a migração `.sql` ou utilizar os servidores MCP configurados, nunca alterar arquivos não relacionados.
