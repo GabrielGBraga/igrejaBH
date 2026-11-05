@@ -709,29 +709,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-12">
       {/* 1. Cabeçalho Principal Mobile-First */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/70 pb-4">
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Cuidado do Corpo
-            </h1>
-            <Badge
-              variant="outline"
-              className="border-primary/30 bg-primary/10 text-primary text-[11px] font-medium"
-            >
-              {singleGroupMode
-                ? "Acesso Exclusivo do Grupo"
-                : isTier3
-                ? "Visão Geral do Corpo"
-                : myHomeGroup
-                ? getHomeGroupDisplayName(myHomeGroup, profileMap)
-                : "Seu Grupo Caseiro"}
-            </Badge>
-          </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {isTier3
-              ? "Acompanhamento fraternal dos irmãos, grupos caseiros e cuidado com cada vida na cidade."
-              : "Cuidado dos irmãos do Grupo Caseiro e fortalecimento da comunhão no dia a dia."}
-          </p>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Gestão do Corpo
+          </h1>
         </div>
 
         {/* Ações de Cabeçalho */}
