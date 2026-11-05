@@ -1,34 +1,9 @@
 import { Link } from "react-router-dom"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-
-const FOUNDATIONS = [
-  {
-    title: "O Propósito Eterno",
-    reference: "Romanos 8:29",
-    desc: "O desígnio de Deus desde a eternidade é ter uma família de muitos filhos semelhantes a Jesus. A salvação é o início dessa transformação.",
-  },
-  {
-    title: "Sacerdócio de Todos",
-    reference: "1 Pedro 2:9",
-    desc: "Sem divisão entre clero e leigos. Todo discípulo é chamado para servir e edificar o Corpo de Cristo no dia a dia.",
-  },
-  {
-    title: "Juntas e Ligamentos",
-    reference: "Efésios 4:16",
-    desc: "A igreja é sustentada por relacionamentos reais de discipulado (vida na vida) e companheirismo mútuo em oração e cuidado.",
-  },
-  {
-    title: "Nas Casas e nas Ruas",
-    reference: "Atos 20:20",
-    desc: "A igreja são as pessoas, não um prédio. Nos reunimos nos lares para comunhão e ensino, e nas ruas proclamamos o Evangelho do Reino.",
-  },
-]
 
 export function LandingAboutSection() {
   return (
-    <section id="quem-somos" className="scroll-mt-20 py-16 sm:py-20 border-b border-border/40 bg-muted/10">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <section id="quem-somos" className="scroll-mt-20 py-16 sm:py-24 border-b border-border/40">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
@@ -36,55 +11,29 @@ export function LandingAboutSection() {
           </h2>
         </div>
 
-        {/* Core Identity Paragraphs */}
-        <div className="space-y-5 text-xs sm:text-sm md:text-base leading-relaxed text-muted-foreground text-left sm:text-justify font-sans">
+        {/* Content Paragraphs matching design mockup */}
+        <div className="space-y-6 text-sm sm:text-base leading-relaxed text-foreground/90 text-left sm:text-justify font-sans">
           <p>
-            Somos discípulos de Jesus e parte da Igreja do Senhor na Grande Belo Horizonte desde o início da década de 1980. Como comunidade não-denominacional, não nos organizamos em torno de templos físicos, placas ou marcas religiosas. A afirmação bíblica:{" "}
-            <span className="italic text-foreground font-serif">
-              &ldquo;O Deus que fez o mundo e tudo o que nele existe, sendo ele Senhor do céu e da terra, não habita em santuários feitos por mãos humanas...&rdquo; (At 17:24)
-            </span>{" "}
-            orienta a nossa caminhada. Cremos que a igreja são as pessoas reconciliadas com Deus, vivendo a fé no cotidiano, de casa em casa, conforme o ensino dos apóstolos.
+            Somos um grupo de discípulos de Jesus, parte da Igreja do Senhor na Grande Belo Horizonte desde o início da década de 1990. Trata-se de uma comunidade não denominacional que, por revelação bíblica, decidiu não se organizar em grande templos e possuir placas e nomes. Afirmação de Pedro <em>&ldquo;O Deus que fez o mundo e tudo o que nele existe, sendo ele Senhor do céu e da terra, não habita em santuários feitos por mãos humanas.&rdquo;</em> (At 17.24) direciona a nossa fé a esse respeito. Cremos que a Igreja é composta por pessoas, e não prédios, e que a sua expressão prática é no dia a dia, de casa em casa, conforme o modelo vivido e deixado pelos Apóstolos.
           </p>
 
           <p>
-            Usamos a expressão &ldquo;Discípulos de Jesus em Belo Horizonte&rdquo; como identificação bíblica da nossa comunhão local, reconhecendo que o Corpo de Cristo na cidade é um só e não está dividido em denominações. Somos irmãos de todos os que pertencem ao Senhor Jesus em nossa região.
+            Usamos a expressão &ldquo;Igreja em BH&rdquo; para fazer referência a nossa existência enquanto instituição. Usamos essa expressão igualmente por revelação bíblica, compreendendo que era assim que a primeira igreja referia-se as comunidade locais que viviam em Unidade de Corpo. Contudo, não usamos essa expressão para se separar do resto da Igreja de Cristo que existe nesse cidade. Somos parte da Igreja que Jesus tem aqui na Grande Belo Horizonte.
           </p>
         </div>
 
-        {/* Clean Editorial Grid of Biblical Foundations */}
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-8 border-t border-border/40">
-          {FOUNDATIONS.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-xl border border-border/60 bg-card p-5"
+        {/* Footer Link */}
+        <div className="mt-8 sm:mt-10 text-center">
+          <p className="text-sm sm:text-base text-foreground/90">
+            Quer saber mais sobre a nossa história e o que cremos, clique{" "}
+            <Link
+              to="/quem-somos"
+              className="underline underline-offset-4 font-medium hover:text-primary transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xs"
             >
-              <div className="flex items-baseline justify-between gap-2">
-                <h3 className="text-sm sm:text-base font-bold text-foreground">
-                  {item.title}
-                </h3>
-                <span className="text-xs font-medium text-primary shrink-0">
-                  {item.reference}
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Dedicated Page Action Button */}
-        <div className="mt-10 flex justify-center">
-          <Button
-            asChild
-            size="lg"
-            className="min-h-[44px] rounded-full px-8 text-sm font-semibold shadow-xs bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <Link to="/quem-somos">
-              Conheça nossa fé em detalhes
-              <ArrowRight className="ml-2 h-4 w-4" />
+              aqui
             </Link>
-          </Button>
+            .
+          </p>
         </div>
       </div>
     </section>

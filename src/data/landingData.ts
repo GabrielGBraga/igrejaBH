@@ -309,7 +309,7 @@ export const TEACHING_MODULES: TeachingModule[] = [
     id: "mod-trilhas",
     title: "Trilhas de Estudo",
     description:
-      "Jornadas bíblicas estruturadas passo a passo sobre o Propósito Eterno, Juntas e Ligamentos e a vida nas casas.",
+      "Faça um plano de estudos.",
     iconName: "graduationCap",
     buttonText: "Explorar trilhas",
     link: "/ensinos?tab=trilhas",
@@ -318,7 +318,7 @@ export const TEACHING_MODULES: TeachingModule[] = [
     id: "mod-apostilas",
     title: "Apostilas",
     description:
-      "Cadernos temáticos de formação bíblica, fundamentos da fé e manuais de discipulado prático em PDF.",
+      "Acesse nosso material de estudo.",
     iconName: "book",
     buttonText: "Ler apostilas",
     link: "/ensinos?tab=apostilas",
@@ -327,16 +327,16 @@ export const TEACHING_MODULES: TeachingModule[] = [
     id: "mod-ministracoes",
     title: "Ministrações",
     description:
-      "Mensagens em vídeo e áudio compartilhadas nos encontros gerais e retiros para edificação do Corpo.",
+      "Assista pregações sobre o Reino de Deus.",
     iconName: "mic",
     buttonText: "Ouvir mensagens",
     link: "/ensinos?tab=ministracoes",
   },
   {
     id: "mod-artigos",
-    title: "Artigos e Textos",
+    title: "Artigos",
     description:
-      "Estudos bíblicos, reflexões e testemunhos práticos da caminhada diária de casa em casa.",
+      "Leia meditações e reflexões sobre nossa fé comum.",
     iconName: "fileText",
     buttonText: "Ler textos",
     link: "/ensinos?tab=artigos",

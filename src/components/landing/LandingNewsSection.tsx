@@ -66,7 +66,7 @@ export function LandingNewsSection() {
         {/* Section Title */}
         <div className="text-center mb-10 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-            Notícias & Vida Comum
+            Notícias
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Acompanhe as últimas mensagens, comunicados e o mover de Deus entre os discípulos na cidade.

@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { useChurchCalendar, type CalendarEventItem } from "@/hooks/useChurchCalendar"
 import { CalendarDayGrid } from "@/components/calendar/CalendarDayGrid"
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard"
@@ -56,9 +55,7 @@ export function LandingAgendaSection() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
             Agenda
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-            Acompanhe as datas dos próximos encontros na cidade e retiros comunitários.
-          </p>
+
         </div>
 
         {/* Clean Calendar Card without poster chrome */}
@@ -80,7 +77,7 @@ export function LandingAgendaSection() {
             </div>
 
             {/* Right Column: Event List */}
-            <div className="md:col-span-6 flex flex-col justify-between space-y-4">
+            <div className="md:col-span-6 flex flex-col space-y-4">
               <div className="space-y-3">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {selectedDay
@@ -105,23 +102,7 @@ export function LandingAgendaSection() {
                 )}
               </div>
 
-              {/* Clean House-Church Context & Action */}
-              <div className="pt-4 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Além dos encontros gerais, nos reunimos semanalmente nas casas pela cidade.
-                </p>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="min-h-[44px] shrink-0 rounded-full px-4 text-xs font-semibold"
-                >
-                  <a href="#contato">
-                    Caminhe conosco
-                    <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              </div>
+
             </div>
           </div>
         </div>

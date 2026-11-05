@@ -31,6 +31,7 @@ const quickContactSchema = z.object({
 type QuickContactValues = z.infer<typeof quickContactSchema>
 
 export function LandingContactSection() {
+  const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -75,7 +76,7 @@ export function LandingContactSection() {
           tipo_necessidade: "Acolhimento / Conhecer Grupo Caseiro",
           urgencia: "Média (Nesta semana)",
           detalhes: values.message?.trim() || "Deseja conhecer a comunhão nos lares em BH.",
-          source: "Landing Page Hero / Contato Rápido",
+          source: "Landing Page - Quer Saber Mais",
         },
         submitted_at: new Date().toISOString(),
       }
@@ -88,7 +89,7 @@ export function LandingContactSection() {
 
       setSubmitted(true)
       toast.success("Recebemos sua mensagem com alegria!", {
-        description: "Um irmão ou família próxima entrará em contato em breve para conversar.",
+        description: "Um cooperador vai entrar em contato com você em breve.",
         duration: 6000,
       })
       reset()
@@ -102,20 +103,40 @@ export function LandingContactSection() {
 
   return (
     <section id="contato" className="scroll-mt-20 py-16 sm:py-24 border-b border-border/40">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-            Caminhe conosco
-          </h2>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
+        {/* Title */}
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+          Quer saber mais?
+        </h2>
 
-          <p className="mt-3 text-xs sm:text-sm md:text-base leading-relaxed text-muted-foreground">
-            Não achamos suficiente apenas convidar você para uma reunião. Gostaríamos de ouvir você, tomar um café e apresentar uma família ou Grupo Caseiro próximo do seu bairro.
+        {/* Content Paragraphs matching mockup */}
+        <div className="mt-4 space-y-3 text-sm sm:text-base leading-relaxed text-foreground/90 max-w-2xl mx-auto">
+          <p>
+            Se você acessou o conteúdo desse site e quer saber mais sobre nós, não achamos que é suficiente te convidar para uma reunião. Gostaríamos de entrar em contato com você e marcar uma conversa.
+          </p>
+          <p>
+            Preencha o formulário abaixo e algum cooperador vai entrar em contato com você em breve.
           </p>
         </div>
 
-        {/* Success Confirmation Card */}
+        {/* Action Button */}
+        {!submitted && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => setShowForm((prev) => !prev)}
+              className="min-h-[44px] rounded-lg border-border/80 px-8 text-sm font-semibold hover:bg-muted/40 cursor-pointer shadow-2xs"
+            >
+              {showForm ? "Ocultar Formulário" : "Quero Conhecer"}
+            </Button>
+          </div>
+        )}
+
+        {/* Confirmation State */}
         {submitted ? (
-          <div className="mt-8 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center shadow-xs">
+          <div className="mt-8 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center shadow-xs max-w-xl mx-auto">
             <div className="flex h-12 w-12 mx-auto items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-3">
               <CheckCircle2 className="h-6 w-6" />
             </div>
@@ -123,132 +144,137 @@ export function LandingContactSection() {
               Mensagem enviada com sucesso!
             </h3>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Em breve um irmão da sua região entrará em contato via WhatsApp para uma conversa acolhedora.
+              Em breve algum cooperador vai entrar em contato com você para conversarmos.
             </p>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setSubmitted(false)}
-              className="mt-4 min-h-[44px] rounded-full px-5"
+              onClick={() => {
+                setSubmitted(false)
+                setShowForm(false)
+              }}
+              className="mt-4 min-h-[44px] rounded-lg px-5"
             >
               Enviar outra mensagem
             </Button>
           </div>
         ) : (
-          <div className="mt-8 rounded-xl border border-border/70 bg-card p-6 sm:p-8 shadow-xs text-left">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Nome Completo */}
-                <Field>
-                  <FieldLabel htmlFor="fullName" className="text-xs font-semibold">
-                    Seu Nome Completo *
-                  </FieldLabel>
-                  <Input
-                    id="fullName"
-                    placeholder="Ex: João da Silva"
-                    {...register("fullName")}
-                    className="min-h-[44px] rounded-md mt-1"
-                  />
-                  {errors.fullName && (
-                    <FieldError className="text-xs text-destructive mt-1">
-                      {errors.fullName.message}
-                    </FieldError>
-                  )}
-                </Field>
+          showForm && (
+            <div className="mt-8 rounded-xl border border-border/70 bg-card p-6 sm:p-8 shadow-xs text-left max-w-xl mx-auto animate-in fade-in duration-200">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Nome Completo */}
+                  <Field>
+                    <FieldLabel htmlFor="fullName" className="text-xs font-semibold">
+                      Seu Nome Completo *
+                    </FieldLabel>
+                    <Input
+                      id="fullName"
+                      placeholder="Ex: João da Silva"
+                      {...register("fullName")}
+                      className="min-h-[44px] rounded-md mt-1"
+                    />
+                    {errors.fullName && (
+                      <FieldError className="text-xs text-destructive mt-1">
+                        {errors.fullName.message}
+                      </FieldError>
+                    )}
+                  </Field>
 
-                {/* WhatsApp */}
+                  {/* WhatsApp */}
+                  <Field>
+                    <FieldLabel htmlFor="phone" className="text-xs font-semibold">
+                      WhatsApp com DDD *
+                    </FieldLabel>
+                    <Controller
+                      name="phone"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="(31) 90000-0000"
+                          value={field.value}
+                          onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                          className="min-h-[44px] rounded-md mt-1"
+                        />
+                      )}
+                    />
+                    {errors.phone && (
+                      <FieldError className="text-xs text-destructive mt-1">
+                        {errors.phone.message}
+                      </FieldError>
+                    )}
+                  </Field>
+                </div>
+
+                {/* Região de BH */}
                 <Field>
-                  <FieldLabel htmlFor="phone" className="text-xs font-semibold">
-                    WhatsApp com DDD *
+                  <FieldLabel htmlFor="region" className="text-xs font-semibold">
+                    Sua Região ou Bairro na Grande BH *
                   </FieldLabel>
                   <Controller
-                    name="phone"
+                    name="region"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(31) 90000-0000"
-                        value={field.value}
-                        onChange={(e) => field.onChange(formatPhone(e.target.value))}
-                        className="min-h-[44px] rounded-md mt-1"
-                      />
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger id="region" className="min-h-[44px] rounded-md mt-1">
+                          <SelectValue placeholder="Selecione sua região mais próxima" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {REGIONS_BH.map((reg) => (
+                            <SelectItem key={reg} value={reg}>
+                              {reg}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   />
-                  {errors.phone && (
+                  {errors.region && (
                     <FieldError className="text-xs text-destructive mt-1">
-                      {errors.phone.message}
+                      {errors.region.message}
                     </FieldError>
                   )}
                 </Field>
-              </div>
 
-              {/* Região de BH */}
-              <Field>
-                <FieldLabel htmlFor="region" className="text-xs font-semibold">
-                  Sua Região ou Bairro na Grande BH *
-                </FieldLabel>
-                <Controller
-                  name="region"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="region" className="min-h-[44px] rounded-md mt-1">
-                        <SelectValue placeholder="Selecione sua região mais próxima" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {REGIONS_BH.map((reg) => (
-                          <SelectItem key={reg} value={reg}>
-                            {reg}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.region && (
-                  <FieldError className="text-xs text-destructive mt-1">
-                    {errors.region.message}
-                  </FieldError>
-                )}
-              </Field>
+                {/* Mensagem Opcional */}
+                <Field>
+                  <FieldLabel htmlFor="message" className="text-xs font-semibold">
+                    Mensagem ou Dúvida (Opcional)
+                  </FieldLabel>
+                  <Textarea
+                    id="message"
+                    rows={3}
+                    placeholder="Conte um pouco sobre você ou o que gostaria de conversar..."
+                    {...register("message")}
+                    className="rounded-md mt-1 resize-none"
+                  />
+                </Field>
 
-              {/* Mensagem Opcional */}
-              <Field>
-                <FieldLabel htmlFor="message" className="text-xs font-semibold">
-                  Mensagem ou Dúvida (Opcional)
-                </FieldLabel>
-                <Textarea
-                  id="message"
-                  rows={3}
-                  placeholder="Conte um pouco sobre você ou o que gostaria de conhecer..."
-                  {...register("message")}
-                  className="rounded-md mt-1 resize-none"
-                />
-              </Field>
-
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  className="min-h-[44px] w-full sm:w-auto px-8 rounded-full font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Solicitar Conversa
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </div>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="min-h-[44px] w-full sm:w-auto px-8 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Enviar Contato
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )
         )}
       </div>
     </section>
