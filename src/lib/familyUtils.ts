@@ -55,7 +55,7 @@ export function buildFamiliesForProfiles<T extends Profile>(profiles: T[]): Fami
 
     // 2. Vínculo de filiação: SÓ conecta aos pais se o filho NÃO for casado!
     // Se o filho for casado, ele deixa a família dos pais e funda seu próprio lar.
-    const isMarried = p.marital_status === "casado" || Boolean(p.spouse_id)
+    const isMarried = Boolean(p.spouse_id) || (p.marital_status ? p.marital_status.toLowerCase().includes("casad") : false)
     if (!isMarried) {
       if (p.father_id && profileIds.has(p.father_id)) {
         adj.get(p.id)?.add(p.father_id)
@@ -142,11 +142,11 @@ export function buildFamiliesForProfiles<T extends Profile>(profiles: T[]): Fami
     // Montar papéis dos membros
     const membersWithRole: FamilyMemberInfo<T>[] = familyMembers.map((m) => {
       let role: FamilyRole = "individual"
-      let roleLabel = "Própria família"
+      let roleLabel = "Solteiro"
 
       if (isIndividual) {
         role = "individual"
-        roleLabel = "Própria família"
+        roleLabel = "Solteiro"
       } else if (m.id === head.id) {
         role = "chefe"
         roleLabel = head.gender === "F" ? "Responsável do Lar" : "Chefe da Família"
@@ -165,7 +165,7 @@ export function buildFamiliesForProfiles<T extends Profile>(profiles: T[]): Fami
     })
 
     const familyName = isIndividual
-      ? `${head.full_name} (Família própria)`
+      ? `${head.full_name} (Solteiro)`
       : `Família de ${head.full_name}`
 
     families.push({

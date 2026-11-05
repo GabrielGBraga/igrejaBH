@@ -5,6 +5,7 @@ import type { Database } from "@/lib/database.types"
 import { toast } from "sonner"
 import {
   Users,
+  User,
   MapPin,
   Calendar,
   Plus,
@@ -423,28 +424,42 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     return map
   }, [groupFamilies])
 
+  // Famílias com múltiplos membros/lares (excluindo solteiros)
+  const actualFamilies = useMemo(() => {
+    return groupFamilies.filter((f) => !f.isIndividual)
+  }, [groupFamilies])
+
   // Opções para o seletor com pesquisa de Família
   const familyFilterOptions: SearchableSelectOption[] = useMemo(() => {
+    const actual = groupFamilies.filter((f) => !f.isIndividual)
+    const singleCount = groupFamilies.filter((f) => f.isIndividual).length
+
     const options: SearchableSelectOption[] = [
       {
         value: "all",
-        label: `Todas as Famílias (${groupFamilies.length})`,
+        label: `Todas as Famílias (${actual.length})`,
         description: "Exibir todos os lares e discípulos do grupo",
         keywords: "todas familias geral lares todos",
       },
     ]
 
-    groupFamilies.forEach((fam) => {
-      const detail = fam.isIndividual
-        ? "1 pessoa • Família própria"
-        : `${fam.size} pessoas • Chefe: ${fam.head.full_name}`
+    actual.forEach((fam) => {
       options.push({
         value: fam.id,
         label: `${fam.name} (${fam.size})`,
-        description: detail,
+        description: `${fam.size} pessoas • Chefe: ${fam.head.full_name}`,
         keywords: `${fam.name} ${fam.members.map((m) => m.full_name).join(" ")}`,
       })
     })
+
+    if (singleCount > 0) {
+      options.push({
+        value: "singles",
+        label: `Solteiros (${singleCount})`,
+        description: "Discípulos solteiros / sem família no grupo",
+        keywords: `solteiros ${groupFamilies.filter((f) => f.isIndividual).map((f) => f.head.full_name).join(" ")}`,
+      })
+    }
 
     return options
   }, [groupFamilies])
@@ -496,9 +511,16 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
       // 4. Filtro por Família no Grupo
       if (selectedFamilyFilter !== "all") {
-        const fam = groupFamilies.find((f) => f.id === selectedFamilyFilter)
-        if (fam && !fam.members.some((m) => m.id === p.id)) {
-          return false
+        if (selectedFamilyFilter === "singles") {
+          const famInfo = familyByProfileId.get(p.id)
+          if (!famInfo?.family.isIndividual) {
+            return false
+          }
+        } else {
+          const fam = groupFamilies.find((f) => f.id === selectedFamilyFilter)
+          if (fam && !fam.members.some((m) => m.id === p.id)) {
+            return false
+          }
         }
       }
 
@@ -512,6 +534,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     selectedGroupFilter,
     selectedFamilyFilter,
     groupFamilies,
+    familyByProfileId,
     searchName,
     filterCategory,
     presbyterIds,
@@ -530,9 +553,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     ).length
     const children = activeScopeProfiles.filter((p) => checkIsChild(p)).length
     const adults = activeScopeProfiles.filter((p) => !checkIsChild(p)).length
-    const totalFamilies = groupFamilies.length
+    const totalFamilies = groupFamilies.filter((f) => !f.isIndividual).length
+    const totalSingles = groupFamilies.filter((f) => f.isIndividual).length
 
-    return { total, withDiscipler, withoutDiscipler, children, adults, totalFamilies }
+    return { total, withDiscipler, withoutDiscipler, children, adults, totalFamilies, totalSingles }
   }, [activeScopeProfiles, groupFamilies, presbyterIds])
 
   // Opções para o seletor com pesquisa de Grupo Caseiro
@@ -968,7 +992,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           </Badge>
                         )}
                         <span className="text-xs font-medium text-muted-foreground">
-                          • {counts.total} irmão(s) vinculados • {groupFamilies.length} famílias
+                          • {counts.total} irmão(s) vinculados • {counts.totalFamilies} famílias{counts.totalSingles > 0 ? ` • ${counts.totalSingles} solteiro(s)` : ""}
                         </span>
                       </div>
 
@@ -1085,18 +1109,40 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
 
               {/* Banner de Resumo da Família Filtrada */}
               {selectedFamilyFilter !== "all" && (() => {
+                if (selectedFamilyFilter === "singles") {
+                  const singleDisciplesCount = groupFamilies.filter((f) => f.isIndividual).length
+                  return (
+                    <div className="flex flex-col gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-sm font-bold text-foreground">
+                            Solteiros
+                          </h4>
+                          <span className="text-xs text-muted-foreground">
+                            ({singleDisciplesCount} {singleDisciplesCount === 1 ? "pessoa" : "pessoas"})
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedFamilyFilter("all")}
+                        className="h-11 min-h-[44px] gap-1 text-xs text-muted-foreground hover:text-foreground shrink-0 cursor-pointer self-start sm:self-center"
+                      >
+                        <span>Ver todas as famílias</span>
+                      </Button>
+                    </div>
+                  )
+                }
+
                 const activeFam = groupFamilies.find((f) => f.id === selectedFamilyFilter)
                 if (!activeFam) return null
                 return (
                   <div className="flex flex-col gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-2xs">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge
-                          variant="outline"
-                          className="border-primary/40 bg-primary/10 text-primary text-[10px] font-semibold"
-                        >
-                          {activeFam.isIndividual ? "Família Própria" : "Família no Grupo"}
-                        </Badge>
                         <h4 className="text-sm font-bold text-foreground">
                           {activeFam.name}
                         </h4>
@@ -1104,22 +1150,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           ({activeFam.size} {activeFam.size === 1 ? "pessoa" : "pessoas"})
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">Chefe do Lar: </span>
-                        {activeFam.head.full_name}
-                        {activeFam.spouse && (
-                          <>
-                            {" "}• <span className="font-medium text-foreground">Cônjuge: </span>
-                            {activeFam.spouse.full_name}
-                          </>
-                        )}
-                        {activeFam.children.length > 0 && (
-                          <>
-                            {" "}• <span className="font-medium text-foreground">Filhos: </span>
-                            {activeFam.children.map((c) => c.full_name).join(", ")}
-                          </>
-                        )}
-                      </p>
                     </div>
 
                     <Button
@@ -1233,7 +1263,8 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
               ) : groupByFamily ? (
                 /* Modo Agrupado por Famílias */
                 <div className="space-y-6">
-                  {groupFamilies.map((fam) => {
+                  {/* 1. Famílias com lares e múltiplos membros */}
+                  {actualFamilies.map((fam) => {
                     const famDisciples = filteredDisciples.filter((d) =>
                       fam.members.some((m) => m.id === d.id)
                     )
@@ -1249,35 +1280,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                               <HomeIcon className="h-4 w-4" />
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-sm sm:text-base font-bold text-foreground">
-                                  {fam.name}
-                                </h3>
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] font-semibold border-primary/30 bg-primary/5 text-primary"
-                                >
-                                  {fam.isIndividual ? "Individual" : "Família"}
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                Chefe: <span className="font-semibold text-foreground">{fam.head.full_name}</span>
-                                {fam.spouse && (
-                                  <>
-                                    {" "}• Cônjuge: <span className="font-semibold text-foreground">{fam.spouse.full_name}</span>
-                                  </>
-                                )}
-                                {fam.children.length > 0 && (
-                                  <>
-                                    {" "}• Filhos ({fam.children.length}):{" "}
-                                    <span className="text-muted-foreground">
-                                      {fam.children.map((c) => c.full_name).join(", ")}
-                                    </span>
-                                  </>
-                                )}
-                              </p>
-                            </div>
+                            <h3 className="text-sm sm:text-base font-bold text-foreground">
+                              {fam.name}
+                            </h3>
                           </div>
 
                           <Badge
@@ -1346,6 +1351,94 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                       </div>
                     )
                   })}
+
+                  {/* 2. Bloco Único de Solteiros */}
+                  {(() => {
+                    const singleDisciples = filteredDisciples.filter((d) => {
+                      const famInfo = familyByProfileId.get(d.id)
+                      return famInfo?.family.isIndividual
+                    })
+                    if (singleDisciples.length === 0) return null
+
+                    return (
+                      <div
+                        key="solteiros"
+                        className="rounded-2xl border border-border/80 bg-muted/15 p-4 sm:p-5 space-y-4"
+                      >
+                        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between border-b border-border/50 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+                              <User className="h-4 w-4" />
+                            </div>
+                            <h3 className="text-sm sm:text-base font-bold text-foreground">
+                              Solteiros
+                            </h3>
+                          </div>
+
+                          <Badge
+                            variant="outline"
+                            className="self-start sm:self-center text-xs font-semibold border-border/80 bg-background shrink-0"
+                          >
+                            {singleDisciples.length} {singleDisciples.length === 1 ? "irmão" : "irmãos"}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {singleDisciples.map((disciple) => {
+                            const isGroupLeader = leaderIds.has(disciple.id)
+                            const registeredDiscipler = disciple.discipler_id
+                              ? profileMap.get(disciple.discipler_id)?.full_name
+                              : null
+                            const customDiscipler = disciple.custom_discipler_name || null
+                            const discipler = registeredDiscipler || customDiscipler
+                            const isCustomDiscipler = !registeredDiscipler && Boolean(customDiscipler)
+                            const spouse = disciple.spouse_id
+                              ? profileMap.get(disciple.spouse_id)?.full_name
+                              : null
+                            const father = disciple.father_id
+                              ? profileMap.get(disciple.father_id)?.full_name
+                              : null
+                            const mother = disciple.mother_id
+                              ? profileMap.get(disciple.mother_id)?.full_name
+                              : null
+                            const companions = fellowshipsByProfile.get(disciple.id) || []
+                            const discipleGroup = disciple.home_group_id
+                              ? homeGroups.find((g) => g.id === disciple.home_group_id)
+                              : null
+                            const groupName =
+                              selectedGroupFilter === "all" && discipleGroup
+                                ? getHomeGroupDisplayName(discipleGroup, profileMap)
+                                : null
+
+                            const isCoveredRoot =
+                              !!disciple.is_presbyter || !!(disciple.spouse_id && presbyterIds.has(disciple.spouse_id))
+
+                            return (
+                              <DiscipleCard
+                                key={disciple.id}
+                                disciple={disciple}
+                                isLeader={isGroupLeader}
+                                disciplerName={discipler}
+                                spouseName={spouse}
+                                fatherName={father}
+                                motherName={mother}
+                                fellowshipNames={companions}
+                                groupName={groupName}
+                                isCoveredRoot={isCoveredRoot}
+                                isCustomDiscipler={isCustomDiscipler}
+                                isFamilyHead={false}
+                                familyRoleLabel={null}
+                                familyName={null}
+                                onEdit={handleOpenEditDisciple}
+                                onTransformChild={handleOpenTransformBaptism}
+                                onTransformToLinked={handleOpenTransformToLinked}
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               ) : (
                 /* Modo Lista Contínua */
@@ -1396,7 +1489,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                         isCustomDiscipler={isCustomDiscipler}
                         isFamilyHead={famInfo?.isHead}
                         familyRoleLabel={famInfo?.roleLabel}
-                        familyName={famInfo?.family.name}
+                        familyName={famInfo?.family.isIndividual ? null : famInfo?.family.name}
                         onEdit={handleOpenEditDisciple}
                         onTransformChild={handleOpenTransformBaptism}
                         onTransformToLinked={handleOpenTransformToLinked}
