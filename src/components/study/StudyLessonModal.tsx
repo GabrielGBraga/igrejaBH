@@ -8,7 +8,9 @@ import {
     PencilIcon, 
     StickyNoteIcon,
     PlayIcon,
-    XIcon
+    XIcon,
+    ExternalLinkIcon,
+    DownloadIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -172,11 +174,12 @@ export function StudyLessonModal({
 
         if (resObj.type === "pdf") {
             return (
-                <div className="w-full shrink-0">
+                <div className="w-full h-full flex-1 min-h-0 flex flex-col">
                     <PdfViewer
                         url={resObj.url}
                         title={resObj.title}
-                        minHeight={isSideBySideNotesOpen ? "min-h-[440px] lg:h-[62vh]" : "min-h-[500px] sm:min-h-[640px]"}
+                        hideToolbar={true}
+                        className="w-full h-full flex-1 rounded-2xl border border-border/60"
                     />
                 </div>
             );
@@ -185,7 +188,7 @@ export function StudyLessonModal({
         if (resObj.type === "markdown") {
             return (
                 <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden">
-                    <div className="p-4 sm:p-6 max-h-[520px] overflow-y-auto custom-scrollbar">
+                    <div className="p-4 sm:p-6 max-h-[540px] overflow-y-auto custom-scrollbar">
                         <MarkdownViewer url={resObj.url} />
                     </div>
                 </div>
@@ -200,18 +203,18 @@ export function StudyLessonModal({
             <DialogContent
                 showCloseButton={false}
                 className={cn(
-                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out flex flex-col gap-0",
-                    isSideBySideNotesOpen
-                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[95dvh] max-h-[96dvh] overflow-hidden"
-                        : "w-[95vw] sm:max-w-4xl lg:max-w-5xl max-h-[92vh] overflow-y-auto custom-scrollbar"
+                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out flex flex-col gap-0 overflow-hidden",
+                    resObj.type === "pdf" || isSideBySideNotesOpen
+                        ? "h-[96dvh] max-h-[96dvh] w-[98vw] sm:max-w-6xl lg:max-w-7xl 2xl:max-w-[1600px]"
+                        : "max-h-[92dvh] w-[96vw] sm:max-w-5xl lg:max-w-6xl xl:max-w-7xl"
                 )}
             >
                 <DialogDescription className="sr-only">
                     Visualizador da ministração e anotações pessoais de estudo
                 </DialogDescription>
 
-                {/* Top Navigation Bar */}
-                <div className="p-3.5 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/95 backdrop-blur-md sticky top-0 z-20 flex flex-col gap-2.5 rounded-t-3xl">
+                {/* 1. FIXED TOP NAVIGATION BAR */}
+                <div className="p-3 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card z-20 flex flex-col gap-2 rounded-t-3xl">
                     <div className="flex items-center justify-between gap-3">
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
@@ -235,13 +238,55 @@ export function StudyLessonModal({
                                     </Badge>
                                 )}
                             </div>
-                            <DialogTitle className="text-base sm:text-lg lg:text-xl font-bold text-foreground truncate mt-1 tracking-tight" title={resObj.title}>
+                            <DialogTitle className="text-base sm:text-lg lg:text-xl font-bold text-foreground truncate mt-0.5 tracking-tight" title={resObj.title}>
                                 {resObj.title}
                             </DialogTitle>
                         </div>
 
-                        {/* Top Action Buttons */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        {/* Top Action Buttons (Min 44x44px touch targets) */}
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            {/* NEW: Button to open PDF in another page without downloading */}
+                            {resObj.type === "pdf" && (
+                                <a
+                                    href={resObj.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex"
+                                    title="Abrir PDF em outra página (tela cheia no navegador, sem baixar)"
+                                >
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="min-h-[44px] gap-2 rounded-xl text-xs font-semibold px-3 cursor-pointer border-primary/35 bg-primary/10 text-primary hover:bg-primary/15 transition-all shadow-2xs"
+                                    >
+                                        <ExternalLinkIcon className="h-4 w-4" />
+                                        <span className="hidden sm:inline">Abrir em Outra Página</span>
+                                        <span className="sm:hidden">Nova Aba</span>
+                                    </Button>
+                                </a>
+                            )}
+
+                            {/* Direct Download Button for PDF */}
+                            {resObj.type === "pdf" && (
+                                <a
+                                    href={resObj.url}
+                                    download
+                                    className="hidden md:inline-flex"
+                                    title="Baixar Arquivo PDF"
+                                >
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="min-h-[44px] px-2.5 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer gap-1.5"
+                                    >
+                                        <DownloadIcon className="h-4 w-4" />
+                                        <span className="hidden lg:inline">Baixar</span>
+                                    </Button>
+                                </a>
+                            )}
+
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -275,7 +320,7 @@ export function StudyLessonModal({
                         </div>
                     </div>
 
-                    {/* Mobile Segmented Switcher */}
+                    {/* Mobile Segmented Switcher (Visible only when notes are open on mobile) */}
                     {isSideBySideNotesOpen && (
                         <div className="flex lg:hidden rounded-xl border border-border/60 bg-muted/30 p-1">
                             <button
@@ -310,143 +355,231 @@ export function StudyLessonModal({
                     )}
                 </div>
 
-                {/* Main Content Area */}
-                <div className={cn(
-                    "p-3 sm:p-5 lg:p-6",
-                    isSideBySideNotesOpen
-                        ? "flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-hidden"
-                        : "flex flex-col gap-4 sm:gap-6"
-                )}>
-                    {/* Media Column (Left) */}
-                    <div className={cn(
-                        "flex flex-col space-y-4 transition-all duration-300",
-                        isSideBySideNotesOpen
-                            ? "h-full min-h-0 overflow-y-auto custom-scrollbar pr-0 lg:pr-2 lg:w-[56%] xl:w-[58%] shrink-0"
-                            : "w-full",
-                        isSideBySideNotesOpen && mobileTab === "notes" && "hidden lg:flex"
-                    )}>
-                        {renderMediaContent()}
+                {/* 2. BODY CONTENT AREA */}
+                {resObj.type === "pdf" ? (
+                    /* PDF Full-bleed Viewer */
+                    <div className="flex-1 min-h-0 overflow-hidden flex flex-col p-2 sm:p-3">
+                        {isSideBySideNotesOpen ? (
+                            <div className="h-full min-h-0 flex flex-col lg:flex-row gap-3 sm:gap-4 flex-1">
+                                {/* Media Column (Left) */}
+                                <div className={cn(
+                                    "flex flex-col space-y-2 h-full min-h-0 overflow-hidden pr-0 lg:pr-2 lg:w-[56%] xl:w-[58%] shrink-0",
+                                    mobileTab === "notes" && "hidden lg:flex"
+                                )}>
+                                    <div className="flex-1 min-h-0 w-full h-full">
+                                        {renderMediaContent()}
+                                    </div>
 
-                        {resObj.description && resObj.type !== "markdown" && (
-                            <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 sm:p-5 text-xs sm:text-sm text-muted-foreground shrink-0">
-                                <p className="font-bold text-foreground mb-1 text-xs text-muted-foreground/80">Sobre esta ministração</p>
-                                <p className="leading-relaxed text-foreground/90">{resObj.description}</p>
+                                    {resObj.description && (
+                                        <div className="rounded-xl border border-border/40 bg-muted/15 p-2 px-3 text-xs text-muted-foreground shrink-0">
+                                            <p className="leading-relaxed text-foreground/90 line-clamp-2"><strong className="text-foreground">Sobre:</strong> {resObj.description}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Notes Column (Right) */}
+                                <div className={cn(
+                                    "flex flex-col flex-1 h-full min-h-[320px] lg:w-[44%] xl:w-[42%] min-h-0 animate-in fade-in duration-300",
+                                    mobileTab === "content" && "hidden lg:flex"
+                                )}>
+                                    <TextEditor
+                                        key={`lesson-note-${resObj.id}`}
+                                        inline={true}
+                                        isOpen={true}
+                                        mode="note"
+                                        modalTitle={`Anotações: ${resObj.title}`}
+                                        initialData={existingNote ? {
+                                            id: existingNote.id,
+                                            title: existingNote.title,
+                                            content: existingNote.content,
+                                        } : {
+                                            title: `Anotações: ${resObj.title}`,
+                                            content: "",
+                                        }}
+                                        onClose={handleCloseNotes}
+                                        onSave={onSaveNote}
+                                        onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
+                                        className="h-full w-full flex-1 min-h-0"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 min-h-0 flex flex-col gap-2 w-full h-full">
+                                <div className="flex-1 min-h-0 h-full w-full">
+                                    {renderMediaContent()}
+                                </div>
+
+                                {resObj.description && (
+                                    <div className="rounded-xl border border-border/40 bg-muted/15 p-2.5 px-3.5 text-xs text-muted-foreground shrink-0 flex items-center justify-between gap-3">
+                                        <p className="leading-relaxed text-foreground/90 truncate"><strong className="text-foreground">Sobre esta ministração:</strong> {resObj.description}</p>
+                                        <a
+                                            href={resObj.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[11px] font-semibold text-primary hover:underline shrink-0 inline-flex items-center gap-1"
+                                        >
+                                            <ExternalLinkIcon className="h-3 w-3" />
+                                            <span>Abrir em Outra Página</span>
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         )}
+                    </div>
+                ) : (
+                    /* Video & Markdown / Text Material Layout: Clean scrollable flow, Sobre strictly below video */
+                    <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-5 lg:p-6 custom-scrollbar">
+                        {isSideBySideNotesOpen ? (
+                            <div className="h-full min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 flex-1">
+                                {/* Media Column (Left) */}
+                                <div className={cn(
+                                    "flex flex-col space-y-4 h-full min-h-0 overflow-y-auto custom-scrollbar pr-0 lg:pr-2 lg:w-[56%] xl:w-[58%] shrink-0",
+                                    mobileTab === "notes" && "hidden lg:flex"
+                                )}>
+                                    {renderMediaContent()}
 
-                        {/* Controls Bar */}
-                        <div className={cn(
-                            "pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 shrink-0",
-                            isSideBySideNotesOpen && "mt-auto"
-                        )}>
-                            <div className="flex items-center gap-2">
-                                {isStudyStep && hasPrevious && prevStep ? (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onNavigateStep(prevStep)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                    >
-                                        <ChevronLeftIcon className="h-4 w-4" />
-                                        <span>Anterior</span>
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={onClose}
-                                        className="min-h-[44px] rounded-xl px-4 text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground"
-                                    >
-                                        Voltar
-                                    </Button>
-                                )}
+                                    {resObj.description && (
+                                        <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 sm:p-5 text-xs sm:text-sm text-muted-foreground shrink-0">
+                                            <p className="font-bold text-foreground mb-1 text-xs text-muted-foreground/80">Sobre esta ministração</p>
+                                            <p className="leading-relaxed text-foreground/90 whitespace-pre-line">{resObj.description}</p>
+                                        </div>
+                                    )}
+                                </div>
 
-                                {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onEditTextResource(resObj)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 hover:bg-muted cursor-pointer"
-                                    >
-                                        <PencilIcon className="h-3.5 w-3.5" />
-                                        <span>Editar Texto</span>
-                                    </Button>
+                                {/* Notes Column (Right) */}
+                                <div className={cn(
+                                    "flex flex-col flex-1 h-full min-h-[320px] lg:w-[44%] xl:w-[42%] min-h-0 animate-in fade-in duration-300",
+                                    mobileTab === "content" && "hidden lg:flex"
+                                )}>
+                                    <TextEditor
+                                        key={`lesson-note-${resObj.id}`}
+                                        inline={true}
+                                        isOpen={true}
+                                        mode="note"
+                                        modalTitle={`Anotações: ${resObj.title}`}
+                                        initialData={existingNote ? {
+                                            id: existingNote.id,
+                                            title: existingNote.title,
+                                            content: existingNote.content,
+                                        } : {
+                                            title: `Anotações: ${resObj.title}`,
+                                            content: "",
+                                        }}
+                                        onClose={handleCloseNotes}
+                                        onSave={onSaveNote}
+                                        onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
+                                        className="h-full w-full flex-1 min-h-0"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 min-h-0 flex flex-col gap-4 sm:gap-6 w-full max-w-5xl mx-auto">
+                                {renderMediaContent()}
+
+                                {resObj.description && (
+                                    <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 sm:p-5 text-xs sm:text-sm text-muted-foreground shrink-0">
+                                        <p className="font-bold text-foreground mb-1 text-xs text-muted-foreground/80">Sobre esta ministração</p>
+                                        <p className="leading-relaxed text-foreground/90 whitespace-pre-line">{resObj.description}</p>
+                                    </div>
                                 )}
                             </div>
+                        )}
+                    </div>
+                )}
 
-                            <div className="flex items-center gap-2">
-                                {isStudyStep ? (
-                                    <Button
-                                        onClick={handleCompleteStep}
-                                        disabled={isTogglingComplete}
-                                        className={cn(
-                                            "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-2xs cursor-pointer transition-all",
-                                            isStepCompleted
-                                                ? "btn-tactile bg-primary text-primary-foreground"
-                                                : "btn-tactile"
-                                        )}
-                                    >
-                                        {isStepCompleted ? (
-                                            <>
-                                                <CheckIcon className="h-4 w-4 stroke-[3]" />
-                                                Etapa Concluída
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2Icon className="h-4 w-4" />
-                                                Concluir Etapa
-                                            </>
-                                        )}
-                                    </Button>
-                                ) : (
-                                    <span className="text-xs text-muted-foreground italic px-2">
-                                        Recurso individual do acervo
-                                    </span>
-                                )}
+                {/* 3. FIXED BOTTOM CONTROLS BAR (FOOTER) */}
+                <div className="p-2.5 sm:px-6 py-2.5 border-t border-border/50 shrink-0 bg-card/95 backdrop-blur-md z-20 flex flex-wrap items-center justify-between gap-3 rounded-b-3xl">
+                    <div className="flex items-center gap-2">
+                        {isStudyStep && hasPrevious && prevStep ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onNavigateStep(prevStep)}
+                                className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                            >
+                                <ChevronLeftIcon className="h-4 w-4" />
+                                <span>Anterior</span>
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={onClose}
+                                className="min-h-[44px] rounded-xl px-4 text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground"
+                            >
+                                Voltar
+                            </Button>
+                        )}
 
-                                {isStudyStep && hasNext && nextStep && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => onNavigateStep(nextStep)}
-                                        className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
-                                    >
-                                        <span>Próxima</span>
-                                        <ChevronRightIcon className="h-4 w-4" />
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
+                        {canAddMaterial && resObj.type === "markdown" && onEditTextResource && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onEditTextResource(resObj)}
+                                className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 hover:bg-muted cursor-pointer"
+                            >
+                                <PencilIcon className="h-3.5 w-3.5" />
+                                <span>Editar Texto</span>
+                            </Button>
+                        )}
                     </div>
 
-                    {/* Notes Column (Right) */}
-                    {isSideBySideNotesOpen && (
-                        <div className={cn(
-                            "flex flex-col flex-1 h-full min-h-[320px] lg:w-[44%] xl:w-[42%] min-h-0 animate-in fade-in duration-300",
-                            mobileTab === "content" && "hidden lg:flex"
-                        )}>
-                            <TextEditor
-                                key={`lesson-note-${resObj.id}`}
-                                inline={true}
-                                isOpen={true}
-                                mode="note"
-                                modalTitle={`Anotações: ${resObj.title}`}
-                                initialData={existingNote ? {
-                                    id: existingNote.id,
-                                    title: existingNote.title,
-                                    content: existingNote.content,
-                                } : {
-                                    title: `Anotações: ${resObj.title}`,
-                                    content: "",
-                                }}
-                                onClose={handleCloseNotes}
-                                onSave={onSaveNote}
-                                onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
-                                className="h-full w-full flex-1 min-h-0"
-                            />
-                        </div>
+                    {/* Middle helper link for PDF on desktop */}
+                    {resObj.type === "pdf" && (
+                        <a
+                            href={resObj.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hidden md:inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline cursor-pointer"
+                        >
+                            <ExternalLinkIcon className="h-3.5 w-3.5" />
+                            <span>Abrir em Outra Página (Tela Cheia Nativa)</span>
+                        </a>
                     )}
+
+                    <div className="flex items-center gap-2">
+                        {isStudyStep ? (
+                            <Button
+                                onClick={handleCompleteStep}
+                                disabled={isTogglingComplete}
+                                className={cn(
+                                    "min-h-[44px] px-5 rounded-xl gap-2 text-xs sm:text-sm font-semibold shadow-2xs cursor-pointer transition-all",
+                                    isStepCompleted
+                                        ? "btn-tactile bg-primary text-primary-foreground"
+                                        : "btn-tactile"
+                                )}
+                            >
+                                {isStepCompleted ? (
+                                    <>
+                                        <CheckIcon className="h-4 w-4 stroke-[3]" />
+                                        Etapa Concluída
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle2Icon className="h-4 w-4" />
+                                        Concluir Etapa
+                                    </>
+                                )}
+                            </Button>
+                        ) : (
+                            <span className="text-xs text-muted-foreground italic px-2">
+                                Recurso individual do acervo
+                            </span>
+                        )}
+
+                        {isStudyStep && hasNext && nextStep && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onNavigateStep(nextStep)}
+                                className="min-h-[44px] gap-1.5 rounded-xl text-xs font-semibold border-border/60 cursor-pointer"
+                            >
+                                <span>Próxima</span>
+                                <ChevronRightIcon className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
