@@ -68,9 +68,6 @@ export function LandingNewsSection() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
             Notícias
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-            Acompanhe as últimas mensagens, comunicados e o mover de Deus entre os discípulos na cidade.
-          </p>
         </div>
 
         {/* 1. Main Featured Media Card with actual YouTube Thumbnail */}
