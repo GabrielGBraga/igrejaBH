@@ -1249,7 +1249,7 @@ BEGIN
     
     (m_res_id2, 'Caderno de Estudo 01: Fundamentos do Propósito Eterno', 
      'Apostila em PDF com referências bíblicas, roteiro de leitura em família e perguntas reflexivas para o discipulado.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'O Propósito Eterno', 'Catequese', now() - INTERVAL '28 days'),
+     'pdf', '/documents/caderno-estudo-02-juntas-e-ligamentos.pdf', 'O Propósito Eterno', 'Catequese', now() - INTERVAL '28 days'),
 
     (m_res_id3, 'Artigo: A Centralidade de Cristo e o Fim da Religiosidade', 
      'Texto meditativo abordando a distinção entre a salvação como meio e a conformidade a Cristo como o objetivo final.', 
@@ -1261,7 +1261,7 @@ BEGIN
 
     (m_res_id5, 'Caderno de Estudo 02: Relacionamentos de Aliança e Cuidado Mútuo', 
      'Guia prático para reuniões de companheirismo entre discípulos e discipuladores.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Juntas e Ligamentos', 'Catequese', now() - INTERVAL '18 days'),
+     'pdf', '/documents/caderno-estudo-02-juntas-e-ligamentos.pdf', 'Juntas e Ligamentos', 'Catequese', now() - INTERVAL '18 days'),
 
     (m_res_id6, 'O Sacerdócio Universal de Todos os Santos', 
      'Princípios do Novo Testamento que desmistificam a divisão clero/leigo. Todos os discípulos são sacerdotes e ministros em serviço.', 
@@ -1277,11 +1277,11 @@ BEGIN
 
     (m_res_id9, 'Caderno de Apoio: Evangelismo Natural e Fazendo Discípulos', 
      'Roteiro simples para compartilhar o testemunho de transformação de vida nas ruas e ambientes de trabalho.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Evangelismo do Reino', 'Prática', now() - INTERVAL '8 days'),
+     'pdf', '/documents/caderno-estudo-02-juntas-e-ligamentos.pdf', 'Evangelismo do Reino', 'Prática', now() - INTERVAL '8 days'),
 
     (m_res_id10, 'Apostila Completa: Panorama de Atos dos Apóstolos', 
      'Estudo verso a verso sobre como a igreja primitiva vivia em unanimidade e comum partilha de bens.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Panorama Bíblico', 'Estudo Bíblico', now() - INTERVAL '5 days');
+     'pdf', '/documents/caderno-estudo-02-juntas-e-ligamentos.pdf', 'Panorama Bíblico', 'Estudo Bíblico', now() - INTERVAL '5 days');
 
   -- 8B. Inserção das 3 Trilhas de Estudo Principais (Studies)
   INSERT INTO public.studies (id, title, description, created_by, created_at)

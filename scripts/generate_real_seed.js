@@ -69,6 +69,24 @@ function cleanString(str) {
     .replace(/[^a-z0-9]/g, '');
 }
 
+function cleanStr(s) {
+  return (s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function nameMatches(personName, targetName) {
+  const p = cleanStr(personName);
+  const t = cleanStr(targetName);
+  if (!p || !t) return false;
+  if (p === t) return true;
+  const pFirst = p.split(/\s+/)[0];
+  const tFirst = t.split(/\s+/)[0];
+  return pFirst === tFirst || p.startsWith(t) || t.startsWith(p);
+}
+
 console.log('Reading CSV files...');
 const churchData = parseCSV(churchCsvPath);
 const groupsData = parseCSV(groupsCsvPath);
@@ -170,39 +188,94 @@ activeDisciples.forEach(d => {
   families.get(famKey).push(d);
 });
 
+let singlePersonCount = 0;
+let couplesWithoutKids = 0;
+let couplesWithKids = 0;
+let singleMothersCount = 0;
+let singleFathersCount = 0;
+
 families.forEach((members) => {
-  const adults = members.filter(m => m.Situação === 'Vinculado');
-  const men = adults.filter(m => m.Sexo === 'Masculino');
-  const women = adults.filter(m => m.Sexo === 'Feminino');
-  const kids = members.filter(m => m.Situação === 'Filho de discípulo');
+  const famName = members[0].Família.trim();
+
+  if (members.length === 1) {
+    singlePersonCount++;
+    return;
+  }
+
+  const womenMatchingFam = members.filter(m => m.Sexo === 'Feminino' && nameMatches(m.Nome, famName));
+  const menMatchingFam = members.filter(m => m.Sexo === 'Masculino' && nameMatches(m.Nome, famName));
 
   let husband = null;
   let wife = null;
+  let motherOnly = null;
+  let fatherOnly = null;
 
-  if (men.length === 1 && women.length === 1) {
-    husband = men[0];
-    wife = women[0];
-  } else if (men.length >= 1 && women.length >= 1) {
-    const famName = members[0].Família.toLowerCase();
-    husband = men.find(m => m.Nome.toLowerCase() === famName) || men[0];
-    wife = women.find(w => w.Nome.toLowerCase() === famName) || women[0];
+  if (menMatchingFam.length > 0) {
+    husband = menMatchingFam[0];
+  } else if (members[0].Sexo === 'Masculino') {
+    husband = members[0];
   }
 
-  if (husband && wife) {
-    const hId = memberRowToProfileUuid[husband['ID Membro']];
-    const wId = memberRowToProfileUuid[wife['ID Membro']];
-    spouseMap.set(hId, wId);
-    spouseMap.set(wId, hId);
-  }
+  if (husband) {
+    // Only a 'Vinculado' woman can be a wife, never a child ('Filho de discípulo')
+    const eligibleWives = members.filter(m => m !== husband && m.Sexo === 'Feminino' && m.Situação === 'Vinculado');
+    if (eligibleWives.length > 0) {
+      wife = eligibleWives[0];
+    }
 
-  if (kids.length > 0) {
-    const fatherId = husband ? memberRowToProfileUuid[husband['ID Membro']] : (men.length > 0 ? memberRowToProfileUuid[men[0]['ID Membro']] : null);
-    const motherId = wife ? memberRowToProfileUuid[wife['ID Membro']] : (women.length > 0 ? memberRowToProfileUuid[women[0]['ID Membro']] : null);
+    if (wife) {
+      const hId = memberRowToProfileUuid[husband['ID Membro']];
+      const wId = memberRowToProfileUuid[wife['ID Membro']];
+      spouseMap.set(hId, wId);
+      spouseMap.set(wId, hId);
 
-    kids.forEach(k => {
-      const kId = memberRowToProfileUuid[k['ID Membro']];
-      childrenMap.set(kId, { fatherId, motherId });
+      const children = members.filter(m => m !== husband && m !== wife);
+      if (children.length > 0) couplesWithKids++;
+      else couplesWithoutKids++;
+
+      children.forEach(c => {
+        const cId = memberRowToProfileUuid[c['ID Membro']];
+        childrenMap.set(cId, { fatherId: hId, motherId: wId });
+      });
+    } else {
+      fatherOnly = husband;
+      singleFathersCount++;
+      const fId = memberRowToProfileUuid[fatherOnly['ID Membro']];
+      const children = members.filter(m => m !== fatherOnly);
+      children.forEach(c => {
+        const cId = memberRowToProfileUuid[c['ID Membro']];
+        childrenMap.set(cId, { fatherId: fId, motherId: null });
+      });
+    }
+  } else if (womenMatchingFam.length > 0 || members[0].Sexo === 'Feminino') {
+    motherOnly = womenMatchingFam.length > 0 ? womenMatchingFam[0] : members[0];
+    singleMothersCount++;
+    const mId = memberRowToProfileUuid[motherOnly['ID Membro']];
+    const children = members.filter(m => m !== motherOnly);
+    children.forEach(c => {
+      const cId = memberRowToProfileUuid[c['ID Membro']];
+      childrenMap.set(cId, { fatherId: null, motherId: mId });
     });
+  }
+});
+
+console.log(`Famílias resolvidas: ${families.size} totais.`);
+console.log(`- Solteiros/Individuais: ${singlePersonCount}`);
+console.log(`- Casais sem filhos: ${couplesWithoutKids}`);
+console.log(`- Casais com filhos: ${couplesWithKids}`);
+console.log(`- Total de casais: ${couplesWithoutKids + couplesWithKids} (${spouseMap.size / 2} pares)`);
+console.log(`- Mães solteiras com filhos: ${singleMothersCount}`);
+console.log(`- Pais solteiros com filhos: ${singleFathersCount}`);
+console.log(`- Total de filhos vinculados: ${childrenMap.size}`);
+
+// Dependents count per parent
+const dependentsCountMap = new Map();
+childrenMap.forEach(p => {
+  if (p.fatherId) {
+    dependentsCountMap.set(p.fatherId, (dependentsCountMap.get(p.fatherId) || 0) + 1);
+  }
+  if (p.motherId) {
+    dependentsCountMap.set(p.motherId, (dependentsCountMap.get(p.motherId) || 0) + 1);
   }
 });
 
@@ -596,6 +669,11 @@ childrenMap.forEach((p, kidId) => {
   sqlChunks.push(`  UPDATE public.profiles SET father_id = ${fSql}, mother_id = ${mSql} WHERE id = '${kidId}';`);
 });
 
+// Dependents count per parent
+dependentsCountMap.forEach((cnt, parentId) => {
+  sqlChunks.push(`  UPDATE public.profiles SET dependents_count = ${cnt} WHERE id = '${parentId}';`);
+});
+
 sqlChunks.push(`
   -- ==========================================================================
   -- 7. ATUALIZAR DISCIPULADO (discipler_id)
@@ -648,7 +726,7 @@ sqlChunks.push(`
     
     (m_res_id2, 'Caderno de Estudo 01: Fundamentos do Propósito Eterno', 
      'Apostila em PDF com referências bíblicas, roteiro de leitura em família e perguntas reflexivas para o discipulado.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'O Propósito Eterno', 'Catequese', now() - INTERVAL '28 days'),
+     'pdf', '/documents/caderno-estudo-01-proposito-eterno.pdf', 'O Propósito Eterno', 'Catequese', now() - INTERVAL '28 days'),
 
     (m_res_id3, 'Artigo: A Centralidade de Cristo e o Fim da Religiosidade', 
      'Texto meditativo abordando a distinção entre a salvação como meio e a conformidade a Cristo como o objetivo final.', 
@@ -660,7 +738,7 @@ sqlChunks.push(`
 
     (m_res_id5, 'Caderno de Estudo 02: Relacionamentos de Aliança e Cuidado Mútuo', 
      'Guia prático para reuniões de companheirismo entre discípulos e discipuladores.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Juntas e Ligamentos', 'Catequese', now() - INTERVAL '18 days'),
+     'pdf', '/documents/caderno-estudo-02-juntas-e-ligamentos.pdf', 'Juntas e Ligamentos', 'Catequese', now() - INTERVAL '18 days'),
 
     (m_res_id6, 'O Sacerdócio Universal de Todos os Santos', 
      'Princípios do Novo Testamento que desmistificam a divisão clero/leigo. Todos os discípulos são sacerdotes e ministros em serviço.', 
@@ -672,7 +750,7 @@ sqlChunks.push(`
 
     (m_res_id8, 'Módulo 03: Prática do Evangelho do Reino nas Casas', 
      'Roteiro de compartilhamento do pão, oração e instrução bíblica mútua para os encontros domiciliares.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Sacerdócio Universal', 'Catequese', now() - INTERVAL '10 days'),
+     'pdf', '/documents/caderno-apoio-evangelismo-natural.pdf', 'Sacerdócio Universal', 'Catequese', now() - INTERVAL '10 days'),
 
     (m_res_id9, 'Vídeo Institucional: Princípios do Reino e Descentralização', 
      'Palestra introdutória sobre autonomia dos grupos caseiros e serviço diaconal aos necessitados.', 
@@ -680,7 +758,7 @@ sqlChunks.push(`
 
     (m_res_id10, 'Caderno Geral: O Evangelho Segundo Jesus', 
      'Compilação de ensinos práticos dos quatro evangelhos com foco no arrependimento, fé e seguimento radical de Cristo.', 
-     'pdf', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'Vida do Reino', 'Fundamentos', now() - INTERVAL '5 days');
+     'pdf', '/documents/apostila-atos-dos-apostolos.pdf', 'Vida do Reino', 'Fundamentos', now() - INTERVAL '5 days');
 
   INSERT INTO public.studies (id, title, description, created_by, created_at)
   VALUES
