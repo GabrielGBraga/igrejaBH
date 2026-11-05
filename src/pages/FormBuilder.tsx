@@ -29,7 +29,6 @@ import {
   Radio,
   Calendar,
   Layers,
-  Download,
   Upload,
   Share2,
   GripVertical,
@@ -134,7 +133,7 @@ export default function FormBuilder() {
   // Builder panel states
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null)
   const [builderTab, setBuilderTab] = useState<
-    "edit" | "presentation" | "preview" | "json"
+    "edit" | "presentation" | "preview"
   >("edit")
   const [newOptionTexts, setNewOptionTexts] = useState<Record<string, string>>(
     {}
@@ -522,14 +521,6 @@ export default function FormBuilder() {
         toast.error(`Falha ao excluir formulário: ${error.message}`)
       }
     }
-  }
-
-  // Export form schema as JSON file/clipboard
-  const handleExportJSON = (form: FormTemplate, e: React.MouseEvent) => {
-    e.stopPropagation()
-    const schema = JSON.stringify(form, null, 2)
-    navigator.clipboard.writeText(schema)
-    toast.success("Esquema do formulário copiado como JSON!")
   }
 
   // Import form schema from clipboard JSON
@@ -1333,16 +1324,6 @@ export default function FormBuilder() {
                           size="icon"
                           variant="ghost"
                           className="h-10 w-10 shrink-0 cursor-pointer rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                          onClick={(e) => handleExportJSON(form, e)}
-                          title="Copiar JSON"
-                        >
-                          <Download className="h-4.5 w-4.5" />
-                        </Button>
-
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-10 w-10 shrink-0 cursor-pointer rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary"
                           onClick={(e) => handleShareLink(form, e)}
                           title="Compartilhar Link"
                         >
@@ -1524,14 +1505,6 @@ export default function FormBuilder() {
                 </Button>
               )}
               <Button
-                variant="outline"
-                className="h-11 w-full cursor-pointer rounded-md border-border text-sm transition-all active:scale-95 sm:w-auto"
-                onClick={(e) => handleExportJSON(selectedForm, e)}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Copiar JSON
-              </Button>
-              <Button
                 onClick={handleSaveForm}
                 className="h-11 w-full cursor-pointer rounded-md bg-primary px-6 font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/90 active:scale-95 sm:w-auto"
               >
@@ -1587,19 +1560,6 @@ export default function FormBuilder() {
                 <Eye className="h-4 w-4" />
                 <span>Preview</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => setBuilderTab("json")}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[44px] ${
-                  builderTab === "json"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                }`}
-              >
-                <FileText className="h-4 w-4" />
-                <span>Esquema JSON</span>
-              </button>
             </div>
           </div>
 
@@ -1615,27 +1575,6 @@ export default function FormBuilder() {
                     )
                   }
                 />
-              </div>
-            ) : builderTab === "json" ? (
-              <div className="col-span-1 lg:col-span-12 space-y-4">
-                <Card className="rounded-xl border-border bg-card/40 p-5 shadow-lg backdrop-blur-xl">
-                  <div className="mb-4 flex items-center justify-between border-b border-border/50 pb-3">
-                    <h3 className="text-sm font-bold text-foreground">
-                      Esquema Estrutural JSON
-                    </h3>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => handleExportJSON(selectedForm, e)}
-                      className="h-8 cursor-pointer rounded-md"
-                    >
-                      Copiar JSON
-                    </Button>
-                  </div>
-                  <pre className="max-h-[450px] overflow-x-auto rounded-lg border border-border/60 bg-background p-4 font-mono text-[10px] leading-normal text-muted-foreground custom-scrollbar">
-                    {JSON.stringify(selectedForm, null, 2)}
-                  </pre>
-                </Card>
               </div>
             ) : (
               <>
