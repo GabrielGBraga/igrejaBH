@@ -56,7 +56,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/50 backdrop-blur-sm duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 no-print",
+        "fixed inset-0 isolate z-50 bg-black/50 backdrop-blur-sm duration-200 ease-out data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 no-print",
         className
       )}
       {...props}
@@ -83,7 +83,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex flex-col w-[calc(100%-1.5rem)] sm:w-full max-h-[min(90dvh,880px)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-6 text-sm text-foreground shadow-2xl duration-100 outline-none overscroll-contain overflow-y-auto custom-scrollbar data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 no-print",
+          "fixed top-1/2 left-1/2 z-50 flex flex-col w-[calc(100%-1.5rem)] sm:w-full max-h-[min(90dvh,880px)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-6 text-sm text-foreground shadow-2xl duration-250 ease-out outline-none overscroll-contain overflow-y-auto custom-scrollbar data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-bottom-2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-closed:slide-out-to-bottom-2 motion-reduce:transition-none motion-reduce:animate-none no-print",
           sizeClasses[size],
           className
         )}

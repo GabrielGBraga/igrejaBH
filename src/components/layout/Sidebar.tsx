@@ -188,7 +188,7 @@ export function Sidebar() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center rounded-xl text-sm font-medium transition-all duration-200",
+                  "flex items-center rounded-xl text-sm font-medium transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:active:scale-100",
                   isCollapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"

@@ -81,7 +81,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("flex-1 text-xs/relaxed outline-none", className)}
+      className={cn("flex-1 text-xs/relaxed outline-none animate-in fade-in-50 duration-200 motion-reduce:animate-none", className)}
       {...props}
     />
   )

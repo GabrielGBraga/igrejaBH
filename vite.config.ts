@@ -20,4 +20,27 @@ export default defineConfig({
       ],
     },
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("leaflet") && !id.includes("react-leaflet")) {
+              return "vendor-leaflet"
+            }
+            if (id.includes("@tanstack/react-table")) {
+              return "vendor-table"
+            }
+            if (id.includes("@supabase")) {
+              return "vendor-supabase"
+            }
+            if (id.includes("date-fns")) {
+              return "vendor-date"
+            }
+          }
+        },
+      },
+    },
+  },
 })

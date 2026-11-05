@@ -17,7 +17,7 @@ export function Layout({ children }: LayoutProps) {
       <Sidebar />
       <MobileNav menuOpen={mobileMenuOpen} onMenuOpenChange={setMobileMenuOpen} />
       <ProfileCompletionBlocker />
-      <main className="mx-auto w-full max-w-7xl flex-1 animate-in p-4 pb-24 duration-500 fade-in md:p-8 md:pb-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 animate-in p-4 pb-24 duration-300 ease-out fade-in motion-reduce:animate-none md:p-8 md:pb-8">
         {children}
       </main>
       <BottomNav onOpenMenu={() => setMobileMenuOpen(true)} />

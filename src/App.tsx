@@ -1,36 +1,38 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react"
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom"
+import supabase from "@/lib/supabase"
 import {
   isRestrictedGroupMode,
   enableRestrictedGroupMode,
   disableRestrictedGroupMode,
-} from "./lib/restrictedMode";
-import { RestrictedGroupLayout } from "./components/layout/RestrictedGroupLayout";
-import { Loader2 } from "lucide-react";
-import Landing from "./pages/Landing.tsx";
-import QuemSomos from "./pages/QuemSomos.tsx";
-import SignIn from "./pages/SignIn.tsx";
-import SignUp from "./pages/SignUp.tsx";
-import Home from "./pages/Home.tsx";
-import AddHomeGroup from "./pages/AddHomeGroup.tsx";
-import Profile from "./pages/Profile.tsx";
-import CreatePost from "./pages/CreatePost.tsx";
-import Ensinos from "./pages/Ensinos.tsx";
-import Events from "./pages/Events.tsx";
-import ManageEvents from "./pages/ManageEvents.tsx";
-import ManageEventDetail from "./pages/ManageEventDetail.tsx";
-import Messages from "./pages/Messages.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import FormBuilder from "./pages/FormBuilder.tsx";
-import FormResponder from "./pages/FormResponder.tsx";
-import RedeRelacionamentos from "./pages/RedeRelacionamentos.tsx";
-import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
-import { Toaster } from "@/components/ui/sonner";
-import { Layout } from "./components/layout/Layout.tsx";
-import { LandingHeader } from "./components/landing/LandingHeader.tsx";
-import { LandingFooter } from "./components/landing/LandingFooter.tsx";
-import type { ReactNode } from "react";
+} from "./lib/restrictedMode"
+import { RestrictedGroupLayout } from "./components/layout/RestrictedGroupLayout"
+import { Loader2 } from "lucide-react"
+import { ProtectedRoute } from "./components/ProtectedRoute"
+import { Toaster } from "@/components/ui/sonner"
+import { Layout } from "./components/layout/Layout"
+import { LandingHeader } from "./components/landing/LandingHeader"
+import { LandingFooter } from "./components/landing/LandingFooter"
+import { PageLoadingFallback } from "@/components/ui/PageLoadingFallback"
+
+// Lazy loaded pages for optimal route-level code splitting
+const Landing = lazy(() => import("./pages/Landing"))
+const QuemSomos = lazy(() => import("./pages/QuemSomos"))
+const SignIn = lazy(() => import("./pages/SignIn"))
+const SignUp = lazy(() => import("./pages/SignUp"))
+const Home = lazy(() => import("./pages/Home"))
+const AddHomeGroup = lazy(() => import("./pages/AddHomeGroup"))
+const Profile = lazy(() => import("./pages/Profile"))
+const CreatePost = lazy(() => import("./pages/CreatePost"))
+const Ensinos = lazy(() => import("./pages/Ensinos"))
+const Events = lazy(() => import("./pages/Events"))
+const ManageEvents = lazy(() => import("./pages/ManageEvents"))
+const ManageEventDetail = lazy(() => import("./pages/ManageEventDetail"))
+const Messages = lazy(() => import("./pages/Messages"))
+const NotFound = lazy(() => import("./pages/NotFound"))
+const FormBuilder = lazy(() => import("./pages/FormBuilder"))
+const FormResponder = lazy(() => import("./pages/FormResponder"))
+const RedeRelacionamentos = lazy(() => import("./pages/RedeRelacionamentos"))
 
 // Helper component to provide Layout context to protected routes
 const AppLayout = () => (
@@ -214,72 +216,99 @@ function App() {
     <BrowserRouter>
       <RestrictedModeGuard>
         <Toaster />
-        <Routes>
-          <Route path="/" element={<RootRoute />} />
-          <Route path="/landing" element={<Landing />} />
-          <Route path="/quem-somos" element={<QuemSomos />} />
-          <Route path="/quero-saber-mais" element={<Navigate to="/quem-somos" replace />} />
-          <Route path="/quero-conhecer" element={<Navigate to="/quem-somos" replace />} />
-          <Route path="/conhecer" element={<Navigate to="/quem-somos" replace />} />
-          <Route path="/ensinos" element={<EnsinosRoute />} />
-          <Route path="/entrar" element={<SignIn />} />
-          <Route path="/login" element={<Navigate to="/entrar" replace />} />
-          <Route path="/cadastro" element={<SignUp />} />
-          <Route path="/formularios/responder/:formId" element={<FormResponder />} />
-          <Route path="/formularios/:formId" element={<FormResponder />} />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<RootRoute />} />
+            <Route path="/landing" element={<Landing />} />
+            <Route path="/quem-somos" element={<QuemSomos />} />
+            <Route path="/quero-saber-mais" element={<Navigate to="/quem-somos" replace />} />
+            <Route path="/quero-conhecer" element={<Navigate to="/quem-somos" replace />} />
+            <Route path="/conhecer" element={<Navigate to="/quem-somos" replace />} />
+            <Route path="/ensinos" element={<EnsinosRoute />} />
+            <Route path="/entrar" element={<SignIn />} />
+            <Route path="/login" element={<Navigate to="/entrar" replace />} />
+            <Route path="/cadastro" element={<SignUp />} />
+            <Route path="/formularios/responder/:formId" element={<FormResponder />} />
+            <Route path="/formularios/:formId" element={<FormResponder />} />
 
-          {/* Rota do Modo Link Exclusivo do Grupo */}
-          <Route
-            path="/meu-grupo"
-            element={
-              <ProtectedRoute>
-                <RestrictedGroupLayout>
-                  <RedeRelacionamentos singleGroupMode={true} />
-                </RestrictedGroupLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/gestao-grupo" element={<Navigate to="/meu-grupo" replace />} />
+            {/* Rota do Modo Link Exclusivo do Grupo */}
+            <Route
+              path="/meu-grupo"
+              element={
+                <ProtectedRoute>
+                  <RestrictedGroupLayout>
+                    <RedeRelacionamentos singleGroupMode={true} />
+                  </RestrictedGroupLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/gestao-grupo" element={<Navigate to="/meu-grupo" replace />} />
 
-          {/* Protected Routes inside shared Layout */}
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<Home />} />
-            <Route path="/noticias/nova" element={<CreatePost />} />
-            <Route path="/perfil" element={<Profile />} />
-            <Route path="/eventos" element={<Events />} />
-            <Route path="/mensagens" element={<Messages />} />
+            {/* Protected Routes inside shared Layout */}
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Home />} />
+              <Route path="/noticias/nova" element={<CreatePost />} />
+              <Route path="/perfil" element={<Profile />} />
+              <Route path="/eventos" element={<Events />} />
+              <Route path="/mensagens" element={<Messages />} />
 
-            <Route path="/grupos-caseiros" element={
-              <PermissionGuard requireAdmin><AddHomeGroup /></PermissionGuard>
-            } />
-            
-            <Route path="/gestao" element={
-              <PermissionGuard requireManagement><RedeRelacionamentos /></PermissionGuard>
-            } />
-            <Route path="/gestao/vinculados" element={<Navigate to="/gestao" replace />} />
-            <Route path="/gestao/grafo" element={<Navigate to="/gestao" replace />} />
-            
-            <Route path="/manage-events" element={
-              <PermissionGuard requireManagement><ManageEvents /></PermissionGuard>
-            } />
-            
-            <Route path="/manage-events/:eventId" element={
-              <PermissionGuard requireManagement><ManageEventDetail /></PermissionGuard>
-            } />
+              <Route
+                path="/grupos-caseiros"
+                element={
+                  <PermissionGuard requireAdmin>
+                    <AddHomeGroup />
+                  </PermissionGuard>
+                }
+              />
 
-            <Route path="/gestao/eventos" element={<Navigate to="/manage-events" replace />} />
-            <Route path="/gestao/eventos/:eventId" element={<Navigate to="/manage-events" replace />} />
-            
-            <Route path="/gestao/formularios" element={
-              <PermissionGuard requireCanPost><FormBuilder /></PermissionGuard>
-            } />
-          </Route>
+              <Route
+                path="/gestao"
+                element={
+                  <PermissionGuard requireManagement>
+                    <RedeRelacionamentos />
+                  </PermissionGuard>
+                }
+              />
+              <Route path="/gestao/vinculados" element={<Navigate to="/gestao" replace />} />
+              <Route path="/gestao/grafo" element={<Navigate to="/gestao" replace />} />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+              <Route
+                path="/manage-events"
+                element={
+                  <PermissionGuard requireManagement>
+                    <ManageEvents />
+                  </PermissionGuard>
+                }
+              />
+
+              <Route
+                path="/manage-events/:eventId"
+                element={
+                  <PermissionGuard requireManagement>
+                    <ManageEventDetail />
+                  </PermissionGuard>
+                }
+              />
+
+              <Route path="/gestao/eventos" element={<Navigate to="/manage-events" replace />} />
+              <Route path="/gestao/eventos/:eventId" element={<Navigate to="/manage-events" replace />} />
+
+              <Route
+                path="/gestao/formularios"
+                element={
+                  <PermissionGuard requireCanPost>
+                    <FormBuilder />
+                  </PermissionGuard>
+                }
+              />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </RestrictedModeGuard>
     </BrowserRouter>
   )
 }
 
-export default App;
+export default App

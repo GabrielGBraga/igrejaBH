@@ -43,7 +43,7 @@ export function BottomNav({ onOpenMenu }: BottomNavProps) {
               to={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "group relative flex min-h-[48px] min-w-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1 text-[11px] font-semibold transition-colors",
+                "group relative flex min-h-[48px] min-w-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-xl py-1 text-[11px] font-semibold transition-all duration-200 ease-out",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground active:scale-95"
@@ -51,7 +51,7 @@ export function BottomNav({ onOpenMenu }: BottomNavProps) {
             >
               <div
                 className={cn(
-                  "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+                  "flex h-7 w-12 items-center justify-center rounded-full transition-all duration-200 ease-out",
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground group-hover:text-foreground"
