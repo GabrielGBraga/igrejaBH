@@ -6,7 +6,6 @@ import {
   Minimize2,
   X,
   GitBranch,
-  Home,
   HeartHandshake,
   Search,
   Focus,
@@ -2126,7 +2125,6 @@ export function RelationshipGraphView({
   leaderIds,
   initialGroupId,
   onSelectDisciple,
-  onClose,
 }: RelationshipGraphViewProps) {
   const [layoutMode, setLayoutMode] = useState<GraphLayoutMode>("hierarchy")
   const [sectorFilter, setSectorFilter] = useState<string>("all")
@@ -2704,34 +2702,6 @@ export function RelationshipGraphView({
               <span>Árvore de Discipulado</span>
             </Button>
 
-            <Button
-              type="button"
-              size="sm"
-              variant={layoutMode === "groups" && !isolatedNodeId ? "default" : "outline"}
-              onClick={() => {
-                setIsolatedNodeId(null)
-                setLayoutMode("groups")
-              }}
-              className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
-            >
-              <Home className="h-4 w-4" />
-              <span>Juntas por Grupo Caseiro</span>
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant={layoutMode === "fellowships" && !isolatedNodeId ? "default" : "outline"}
-              onClick={() => {
-                setIsolatedNodeId(null)
-                setLayoutMode("fellowships")
-              }}
-              className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs font-medium"
-            >
-              <HeartHandshake className="h-4 w-4" />
-              <span>Rede de Companheirismo</span>
-            </Button>
-
             {isolatedNodeId && (
               <Button
                 type="button"
@@ -2748,7 +2718,7 @@ export function RelationshipGraphView({
             )}
           </div>
 
-          {/* Filtro Rápido por Gênero (Essencial pois discipulado e companheirismo são por gênero) + Fechar */}
+          {/* Filtro Rápido por Gênero (Essencial pois discipulado e companheirismo são por gênero) */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex flex-wrap rounded-xl border border-border bg-muted/40 p-1">
               <button
@@ -2785,18 +2755,6 @@ export function RelationshipGraphView({
                 Irmãs (F)
               </button>
             </div>
-
-            {onClose && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClose}
-                className="h-11 min-h-[44px] gap-1.5 rounded-xl text-xs"
-              >
-                <X className="h-4 w-4" />
-                <span>Fechar Grafo</span>
-              </Button>
-            )}
           </div>
         </div>
 
@@ -2916,23 +2874,6 @@ export function RelationshipGraphView({
               }`}
             >
               Incluir Crianças
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setDiagnosticFilter(
-                  diagnosticFilter === "potential_disciplers"
-                    ? "all"
-                    : "potential_disciplers"
-                )
-              }
-              className={`min-h-[44px] rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
-                diagnosticFilter === "potential_disciplers"
-                  ? GRAPH_UI_CLASSES.layerTogglePotentialActive
-                  : GRAPH_UI_CLASSES.layerToggleInactive
-              }`}
-            >
-              Potenciais Discipuladores ({juntaStats.potentialDisciplers.length})
             </button>
           </div>
 
