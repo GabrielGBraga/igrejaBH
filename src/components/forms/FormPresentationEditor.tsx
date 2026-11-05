@@ -55,6 +55,8 @@ export function FormPresentationEditor({
   form,
   onChange,
 }: FormPresentationEditorProps) {
+  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
+
   if (!form) return null;
 
   const current: FormPresentationPage = form.presentationPage || {
@@ -79,8 +81,6 @@ export function FormPresentationEditor({
     ],
     ctaButtonText: "Avançar para Inscrição",
   };
-
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
 
   const updateState = (updates: Partial<FormPresentationPage>) => {
     onChange({

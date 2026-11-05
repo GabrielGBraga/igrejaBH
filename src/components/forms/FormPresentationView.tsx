@@ -27,7 +27,7 @@ interface FormPresentationViewProps {
   isPreviewMode?: boolean;
 }
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   backpack: Backpack,
   clock: Clock,
   "map-pin": MapPin,

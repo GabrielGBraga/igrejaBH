@@ -21,6 +21,7 @@ WHERE baptism_date IS NOT NULL
    OR spouse_id IS NOT NULL;
 
 -- Atualizar RPC check_cpf_registration para considerar is_baptized
+DROP FUNCTION IF EXISTS public.check_cpf_registration(text);
 CREATE OR REPLACE FUNCTION public.check_cpf_registration(p_cpf text)
 RETURNS TABLE (
   exists_profile boolean,

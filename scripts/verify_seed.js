@@ -125,6 +125,20 @@ async function verify() {
   console.log('\nEstatísticas de Discipulado (ID Vinculado vs Nome Livre):');
   console.table(discStats.rows);
 
+  const familyStats = await client.query(`
+    SELECT 
+      count(*) FILTER (WHERE spouse_id IS NOT NULL) as married_people_count,
+      (count(*) FILTER (WHERE spouse_id IS NOT NULL) / 2) as couples_count,
+      count(*) FILTER (WHERE father_id IS NOT NULL OR mother_id IS NOT NULL) as total_children_linked,
+      count(*) FILTER (WHERE father_id IS NOT NULL AND mother_id IS NOT NULL) as two_parent_children,
+      count(*) FILTER (WHERE father_id IS NULL AND mother_id IS NOT NULL) as single_mother_children,
+      count(*) FILTER (WHERE father_id IS NOT NULL AND mother_id IS NULL) as single_father_children,
+      (SELECT count(DISTINCT mother_id) FROM public.profiles WHERE mother_id IS NOT NULL AND father_id IS NULL) as single_mothers_count
+    FROM public.profiles;
+  `);
+  console.log('\nEstatísticas de Famílias e Parentesco (Casais, Mães Solteiras e Filhos):');
+  console.table(familyStats.rows);
+
   // Sample with custom discipler name
   const sampleCustomDisc = await client.query(`
     SELECT full_name, discipler_id, custom_discipler_name

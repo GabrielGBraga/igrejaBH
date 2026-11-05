@@ -800,12 +800,18 @@ sqlChunks.push(`
     (gabriel_id, study_id2, m_res_id4, 'Anotações sobre Efésios 4:16', 'O corpo bem ajustado e consolidado pelo auxílio de todas as juntas segundo a justa cooperação de cada parte efetua o seu próprio aumento.');
 `);
 
-// Forms extracted cleanly from seed.sql
+// Forms extracted cleanly from seed.sql (sem presentation_page sintético para o censo real)
 const baseSeed = fs.readFileSync(path.join(process.cwd(), 'supabase', 'seed.sql'), 'utf8');
-const formsSection = baseSeed.substring(
+let formsSection = baseSeed.substring(
   baseSeed.indexOf('-- 9A. Formulário 1'),
   baseSeed.indexOf('-- Respostas de teste para o Censo de Dons')
 );
+
+// Garantir que o seed real não herde as páginas de apresentação sintéticas do mock
+formsSection = formsSection
+  .replace(/, presentation_page\)/g, ')')
+  .replace(/,\r?\n\s+'\{[\s\S]*?"enabled":\s*true[\s\S]*?\}'::jsonb/g, '')
+  .replace(/, presentation_page = EXCLUDED\.presentation_page/g, '');
 
 sqlChunks.push(`
   -- ==========================================================================

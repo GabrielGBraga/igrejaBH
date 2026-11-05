@@ -1367,7 +1367,7 @@ BEGIN
   -- ==========================================================================
   
   -- 9A. Formulário 1: Inscrição de Retiro de Solteiros
-  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active, presentation_page)
   VALUES (
     'form-solteiros-2026',
     'Ficha de Inscrição Oficial - Retiro de Solteiros 2026',
@@ -1459,8 +1459,54 @@ BEGIN
         "options": []
       }
     ]'::jsonb,
-    true, now(), true
-  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+    true, now(), true,
+    '{
+        "enabled": true,
+        "title": "Retiro de Solteiros e Jovens 2026",
+        "subtitle": "Orientações práticas e informações importantes antes de preencher sua inscrição.",
+        "bannerUrl": "",
+        "description": "Um tempo precioso de reflexão na Palavra, oração e comunhão intensa para os discípulos solteiros das nossas comunidades em Belo Horizonte, Contagem e Betim. Leia atentamente as orientações abaixo sobre horários, o que levar e acomodação.",
+        "ctaButtonText": "Avançar para Inscrição",
+        "infoItems": [
+            {
+                "id": "item-horarios",
+                "title": "Horários e Chegada",
+                "description": "Chegada na sexta-feira a partir das 18h30 para credenciamento e jantar. Encerramento no domingo às 15h após o almoço comunitário.",
+                "icon": "clock"
+            },
+            {
+                "id": "item-bagagem",
+                "title": "O que Levar",
+                "description": "Bíblia, caderno de anotações, roupa de cama e banho, travesseiro, itens de higiene pessoal e agasalho para a noite.",
+                "icon": "backpack"
+            },
+            {
+                "id": "item-local",
+                "title": "Local e Acesso",
+                "description": "Sítio das Palmeiras em Santa Luzia/MG. Para quem optar pelo transporte coletivo, o ponto de saída será informado pelo seu Grupo Caseiro.",
+                "icon": "map-pin"
+            },
+            {
+                "id": "item-alimentacao",
+                "title": "Alimentação Inclusa",
+                "description": "Todas as refeições estão inclusas (café da manhã, almoço e jantar). Caso possua restrições severas, informe no campo do formulário.",
+                "icon": "utensils"
+            },
+            {
+                "id": "item-alojamento",
+                "title": "Acomodações",
+                "description": "Alojamentos e chalés organizados por sexo. Cada participante será direcionado ao seu quarto na recepção do evento.",
+                "icon": "bed"
+            },
+            {
+                "id": "item-comunhao",
+                "title": "Vida Comunitária e Serviço",
+                "description": "Todos os participantes cooperam no serviço mútuo, na arrumação e no cuidado com os espaços comuns.",
+                "icon": "heart"
+            }
+        ]
+    }'::jsonb
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields, presentation_page = EXCLUDED.presentation_page;
 
   -- 9B. Formulário 2: Censo de Dons, Talentos e Apoio Mútuo
   INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
@@ -1573,7 +1619,7 @@ BEGIN
   ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
 
   -- 9D. Formulário 4: Inscrição de Retiro de Carnaval 2026
-  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active, presentation_page)
   VALUES (
     'form-carnaval-2026',
     'Ficha de Inscrição Oficial - Retiro de Carnaval 2026',
@@ -1655,11 +1701,45 @@ BEGIN
         "options": []
       }
     ]'::jsonb,
-    true, '2026-01-10 10:00:00+00'::timestamptz, true
-  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+    true, '2026-01-10 10:00:00+00'::timestamptz, true,
+    '{
+        "enabled": true,
+        "title": "Retiro de Carnaval 2026 — O Propósito Eterno",
+        "subtitle": "Informações e orientações práticas para os dias de convivência e imersão na Palavra.",
+        "bannerUrl": "",
+        "description": "Encontro anual de edificação da igreja na cidade durante o feriado de carnaval. Tempos de comunhão, estudo bíblico e fortalecimento das alianças fraternais. Por favor, confira as instruções antes de registrar sua participação.",
+        "ctaButtonText": "Avançar para Inscrição",
+        "infoItems": [
+            {
+                "id": "item-periodo",
+                "title": "Período e Cronograma",
+                "description": "Início no sábado pela manhã com café e acolhimento. Encerramento na terça-feira após o almoço.",
+                "icon": "calendar"
+            },
+            {
+                "id": "item-bagagem-carnaval",
+                "title": "O que Trazer",
+                "description": "Bíblia, roupas confortáveis para as reuniões, roupa de cama e banho, itens de higiene e remédios de uso contínuo.",
+                "icon": "backpack"
+            },
+            {
+                "id": "item-local-carnaval",
+                "title": "Localização",
+                "description": "Recanto da Serra em Betim/MG. Haverá sinalização desde a entrada principal da rodovia.",
+                "icon": "map-pin"
+            },
+            {
+                "id": "item-refeicoes-carnaval",
+                "title": "Refeições e Cozinha",
+                "description": "Refeições comunitárias completas servidas no refeitório central com cardápio planejado para toda a família.",
+                "icon": "utensils"
+            }
+        ]
+    }'::jsonb
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields, presentation_page = EXCLUDED.presentation_page;
 
   -- 9E. Formulário 5: Inscrição de Encontro Metropolitano de Casais 2026
-  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active)
+  INSERT INTO public.forms (id, name, description, fields, is_public, created_at, is_active, presentation_page)
   VALUES (
     'form-casais-2026',
     'Ficha de Inscrição - Encontro Metropolitano de Casais 2026',
@@ -1744,8 +1824,36 @@ BEGIN
         "options": []
       }
     ]'::jsonb,
-    true, now() - INTERVAL '3 days', true
-  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields;
+    true, now() - INTERVAL '3 days', true,
+    '{
+        "enabled": true,
+        "title": "Encontro Metropolitano de Casais 2026",
+        "subtitle": "Orientações para o encontro de fortalecimento dos lares e casais nas casas.",
+        "bannerUrl": "",
+        "description": "Um tempo dedicado ao diálogo, oração mútua e edificação bíblica para os casais de discípulos da região metropolitana. Veja as orientações e confirme a presença do casal.",
+        "ctaButtonText": "Avançar para Inscrição",
+        "infoItems": [
+            {
+                "id": "item-casais-horario",
+                "title": "Horário do Encontro",
+                "description": "Início pontual às 19h com recepção e jantar fraterno dos casais.",
+                "icon": "clock"
+            },
+            {
+                "id": "item-casais-orientacao",
+                "title": "Dinâmica em Casal",
+                "description": "Momentos dedicados a conversas sinceras entre marido e mulher, além de oração conjunta com os outros casais.",
+                "icon": "heart"
+            },
+            {
+                "id": "item-casais-material",
+                "title": "O que Trazer",
+                "description": "Bíblia e material de anotação pessoal.",
+                "icon": "backpack"
+            }
+        ]
+    }'::jsonb
+  ) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, fields = EXCLUDED.fields, presentation_page = EXCLUDED.presentation_page;
 
   -- Respostas de teste para o Censo de Dons (5 submissões)
   FOR i IN 1..5 LOOP
