@@ -3,10 +3,6 @@ import {
     Bold, 
     Italic, 
     Underline, 
-    Heading1, 
-    Heading2, 
-    Heading3, 
-    Heading4, 
     Quote, 
     List, 
     ListOrdered, 
@@ -222,6 +218,26 @@ export function TextEditor({
         }
     };
 
+    const handleInsertBibleQuote = () => {
+        executeCommand("formatBlock", "<blockquote>");
+        const sel = window.getSelection();
+        if (sel && sel.anchorNode) {
+            let el = sel.anchorNode as HTMLElement;
+            while (el && el.tagName !== "BLOCKQUOTE" && el !== editorRef.current) {
+                el = el.parentElement as HTMLElement;
+            }
+            if (el && el.tagName === "BLOCKQUOTE") {
+                if (!el.querySelector(".blockquote-badge")) {
+                    const badge = document.createElement("div");
+                    badge.className = "blockquote-badge";
+                    badge.contentEditable = "false";
+                    badge.innerHTML = "📖 Bíblia";
+                    el.insertBefore(badge, el.firstChild);
+                }
+            }
+        }
+    };
+
     // Paste event handler in Visual mode to strip disruptive inline styles
     const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -307,12 +323,11 @@ export function TextEditor({
 
     const editorStyles = (
         <style>{`
-            .prose-editor h1 { font-size: 1.5rem; font-weight: 800; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-            .prose-editor h2 { font-size: 1.25rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-            .prose-editor h3 { font-size: 1.125rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.25rem; }
-            .prose-editor h4 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.7; margin-top: 0.75rem; margin-bottom: 0.25rem; }
-            .prose-editor p { font-size: 0.875rem; line-height: 1.6; color: inherit; opacity: 0.9; margin-bottom: 0.75rem; }
-            .prose-editor blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.8; background-color: color-mix(in srgb, var(--muted) 20%, transparent); border-radius: 0 0.375rem 0.375rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .prose-editor h1 { font-size: 1.35rem; font-weight: 700; color: inherit; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+            .prose-editor h2 { font-size: 1.15rem; font-weight: 600; color: inherit; margin-top: 1rem; margin-bottom: 0.5rem; }
+            .prose-editor h3 { font-size: 1.05rem; font-weight: 600; color: inherit; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+            .prose-editor p { font-size: 0.925rem; line-height: 1.65; color: inherit; opacity: 0.95; margin-bottom: 0.75rem; }
+            .prose-editor blockquote { border-left: 3px solid var(--primary); padding-left: 0.875rem; margin: 0.875rem 0; font-style: italic; color: inherit; opacity: 0.9; background-color: color-mix(in srgb, var(--primary) 8%, transparent); border-radius: 0 0.5rem 0.5rem 0; padding-top: 0.5rem; padding-bottom: 0.5rem; }
             .prose-editor blockquote .blockquote-badge {
                 display: inline-flex;
                 align-items: center;
@@ -320,519 +335,709 @@ export function TextEditor({
                 color: var(--primary);
                 font-weight: 600;
                 font-size: 0.75rem;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.375rem;
                 user-select: none;
                 font-style: normal;
             }
-            .prose-editor ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
-            .prose-editor ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
-            .prose-editor li { font-size: 0.875rem; color: inherit; opacity: 0.9; margin-top: 0.25rem; }
+            .prose-editor ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+            .prose-editor ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+            .prose-editor li { font-size: 0.925rem; color: inherit; opacity: 0.95; margin-top: 0.25rem; }
             .prose-editor a { color: var(--primary); text-decoration: underline; font-weight: 500; }
             .prose-editor code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.25rem; border-radius: 0.25rem; border: 1px solid var(--border); }
-            .prose-editor table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid var(--border); font-size: 0.875rem; border-radius: 0.5rem; overflow: hidden; }
+            .prose-editor table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; border: 1px solid var(--border); font-size: 0.875rem; border-radius: 0.5rem; overflow: hidden; }
             .prose-editor th { background-color: var(--muted); border: 1px solid var(--border); padding: 0.5rem 0.75rem; font-weight: 600; text-align: left; }
             .prose-editor td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; opacity: 0.9; }
-            .prose-editor .editor-properties-block {
-                background-color: var(--muted);
-                border: 1px solid var(--border);
-                border-radius: 0.75rem;
-                padding: 1rem;
-                margin-bottom: 1.5rem;
-                font-family: monospace;
-                font-size: 0.8rem;
-                color: inherit;
-                opacity: 0.95;
-            }
-            .prose-editor .editor-properties-block .properties-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 0.5rem;
-                margin-bottom: 0.5rem;
+            .prose-editor:empty::before,
+            .prose-editor > p:only-child:has(br:only-child)::before {
+                content: attr(data-placeholder);
                 color: var(--muted-foreground);
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                font-size: 0.7rem;
-                user-select: none;
-            }
-            .prose-editor .editor-properties-block .properties-body {
-                outline: none;
-                min-height: 20px;
-                line-height: 1.5;
-            }
-            .prose-editor:empty::before {
-                content: attr(placeholder);
-                color: inherit;
-                opacity: 0.4;
+                opacity: 0.6;
                 cursor: text;
+                pointer-events: none;
+                display: inline-block;
             }
         `}</style>
     );
 
-    const editorBody = (
-        <div className="flex-1 flex flex-col gap-3 sm:gap-4 py-2 sm:py-3 overflow-hidden relative min-h-0">
-            {loadingContent && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-[100] flex flex-col justify-center items-center gap-3 rounded-2xl">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
-                </div>
-            )}
-            
-            {/* Title & Description Fields */}
-            <div className={cn("grid gap-2 sm:gap-3 shrink-0", hideDescription ? "grid-cols-1" : "grid-cols-1 md:grid-cols-3")}>
-                <div className={hideDescription ? "w-full" : "md:col-span-1"}>
-                    <Field>
-                        <FieldLabel htmlFor="editor-title" className="text-xs font-semibold">{titleLabel}</FieldLabel>
-                        <Input 
-                            id="editor-title" 
-                            placeholder={titlePlaceholder} 
-                            value={title} 
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="rounded-md h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60 text-sm"
-                            maxLength={100}
-                        />
-                    </Field>
-                </div>
-                {!hideDescription && (
-                    <div className="md:col-span-2">
-                        <Field>
-                            <FieldLabel htmlFor="editor-desc" className="text-xs font-semibold">Breve Descrição / Resumo</FieldLabel>
-                            <Input 
-                                id="editor-desc" 
-                                placeholder="Sobre o que fala este texto?" 
-                                value={description} 
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="rounded-md h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/60 text-sm"
-                                maxLength={250}
-                            />
-                        </Field>
+    // =========================================================================
+    // RENDER: INLINE SIDE-BY-SIDE MODE (Clean, distraction-free Study Panel)
+    // =========================================================================
+    if (inline) {
+        if (!isOpen) return null;
+        return (
+            <div className={cn(
+                "flex flex-col h-full w-full bg-card border border-border/70 rounded-2xl overflow-hidden shadow-xs relative min-h-0",
+                className
+            )}>
+                {editorStyles}
+
+                {/* Loading Overlay */}
+                {loadingContent && (
+                    <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-50 flex flex-col justify-center items-center gap-2 rounded-2xl">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        <span className="text-xs text-muted-foreground font-medium">Carregando anotações...</span>
                     </div>
                 )}
-            </div>
 
-            {/* Mode Switcher Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-2 shrink-0">
-                <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border/60">
-                    <button
-                        type="button"
-                        onClick={handleSwitchToVisual}
-                        className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer min-h-[38px]",
-                            editorMode === "visual"
-                                ? "bg-background text-foreground shadow-2xs font-bold"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <Pencil className="h-3.5 w-3.5" />
-                        <span>Visual</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSwitchToHtml}
-                        className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer min-h-[38px]",
-                            editorMode === "html"
-                                ? "bg-background text-foreground shadow-2xs font-bold"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <Code2 className="h-3.5 w-3.5" />
-                        <span>Código HTML</span>
-                    </button>
-                </div>
+                {/* 1. Integrated Header: Title Input + Scope Badge + Close */}
+                <div className="px-3.5 py-2.5 border-b border-border/50 bg-muted/20 flex items-center justify-between gap-2.5 shrink-0 select-none">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                            <StickyNote className="w-3.5 h-3.5" />
+                        </div>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Título da anotação..."
+                            className="bg-transparent border-0 border-b border-transparent hover:border-border focus:border-primary focus:ring-0 px-1 py-0.5 text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none w-full transition-colors truncate"
+                            maxLength={100}
+                            title="Editar título da anotação"
+                        />
+                    </div>
 
-                {editorMode === "html" && (
-                    <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="hidden xl:inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40 select-none">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            Privado
+                        </span>
                         <Button
                             type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleFormatHtmlCode}
-                            className="h-8 px-2.5 rounded-lg text-xs font-medium border-border/70 cursor-pointer gap-1 min-h-[36px]"
-                            title="Organizar indentação do HTML"
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                            className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                            title="Ocultar painel de anotações"
                         >
-                            <Code className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Formatar Código</span>
-                            <span className="sm:hidden">Formatar</span>
+                            <X className="w-3.5 h-3.5" />
                         </Button>
+                    </div>
+                </div>
+
+                {/* 2. Streamlined Single-Row Toolbar */}
+                <div className="px-3 py-1.5 border-b border-border/40 bg-muted/10 flex items-center justify-between gap-1 overflow-x-auto scrollbar-none shrink-0 select-none">
+                    <div className="flex items-center gap-0.5 shrink-0">
+                        {/* Text Styles */}
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("bold")}
+                            title="Negrito (Ctrl+B)"
+                        >
+                            <Bold className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("italic")}
+                            title="Itálico (Ctrl+I)"
+                        >
+                            <Italic className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("underline")}
+                            title="Sublinhado (Ctrl+U)"
+                        >
+                            <Underline className="h-3.5 w-3.5" />
+                        </Button>
+
+                        <div className="h-3.5 w-[1px] bg-border/60 mx-1 shrink-0" />
+
+                        {/* Headings */}
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            className="h-7 px-1.5 text-xs font-semibold rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0"
+                            onClick={() => executeCommand("formatBlock", "<h1>")}
+                            title="Título 1"
+                        >
+                            H1
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            className="h-7 px-1.5 text-xs font-semibold rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0"
+                            onClick={() => executeCommand("formatBlock", "<h2>")}
+                            title="Título 2"
+                        >
+                            H2
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            className="h-7 px-1.5 text-xs font-medium rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                            onClick={() => executeCommand("formatBlock", "<p>")}
+                            title="Texto Normal"
+                        >
+                            P
+                        </Button>
+
+                        <div className="h-3.5 w-[1px] bg-border/60 mx-1 shrink-0" />
+
+                        {/* Lists & Quotes */}
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-primary cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={handleInsertBibleQuote}
+                            title="Citação Bíblica (📖)"
+                        >
+                            <Quote className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("insertUnorderedList")}
+                            title="Lista com Marcadores"
+                        >
+                            <List className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("insertOrderedList")}
+                            title="Lista Numerada"
+                        >
+                            <ListOrdered className="h-3.5 w-3.5" />
+                        </Button>
+
+                        <div className="h-3.5 w-[1px] bg-border/60 mx-1 shrink-0" />
+
+                        {/* Link & Eraser */}
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={handleAddLink}
+                            title="Inserir Link"
+                        >
+                            <LinkIcon className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("removeFormat")}
+                            title="Limpar Formatação"
+                        >
+                            <Eraser className="h-3.5 w-3.5" />
+                        </Button>
+
+                        <div className="h-3.5 w-[1px] bg-border/60 mx-1 shrink-0" />
+
+                        {/* Undo / Redo */}
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("undo")}
+                            title="Desfazer"
+                        >
+                            <Undo className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                            onClick={() => executeCommand("redo")}
+                            title="Refazer"
+                        >
+                            <Redo className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
+
+                    {/* Right side: HTML mode toggle */}
+                    <div className="flex items-center gap-1 shrink-0 pl-1">
+                        {editorMode === "html" && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleFormatHtmlCode}
+                                className="h-7 px-1.5 text-[11px] font-mono rounded-md hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+                                title="Formatar HTML"
+                            >
+                                <Code className="h-3 w-3" />
+                            </Button>
+                        )}
                         <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => setHtmlSource("")}
-                            className="h-8 px-2.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 cursor-pointer min-h-[36px]"
-                            title="Limpar código"
+                            onClick={editorMode === "visual" ? handleSwitchToHtml : handleSwitchToVisual}
+                            className={cn(
+                                "h-7 px-2 text-[11px] font-mono rounded-md transition-colors gap-1 cursor-pointer",
+                                editorMode === "html" 
+                                    ? "bg-primary/10 text-primary font-semibold" 
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            )}
+                            title={editorMode === "visual" ? "Alternar para código HTML" : "Voltar para editor visual"}
                         >
-                            <span>Limpar</span>
+                            {editorMode === "visual" ? (
+                                <>
+                                    <Code2 className="h-3 w-3" />
+                                    <span className="hidden sm:inline">HTML</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Pencil className="h-3 w-3" />
+                                    <span className="hidden sm:inline">Visual</span>
+                                </>
+                            )}
                         </Button>
                     </div>
-                )}
-            </div>
-
-            {/* Visual Toolbar OR HTML Notice */}
-            {editorMode === "visual" ? (
-                <div className="flex flex-wrap items-center gap-1 p-1 bg-muted/30 border border-border/60 rounded-xl shrink-0 overflow-x-auto scrollbar-none">
-                    {/* Inline Formats */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("bold")}
-                        title="Negrito"
-                    >
-                        <Bold className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("italic")}
-                        title="Itálico"
-                    >
-                        <Italic className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("underline")}
-                        title="Sublinhado"
-                    >
-                        <Underline className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-
-                    <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
-
-                    {/* Headings */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("formatBlock", "<h1>")}
-                        title="Título 1"
-                    >
-                        <Heading1 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("formatBlock", "<h2>")}
-                        title="Título 2"
-                    >
-                        <Heading2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("formatBlock", "<h3>")}
-                        title="Título 3"
-                    >
-                        <Heading3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("formatBlock", "<h4>")}
-                        title="Subtítulo"
-                    >
-                        <Heading4 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        className="h-7 sm:h-8 px-1.5 sm:px-2 text-xs font-semibold rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
-                        onClick={() => executeCommand("formatBlock", "<p>")}
-                        title="Texto Normal"
-                    >
-                        Normal
-                    </Button>
-
-                    <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
-
-                    {/* Alignments */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("justifyLeft")}
-                        title="Alinhar à Esquerda"
-                    >
-                        <AlignLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("justifyCenter")}
-                        title="Centralizar"
-                    >
-                        <AlignCenter className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("justifyFull")}
-                        title="Justificar"
-                    >
-                        <AlignJustify className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-
-                    <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
-
-                    {/* Lists & Quotes */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => {
-                            executeCommand("formatBlock", "<blockquote>");
-                            const sel = window.getSelection();
-                            if (sel && sel.anchorNode) {
-                                let el = sel.anchorNode as HTMLElement;
-                                while (el && el.tagName !== "BLOCKQUOTE" && el !== editorRef.current) {
-                                    el = el.parentElement as HTMLElement;
-                                }
-                                if (el && el.tagName === "BLOCKQUOTE") {
-                                    if (!el.querySelector(".blockquote-badge")) {
-                                        const badge = document.createElement("div");
-                                        badge.className = "blockquote-badge";
-                                        badge.contentEditable = "false";
-                                        badge.innerHTML = "📖 Bíblia";
-                                        el.insertBefore(badge, el.firstChild);
-                                    }
-                                }
-                            }
-                        }}
-                        title="Citação Bíblica"
-                    >
-                        <Quote className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("insertUnorderedList")}
-                        title="Lista com Marcadores"
-                    >
-                        <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("insertOrderedList")}
-                        title="Lista Numerada"
-                    >
-                        <ListOrdered className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-
-                    <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
-
-                    {/* Actions & Links */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={handleAddLink}
-                        title="Inserir Link"
-                    >
-                        <LinkIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("removeFormat")}
-                        title="Limpar Formatação"
-                    >
-                        <Eraser className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-
-                    <div className="h-4 w-[1px] bg-border mx-0.5 sm:mx-1 shrink-0" />
-
-                    {/* Undo / Redo */}
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("undo")}
-                        title="Desfazer"
-                    >
-                        <Undo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="min-h-[44px] min-w-[38px] sm:min-h-8 sm:min-w-8 sm:h-8 sm:w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
-                        onClick={() => executeCommand("redo")}
-                        title="Refazer"
-                    >
-                        <Redo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </Button>
                 </div>
-            ) : (
-                <div className="p-2.5 px-3 rounded-xl bg-muted/25 border border-border/60 text-xs text-muted-foreground flex items-center justify-between gap-2 shrink-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                        <Code2 className="h-4 w-4 text-primary shrink-0" />
-                        <span className="truncate">
-                            Cole aqui o HTML convertido externamente (tabelas, títulos, parágrafos). Ao alternar para "Visual", você verá a prévia formatada.
-                        </span>
-                    </div>
-                    <span className="text-[11px] font-mono opacity-70 shrink-0 hidden sm:inline">
-                        HTML Fonte
-                    </span>
-                </div>
-            )}
 
-            {/* Editor Workspace */}
-            <div className="flex-1 flex flex-col min-h-0 relative">
-                {editorMode === "visual" ? (
-                    <div 
-                        ref={setEditorRef}
-                        contentEditable
-                        onPaste={handlePaste}
-                        className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-4 sm:p-5 bg-card/60 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground dark:text-zinc-100 prose-editor scrollbar-thin"
-                        data-placeholder="Escreva suas anotações ou textos aqui..."
-                        style={{ outline: "none" }}
-                    />
-                ) : (
-                    <textarea
-                        value={htmlSource}
-                        onChange={(e) => setHtmlSource(e.target.value)}
-                        placeholder="Cole seu código HTML aqui... (ex: <h2>Introdução</h2>, <p>Parágrafo...</p>, <table>...</table>)"
-                        spellCheck={false}
-                        className="flex-1 w-full h-full p-4 sm:p-5 font-mono text-xs sm:text-sm bg-card/80 border border-border/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground resize-none leading-relaxed custom-scrollbar placeholder:text-muted-foreground/45"
-                    />
-                )}
-            </div>
-        </div>
-    );
-
-    const editorFooter = (
-        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-3 border-t border-border/40 shrink-0">
-            <div>
-                {onDelete && (
-                    <Button 
-                        type="button" 
-                        variant="ghost" 
-                        onClick={handleDelete}
-                        className="rounded-full px-4 min-h-[44px] h-11 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive gap-2 cursor-pointer w-full sm:w-auto"
-                        disabled={saving || deleting}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                        <span>Excluir Anotação</span>
-                    </Button>
-                )}
-            </div>
-            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
-                <Button 
-                    type="button" 
-                    variant="ghost" 
-                    onClick={onClose}
-                    className="rounded-full px-4 sm:px-5 min-h-[44px] h-11 text-sm font-medium cursor-pointer"
-                    disabled={saving || deleting}
-                >
-                    {inline ? "Ocultar" : "Cancelar"}
-                </Button>
-                <Button 
-                    type="button" 
-                    onClick={handleSave}
-                    className="rounded-full px-5 sm:px-6 min-h-[44px] h-11 text-sm font-semibold gap-2 shadow-md cursor-pointer flex-1 sm:flex-initial"
-                    disabled={saving || deleting || loadingContent}
-                >
-                    {saving ? (
-                        <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Salvando...
-                        </>
+                {/* 3. Expansive Note Writing Canvas */}
+                <div className="flex-1 min-h-0 flex flex-col relative bg-card">
+                    {editorMode === "visual" ? (
+                        <div 
+                            ref={setEditorRef}
+                            contentEditable
+                            onPaste={handlePaste}
+                            className="flex-1 min-h-0 w-full overflow-y-auto p-4 sm:p-5 text-foreground bg-card focus:outline-none prose-editor custom-scrollbar leading-relaxed text-sm sm:text-base select-text"
+                            data-placeholder="Comece a registrar suas anotações e reflexões desta aula..."
+                            style={{ outline: "none" }}
+                        />
                     ) : (
-                        <>
-                            <Save className="h-4 w-4" />
-                            {saveButtonText}
-                        </>
+                        <textarea
+                            value={htmlSource}
+                            onChange={(e) => setHtmlSource(e.target.value)}
+                            placeholder="Cole ou digite código HTML aqui..."
+                            spellCheck={false}
+                            className="flex-1 min-h-0 w-full p-4 sm:p-5 font-mono text-xs sm:text-sm bg-card text-foreground border-0 focus:outline-none resize-none leading-relaxed custom-scrollbar placeholder:text-muted-foreground/50"
+                        />
                     )}
-                </Button>
-            </div>
-        </div>
-    );
-
-    if (inline) {
-        if (!isOpen) return null;
-        return (
-            <div className={cn("flex flex-col h-full bg-card/95 backdrop-blur-sm border border-border/70 rounded-2xl sm:rounded-3xl p-4 sm:p-5 overflow-hidden shadow-lg relative min-h-[450px]", className)}>
-                {editorStyles}
-                <div className="flex items-center justify-between pb-2.5 border-b border-border/40 shrink-0">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                            <StickyNote className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                            <h4 className="font-bold text-sm sm:text-base text-foreground truncate">
-                                {modalTitle || (mode === "note" ? "Minhas Anotações" : "Editor de Texto")}
-                            </h4>
-                            <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
-                                {modalDescription || (mode === "note" ? "Anotações salvas junto ao material." : "Escreva e formate seu texto.")}
-                            </p>
-                        </div>
-                    </div>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground shrink-0 cursor-pointer min-h-[44px] min-w-[44px]"
-                        title="Fechar anotações"
-                    >
-                        <X className="w-4 h-4" />
-                    </Button>
                 </div>
-                {editorBody}
-                {editorFooter}
+
+                {/* 4. Streamlined Footer */}
+                <div className="px-3.5 py-2.5 border-t border-border/40 bg-muted/10 flex items-center justify-between gap-2 shrink-0">
+                    <div className="flex items-center gap-2">
+                        {onDelete && (
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={handleDelete}
+                                className="h-8 px-2.5 rounded-xl text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5 cursor-pointer"
+                                disabled={saving || deleting}
+                                title="Excluir anotações"
+                            >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Excluir</span>
+                            </Button>
+                        )}
+                        {!onDelete && (
+                            <span className="text-[11px] text-muted-foreground hidden sm:inline select-none">
+                                Anotações privadas sincronizadas
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={onClose}
+                            className="h-8 px-3 rounded-xl text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground"
+                            disabled={saving || deleting}
+                        >
+                            Ocultar
+                        </Button>
+                        <Button 
+                            type="button" 
+                            size="sm"
+                            onClick={handleSave}
+                            className="h-8 px-3.5 rounded-xl text-xs font-semibold gap-1.5 shadow-2xs btn-tactile cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
+                            disabled={saving || deleting || loadingContent}
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    <span>Salvando...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="h-3.5 w-3.5" />
+                                    <span>{saveButtonText}</span>
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
 
+    // =========================================================================
+    // RENDER: MODAL DIALOG MODE (Writing text resource or standalone note)
+    // =========================================================================
     return (
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent size="2xl" className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90dvh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden">
+            <DialogContent size="2xl" className="sm:max-w-5xl md:max-w-6xl w-[95vw] h-[90dvh] bg-card border-border shadow-2xl rounded-3xl flex flex-col p-6 overflow-hidden gap-0">
                 {editorStyles}
-                <DialogHeader className="flex flex-row justify-between items-center pr-6 pb-2 border-b border-border/40 shrink-0">
+                
+                {/* Header */}
+                <DialogHeader className="flex flex-row justify-between items-center pr-6 pb-3 border-b border-border/40 shrink-0">
                     <div>
-                        <DialogTitle className="text-xl font-bold text-foreground">
+                        <DialogTitle className="text-lg sm:text-xl font-bold text-foreground">
                             {modalTitle || (mode === "note" ? "Minhas Anotações" : (initialData ? "Editar Texto" : "Escrever Novo Texto"))}
                         </DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">
+                        <DialogDescription className="text-xs text-muted-foreground mt-0.5">
                             {modalDescription || (mode === "note" 
-                                ? "Suas anotações pessoais são privadas e salvas no formato Markdown." 
-                                : "Escreva e formate seu texto ou cole código HTML exportado por fora.")}
+                                ? "Suas reflexões privadas de estudo bíblico." 
+                                : "Escreva e formate seu material didático ou cole código formatado.")}
                         </DialogDescription>
                     </div>
                 </DialogHeader>
-                {editorBody}
-                {editorFooter}
+
+                {/* Body */}
+                <div className="flex-1 flex flex-col gap-3 py-3 overflow-hidden relative min-h-0">
+                    {loadingContent && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-50 flex flex-col justify-center items-center gap-3 rounded-2xl">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <span className="text-sm text-muted-foreground">Carregando conteúdo...</span>
+                        </div>
+                    )}
+                    
+                    {/* Title & Description Fields */}
+                    <div className={cn("grid gap-2.5 sm:gap-3 shrink-0", hideDescription ? "grid-cols-1" : "grid-cols-1 md:grid-cols-3")}>
+                        <div className={hideDescription ? "w-full" : "md:col-span-1"}>
+                            <Field>
+                                <FieldLabel htmlFor="editor-modal-title" className="text-xs font-semibold">{titleLabel}</FieldLabel>
+                                <Input 
+                                    id="editor-modal-title" 
+                                    placeholder={titlePlaceholder} 
+                                    value={title} 
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="rounded-xl h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 text-sm"
+                                    maxLength={100}
+                                />
+                            </Field>
+                        </div>
+                        {!hideDescription && (
+                            <div className="md:col-span-2">
+                                <Field>
+                                    <FieldLabel htmlFor="editor-modal-desc" className="text-xs font-semibold">Breve Descrição / Resumo</FieldLabel>
+                                    <Input 
+                                        id="editor-modal-desc" 
+                                        placeholder="Sobre o que fala este texto?" 
+                                        value={description} 
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        className="rounded-xl h-9 sm:h-10 border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20 text-sm"
+                                        maxLength={250}
+                                    />
+                                </Field>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Streamlined Toolbar */}
+                    <div className="flex items-center justify-between gap-1 p-1 bg-muted/30 border border-border/60 rounded-xl shrink-0 overflow-x-auto scrollbar-none">
+                        <div className="flex items-center gap-0.5 shrink-0">
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("bold")}
+                                title="Negrito (Ctrl+B)"
+                            >
+                                <Bold className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("italic")}
+                                title="Itálico (Ctrl+I)"
+                            >
+                                <Italic className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("underline")}
+                                title="Sublinhado (Ctrl+U)"
+                            >
+                                <Underline className="h-4 w-4" />
+                            </Button>
+
+                            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                className="h-8 px-2 text-xs font-semibold rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                                onClick={() => executeCommand("formatBlock", "<h1>")}
+                                title="Título 1"
+                            >
+                                H1
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                className="h-8 px-2 text-xs font-semibold rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0"
+                                onClick={() => executeCommand("formatBlock", "<h2>")}
+                                title="Título 2"
+                            >
+                                H2
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                className="h-8 px-2 text-xs font-medium rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                                onClick={() => executeCommand("formatBlock", "<p>")}
+                                title="Texto Normal"
+                            >
+                                Normal
+                            </Button>
+
+                            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("justifyLeft")}
+                                title="Alinhar à Esquerda"
+                            >
+                                <AlignLeft className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("justifyCenter")}
+                                title="Centralizar"
+                            >
+                                <AlignCenter className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("justifyFull")}
+                                title="Justificar"
+                            >
+                                <AlignJustify className="h-4 w-4" />
+                            </Button>
+
+                            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-primary cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={handleInsertBibleQuote}
+                                title="Citação Bíblica"
+                            >
+                                <Quote className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("insertUnorderedList")}
+                                title="Lista com Marcadores"
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("insertOrderedList")}
+                                title="Lista Numerada"
+                            >
+                                <ListOrdered className="h-4 w-4" />
+                            </Button>
+
+                            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={handleAddLink}
+                                title="Inserir Link"
+                            >
+                                <LinkIcon className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("removeFormat")}
+                                title="Limpar Formatação"
+                            >
+                                <Eraser className="h-4 w-4" />
+                            </Button>
+
+                            <div className="h-4 w-[1px] bg-border mx-1 shrink-0" />
+
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("undo")}
+                                title="Desfazer"
+                            >
+                                <Undo className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-lg hover:bg-muted text-foreground cursor-pointer shrink-0 flex items-center justify-center"
+                                onClick={() => executeCommand("redo")}
+                                title="Refazer"
+                            >
+                                <Redo className="h-4 w-4" />
+                            </Button>
+                        </div>
+
+                        {/* Mode Switcher */}
+                        <div className="flex items-center gap-1 shrink-0 pl-2">
+                            {editorMode === "html" && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleFormatHtmlCode}
+                                    className="h-8 px-2.5 rounded-lg text-xs font-medium border-border/70 cursor-pointer gap-1"
+                                    title="Organizar indentação"
+                                >
+                                    <Code className="h-3.5 w-3.5" />
+                                    <span>Formatar</span>
+                                </Button>
+                            )}
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={editorMode === "visual" ? handleSwitchToHtml : handleSwitchToVisual}
+                                className={cn(
+                                    "h-8 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                                    editorMode === "html"
+                                        ? "bg-primary/10 text-primary"
+                                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {editorMode === "visual" ? (
+                                    <>
+                                        <Code2 className="h-3.5 w-3.5" />
+                                        <span>HTML</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Pencil className="h-3.5 w-3.5" />
+                                        <span>Visual</span>
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Workspace */}
+                    <div className="flex-1 flex flex-col min-h-0 relative">
+                        {editorMode === "visual" ? (
+                            <div 
+                                ref={setEditorRef}
+                                contentEditable
+                                onPaste={handlePaste}
+                                className="flex-1 overflow-y-auto border border-border/80 rounded-2xl p-4 sm:p-6 bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground prose-editor custom-scrollbar"
+                                data-placeholder="Escreva suas anotações ou textos aqui..."
+                                style={{ outline: "none" }}
+                            />
+                        ) : (
+                            <textarea
+                                value={htmlSource}
+                                onChange={(e) => setHtmlSource(e.target.value)}
+                                placeholder="Cole seu código HTML aqui..."
+                                spellCheck={false}
+                                className="flex-1 w-full h-full p-4 sm:p-6 font-mono text-xs sm:text-sm bg-card border border-border/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground resize-none leading-relaxed custom-scrollbar placeholder:text-muted-foreground/45"
+                            />
+                        )}
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-3 border-t border-border/40 shrink-0">
+                    <div>
+                        {onDelete && (
+                            <Button 
+                                type="button" 
+                                variant="ghost" 
+                                onClick={handleDelete}
+                                className="rounded-xl px-4 min-h-[40px] text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5 cursor-pointer w-full sm:w-auto"
+                                disabled={saving || deleting}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span>Excluir</span>
+                            </Button>
+                        )}
+                    </div>
+                    <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            onClick={onClose}
+                            className="rounded-xl px-4 min-h-[40px] text-xs font-medium cursor-pointer"
+                            disabled={saving || deleting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button 
+                            type="button" 
+                            onClick={handleSave}
+                            className="rounded-xl px-5 min-h-[40px] text-xs font-semibold gap-2 shadow-2xs btn-tactile cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 flex-1 sm:flex-initial"
+                            disabled={saving || deleting || loadingContent}
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span>Salvando...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="h-4 w-4" />
+                                    <span>{saveButtonText}</span>
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
             </DialogContent>
         </Dialog>
     );

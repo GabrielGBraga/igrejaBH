@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
     CheckIcon, 
     CheckCircle2Icon,
-    ChevronLeftIcon,
+    ChevronLeftIcon, 
     ChevronRightIcon, 
     YoutubeIcon, 
     PencilIcon, 
@@ -135,7 +135,10 @@ export function StudyLessonModal({
             if (ytId) {
                 return (
                     <div className="w-full shrink-0 flex justify-center">
-                        <div className="aspect-video w-full max-h-[58vh] max-w-[calc(58vh*16/9)] bg-black/95 rounded-2xl overflow-hidden shadow-2xs border border-border/40">
+                        <div className={cn(
+                            "aspect-video w-full bg-black/95 rounded-2xl overflow-hidden shadow-2xs border border-border/40",
+                            isSideBySideNotesOpen ? "max-h-[48vh] max-w-[calc(48vh*16/9)]" : "max-h-[58vh] max-w-[calc(58vh*16/9)]"
+                        )}>
                             <iframe
                                 width="100%"
                                 height="100%"
@@ -197,9 +200,9 @@ export function StudyLessonModal({
             <DialogContent
                 showCloseButton={false}
                 className={cn(
-                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out flex flex-col",
+                    "bg-card border-border/60 shadow-2xl rounded-3xl p-0 transition-all duration-300 ease-in-out flex flex-col gap-0",
                     isSideBySideNotesOpen
-                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[94vh] max-h-[94vh] overflow-y-auto lg:overflow-hidden custom-scrollbar"
+                        ? "w-[98vw] sm:max-w-6xl md:max-w-7xl 2xl:max-w-[1600px] h-[95dvh] max-h-[96dvh] overflow-hidden"
                         : "w-[95vw] sm:max-w-4xl lg:max-w-5xl max-h-[92vh] overflow-y-auto custom-scrollbar"
                 )}
             >
@@ -208,7 +211,7 @@ export function StudyLessonModal({
                 </DialogDescription>
 
                 {/* Top Navigation Bar */}
-                <div className="p-4 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/95 backdrop-blur-md sticky top-0 z-20 flex flex-col gap-2.5 rounded-t-3xl">
+                <div className="p-3.5 sm:px-6 sm:py-3.5 border-b border-border/50 shrink-0 bg-card/95 backdrop-blur-md sticky top-0 z-20 flex flex-col gap-2.5 rounded-t-3xl">
                     <div className="flex items-center justify-between gap-3">
                         {/* Breadcrumbs & Title */}
                         <div className="min-w-0 flex-1">
@@ -309,16 +312,16 @@ export function StudyLessonModal({
 
                 {/* Main Content Area */}
                 <div className={cn(
-                    "p-4 sm:p-6",
+                    "p-3 sm:p-5 lg:p-6",
                     isSideBySideNotesOpen
-                        ? "flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:overflow-hidden"
+                        ? "flex-1 min-h-0 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-hidden"
                         : "flex flex-col gap-4 sm:gap-6"
                 )}>
                     {/* Media Column (Left) */}
                     <div className={cn(
                         "flex flex-col space-y-4 transition-all duration-300",
                         isSideBySideNotesOpen
-                            ? "h-full min-h-0 overflow-y-auto custom-scrollbar pr-0 lg:pr-1 lg:w-[58%] xl:w-[60%] shrink-0"
+                            ? "h-full min-h-0 overflow-y-auto custom-scrollbar pr-0 lg:pr-2 lg:w-[56%] xl:w-[58%] shrink-0"
                             : "w-full",
                         isSideBySideNotesOpen && mobileTab === "notes" && "hidden lg:flex"
                     )}>
@@ -420,7 +423,7 @@ export function StudyLessonModal({
                     {/* Notes Column (Right) */}
                     {isSideBySideNotesOpen && (
                         <div className={cn(
-                            "flex flex-col h-full min-h-[450px] lg:w-[42%] xl:w-[40%] min-h-0 animate-in fade-in duration-300",
+                            "flex flex-col flex-1 h-full min-h-[320px] lg:w-[44%] xl:w-[42%] min-h-0 animate-in fade-in duration-300",
                             mobileTab === "content" && "hidden lg:flex"
                         )}>
                             <TextEditor
@@ -429,7 +432,6 @@ export function StudyLessonModal({
                                 isOpen={true}
                                 mode="note"
                                 modalTitle={`Anotações: ${resObj.title}`}
-                                modalDescription="Suas reflexões privadas sobre esta ministração."
                                 initialData={existingNote ? {
                                     id: existingNote.id,
                                     title: existingNote.title,
@@ -441,7 +443,7 @@ export function StudyLessonModal({
                                 onClose={handleCloseNotes}
                                 onSave={onSaveNote}
                                 onDelete={existingNote && onDeleteNote ? () => onDeleteNote(existingNote.id) : undefined}
-                                className="h-full"
+                                className="h-full w-full flex-1 min-h-0"
                             />
                         </div>
                     )}

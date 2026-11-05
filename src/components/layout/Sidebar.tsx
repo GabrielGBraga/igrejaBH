@@ -11,7 +11,6 @@ import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ChurchAvatar } from "@/components/ui/church-avatar"
-
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -21,25 +20,18 @@ import {
 } from "@/components/ui/tooltip"
 import { navItems } from "./NavItems"
 import { useTheme } from "@/components/theme-provider"
-
-interface UserProfile {
-  id: string
-  full_name: string
-  avatar_url?: string
-}
+import { useCurrentUserProfile } from "@/hooks/useCurrentUserProfile"
 
 export function Sidebar() {
   const location = useLocation()
   const { setTheme } = useTheme()
+  const { profile, isAdmin, isManagement, canPost, loading } = useCurrentUserProfile()
 
   const toggleTheme = () => {
     const isDark = document.documentElement.classList.contains("dark")
     setTheme(isDark ? "light" : "dark")
   }
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [isManagement, setIsManagement] = useState(false)
-  const [canPost, setCanPost] = useState(false)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem("sidebar-collapsed")
     return saved ? JSON.parse(saved) : false
@@ -48,56 +40,6 @@ export function Sidebar() {
   useEffect(() => {
     localStorage.setItem("sidebar-collapsed", JSON.stringify(isCollapsed))
   }, [isCollapsed])
-
-  useEffect(() => {
-    async function fetchUserData() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (session?.user) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select(
-            "id, full_name, avatar_url, is_dev, is_presbyter, is_deacon, can_post"
-          )
-          .eq("user_id", session.user.id)
-          .single()
-
-        if (profileData) {
-          setProfile({
-            id: profileData.id,
-            full_name: profileData.full_name,
-            avatar_url: profileData.avatar_url || undefined,
-          })
-          setIsAdmin(!!(profileData.is_dev || profileData.is_presbyter))
-          setCanPost(
-            !!(
-              profileData.is_dev ||
-              profileData.is_presbyter ||
-              profileData.can_post
-            )
-          )
-
-          const { count } = await supabase
-            .from("home_groups")
-            .select("*", { count: "exact", head: true })
-            .or(
-              `leader_1_id.eq.${profileData.id},leader_2_id.eq.${profileData.id}`
-            )
-
-          setIsManagement(
-            !!(
-              profileData.is_dev ||
-              profileData.is_presbyter ||
-              profileData.is_deacon ||
-              (count || 0) > 0
-            )
-          )
-        }
-      }
-    }
-    fetchUserData()
-  }, [])
 
   const filteredNavItems = navItems.filter((item) => {
     if (item.requireAdmin && !isAdmin) return false
@@ -261,7 +203,7 @@ export function Sidebar() {
             </button>
           )}
 
-          {profile &&
+          {profile ? (
             (() => {
               const content = (
                 <Link
@@ -274,7 +216,7 @@ export function Sidebar() {
                   )}
                 >
                   <Avatar className="size-9 shrink-0 border border-border shadow-sm">
-                    <AvatarImage src={profile.avatar_url} />
+                    <AvatarImage src={profile.avatar_url || undefined} />
                     <AvatarFallback className="bg-primary/20 text-xs font-bold text-primary">
                       {getInitials(profile.full_name)}
                     </AvatarFallback>
@@ -302,7 +244,23 @@ export function Sidebar() {
                   </TooltipContent>
                 </Tooltip>
               )
-            })()}
+            })()
+          ) : loading ? (
+            <div
+              className={cn(
+                "flex w-full min-h-[44px] items-center rounded-xl p-2",
+                isCollapsed ? "justify-center" : "gap-3"
+              )}
+            >
+              <div className="size-9 shrink-0 rounded-full bg-muted/70 animate-pulse" />
+              {!isCollapsed && (
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                  <div className="h-3.5 w-24 rounded bg-muted/70 animate-pulse" />
+                  <div className="h-2.5 w-14 rounded bg-muted/40 animate-pulse" />
+                </div>
+              )}
+            </div>
+          ) : null}
 
           <Tooltip>
             <TooltipTrigger asChild>
