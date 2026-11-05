@@ -467,7 +467,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || !isChild),
             baptismDate: member.baptism_date || "",
             gender: toFormGender(member.gender),
-            maritalStatus: (member.marital_status as any) || "",
+            maritalStatus: (member.marital_status as "solteiro" | "casado" | "divorciado" | "viuvo" | null) || "",
             homeGroupId: member.home_group_id || "",
             disciplerId: member.discipler_id || "",
             customDisciplerName: member.custom_discipler_name || "",
@@ -516,7 +516,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
             isBaptized: member.is_baptized ?? (Boolean(member.baptism_date) || true),
             baptismDate: member.baptism_date || "",
             gender: toFormGender(member.gender),
-            maritalStatus: (member.marital_status as any) || "",
+            maritalStatus: (member.marital_status as "solteiro" | "casado" | "divorciado" | "viuvo" | null) || "",
         });
         setIsLinkDialogOpen(true);
     };
@@ -732,7 +732,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
                             <UsersIcon className="w-8 h-8 text-primary" />
                             Gestão de Vinculados
                         </h1>
-                        <p className="text-muted-foreground mt-1">Lista completa de irmãos e vinculados da Oikos na cidade.</p>
+                        <p className="text-muted-foreground mt-1">Lista completa de irmãos e discípulos na cidade.</p>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
@@ -1111,7 +1111,7 @@ export default function MemberManagement({ hideHeader = false }: MemberManagemen
 
             {/* Modal Dialog para Cadastro/Edição de Vinculados */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent size="lg" className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90dvh] overflow-y-auto">
+                <DialogContent size="lg" className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl rounded-3xl border-border/50 bg-card/95 backdrop-blur-xl max-h-[90dvh] overflow-y-auto custom-scrollbar">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold flex items-center gap-2">
                             <UserCheckIcon className="w-5 h-5 text-primary" />

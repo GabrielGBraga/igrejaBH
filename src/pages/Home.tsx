@@ -268,7 +268,7 @@ export default function Home() {
               {profile ? `Bem-vindo(a), ${firstName}` : "Bem-vindo(a)"}
             </h1>
             <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-              Portal de Vida Comum • A Igreja em Belo Horizonte
+              Igreja em Belo Horizonte • Comunhão e edificação
             </p>
           </div>
 

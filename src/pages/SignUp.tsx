@@ -115,7 +115,7 @@ function AccountTypeSelector({
                 )}
             >
                 <UsersIcon className="h-4 w-4 text-primary shrink-0" />
-                <span>Sou da Igreja em BH</span>
+                <span>Caminho na Igreja em BH</span>
             </button>
         </div>
     );
@@ -209,7 +209,7 @@ export default function SignUp() {
             }
 
             if (!data || data.length === 0 || !data[0].exists_profile) {
-                setCpfError("CPF não encontrado no pré-cadastro da igreja. Se você já congrega, converse com seu discipulador ou líder de grupo caseiro.");
+                setCpfError("CPF não encontrado no pré-cadastro da igreja. Se você já caminha conosco, converse com seu discipulador ou líder de grupo caseiro.");
                 setCpfNotFound(true);
                 return;
             }

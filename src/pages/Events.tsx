@@ -150,8 +150,9 @@ export default function Events() {
       setCancellingRegistration(null)
       setCancellationReason("")
       fetchInitialData()
-    } catch (err: any) {
-      toast.error("Erro ao cancelar inscrição: " + (err.message || "Erro desconhecido"))
+    } catch (err: unknown) {
+      const error = err as Error
+      toast.error("Erro ao cancelar inscrição: " + (error.message || "Erro desconhecido"))
     } finally {
       setIsSubmittingCancellation(false)
     }
@@ -258,8 +259,9 @@ export default function Events() {
         if (regsErr) throw regsErr
         setMyRegistrations(regsData || [])
       }
-    } catch (err: any) {
-      toast.error("Erro ao carregar dados dos eventos: " + err.message)
+    } catch (err: unknown) {
+      const error = err as Error
+      toast.error("Erro ao carregar dados dos eventos: " + error.message)
     } finally {
       setLoading(false)
     }
@@ -286,7 +288,7 @@ export default function Events() {
         })
         setCustomResponses(initialResponses)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Erro ao buscar formulário customizado:", err)
       toast.error(
         "Não foi possível carregar a ficha de inscrição complementar."
@@ -511,8 +513,9 @@ export default function Events() {
         setCardExpiry("")
         setCardCvv("")
         fetchInitialData()
-      } catch (err: any) {
-        toast.error("Erro ao efetuar inscrição: " + err.message)
+      } catch (err: unknown) {
+        const error = err as Error
+        toast.error("Erro ao efetuar inscrição: " + error.message)
       } finally {
         setSubmitting(false)
       }
@@ -1224,21 +1227,20 @@ export default function Events() {
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-6 pb-24 md:px-6">
       {/* Page Title */}
       <div className="border-b border-border/60 pb-6">
-        <h1 className="bg-clip-text text-3xl font-extrabold tracking-tight text-foreground">
-          Encontros & Retiros do Corpo
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Encontros e Retiros
         </h1>
-        <p className="mt-1.5 text-muted-foreground">
-          Confira e participe dos retiros e encontros organizados para a
-          comunhão e edificação mútua.
+        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+          Retiros e encontros comunitários para comunhão e edificação mútua.
         </p>
       </div>
 
       {/* 1. User's Current Registrations Section */}
       {myRegistrations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="flex items-center gap-2 text-sm font-bold tracking-wider text-muted-foreground uppercase">
-            <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" /> Minhas
-            Inscrições
+          <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+            <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
+            <span>Minhas Inscrições</span>
           </h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {myRegistrations.map((reg) => {
@@ -1379,8 +1381,9 @@ export default function Events() {
 
       {/* 2. Available Retreats list */}
       <div className="space-y-4">
-        <h2 className="flex items-center gap-2 text-sm font-bold tracking-wider text-muted-foreground uppercase">
-          <Calendar className="h-4.5 w-4.5" /> Próximos Eventos Disponíveis
+        <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
+          <Calendar className="h-4.5 w-4.5 text-primary" />
+          <span>Próximos Eventos Disponíveis</span>
         </h2>
         {retreats.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 py-16 text-center">

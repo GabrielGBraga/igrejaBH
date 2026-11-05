@@ -132,10 +132,10 @@ export default function SignIn() {
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
             {isRestricted ? (
-              <span>Igreja em BH</span>
+              <span>Igreja em Belo Horizonte</span>
             ) : (
               <Link to="/" className="transition-opacity hover:opacity-85">
-                Igreja em BH
+                Igreja em Belo Horizonte
               </Link>
             )}
           </CardTitle>
@@ -259,7 +259,7 @@ export default function SignIn() {
                 to="/cadastro"
                 className="font-medium text-primary transition-colors hover:text-primary/80"
               >
-                Cadastre-se agora
+                Criar conta
               </Link>
             </p>
           )}
