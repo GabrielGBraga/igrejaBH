@@ -20,15 +20,17 @@ import {
 } from "@/components/ui/tooltip"
 import { navItems } from "./NavItems"
 import { useTheme } from "@/components/theme-provider"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import { useCurrentUserProfile } from "@/hooks/useCurrentUserProfile"
 
 export function Sidebar() {
   const location = useLocation()
-  const { setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const { profile, isAdmin, isManagement, canPost, loading } = useCurrentUserProfile()
 
+  const isDark = resolvedTheme === "dark"
+
   const toggleTheme = () => {
-    const isDark = document.documentElement.classList.contains("dark")
     setTheme(isDark ? "light" : "dark")
   }
 
@@ -161,46 +163,64 @@ export function Sidebar() {
             isCollapsed ? "flex flex-col items-center" : ""
           )}
         >
-          {/* Botão de alternar tema (Claro / Escuro) acima do avatar do perfil */}
+          {/* Alternância de tema (Claro / Escuro): Ícone no modo recolhido, Switch ampliado no modo aberto */}
           {isCollapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
+                  data-theme-transition
                   onClick={toggleTheme}
-                  aria-label="Alternar tema claro e escuro"
-                  className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-muted-foreground transition-all hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={
+                    isDark ? "Mudar para modo claro" : "Mudar para modo escuro"
+                  }
+                  className="group relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-muted-foreground transition-all duration-200 hover:bg-primary/10 hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <Sun className="h-5 w-5 scale-100 rotate-0 text-foreground transition-transform duration-300 dark:scale-0 dark:-rotate-90 motion-reduce:transition-none motion-reduce:transform-none" />
-                  <Moon className="absolute h-5 w-5 scale-0 rotate-90 text-foreground transition-transform duration-300 dark:scale-100 dark:rotate-0 motion-reduce:transition-none motion-reduce:transform-none" />
-                  <span className="sr-only">Alternar tema</span>
+                  <div className="relative flex size-5 items-center justify-center">
+                    <Sun
+                      className={cn(
+                        "size-5 text-amber-600 transition-all duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none",
+                        isDark
+                          ? "scale-0 -rotate-90 opacity-0"
+                          : "scale-100 rotate-0 opacity-100"
+                      )}
+                    />
+                    <Moon
+                      className={cn(
+                        "absolute size-5 text-amber-400 transition-all duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none",
+                        isDark
+                          ? "scale-100 rotate-0 opacity-100"
+                          : "scale-0 rotate-90 opacity-0"
+                      )}
+                    />
+                  </div>
+                  <span className="sr-only">
+                    {isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+                  </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={10}>
-                Alternar tema
+                {isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
               </TooltipContent>
             </Tooltip>
           ) : (
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label="Alternar tema claro e escuro"
-              className="flex w-full min-h-[44px] cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative flex h-5 w-5 shrink-0 items-center justify-center">
-                  <Sun className="h-5 w-5 scale-100 rotate-0 text-foreground transition-transform duration-300 dark:scale-0 dark:-rotate-90 motion-reduce:transition-none motion-reduce:transform-none" />
-                  <Moon className="absolute h-5 w-5 scale-0 rotate-90 text-foreground transition-transform duration-300 dark:scale-100 dark:rotate-0 motion-reduce:transition-none motion-reduce:transform-none" />
-                </div>
-                <span className="truncate">Alternar tema</span>
-              </div>
-              <span className="rounded-md bg-muted/80 px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:hidden">
-                Claro
-              </span>
-              <span className="hidden rounded-md bg-muted/80 px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:inline">
-                Escuro
-              </span>
-            </button>
+            <div className="flex w-full min-h-[44px] items-center justify-center py-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <ThemeSwitch
+                    size="xl"
+                    checked={isDark}
+                    onCheckedChange={toggleTheme}
+                    aria-label={
+                      isDark ? "Mudar para modo claro" : "Mudar para modo escuro"
+                    }
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" sideOffset={10}>
+                  {isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           )}
 
           {profile ? (

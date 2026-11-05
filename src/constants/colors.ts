@@ -527,7 +527,29 @@ export const SERVICE_TEAM_COLORS: Record<
 };
 
 // ==========================================
-// 8. FUNÇÕES AUXILIARES DE CORES
+// 8. TOKENS DO SWITCH DE TEMA (Day / Night Theme Switch)
+// ==========================================
+export const THEME_SWITCH_COLORS = {
+  light: {
+    trackBg: "rgba(254, 243, 199, 0.7)", // amber-100/70
+    trackBorder: "rgba(253, 230, 138, 0.8)", // amber-200/80
+    thumbBg: "#ffffff",
+    thumbBorder: "rgba(252, 211, 77, 0.9)", // amber-300
+    sunIcon: "#92400e", // amber-800 (AAA contrast on white)
+    cloudColor: "rgba(180, 83, 9, 0.4)", // amber-700/40
+  },
+  dark: {
+    trackBg: "rgba(24, 24, 27, 0.95)", // zinc-900/95
+    trackBorder: "rgba(63, 63, 70, 0.8)", // zinc-700/80
+    thumbBg: "#27272a", // zinc-800
+    thumbBorder: "#3f3f46", // zinc-700
+    moonIcon: "#fbbf24", // amber-400 (AAA contrast on dark)
+    starColor: "rgba(254, 240, 138, 0.9)", // yellow-200
+  },
+} as const;
+
+// ==========================================
+// 9. FUNÇÕES AUXILIARES DE CORES
 // ==========================================
 /**
  * Retorna os tokens semânticos baseados no modo dark atual.

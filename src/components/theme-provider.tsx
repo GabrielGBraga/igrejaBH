@@ -13,6 +13,7 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme
+  resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
 }
 
@@ -43,7 +44,7 @@ function disableTransitionsTemporarily() {
   const style = document.createElement("style")
   style.appendChild(
     document.createTextNode(
-      "*,*::before,*::after{-webkit-transition:none!important;transition:none!important}"
+      "*:not([data-theme-transition], [data-theme-transition] *),*:not([data-theme-transition], [data-theme-transition] *)::before,*:not([data-theme-transition], [data-theme-transition] *)::after{-webkit-transition:none!important;transition:none!important}"
     )
   )
   document.head.appendChild(style)
@@ -93,6 +94,16 @@ export function ThemeProvider({
     return defaultTheme
   })
 
+  const [resolvedTheme, setResolvedTheme] = React.useState<ResolvedTheme>(() => {
+    if (typeof window === "undefined") return "light"
+    const root = document.documentElement
+    if (root.classList.contains("dark")) return "dark"
+    if (root.classList.contains("light")) return "light"
+    const stored = localStorage.getItem(storageKey)
+    if (stored === "dark" || stored === "light") return stored
+    return getSystemTheme()
+  })
+
   const setTheme = React.useCallback(
     (nextTheme: Theme) => {
       localStorage.setItem(storageKey, nextTheme)
@@ -104,14 +115,15 @@ export function ThemeProvider({
   const applyTheme = React.useCallback(
     (nextTheme: Theme) => {
       const root = document.documentElement
-      const resolvedTheme =
+      const resolved =
         nextTheme === "system" ? getSystemTheme() : nextTheme
       const restoreTransitions = disableTransitionOnChange
         ? disableTransitionsTemporarily()
         : null
 
       root.classList.remove("light", "dark")
-      root.classList.add(resolvedTheme)
+      root.classList.add(resolved)
+      setResolvedTheme(resolved)
 
       if (restoreTransitions) {
         restoreTransitions()
@@ -207,9 +219,10 @@ export function ThemeProvider({
   const value = React.useMemo(
     () => ({
       theme,
+      resolvedTheme,
       setTheme,
     }),
-    [theme, setTheme]
+    [theme, resolvedTheme, setTheme]
   )
 
   return (
