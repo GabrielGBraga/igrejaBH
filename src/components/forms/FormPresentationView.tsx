@@ -9,7 +9,8 @@ import {
   Info,
   Heart,
   ArrowRight,
-
+  CircleDollarSign,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FormPresentationPage } from "@/lib/forms";
@@ -22,6 +23,8 @@ interface FormPresentationViewProps {
     end_date?: string | null;
     location_text?: string | null;
     max_participants?: number | null;
+    price?: number | null;
+    has_payment?: boolean | null;
   } | null;
   onStart: () => void;
   isPreviewMode?: boolean;
@@ -147,6 +150,74 @@ export function FormPresentationView({
             <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed whitespace-pre-line rounded-xl bg-muted/20 p-4 border border-border/40">
               {description}
             </div>
+          </div>
+        )}
+
+        {/* Cost Section (Optional) */}
+        {presentation.costs?.enabled && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <CircleDollarSign className="w-3.5 h-3.5" />
+              </div>
+              <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                {presentation.costs.title || "Custos e Investimento"}
+              </h2>
+            </div>
+
+            {presentation.costs.description && (
+              <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed whitespace-pre-line rounded-xl bg-muted/20 p-4 border border-border/40">
+                {presentation.costs.description}
+              </div>
+            )}
+
+            {/* Cost Items Breakdown */}
+            {presentation.costs.items && presentation.costs.items.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {presentation.costs.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-xl border border-border/70 bg-card hover:bg-muted/10 transition-colors space-y-1.5 shadow-xs"
+                  >
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      {item.title || "Valor"}
+                    </div>
+                    <div className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
+                      {item.amount || "R$ 0,00"}
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : retreat?.price !== undefined && retreat?.price !== null ? (
+              <div className="p-4 rounded-xl border border-border/70 bg-card space-y-1 shadow-xs max-w-sm">
+                <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  Valor da Inscrição
+                </div>
+                <div className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
+                  {retreat.price === 0
+                    ? "Gratuito"
+                    : `R$ ${retreat.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Payment Instructions */}
+            {presentation.costs.paymentInfo && (
+              <div className="flex items-start gap-3 p-3.5 rounded-xl border border-border/50 bg-muted/30 text-xs text-foreground/80 leading-relaxed">
+                <CreditCard className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold text-foreground block">
+                    Forma de Pagamento e Orientações:
+                  </span>
+                  <p className="whitespace-pre-line">{presentation.costs.paymentInfo}</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

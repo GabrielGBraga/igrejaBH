@@ -49,6 +49,21 @@ export interface FormPresentationInfoItem {
   icon?: string
 }
 
+export interface FormPresentationCostItem {
+  id: string
+  title: string
+  amount: string
+  description?: string
+}
+
+export interface FormPresentationCostSection {
+  enabled: boolean
+  title?: string
+  description?: string
+  items?: FormPresentationCostItem[]
+  paymentInfo?: string
+}
+
 export interface FormPresentationPage {
   enabled: boolean
   title?: string
@@ -57,6 +72,7 @@ export interface FormPresentationPage {
   description?: string
   infoItems?: FormPresentationInfoItem[]
   ctaButtonText?: string
+  costs?: FormPresentationCostSection
 }
 
 export interface FormTemplate {

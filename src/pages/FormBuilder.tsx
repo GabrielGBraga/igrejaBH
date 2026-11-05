@@ -124,7 +124,7 @@ export default function FormBuilder() {
     Record<string, FormSubmission[]>
   >({})
   const [loading, setLoading] = useState(true)
-  const [retreats, setRetreats] = useState<{ id: string; title: string; status: string | null; form_id: string | null; end_date: string | null; max_participants: number | null; registration_deadline: string | null }[]>([])
+  const [retreats, setRetreats] = useState<{ id: string; title: string; status: string | null; form_id: string | null; start_date?: string | null; end_date: string | null; location_text?: string | null; price?: number | null; has_payment?: boolean | null; max_participants: number | null; registration_deadline: string | null }[]>([])
 
   // Navigation and active view states
   const [currentView, setCurrentView] = useState<"list" | "builder">("list")
@@ -187,7 +187,7 @@ export default function FormBuilder() {
         // Fetch retreats to correlate forms
         const { data: dbRetreats, error: retreatsError } = await supabase
           .from("retreats")
-          .select("id, title, status, form_id, end_date, max_participants, registration_deadline")
+          .select("id, title, status, form_id, start_date, end_date, location_text, price, has_payment, max_participants, registration_deadline")
 
         if (retreatsError) {
           console.error("Error loading retreats in FormBuilder:", retreatsError)
@@ -1539,10 +1539,16 @@ export default function FormBuilder() {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                 }`}
               >
-                <FileText className="h-4 w-4 text-primary" />
+                <FileText className="h-4 w-4" />
                 <span>Página de Apresentação</span>
                 {selectedForm.presentationPage?.enabled && (
-                  <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      builderTab === "presentation"
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                    }`}
+                  >
                     Ativada
                   </span>
                 )}
@@ -1569,6 +1575,7 @@ export default function FormBuilder() {
               <div className="col-span-1 lg:col-span-12">
                 <FormPresentationEditor
                   form={selectedForm}
+                  retreat={retreats.find((r) => r.form_id === selectedForm.id) || null}
                   onChange={(presentationPage) =>
                     setSelectedForm((prev) =>
                       prev ? { ...prev, presentationPage } : null
