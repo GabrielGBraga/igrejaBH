@@ -397,10 +397,6 @@ export function TextEditor({
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="hidden xl:inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40 select-none">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                            Privado
-                        </span>
                         <Button
                             type="button"
                             variant="ghost"
