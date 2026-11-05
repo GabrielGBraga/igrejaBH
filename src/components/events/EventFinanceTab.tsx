@@ -296,7 +296,7 @@ export function EventFinanceTab({
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/50 hover:bg-transparent">

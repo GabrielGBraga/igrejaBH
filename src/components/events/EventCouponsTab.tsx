@@ -398,7 +398,7 @@ export function EventCouponsTab({
         <div className="space-y-3">
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-border/80 bg-muted/50 font-bold uppercase tracking-wider text-muted-foreground">

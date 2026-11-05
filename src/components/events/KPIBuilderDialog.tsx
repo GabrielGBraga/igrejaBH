@@ -946,7 +946,7 @@ export function KPIBuilderDialog({
                       </span>
                       <span className="font-mono text-[10px] text-zinc-400">Planilha / SQL</span>
                     </div>
-                    <div className="font-mono text-[11px] p-2.5 bg-white dark:bg-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 overflow-x-auto whitespace-nowrap">
+                    <div className="font-mono text-[11px] p-2.5 bg-white dark:bg-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 overflow-x-auto whitespace-nowrap custom-scrollbar">
                       {previewCard.formulaText || "=COUNTA(Inscrições[ID])"}
                     </div>
                     <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">

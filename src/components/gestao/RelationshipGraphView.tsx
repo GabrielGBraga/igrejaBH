@@ -2988,7 +2988,7 @@ export function RelationshipGraphView({
                 Selecione um nome para centralizar e inspecionar
               </span>
             </div>
-            <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
+            <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto custom-scrollbar">
               {(searchName.trim() !== "" ? searchMatchedNodes : diagnosticMatchedNodes).map(
                 (n) => (
                   <button
@@ -3174,7 +3174,7 @@ export function RelationshipGraphView({
               </div>
 
               {selectedNodeData.directDisciples.length > 0 ? (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                   {selectedNodeData.directDisciples.map((disc) => (
                     <button
                       key={disc.id}

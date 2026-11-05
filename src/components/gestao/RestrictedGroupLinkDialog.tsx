@@ -173,7 +173,7 @@ export function RestrictedGroupLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-6 space-y-4 min-w-0">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-6 space-y-4 min-w-0 custom-scrollbar">
           {/* 1. Seletor de Grupo Caseiro */}
           <div className="space-y-1.5 min-w-0">
             <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">

@@ -1147,10 +1147,10 @@ export default function ManageEventDetail() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h2 className="text-2xl font-bold text-foreground">
           Evento não encontrado
         </h2>
-        <p className="text-sm text-zinc-500 max-w-md mx-auto">
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
           O evento que você está tentando acessar não existe ou foi removido.
         </p>
         <Button
@@ -1188,10 +1188,10 @@ export default function ManageEventDetail() {
       </div>
 
       {/* Main Header Banner */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-2 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight truncate">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight truncate">
               {retreat.title}
             </h1>
             <Badge
@@ -1308,7 +1308,8 @@ export default function ManageEventDetail() {
       />
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto gap-2">
+      <div className="border-b border-zinc-200 dark:border-zinc-800">
+        <div className="flex overflow-x-auto gap-2 custom-scrollbar pb-1.5 scroll-smooth overscroll-x-contain -mb-px">
         <button
           onClick={() => setActiveTab("checkin")}
           className={`min-h-[44px] px-4 py-2.5 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer flex items-center gap-2 ${
@@ -1418,6 +1419,7 @@ export default function ManageEventDetail() {
           <BarChart3 className="w-4 h-4" />
           <span>Dashboard Analítico</span>
         </button>
+        </div>
       </div>
 
       {/* Tab: Check-in / Recepção e Portaria */}
@@ -1563,7 +1565,7 @@ export default function ManageEventDetail() {
                 </span>
               </h4>
 
-              <div className="space-y-3.5 max-h-56 overflow-y-auto pr-1">
+              <div className="space-y-3.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
                 {retreatRooms.length === 0 ? (
                   <p className="text-xs text-zinc-400 italic text-center py-6">
                     Nenhum quarto cadastrado neste retiro.
@@ -1708,7 +1710,7 @@ export default function ManageEventDetail() {
                   neste evento. Crie quartos na aba &quot;Divisão de Quartos&quot;.
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1 custom-scrollbar">
                   {eligibleRoomsForParticipant.map((room) => {
                     const occupantsCount = registrations.filter(
                       (r) =>

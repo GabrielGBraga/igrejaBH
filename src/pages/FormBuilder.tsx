@@ -111,6 +111,7 @@ const mapDbSubmission = (dbSub: any): FormSubmission => {
     id: dbSub.id,
     formId: dbSub.form_id,
     submittedAt: dbSub.submitted_at,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: dbSub.data as Record<string, any>,
   }
 }
@@ -411,10 +412,11 @@ export default function FormBuilder() {
       setForms(updated)
       setCurrentView("list")
       setSelectedForm(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error
       console.error("Error saving form to Supabase:", err)
       toast.error(
-        `Falha ao salvar formulário: ${err.message || "Erro desconhecido"}`
+        `Falha ao salvar formulário: ${error.message || "Erro desconhecido"}`
       )
     }
   }
@@ -457,9 +459,10 @@ export default function FormBuilder() {
       const updated = [duplicated, ...forms]
       setForms(updated)
       toast.success("Formulário duplicado!")
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error
       console.error("Error duplicating form:", err)
-      toast.error(`Falha ao duplicar formulário: ${err.message}`)
+      toast.error(`Falha ao duplicar formulário: ${error.message}`)
     }
   }
 
@@ -484,8 +487,9 @@ export default function FormBuilder() {
       toast.success(
         `Formulário ${nextActive ? "ativado" : "desativado"} com sucesso!`
       )
-    } catch (err: any) {
-      toast.error("Erro ao alterar status do formulário: " + err.message)
+    } catch (err: unknown) {
+      const error = err as Error
+      toast.error("Erro ao alterar status do formulário: " + error.message)
     }
   }
 
@@ -512,9 +516,10 @@ export default function FormBuilder() {
         setSubmissions(updatedSubmissions)
 
         toast.success("Formulário excluído.")
-      } catch (err: any) {
+      } catch (err: unknown) {
+      const error = err as Error
         console.error("Error deleting form:", err)
-        toast.error(`Falha ao excluir formulário: ${err.message}`)
+        toast.error(`Falha ao excluir formulário: ${error.message}`)
       }
     }
   }
@@ -586,10 +591,11 @@ export default function FormBuilder() {
       const updated = [imported, ...forms]
       setForms(updated)
       toast.success("Formulário importado com sucesso!")
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error
       console.error("Error importing JSON:", err)
       toast.error(
-        `Falha ao importar JSON: ${err.message || "Verifique a formatação do JSON."}`
+        `Falha ao importar JSON: ${error.message || "Verifique a formatação do JSON."}`
       )
     }
   }
@@ -1043,9 +1049,10 @@ export default function FormBuilder() {
         delete updated[formId]
         setSubmissions(updated)
         toast.success("Respostas apagadas.")
-      } catch (err: any) {
+      } catch (err: unknown) {
+      const error = err as Error
         console.error("Error clearing submissions:", err)
-        toast.error(`Falha ao apagar respostas: ${err.message}`)
+        toast.error(`Falha ao apagar respostas: ${error.message}`)
       }
     }
   }
@@ -1071,9 +1078,10 @@ export default function FormBuilder() {
         }
         setSubmissions(updated)
         toast.success("Resposta apagada.")
-      } catch (err: any) {
+      } catch (err: unknown) {
+      const error = err as Error
         console.error("Error deleting submission:", err)
-        toast.error(`Falha ao apagar resposta: ${err.message}`)
+        toast.error(`Falha ao apagar resposta: ${error.message}`)
       }
     }
   }
@@ -1093,7 +1101,7 @@ export default function FormBuilder() {
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Crie e configure formulários dinâmicos para a vida comunitária,
-                pesquisas e registros de PG.
+                pesquisas e registros dos grupos caseiros.
               </p>
             </div>
 
@@ -1535,7 +1543,7 @@ export default function FormBuilder() {
 
           {/* Builder Navigation Tab Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/30 p-1.5 shadow-sm">
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto custom-scrollbar pb-1">
               <button
                 type="button"
                 onClick={() => setBuilderTab("edit")}
@@ -1624,7 +1632,7 @@ export default function FormBuilder() {
                       Copiar JSON
                     </Button>
                   </div>
-                  <pre className="max-h-[450px] overflow-x-auto rounded-lg border border-border/60 bg-background p-4 font-mono text-[10px] leading-normal text-muted-foreground">
+                  <pre className="max-h-[450px] overflow-x-auto rounded-lg border border-border/60 bg-background p-4 font-mono text-[10px] leading-normal text-muted-foreground custom-scrollbar">
                     {JSON.stringify(selectedForm, null, 2)}
                   </pre>
                 </Card>
@@ -2059,7 +2067,7 @@ export default function FormBuilder() {
                 </div>
 
                 {/* Content area */}
-                <div className="max-h-[calc(85vh-160px)] min-h-[250px] flex-1 overflow-y-auto p-6">
+                <div className="max-h-[calc(85vh-160px)] min-h-[250px] flex-1 overflow-y-auto p-6 custom-scrollbar">
                   {formSubs.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground italic">
                       Nenhuma resposta enviada ainda. Use o preview para testar
@@ -2067,7 +2075,7 @@ export default function FormBuilder() {
                     </div>
                   ) : (
                     <div className="overflow-hidden rounded-lg border border-border/50 bg-card/25 shadow-sm">
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto custom-scrollbar">
                         <table className="w-full border-collapse text-left text-xs">
                           <thead>
                             <tr className="border-b border-border/80 bg-muted/70 font-bold tracking-wider text-muted-foreground uppercase">

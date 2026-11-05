@@ -868,7 +868,7 @@ export function EventDataTable({
 
       {/* Table Container */}
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm overflow-hidden relative">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto custom-scrollbar">
           <Table className="w-full">
             <TableHeader className="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800">
               {table.getHeaderGroups().map((headerGroup) => (

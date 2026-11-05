@@ -56,7 +56,7 @@ export function CalendarEventDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 custom-scrollbar">
           {/* Card de Local */}
           {event.location && (
             <div className="flex items-center justify-between gap-2.5 rounded-xl border border-border/60 bg-muted/20 p-3.5">

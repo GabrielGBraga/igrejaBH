@@ -183,11 +183,11 @@ export default function ManageEvents() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Gestão de Eventos e Retiros
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Gestão de Eventos
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Selecione um evento para gerenciar inscrições, pagamentos e alojamentos, ou cadastre um novo encontro.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Organização de retiros e encontros comunitários da igreja.
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export default function ManageEvents() {
       {/* Toolbar: Status Tabs & Search */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl overflow-x-auto custom-scrollbar">
           <button
             onClick={() => setStatusFilter("todos")}
             className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
@@ -296,7 +296,7 @@ export default function ManageEvents() {
                 className="min-h-[44px] h-11 px-5 rounded-lg bg-zinc-900 text-zinc-50 hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs font-bold cursor-pointer"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Cadastrar Primeiro Retiro
+                Criar Primeiro Retiro
               </Button>
             )}
           </CardContent>

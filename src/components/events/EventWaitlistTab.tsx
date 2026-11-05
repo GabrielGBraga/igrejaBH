@@ -441,7 +441,7 @@ export function EventWaitlistTab({
 
           {/* Versão Desktop (Tabela) */}
           <div className="hidden md:block overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xs">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-border/60 bg-muted/40 text-muted-foreground font-semibold">
                   <tr>

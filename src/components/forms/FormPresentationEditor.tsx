@@ -370,7 +370,7 @@ export function FormPresentationEditor({
                     Tempo Real
                   </span>
                 </div>
-                <div className="rounded-2xl border border-border/80 shadow-md bg-card overflow-hidden max-h-[700px] overflow-y-auto">
+                <div className="rounded-2xl border border-border/80 shadow-md bg-card overflow-hidden max-h-[700px] overflow-y-auto custom-scrollbar">
                   <FormPresentationView
                     presentation={current}
                     onStart={() => setActiveTab("preview")}

@@ -620,7 +620,7 @@ export function DiscipleEditorDialog({
         </DialogHeader>
 
         {/* Corpo com Scroll Suave */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4.5 overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4.5 overscroll-contain custom-scrollbar">
           {/* Banner de Acolhimento se for visitante */}
           {isTransformingLinked && (
             <div className="rounded-xl border border-border/80 bg-muted/40 p-3.5 text-xs text-foreground flex items-start gap-2.5">

@@ -316,7 +316,7 @@ export function HomeGroupEditorDialog({
         </DialogHeader>
 
         {/* Corpo com Scroll Integrado ao Modal */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4 overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 sm:px-6 space-y-4 overscroll-contain custom-scrollbar">
           {/* Liderança e Setor (Apenas Nível 3 - Diáconos, Presbíteros, Devs) */}
           {isTier3 && (
             <div className="space-y-4 rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">

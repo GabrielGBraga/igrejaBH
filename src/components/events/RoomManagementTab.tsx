@@ -391,7 +391,7 @@ export function RoomManagementTab({
                         {occupantRegs.length === 0 ? (
                           <p className="text-xs italic text-muted-foreground py-2">Nenhum integrante alocado.</p>
                         ) : (
-                          <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                          <div className="space-y-1.5 max-h-[120px] overflow-y-auto pr-1 custom-scrollbar">
                             {occupantRegs.map(reg => {
                               const name = reg.profiles?.full_name || (reg.guest_data as any)?.full_name || "Sem nome";
                               return (
@@ -465,7 +465,7 @@ export function RoomManagementTab({
                 {registrations.filter(r => (r.status || "confirmado") !== "cancelado" && (r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name)).length === 0 ? (
                   <p className="text-xs italic text-muted-foreground bg-muted/20 p-3 rounded-xl">Nenhum participante alocado neste quarto ainda.</p>
                 ) : (
-                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
                     {registrations.filter(r => (r.status || "confirmado") !== "cancelado" && (r.room_id === selectedRoomForAllocation.id || r.room_allocation === selectedRoomForAllocation.name)).map(reg => {
                       const name = reg.profiles?.full_name || (reg.guest_data as any)?.full_name || "Sem nome";
                       const phone = reg.profiles?.phone || (reg.guest_data as any)?.phone || "S/T";
@@ -516,7 +516,7 @@ export function RoomManagementTab({
                     Nenhum participante compatível sem quarto encontrado.
                   </p>
                 ) : (
-                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar">
                     {getEligibleUnallocatedForRoom(selectedRoomForAllocation).map(reg => {
                       const name = reg.profiles?.full_name || (reg.guest_data as any)?.full_name || "Sem nome";
                       const phone = reg.profiles?.phone || (reg.guest_data as any)?.phone || "S/T";

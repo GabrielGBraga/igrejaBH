@@ -549,7 +549,29 @@ export const THEME_SWITCH_COLORS = {
 } as const;
 
 // ==========================================
-// 9. FUNÇÕES AUXILIARES DE CORES
+// 9. TOKENS DE BARRAS DE ROLAGEM (Scrollbars)
+// ==========================================
+export const SCROLLBAR_COLORS = {
+  light: {
+    track: "transparent",
+    thumb: "rgba(24, 24, 27, 0.18)", // zinc-900 / 18%
+    thumbHover: "rgba(24, 24, 27, 0.35)", // zinc-900 / 35%
+    thumbActive: "rgba(24, 24, 27, 0.5)", // zinc-900 / 50%
+    primaryThumb: "rgba(27, 67, 50, 0.35)", // primary olive / 35%
+    primaryThumbHover: "rgba(27, 67, 50, 0.65)", // primary olive / 65%
+  },
+  dark: {
+    track: "transparent",
+    thumb: "rgba(250, 250, 250, 0.18)", // zinc-50 / 18%
+    thumbHover: "rgba(250, 250, 250, 0.35)", // zinc-50 / 35%
+    thumbActive: "rgba(250, 250, 250, 0.5)", // zinc-50 / 50%
+    primaryThumb: "rgba(134, 239, 172, 0.35)", // primary mint / 35%
+    primaryThumbHover: "rgba(134, 239, 172, 0.65)", // primary mint / 65%
+  },
+} as const;
+
+// ==========================================
+// 10. FUNÇÕES AUXILIARES DE CORES
 // ==========================================
 /**
  * Retorna os tokens semânticos baseados no modo dark atual.

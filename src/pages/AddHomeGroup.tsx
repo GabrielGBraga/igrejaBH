@@ -441,7 +441,7 @@ export default function AddHomeGroup() {
                       ) : sectors.length === 0 ? (
                         <p className="text-xs text-muted-foreground py-2 italic text-center">Nenhum setor cadastrado ainda.</p>
                       ) : (
-                        <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                        <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
                           {sectors.map((sec) => (
                             <div key={sec.id} className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-border/30 hover:border-border/60 transition-colors">
                               <span className="text-xs font-medium text-foreground">{sec.name}</span>

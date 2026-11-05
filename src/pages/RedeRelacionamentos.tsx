@@ -685,8 +685,11 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-12">
       {/* 1. Cabeçalho Principal Mobile-First */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/70 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Cuidado do Corpo
+            </h1>
             <Badge
               variant="outline"
               className="border-primary/30 bg-primary/10 text-primary text-[11px] font-medium"
@@ -700,9 +703,6 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 : "Seu Grupo Caseiro"}
             </Badge>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Gestão do Corpo e Cuidado Mútuo
-          </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {isTier3
               ? "Acompanhamento fraternal dos irmãos, grupos caseiros e cuidado com cada vida na cidade."
@@ -955,7 +955,10 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                 <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-sm space-y-3">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-lg font-bold text-foreground sm:text-xl">
+                          {getHomeGroupDisplayName(currentFocusedGroup, profileMap)}
+                        </h2>
                         {currentFocusedGroup.sector_id && sectorMap.has(currentFocusedGroup.sector_id) && (
                           <Badge
                             variant="outline"
@@ -965,13 +968,9 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
                           </Badge>
                         )}
                         <span className="text-xs font-medium text-muted-foreground">
-                          {counts.total} irmão(s) vinculados • {groupFamilies.length} famílias
+                          • {counts.total} irmão(s) vinculados • {groupFamilies.length} famílias
                         </span>
                       </div>
-
-                      <h2 className="mt-1 text-lg font-bold text-foreground sm:text-xl">
-                        {getHomeGroupDisplayName(currentFocusedGroup, profileMap)}
-                      </h2>
 
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5 text-foreground/90 font-medium">
@@ -1529,7 +1528,7 @@ export default function RedeRelacionamentos({ singleGroupMode = false }: RedeRel
               </div>
             </form>
 
-            <div className="mt-3 max-h-56 space-y-1.5 overflow-y-auto">
+            <div className="mt-3 max-h-56 space-y-1.5 overflow-y-auto custom-scrollbar">
               {sectors.map((s) => {
                 const groupCount = homeGroups.filter((g) => g.sector_id === s.id).length
                 return (

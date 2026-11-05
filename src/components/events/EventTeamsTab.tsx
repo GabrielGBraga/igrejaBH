@@ -805,7 +805,7 @@ export function EventTeamsTab({
                 🎉 Glória a Deus! Todos os participantes inscritos possuem uma equipe de serviço designada!
               </div>
             ) : (
-              <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80 max-h-[480px] overflow-y-auto">
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80 max-h-[480px] overflow-y-auto custom-scrollbar">
                 {unassignedAttendees.slice(0, 30).map((attendee) => (
                   <div
                     key={attendee.id}
