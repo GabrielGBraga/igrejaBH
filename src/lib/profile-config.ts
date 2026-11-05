@@ -26,6 +26,62 @@ export const MANDATORY_PROFILE_FIELDS = {
 
 export type MandatoryProfileField = keyof typeof MANDATORY_PROFILE_FIELDS
 
+export type ProfileSectionKey = "personal" | "contact" | "address" | "socio"
+
+export interface ProfileSectionConfig {
+  key: ProfileSectionKey
+  label: string
+  shortLabel: string
+  description: string
+  fields: MandatoryProfileField[]
+}
+
+export const PROFILE_SECTIONS: ProfileSectionConfig[] = [
+  {
+    key: "personal",
+    label: "Dados Pessoais",
+    shortLabel: "Pessoal",
+    description: "Nome completo, CPF, data de nascimento, gênero e estado civil.",
+    fields: ["full_name", "cpf", "birth_date", "gender", "marital_status"],
+  },
+  {
+    key: "contact",
+    label: "Informações de Contato",
+    shortLabel: "Contato",
+    description: "Telefone celular / WhatsApp para comunhão e avisos.",
+    fields: ["phone"],
+  },
+  {
+    key: "address",
+    label: "Endereço Residencial",
+    shortLabel: "Endereço",
+    description: "Localização de moradia para visitas e integração nos grupos.",
+    fields: [
+      "address_zip_code",
+      "address_street",
+      "address_number",
+      "address_neighborhood",
+      "address_city",
+      "address_state",
+    ],
+  },
+  {
+    key: "socio",
+    label: "Informações Socioeconômicas",
+    shortLabel: "Socioeconômico",
+    description: "Profissão, escolaridade, moradia e perfil de apoio mútuo.",
+    fields: [
+      "occupation",
+      "education_level",
+      "employment_status",
+      "household_income",
+      "dependents_count",
+      "housing_status",
+      "drivers_license",
+    ],
+  },
+]
+
 /**
  * Verifica se o perfil contém algum valor "sentinela" ou está vazio para campos obrigatórios.
  */
@@ -44,6 +100,28 @@ export function getMissingProfileFields(
   return (
     Object.keys(MANDATORY_PROFILE_FIELDS) as MandatoryProfileField[]
   ).filter((field) => !isFieldComplete(profile[field]))
+}
+
+export function getSectionMissingFields(
+  profile: Record<string, any>,
+  sectionKey: ProfileSectionKey
+): MandatoryProfileField[] {
+  const section = PROFILE_SECTIONS.find((s) => s.key === sectionKey)
+  if (!section) return []
+  return section.fields.filter((field) => !isFieldComplete(profile[field]))
+}
+
+export function isSectionComplete(
+  profile: Record<string, any>,
+  sectionKey: ProfileSectionKey
+): boolean {
+  return getSectionMissingFields(profile, sectionKey).length === 0
+}
+
+export function getPendingSections(
+  profile: Record<string, any>
+): ProfileSectionConfig[] {
+  return PROFILE_SECTIONS.filter((s) => !isSectionComplete(profile, s.key))
 }
 
 export function getFieldLabel(field: string): string {

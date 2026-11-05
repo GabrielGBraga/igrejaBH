@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   Dialog,
   DialogContent,
@@ -8,25 +8,21 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Field, FieldLabel, FieldError } from "@/components/ui/field"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group"
-import { CardSelector, CardSelectorItem } from "@/components/ui/card-selector"
 import {
   Loader2,
-  SearchIcon,
   UserIcon,
   PhoneIcon,
   MapPinIcon,
   ShieldIcon,
   CheckCircle2Icon,
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  CheckIcon,
 } from "lucide-react"
 import supabase from "@/lib/supabase"
-import { formatPhone, isValidBrazilianPhone } from "@/lib/phoneUtils"
+import { isValidBrazilianPhone } from "@/lib/phoneUtils"
+import { isValidCPF, formatCPF } from "@/lib/cpfUtils"
+import { invalidateCurrentUserProfileCache } from "@/hooks/useCurrentUserProfile"
 import {
   normalizeGender,
   normalizeMaritalStatus,
@@ -36,13 +32,63 @@ import {
   normalizeHousingStatus,
   normalizeDriversLicense,
 } from "@/lib/profileNormalization"
-import { getMissingProfileFields } from "@/lib/profile-config"
+import {
+  type ProfileSectionKey,
+  isSectionComplete,
+} from "@/lib/profile-config"
+import {
+  PersonalFormSection,
+  ContactFormSection,
+  AddressFormSection,
+  SocioEconomicFormSection,
+} from "./forms"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+
+interface StepConfig {
+  key: ProfileSectionKey
+  label: string
+  shortLabel: string
+  description: string
+  icon: typeof UserIcon
+}
+
+const STEPS: StepConfig[] = [
+  {
+    key: "personal",
+    label: "Dados Pessoais",
+    shortLabel: "Pessoal",
+    description: "Nome completo, CPF, data de nascimento, gênero e estado civil.",
+    icon: UserIcon,
+  },
+  {
+    key: "contact",
+    label: "Informações de Contato",
+    shortLabel: "Contato",
+    description: "Telefone celular / WhatsApp para comunhão e avisos.",
+    icon: PhoneIcon,
+  },
+  {
+    key: "address",
+    label: "Endereço Residencial",
+    shortLabel: "Endereço",
+    description: "Localização de moradia para visitas e integração nos grupos.",
+    icon: MapPinIcon,
+  },
+  {
+    key: "socio",
+    label: "Informações Socioeconômicas",
+    shortLabel: "Socioeconômico",
+    description: "Profissão, escolaridade, moradia e perfil de apoio mútuo.",
+    icon: ShieldIcon,
+  },
+]
 
 export interface CompleteProfileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   profile: any
+  singleSection?: ProfileSectionKey
   onSuccess: () => Promise<void>
 }
 
@@ -50,15 +96,20 @@ export function CompleteProfileDialog({
   open,
   onOpenChange,
   profile,
+  singleSection,
   onSuccess,
 }: CompleteProfileDialogProps) {
+  const isSingleSectionMode = !!singleSection
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [saving, setSaving] = useState(false)
-  const [searchingCep, setSearchingCep] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const hasInitializedRef = useRef(false)
 
   // Form State
   const [formData, setFormData] = useState({
     // Pessoal
+    full_name: "",
+    cpf: "",
     birth_date: "",
     gender: "masculino",
     marital_status: "solteiro",
@@ -82,43 +133,23 @@ export function CompleteProfileDialog({
     drivers_license: "Não possui",
   })
 
-  // Detect which categories are missing
-  const missing = getMissingProfileFields(profile)
-
-  const hasMissingPersonal = missing.some((f) =>
-    ["birth_date", "gender", "marital_status"].includes(f)
-  )
-  const hasMissingContact = missing.includes("phone")
-  const hasMissingAddress = missing.some((f) =>
-    [
-      "address_street",
-      "address_number",
-      "address_neighborhood",
-      "address_city",
-      "address_state",
-      "address_zip_code",
-    ].includes(f)
-  )
-  const hasMissingSocio = missing.some((f) =>
-    [
-      "occupation",
-      "education_level",
-      "employment_status",
-      "household_income",
-      "dependents_count",
-      "housing_status",
-      "drivers_license",
-    ].includes(f)
-  )
-
-  // Initialize form values from profile (using normalizers)
+  // Reset initialization flag when dialog closes
   useEffect(() => {
-    if (profile && open) {
+    if (!open) {
+      hasInitializedRef.current = false
+    }
+  }, [open])
+
+  // Initialize form values from profile ONLY ONCE when dialog opens or when singleSection changes
+  useEffect(() => {
+    if (open && profile && !hasInitializedRef.current) {
       setFormData({
+        full_name: profile.full_name || "",
+        cpf: profile.cpf ? formatCPF(profile.cpf) : "",
         birth_date: profile.birth_date || "",
         gender: normalizeGender(profile.gender),
         marital_status: normalizeMaritalStatus(profile.marital_status),
-        phone: formatPhone(profile.phone || ""),
+        phone: profile.phone || "",
         address_zip_code: profile.address_zip_code || "",
         address_street: profile.address_street || "",
         address_number: profile.address_number || "",
@@ -135,572 +166,466 @@ export function CompleteProfileDialog({
         drivers_license: normalizeDriversLicense(profile.drivers_license),
       })
       setErrors({})
-    }
-  }, [profile, open])
 
-  // ViaCEP Lookup
-  const handleZipChange = async (cepValue: string) => {
-    setFormData((prev) => ({ ...prev, address_zip_code: cepValue }))
-    const cleanCep = cepValue.replace(/\D/g, "")
-    if (cleanCep.length === 8) {
-      setSearchingCep(true)
-      try {
-        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-        const data = await response.json()
-        if (!data.erro) {
-          setFormData((prev) => ({
-            ...prev,
-            address_street: data.logradouro || prev.address_street,
-            address_neighborhood: data.bairro || prev.address_neighborhood,
-            address_city: data.localidade || prev.address_city,
-            address_state: data.uf || prev.address_state,
-          }))
-          toast.success("Endereço preenchido automaticamente!")
-        } else {
-          toast.error("CEP não encontrado.")
-        }
-      } catch (err) {
-        console.error("Erro ao buscar CEP:", err)
-      } finally {
-        setSearchingCep(false)
+      if (singleSection) {
+        const foundIndex = STEPS.findIndex((s) => s.key === singleSection)
+        if (foundIndex >= 0) setCurrentStepIndex(foundIndex)
+      } else {
+        // Modo incremental de completude obrigatória: começa do primeiro passo (passando por todas as informações)
+        setCurrentStepIndex(0)
       }
+
+      hasInitializedRef.current = true
+    }
+  }, [open, profile, singleSection])
+
+  // Field change handlers
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next[field]
+        return next
+      })
     }
   }
 
-  const validate = () => {
-    const errs: Record<string, string> = {}
+  const handleBulkChange = (updates: Record<string, any>) => {
+    setFormData((prev) => ({ ...prev, ...updates }))
+  }
 
-    if (hasMissingPersonal) {
+  const currentStep = STEPS[currentStepIndex] || STEPS[0]
+  const isFirstStep = currentStepIndex === 0
+  const isLastStep = currentStepIndex === STEPS.length - 1
+
+  const validateSection = (sectionKey: ProfileSectionKey): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    if (sectionKey === "personal") {
+      if (!formData.full_name || formData.full_name.trim().length < 3) {
+        newErrors.full_name = "Informe seu nome completo."
+      }
+      if (!formData.cpf || formData.cpf.trim() === "") {
+        newErrors.cpf = "CPF é obrigatório."
+      } else if (!isValidCPF(formData.cpf)) {
+        newErrors.cpf = "Informe um CPF válido."
+      }
       if (!formData.birth_date) {
-        errs.birth_date = "Data de nascimento é obrigatória."
+        newErrors.birth_date = "Data de nascimento é obrigatória."
       }
       if (!formData.gender) {
-        errs.gender = "Selecione o gênero."
+        newErrors.gender = "Selecione o gênero."
       }
       if (!formData.marital_status) {
-        errs.marital_status = "Selecione o estado civil."
+        newErrors.marital_status = "Selecione o estado civil."
       }
-    }
-
-    if (hasMissingContact || formData.phone) {
-      if (!formData.phone) {
-        errs.phone = "Telefone é obrigatório."
+    } else if (sectionKey === "contact") {
+      if (!formData.phone || formData.phone.trim() === "") {
+        newErrors.phone = "Telefone é obrigatório."
       } else if (!isValidBrazilianPhone(formData.phone)) {
-        errs.phone = "Informe um número de telefone celular válido com DDD."
+        newErrors.phone = "Informe um celular válido com DDD."
       }
-    }
-
-    if (hasMissingAddress) {
-      if (!formData.address_street) errs.address_street = "Rua é obrigatória."
-      if (!formData.address_number) errs.address_number = "Número é obrigatório."
-      if (!formData.address_neighborhood) errs.address_neighborhood = "Bairro é obrigatório."
-      if (!formData.address_city) errs.address_city = "Cidade é obrigatória."
-      if (!formData.address_state) errs.address_state = "Estado é obrigatório."
-      if (!formData.address_zip_code) errs.address_zip_code = "CEP é obrigatório."
-    }
-
-    if (hasMissingSocio) {
+    } else if (sectionKey === "address") {
+      if (!formData.address_zip_code || formData.address_zip_code.trim() === "") {
+        newErrors.address_zip_code = "CEP é obrigatório."
+      }
+      if (!formData.address_street || formData.address_street.trim() === "") {
+        newErrors.address_street = "Rua é obrigatória."
+      }
+      if (!formData.address_number || formData.address_number.trim() === "") {
+        newErrors.address_number = "Número é obrigatório."
+      }
+      if (!formData.address_neighborhood || formData.address_neighborhood.trim() === "") {
+        newErrors.address_neighborhood = "Bairro é obrigatório."
+      }
+      if (!formData.address_city || formData.address_city.trim() === "") {
+        newErrors.address_city = "Cidade é obrigatória."
+      }
+      if (!formData.address_state || formData.address_state.trim() === "") {
+        newErrors.address_state = "Estado é obrigatório."
+      }
+    } else if (sectionKey === "socio") {
       if (!formData.occupation || formData.occupation.trim().length < 2) {
-        errs.occupation = "Informe sua profissão."
+        newErrors.occupation = "Informe sua profissão."
       }
     }
 
-    setErrors(errs)
-    return Object.keys(errs).length === 0
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
-  const handleSave = async () => {
-    if (!validate()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios.")
+  // Obter atualizações para salvar de acordo com a seção atual
+  const getSectionUpdates = (sectionKey: ProfileSectionKey): Record<string, unknown> => {
+    switch (sectionKey) {
+      case "personal":
+        return {
+          full_name: formData.full_name.trim(),
+          cpf: formatCPF(formData.cpf.trim()),
+          birth_date: formData.birth_date,
+          gender: formData.gender,
+          marital_status: formData.marital_status,
+        }
+      case "contact":
+        return {
+          phone: formData.phone,
+        }
+      case "address":
+        return {
+          address_zip_code: formData.address_zip_code,
+          address_street: formData.address_street,
+          address_number: formData.address_number,
+          address_neighborhood: formData.address_neighborhood,
+          address_city: formData.address_city,
+          address_state: formData.address_state,
+          address_complement: formData.address_complement,
+        }
+      case "socio":
+        return {
+          occupation: formData.occupation,
+          education_level: formData.education_level,
+          employment_status: formData.employment_status,
+          household_income: formData.household_income,
+          dependents_count: formData.dependents_count,
+          housing_status: formData.housing_status,
+          drivers_license: formData.drivers_license,
+        }
+    }
+  }
+
+  // Submissão incremental de cada passo
+  const handleStepSubmit = async () => {
+    const sectionKey = currentStep.key
+
+    if (!validateSection(sectionKey)) {
+      toast.error("Por favor, preencha todos os campos obrigatórios deste passo.")
       return
     }
 
     try {
       setSaving(true)
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session?.user) throw new Error("Usuário não autenticado.")
 
-      const updates: Record<string, unknown> = {
-        // Dados Pessoais
-        birth_date: formData.birth_date,
-        gender: formData.gender,
-        marital_status: formData.marital_status,
-        // Contato
-        phone: formData.phone,
-        // Endereço
-        address_zip_code: formData.address_zip_code,
-        address_street: formData.address_street,
-        address_number: formData.address_number,
-        address_neighborhood: formData.address_neighborhood,
-        address_city: formData.address_city,
-        address_state: formData.address_state,
-        address_complement: formData.address_complement,
-        // Socioeconômico
-        occupation: formData.occupation,
-        education_level: formData.education_level,
-        employment_status: formData.employment_status,
-        household_income: formData.household_income,
-        dependents_count: formData.dependents_count,
-        housing_status: formData.housing_status,
-        drivers_license: formData.drivers_license,
+      let userId = profile?.user_id
+      if (!userId) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+        userId = session?.user?.id
       }
+      if (!userId) throw new Error("Usuário não autenticado.")
+
+      const updates = getSectionUpdates(sectionKey)
 
       const { error } = await supabase
         .from("profiles")
         .update(updates)
-        .eq("user_id", session.user.id)
+        .eq("user_id", userId)
 
-      if (error) throw error
+      if (error) {
+        if (error.code === "23505" || error.message?.toLowerCase().includes("cpf")) {
+          setErrors((prev) => ({
+            ...prev,
+            cpf: "Este CPF já está cadastrado em outra conta.",
+          }))
+          toast.error("Este CPF já está cadastrado em outra conta.")
+          return
+        }
+        throw error
+      }
 
-      toast.success("Cadastro completado com sucesso! Seja bem-vindo(a).")
-      await onSuccess()
-      onOpenChange(false)
+      if (sectionKey === "personal") {
+        invalidateCurrentUserProfileCache()
+        if (formData.full_name?.trim()) {
+          try {
+            await supabase.auth.updateUser({
+              data: { full_name: formData.full_name.trim() },
+            })
+          } catch (authErr) {
+            console.warn("Não foi possível sincronizar o nome no auth metadata:", authErr)
+          }
+        }
+      }
+
+      if (isSingleSectionMode) {
+        toast.success("Informações atualizadas com sucesso!")
+        await onSuccess()
+        onOpenChange(false)
+        return
+      }
+
+      if (isLastStep) {
+        toast.success("Cadastro completo concluído com sucesso!")
+        await onSuccess()
+        onOpenChange(false)
+      } else {
+        // Transição instantânea e automática para a próxima categoria
+        setErrors({})
+        setCurrentStepIndex((prev) => prev + 1)
+        toast.success(`${currentStep.shortLabel} salvo com sucesso!`)
+      }
     } catch (err) {
-      console.error("Erro ao salvar cadastro completo:", err)
+      console.error("Erro ao salvar seção:", err)
       toast.error("Erro ao salvar as informações. Tente novamente.")
     } finally {
       setSaving(false)
     }
   }
 
+  const handlePrevStep = () => {
+    if (currentStepIndex > 0) {
+      setErrors({})
+      setCurrentStepIndex((prev) => prev - 1)
+    }
+  }
+
+  const CurrentIcon = currentStep.icon
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg" className="max-h-[90dvh] overflow-y-auto rounded-3xl border-border/60 bg-card/95 p-5 backdrop-blur-xl sm:p-7">
-        <DialogHeader className="text-left space-y-1.5 pb-2 border-b border-border/40">
-          <div className="flex items-center gap-2 text-primary">
-            <CheckCircle2Icon className="size-5 shrink-0" />
-            <DialogTitle className="text-xl sm:text-2xl font-bold">
-              Completar Informações de Cadastro
-            </DialogTitle>
-          </div>
-          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-            Para desfrutar plenamente da comunhão e das ferramentas da Igreja em BH, precisamos que você complete os dados obrigatórios pendentes.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent
+        size="lg"
+        showCloseButton={isSingleSectionMode}
+        onPointerDownOutside={(e) => {
+          if (!isSingleSectionMode) e.preventDefault()
+        }}
+        onEscapeKeyDown={(e) => {
+          if (!isSingleSectionMode) e.preventDefault()
+        }}
+        className="max-h-[92dvh] flex flex-col p-0 overflow-hidden rounded-3xl border-border/60 bg-card/95 backdrop-blur-xl"
+      >
+        {/* Header fixo com Stepper Incremental */}
+        <div className="shrink-0 p-5 pb-3 border-b border-border/40 space-y-3">
+          <DialogHeader className="text-left space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-primary">
+                <CheckCircle2Icon className="size-5 shrink-0" />
+                <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight">
+                  {isSingleSectionMode ? `Editar ${currentStep.label}` : "Dados Obrigatórios de Cadastro"}
+                </DialogTitle>
+              </div>
 
-        <div className="space-y-6 py-4">
-          {/* Seção: Dados Pessoais */}
-          <div className="space-y-3 rounded-2xl border border-border/50 bg-muted/20 p-4">
-            <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-              <UserIcon className="size-4 text-primary" />
-              <span>Dados Pessoais</span>
-              {hasMissingPersonal && (
-                <span className="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  Pendente
-                </span>
+              {!isSingleSectionMode && (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <span>Passo {currentStepIndex + 1} de {STEPS.length}</span>
+                </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field data-invalid={!!errors.birth_date}>
-                <FieldLabel htmlFor="complete-birthdate">Data de Nascimento*</FieldLabel>
-                <Input
-                  id="complete-birthdate"
-                  type="date"
-                  value={formData.birth_date}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, birth_date: e.target.value }))
-                  }
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.birth_date && <FieldError>{errors.birth_date}</FieldError>}
-              </Field>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+              {isSingleSectionMode
+                ? currentStep.description
+                : `Preenchimento incremental obrigatório. Categoria ${currentStepIndex + 1}: ${currentStep.label}.`}
+            </DialogDescription>
+          </DialogHeader>
 
-              <Field data-invalid={!!errors.gender}>
-                <FieldLabel>Gênero*</FieldLabel>
-                <CardSelector
-                  value={formData.gender}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, gender: normalizeGender(val) }))
-                  }
-                  columns={2}
-                >
-                  <CardSelectorItem value="masculino" label="Masculino" />
-                  <CardSelectorItem value="feminino" label="Feminino" />
-                </CardSelector>
-                {errors.gender && <FieldError>{errors.gender}</FieldError>}
-              </Field>
+          {/* Stepper visual (Passos 1 a 4) - Sem opção de pular */}
+          {!isSingleSectionMode && (
+            <div className="pt-1">
+              <div className="grid grid-cols-4 gap-2">
+                {STEPS.map((step, idx) => {
+                  const isCompleted = idx < currentStepIndex
+                  const isCurrent = idx === currentStepIndex
+                  const StepIcon = step.icon
 
-              <div className="sm:col-span-2">
-                <Field data-invalid={!!errors.marital_status}>
-                  <FieldLabel>Estado Civil*</FieldLabel>
-                  <CardSelector
-                    value={formData.marital_status}
-                    onValueChange={(val) =>
-                      setFormData((prev) => ({ ...prev, marital_status: normalizeMaritalStatus(val) }))
-                    }
-                    columns={2}
-                    className="sm:grid-cols-4"
-                  >
-                    <CardSelectorItem value="solteiro" label="Solteiro(a)" />
-                    <CardSelectorItem value="casado" label="Casado(a)" />
-                    <CardSelectorItem value="divorciado" label="Divorciado(a)" />
-                    <CardSelectorItem value="viuvo" label="Viúvo(a)" />
-                  </CardSelector>
-                  {errors.marital_status && <FieldError>{errors.marital_status}</FieldError>}
-                </Field>
+                  return (
+                    <div
+                      key={step.key}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 p-2 rounded-xl text-center transition-all select-none",
+                        isCurrent
+                          ? "bg-primary/15 text-primary border border-primary/30 font-semibold"
+                          : isCompleted
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium"
+                          : "bg-muted/30 text-muted-foreground border border-border/30 opacity-60"
+                      )}
+                    >
+                      <div className="flex items-center gap-1 text-xs font-semibold">
+                        {isCompleted ? (
+                          <CheckIcon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <StepIcon className="size-3.5 shrink-0" />
+                        )}
+                        <span className="hidden sm:inline">{step.shortLabel}</span>
+                        <span className="sm:hidden">{idx + 1}</span>
+                      </div>
+                      <div className="w-full h-1 rounded-full bg-border/40 overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full transition-all duration-300",
+                            isCompleted
+                              ? "w-full bg-emerald-500"
+                              : isCurrent
+                              ? "w-full bg-primary"
+                              : "w-0"
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
+          )}
+        </div>
+
+        {/* Corpo do formulário: Uma categoria de cada vez */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/20 p-3.5">
+            <div className="flex items-center gap-2.5">
+              <CurrentIcon className="size-5 text-primary shrink-0" />
+              <div>
+                <h3 className="font-semibold text-sm text-foreground">
+                  {isSingleSectionMode ? currentStep.label : `Passo ${currentStepIndex + 1}: ${currentStep.label}`}
+                </h3>
+                <p className="text-xs text-muted-foreground">{currentStep.description}</p>
+              </div>
+            </div>
+            {isSectionComplete(formData, currentStep.key) && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <CheckIcon className="size-3.5" />
+                Preenchido
+              </span>
+            )}
           </div>
 
-          {/* Seção: Contato */}
-          <div className="space-y-3 rounded-2xl border border-border/50 bg-muted/20 p-4">
-            <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-              <PhoneIcon className="size-4 text-primary" />
-              <span>Contato</span>
-              {hasMissingContact && (
-                <span className="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  Pendente
-                </span>
-              )}
-            </div>
-
-            <Field data-invalid={!!errors.phone}>
-              <FieldLabel htmlFor="complete-phone">Telefone Celular / WhatsApp*</FieldLabel>
-              <Input
-                id="complete-phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    phone: formatPhone(e.target.value),
-                  }))
-                }
-                placeholder="(31) 98888-7777"
-                maxLength={20}
-                className="min-h-[44px] rounded-xl"
+          <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-5">
+            {currentStep.key === "personal" && (
+              <PersonalFormSection
+                values={{
+                  full_name: formData.full_name,
+                  cpf: formData.cpf,
+                  birth_date: formData.birth_date,
+                  gender: formData.gender,
+                  marital_status: formData.marital_status,
+                }}
+                onChange={(field, val) => handleFieldChange(field, val)}
+                errors={errors}
+                disabled={saving}
+                showRequiredMarks
               />
-              {errors.phone && <FieldError>{errors.phone}</FieldError>}
-            </Field>
-          </div>
+            )}
 
-          {/* Seção: Endereço */}
-          <div className="space-y-3 rounded-2xl border border-border/50 bg-muted/20 p-4">
-            <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-              <MapPinIcon className="size-4 text-primary" />
-              <span>Endereço Residencial</span>
-              {hasMissingAddress && (
-                <span className="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  Pendente
-                </span>
-              )}
-            </div>
+            {currentStep.key === "contact" && (
+              <ContactFormSection
+                values={{ phone: formData.phone }}
+                onChange={(field, val) => handleFieldChange(field, val)}
+                errors={errors}
+                disabled={saving}
+                showRequiredMarks
+              />
+            )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Field data-invalid={!!errors.address_zip_code}>
-                <FieldLabel htmlFor="complete-cep">CEP*</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="complete-cep"
-                    value={formData.address_zip_code}
-                    onChange={(e) => handleZipChange(e.target.value)}
-                    placeholder="00000-000"
-                    maxLength={9}
-                    className="min-h-[44px] rounded-xl"
-                  />
-                  <InputGroupAddon align="inline-end">
-                    {searchingCep ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    ) : (
-                      <SearchIcon className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </InputGroupAddon>
-                </InputGroup>
-                {errors.address_zip_code && (
-                  <FieldError>{errors.address_zip_code}</FieldError>
-                )}
-              </Field>
+            {currentStep.key === "address" && (
+              <AddressFormSection
+                values={{
+                  address_zip_code: formData.address_zip_code,
+                  address_street: formData.address_street,
+                  address_number: formData.address_number,
+                  address_neighborhood: formData.address_neighborhood,
+                  address_complement: formData.address_complement,
+                  address_city: formData.address_city,
+                  address_state: formData.address_state,
+                }}
+                onChange={(field, val) => handleFieldChange(field, val)}
+                onBulkChange={handleBulkChange}
+                errors={errors}
+                disabled={saving}
+                showRequiredMarks
+              />
+            )}
 
-              <div className="sm:col-span-2">
-                <Field data-invalid={!!errors.address_street}>
-                  <FieldLabel htmlFor="complete-street">Rua / Logradouro*</FieldLabel>
-                  <Input
-                    id="complete-street"
-                    value={formData.address_street}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        address_street: e.target.value,
-                      }))
-                    }
-                    placeholder="Rua ou Avenida"
-                    className="min-h-[44px] rounded-xl"
-                  />
-                  {errors.address_street && (
-                    <FieldError>{errors.address_street}</FieldError>
-                  )}
-                </Field>
-              </div>
-
-              <Field data-invalid={!!errors.address_number}>
-                <FieldLabel htmlFor="complete-number">Número*</FieldLabel>
-                <Input
-                  id="complete-number"
-                  value={formData.address_number}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address_number: e.target.value,
-                    }))
-                  }
-                  placeholder="123"
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.address_number && (
-                  <FieldError>{errors.address_number}</FieldError>
-                )}
-              </Field>
-
-              <Field data-invalid={!!errors.address_neighborhood}>
-                <FieldLabel htmlFor="complete-neighborhood">Bairro*</FieldLabel>
-                <Input
-                  id="complete-neighborhood"
-                  value={formData.address_neighborhood}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address_neighborhood: e.target.value,
-                    }))
-                  }
-                  placeholder="Bairro"
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.address_neighborhood && (
-                  <FieldError>{errors.address_neighborhood}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="complete-complement">Complemento</FieldLabel>
-                <Input
-                  id="complete-complement"
-                  value={formData.address_complement}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address_complement: e.target.value,
-                    }))
-                  }
-                  placeholder="Apto, Bloco..."
-                  className="min-h-[44px] rounded-xl"
-                />
-              </Field>
-
-              <Field data-invalid={!!errors.address_city}>
-                <FieldLabel htmlFor="complete-city">Cidade*</FieldLabel>
-                <Input
-                  id="complete-city"
-                  value={formData.address_city}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address_city: e.target.value,
-                    }))
-                  }
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.address_city && <FieldError>{errors.address_city}</FieldError>}
-              </Field>
-
-              <Field data-invalid={!!errors.address_state}>
-                <FieldLabel htmlFor="complete-state">Estado*</FieldLabel>
-                <Input
-                  id="complete-state"
-                  value={formData.address_state}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address_state: e.target.value.toUpperCase(),
-                    }))
-                  }
-                  maxLength={2}
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.address_state && (
-                  <FieldError>{errors.address_state}</FieldError>
-                )}
-              </Field>
-            </div>
-          </div>
-
-          {/* Seção: Informações Socioeconômicas */}
-          <div className="space-y-4 rounded-2xl border border-border/50 bg-muted/20 p-4">
-            <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-              <ShieldIcon className="size-4 text-primary" />
-              <span>Informações Socioeconômicas</span>
-              {hasMissingSocio && (
-                <span className="ml-auto rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  Pendente
-                </span>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field data-invalid={!!errors.occupation}>
-                <FieldLabel htmlFor="complete-occupation">Profissão*</FieldLabel>
-                <Input
-                  id="complete-occupation"
-                  value={formData.occupation}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      occupation: e.target.value,
-                    }))
-                  }
-                  placeholder="Sua profissão"
-                  className="min-h-[44px] rounded-xl"
-                />
-                {errors.occupation && <FieldError>{errors.occupation}</FieldError>}
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="complete-dependents">Número de Dependentes*</FieldLabel>
-                <Input
-                  id="complete-dependents"
-                  type="number"
-                  min="0"
-                  value={formData.dependents_count}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      dependents_count: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  className="min-h-[44px] rounded-xl"
-                />
-              </Field>
-
-              <div className="sm:col-span-2 space-y-1.5">
-                <FieldLabel>Escolaridade*</FieldLabel>
-                <CardSelector
-                  value={formData.education_level}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, education_level: val }))
-                  }
-                  columns={1}
-                >
-                  {[
-                    "Fundamental Incompleto",
-                    "Fundamental Completo",
-                    "Médio Incompleto",
-                    "Médio Completo",
-                    "Superior Incompleto",
-                    "Superior Completo",
-                    "Pós-graduação",
-                  ].map((opt) => (
-                    <CardSelectorItem key={opt} value={opt} label={opt} />
-                  ))}
-                </CardSelector>
-              </div>
-
-              <div className="sm:col-span-2 space-y-1.5">
-                <FieldLabel>Vínculo Empregatício*</FieldLabel>
-                <CardSelector
-                  value={formData.employment_status}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, employment_status: val }))
-                  }
-                  columns={1}
-                  className="sm:grid-cols-2"
-                >
-                  {[
-                    "CLT",
-                    "Autônomo/PJ",
-                    "Empreendedor",
-                    "Desempregado",
-                    "Aposentado",
-                    "Estudante",
-                  ].map((opt) => (
-                    <CardSelectorItem key={opt} value={opt} label={opt} />
-                  ))}
-                </CardSelector>
-              </div>
-
-              <div className="space-y-1.5">
-                <FieldLabel>Situação de Moradia*</FieldLabel>
-                <CardSelector
-                  value={formData.housing_status}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, housing_status: val }))
-                  }
-                  columns={1}
-                >
-                  {["Própria", "Alugada", "Cedida/Parentes", "Financiada"].map(
-                    (opt) => (
-                      <CardSelectorItem key={opt} value={opt} label={opt} />
-                    )
-                  )}
-                </CardSelector>
-              </div>
-
-              <div className="space-y-1.5">
-                <FieldLabel>Renda Familiar*</FieldLabel>
-                <CardSelector
-                  value={formData.household_income}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, household_income: val }))
-                  }
-                  columns={1}
-                >
-                  {[
-                    "Até 1 SM",
-                    "1 a 3 SM",
-                    "3 a 5 SM",
-                    "Acima de 5 SM",
-                    "Prefiro não informar",
-                  ].map((opt) => (
-                    <CardSelectorItem key={opt} value={opt} label={opt} />
-                  ))}
-                </CardSelector>
-              </div>
-
-              <div className="sm:col-span-2 space-y-1.5">
-                <FieldLabel>Categoria CNH*</FieldLabel>
-                <CardSelector
-                  value={formData.drivers_license}
-                  onValueChange={(val) =>
-                    setFormData((prev) => ({ ...prev, drivers_license: val }))
-                  }
-                  columns={2}
-                  className="sm:grid-cols-4"
-                >
-                  {["Não possui", "A", "B", "AB", "C", "D", "E"].map((opt) => (
-                    <CardSelectorItem key={opt} value={opt} label={opt} />
-                  ))}
-                </CardSelector>
-              </div>
-            </div>
+            {currentStep.key === "socio" && (
+              <SocioEconomicFormSection
+                values={{
+                  occupation: formData.occupation,
+                  education_level: formData.education_level,
+                  employment_status: formData.employment_status,
+                  housing_status: formData.housing_status,
+                  household_income: formData.household_income,
+                  dependents_count: formData.dependents_count,
+                  drivers_license: formData.drivers_license,
+                }}
+                onChange={(field, val) => handleFieldChange(field, val)}
+                errors={errors}
+                disabled={saving}
+                showRequiredMarks
+              />
+            )}
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/40">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className="min-h-[44px] rounded-xl"
-          >
-            Preencher Mais Tarde
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="min-h-[44px] gap-2 rounded-xl font-bold shadow-lg shadow-primary/20"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                <CheckCircle2Icon className="size-4" />
-                Salvar Informações
-              </>
-            )}
-          </Button>
+        {/* Footer com controle estrito: Voltar e Avançar/Concluir (Sem "Preencher mais tarde") */}
+        <DialogFooter className="shrink-0 p-4 sm:p-5 border-t border-border/40 flex-row items-center justify-between gap-3 bg-card/60">
+          {isSingleSectionMode ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={saving}
+                className="min-h-[44px] rounded-xl"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleStepSubmit}
+                disabled={saving}
+                className="min-h-[44px] gap-2 rounded-xl font-bold shadow-lg shadow-primary/20"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2Icon className="size-4" />
+                    Salvar Alterações
+                  </>
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              {!isFirstStep ? (
+                <Button
+                  variant="outline"
+                  onClick={handlePrevStep}
+                  disabled={saving}
+                  className="min-h-[44px] gap-1.5 rounded-xl font-medium"
+                >
+                  <ArrowLeftIcon className="size-4" />
+                  Voltar
+                </Button>
+              ) : (
+                <div className="text-xs text-muted-foreground italic px-2">
+                  Passo 1 de 4 obrigatório
+                </div>
+              )}
+
+              <Button
+                onClick={handleStepSubmit}
+                disabled={saving}
+                className="min-h-[44px] gap-2 rounded-xl font-bold shadow-lg shadow-primary/20 ml-auto"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : isLastStep ? (
+                  <>
+                    <CheckCircle2Icon className="size-4" />
+                    Concluir Cadastro
+                  </>
+                ) : (
+                  <>
+                    Salvar e Continuar
+                    <ArrowRightIcon className="size-4" />
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
