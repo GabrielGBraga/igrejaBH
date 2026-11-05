@@ -5,9 +5,6 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon, 
     YoutubeIcon, 
-    FileTextIcon, 
-    DownloadIcon, 
-    EyeIcon, 
     PencilIcon, 
     StickyNoteIcon,
     PlayIcon,
@@ -18,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MarkdownViewer } from "./MarkdownViewer";
+import { PdfViewer } from "./PdfViewer";
 import { TextEditor } from "@/components/TextEditor";
 import type { Database } from "@/lib/database.types";
 
@@ -171,30 +169,12 @@ export function StudyLessonModal({
 
         if (resObj.type === "pdf") {
             return (
-                <div className="w-full shrink-0 bg-card/40 border border-border/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 sm:p-10 text-center min-h-[280px]">
-                    <div className="w-16 h-16 rounded-2xl border border-primary/20 bg-primary/10 flex items-center justify-center mb-3 text-primary">
-                        <FileTextIcon className="h-8 w-8" />
-                    </div>
-                    <h5 className="font-bold text-base sm:text-lg mb-1 text-foreground">
-                        Apostila / Documento PDF
-                    </h5>
-                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mb-5 leading-relaxed">
-                        Abra o material de apoio para acompanhar a leitura junto com suas anotações pessoais.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto justify-center">
-                        <a href={resObj.url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                            <Button className="btn-tactile rounded-xl gap-2 w-full px-5 min-h-[44px] shadow-2xs cursor-pointer">
-                                <EyeIcon className="h-4 w-4" />
-                                Visualizar PDF
-                            </Button>
-                        </a>
-                        <a href={resObj.url} download className="w-full sm:w-auto">
-                            <Button variant="outline" className="rounded-xl gap-2 w-full px-5 min-h-[44px] border-border/60 cursor-pointer">
-                                <DownloadIcon className="h-4 w-4" />
-                                Baixar Arquivo
-                            </Button>
-                        </a>
-                    </div>
+                <div className="w-full shrink-0">
+                    <PdfViewer
+                        url={resObj.url}
+                        title={resObj.title}
+                        minHeight={isSideBySideNotesOpen ? "min-h-[440px] lg:h-[62vh]" : "min-h-[500px] sm:min-h-[640px]"}
+                    />
                 </div>
             );
         }

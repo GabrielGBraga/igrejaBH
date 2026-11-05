@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BookOpenIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { isHtmlContent, sanitizeHtmlContent } from "@/lib/markdownUtils";
 
 interface MarkdownViewerProps {
     url?: string;
@@ -30,7 +31,7 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
                     setContent(text);
                 }
             } catch (err) {
-                console.error("Error loading markdown:", err);
+                console.error("Error loading markdown / html:", err);
                 if (isMounted) {
                     setContent("Não foi possível carregar o conteúdo deste texto.");
                 }
@@ -67,6 +68,37 @@ export function MarkdownViewer({ url, content: directContent }: MarkdownViewerPr
         }
     }
 
+    // 1. If content is rich HTML (or imported from external converter), render sanitized HTML directly
+    if (isHtmlContent(markdownBody)) {
+        const cleanHtml = sanitizeHtmlContent(markdownBody);
+        return (
+            <div className="space-y-4 text-foreground leading-relaxed font-sans max-h-[65vh] overflow-y-auto pr-3 scrollbar-thin">
+                <style>{`
+                    .prose-study h1 { font-size: 1.5rem; font-weight: 800; color: inherit; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.375rem; }
+                    .prose-study h2 { font-size: 1.25rem; font-weight: 700; color: inherit; margin-top: 1.35rem; margin-bottom: 0.5rem; }
+                    .prose-study h3 { font-size: 1.1rem; font-weight: 600; color: inherit; margin-top: 1.15rem; margin-bottom: 0.35rem; }
+                    .prose-study h4, .prose-study h5, .prose-study h6 { font-size: 0.95rem; font-weight: 600; color: inherit; opacity: 0.75; margin-top: 1rem; margin-bottom: 0.25rem; }
+                    .prose-study p { font-size: 0.875rem; line-height: 1.65; color: inherit; opacity: 0.9; margin-bottom: 0.85rem; }
+                    .prose-study blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem; margin: 1rem 0; font-style: italic; color: inherit; opacity: 0.85; background-color: color-mix(in srgb, var(--muted) 25%, transparent); border-radius: 0 0.5rem 0.5rem 0; }
+                    .prose-study ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.85rem; }
+                    .prose-study ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.85rem; }
+                    .prose-study li { font-size: 0.875rem; color: inherit; opacity: 0.9; margin-top: 0.25rem; }
+                    .prose-study table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+                    .prose-study th { background-color: var(--muted); border: 1px solid var(--border); padding: 0.5rem 0.75rem; font-weight: 600; text-align: left; }
+                    .prose-study td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; opacity: 0.9; }
+                    .prose-study code { font-family: monospace; font-size: 0.825rem; background-color: var(--muted); padding: 0.125rem 0.35rem; border-radius: 0.25rem; border: 1px solid var(--border); }
+                    .prose-study a { color: var(--primary); text-decoration: underline; font-weight: 500; }
+                    .prose-study .blockquote-badge { display: inline-flex; align-items: center; gap: 0.375rem; color: var(--primary); font-weight: 600; font-size: 0.75rem; margin-bottom: 0.5rem; user-select: none; font-style: normal; }
+                `}</style>
+                <div 
+                    className="prose-study"
+                    dangerouslySetInnerHTML={{ __html: cleanHtml }}
+                />
+            </div>
+        );
+    }
+
+    // 2. Otherwise, parse as standard line-by-line Markdown
     const lines = markdownBody.split("\n");
     let insideCode = false;
 

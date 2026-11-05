@@ -199,7 +199,7 @@ export function AddResourceModal({
                                             <SelectItem value="markdown">
                                                 <div className="flex items-center gap-2">
                                                     <BookOpenIcon className="h-4 w-4 text-primary" />
-                                                    <span>Texto / Leitura (Markdown .md)</span>
+                                                    <span>Texto / Leitura (HTML ou Markdown)</span>
                                                 </div>
                                             </SelectItem>
                                         </SelectContent>
@@ -257,13 +257,13 @@ export function AddResourceModal({
                                     <p className="text-xs text-muted-foreground mb-3">
                                         {resourceType === "pdf"
                                             ? "Selecione um arquivo PDF para anexar à plataforma."
-                                            : "Selecione um arquivo Markdown (.md) com a leitura estruturada."}
+                                            : "Selecione um arquivo HTML (.html) ou Markdown (.md) estruturado."}
                                     </p>
                                     <Input
                                         id="res-file"
                                         type="file"
                                         ref={fileInputRef}
-                                        accept={resourceType === "pdf" ? ".pdf" : ".md,.markdown"}
+                                        accept={resourceType === "pdf" ? ".pdf" : ".html,.htm,.md,.markdown"}
                                         onChange={(e) => {
                                             const files = e.target.files;
                                             if (files && files.length > 0) {

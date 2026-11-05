@@ -1,5 +1,6 @@
 /**
  * Bidirectional parsing helpers: Markdown <-> HTML
+ * Supports semantic HTML imported from external converters as well as standard Markdown.
  */
 
 export function escapeHtml(text: string): string {
@@ -9,6 +10,152 @@ export function escapeHtml(text: string): string {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+/**
+ * Checks whether the given string is primarily structured HTML content
+ */
+export function isHtmlContent(content: string): boolean {
+    if (!content) return false;
+    const trimmed = content.trim();
+    if (
+        trimmed.startsWith("<!DOCTYPE") || 
+        trimmed.startsWith("<html") || 
+        trimmed.startsWith("<body") ||
+        trimmed.startsWith("<?xml")
+    ) {
+        return true;
+    }
+
+    // Check for typical HTML opening or block tags
+    const htmlTagPattern = /<\s*(p|div|h[1-6]|table|thead|tbody|tr|td|th|ul|ol|li|blockquote|section|article|span|pre|code|hr|figure|figcaption)[^>]*>/i;
+    return htmlTagPattern.test(trimmed);
+}
+
+/**
+ * Strips dangerous tags/attributes and cleans styles for theme & mobile compatibility
+ */
+export function sanitizeHtmlContent(html: string): string {
+    if (typeof window === "undefined" || !html) {
+        return html || "";
+    }
+
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // 1. Remove dangerous or non-content tags
+        const unsafeTags = [
+            "script", "style", "iframe", "object", "embed", "applet", 
+            "meta", "link", "form", "input", "button", "textarea", "select"
+        ];
+        unsafeTags.forEach(tag => {
+            const elements = doc.querySelectorAll(tag);
+            elements.forEach(el => el.remove());
+        });
+
+        // 2. Clean attributes on all remaining elements
+        const allElements = doc.querySelectorAll("*");
+        allElements.forEach(el => {
+            const attrs = Array.from(el.attributes);
+            for (const attr of attrs) {
+                const name = attr.name.toLowerCase();
+                const value = attr.value.trim().toLowerCase();
+
+                // Remove inline JS event handlers
+                if (name.startsWith("on")) {
+                    el.removeAttribute(attr.name);
+                    continue;
+                }
+
+                // Remove javascript: URIs
+                if ((name === "href" || name === "src" || name === "action") && value.startsWith("javascript:")) {
+                    el.removeAttribute(attr.name);
+                    continue;
+                }
+            }
+
+            // Clean inline styles that clash with dark/light theme (e.g. background: white; color: black)
+            if (el.hasAttribute("style")) {
+                const style = el.getAttribute("style") || "";
+                const cleanedStyle = style
+                    .replace(/color\s*:[^;]+;?/gi, "")
+                    .replace(/background(-color)?\s*:[^;]+;?/gi, "")
+                    .replace(/font-family\s*:[^;]+;?/gi, "")
+                    .replace(/font-size\s*:[^;]+;?/gi, "")
+                    .trim();
+
+                if (cleanedStyle) {
+                    el.setAttribute("style", cleanedStyle);
+                } else {
+                    el.removeAttribute("style");
+                }
+            }
+
+            // Secure links
+            if (el.tagName === "A") {
+                el.setAttribute("target", "_blank");
+                el.setAttribute("rel", "noopener noreferrer");
+                el.classList.add("text-primary", "hover:underline", "font-medium");
+            }
+        });
+
+        // 3. Make tables responsive by wrapping them in overflow-x-auto container
+        const tables = doc.querySelectorAll("table");
+        tables.forEach(table => {
+            table.classList.add("w-full", "border-collapse", "text-sm");
+            const parent = table.parentElement;
+            if (!parent || !parent.classList.contains("overflow-x-auto")) {
+                const wrapper = doc.createElement("div");
+                wrapper.className = "overflow-x-auto my-4 max-w-full rounded-xl border border-border/70";
+                table.parentNode?.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            }
+        });
+
+        // 4. Enhance Bible markers in blockquotes if present
+        const blockquotes = doc.querySelectorAll("blockquote");
+        blockquotes.forEach(bq => {
+            const text = bq.textContent || "";
+            if (text.includes("!bible") || text.includes("!bíblia")) {
+                bq.innerHTML = bq.innerHTML
+                    .replace(/!bible/gi, "")
+                    .replace(/!bíblia/gi, "");
+
+                const badge = doc.createElement("div");
+                badge.className = "blockquote-badge inline-flex items-center gap-1.5 text-primary font-semibold text-xs mb-2 not-italic select-none";
+                badge.innerHTML = "<span>📖 Texto Bíblico</span>";
+                bq.insertBefore(badge, bq.firstChild);
+            }
+        });
+
+        return doc.body.innerHTML || "<p><br></p>";
+    } catch (e) {
+        console.error("Error sanitizing HTML content:", e);
+        return html;
+    }
+}
+
+/**
+ * Format HTML with clean indentation and newlines for source-code editing
+ */
+export function formatHtmlForEditor(html: string): string {
+    if (!html) return "";
+    const formatted = html
+        .replace(/>\s*</g, ">\n<")
+        .replace(/(<p[^>]*>)/gi, "\n$1")
+        .replace(/(<h[1-6][^>]*>)/gi, "\n\n$1")
+        .replace(/(<\/h[1-6]>)/gi, "$1\n")
+        .replace(/(<blockquote[^>]*>)/gi, "\n$1")
+        .replace(/(<\/blockquote>)/gi, "$1\n")
+        .replace(/(<table[^>]*>)/gi, "\n\n$1")
+        .replace(/(<\/table>)/gi, "$1\n\n")
+        .replace(/(<ul[^>]*>|<ol[^>]*>)/gi, "\n$1")
+        .replace(/(<\/ul>|<\/ol>)/gi, "$1\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    return formatted;
 }
 
 export function parseInlineMarkdownToHtml(text: string): string {
@@ -32,9 +179,10 @@ export function parseInlineMarkdownToHtml(text: string): string {
 }
 
 export function markdownToHtml(markdown: string): string {
-    let html = "";
+    if (!markdown) return "<p><br></p>";
+
     let markdownBody = markdown;
-    let frontmatterContent = "";
+    let frontmatterHtml = "";
 
     // Normalize line endings
     const normalizedMarkdown = markdown.replace(/\r\n/g, "\n");
@@ -43,24 +191,28 @@ export function markdownToHtml(markdown: string): string {
     if (normalizedMarkdown.startsWith("---")) {
         const secondDashIndex = normalizedMarkdown.indexOf("\n---", 3);
         if (secondDashIndex !== -1) {
-            frontmatterContent = normalizedMarkdown.slice(0, secondDashIndex + 4);
+            const frontmatterContent = normalizedMarkdown.slice(0, secondDashIndex + 4);
             markdownBody = normalizedMarkdown.slice(secondDashIndex + 4);
+
+            const fmLines = frontmatterContent
+                .split("\n")
+                .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
+                .map(l => escapeHtml(l.trimEnd()))
+                .join("<br>");
+
+            frontmatterHtml = `<div class="editor-properties-block" contenteditable="false">
+                <div class="properties-header">Propriedades / Metadados (Não editável)</div>
+                <div class="properties-body">${fmLines}</div>
+            </div>`;
         }
     }
 
-    if (frontmatterContent) {
-        const fmLines = frontmatterContent
-            .split("\n")
-            .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
-            .map(l => escapeHtml(l.trimEnd()))
-            .join("<br>");
-        
-        html += `<div class="editor-properties-block" contenteditable="false">
-            <div class="properties-header">Propriedades / Metadados (Não editável)</div>
-            <div class="properties-body">${fmLines}</div>
-        </div>`;
+    // If the body is already rich HTML, sanitize and return directly
+    if (isHtmlContent(markdownBody)) {
+        return frontmatterHtml + sanitizeHtmlContent(markdownBody);
     }
 
+    let html = frontmatterHtml;
     const lines = markdownBody.split("\n");
     let insideBlockquote = false;
 
@@ -165,9 +317,11 @@ export function markdownToHtml(markdown: string): string {
 }
 
 export function htmlToMarkdown(html: string): string {
+    if (!html) return "";
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     
+    // If the HTML contains tables, preserve clean HTML blocks
     const markdown = serializeElementToMarkdown(tempDiv);
     return markdown.replace(/\n{3,}/g, "\n\n").trim();
 }
@@ -243,6 +397,20 @@ function serializeElementToMarkdown(node: Node): string {
         }
         case "BR":
             return "\n";
+        case "HR":
+            return "\n\n---\n\n";
+        case "TABLE":
+            // Preserve table HTML directly as markdown natively supports embedded HTML tables
+            return `\n\n${element.outerHTML}\n\n`;
+        case "PRE":
+            return `\n\n\`\`\`\n${element.textContent || ""}\n\`\`\`\n\n`;
+        case "CODE":
+            return `\`${element.textContent || ""}\``;
+        case "IMG": {
+            const alt = element.getAttribute("alt") || "";
+            const src = element.getAttribute("src") || "";
+            return `![${alt}](${src})`;
+        }
         case "DIV":
             if (element.classList.contains("editor-blockquote")) {
                 return `\n> ${childrenMarkdown.trim().split("\n").join("\n> ")}\n`;
